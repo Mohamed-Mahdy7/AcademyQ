@@ -1,11 +1,8 @@
 from django.db import transaction
 from django.contrib.auth.backends import ModelBackend
-from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer 
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import serializers
-
-from Backend import academy_q
 from .models import Academy, User
 
 User=get_user_model()
@@ -17,8 +14,8 @@ class AcademyRegistrationSerializer(serializers.Serializer):
     full_name = serializers.CharField(max_length=100)
     email = serializers.EmailField()
     phone = serializers.CharField(max_length=20)
-    password = serializers.CharField(write_only=True)
-    confirm_password = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True, style={'input_type': 'password'})
+    confirm_password = serializers.CharField(write_only=True, style={'input_type': 'password'})
 
     def validate(self, attrs):
         if (attrs["password"] != attrs["confirm_password"]):
@@ -81,19 +78,14 @@ class CustomeTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
         data.update({
-            "id": self.user.id,
             "full_name": self.user.full_name,
             "email": self.user.email,
             "phone": self.user.phone,
             "role": self.user.role,
-            'academy_id': (
-                self.user.academy.name
-                if self.user.academy
-                else None
-            ),
             "academy_name": (
                 self.user.academy.name
                 if self.user.academy
                 else None
             ),
         })
+        return data

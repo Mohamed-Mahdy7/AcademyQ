@@ -6,11 +6,13 @@ from rest_framework import status, generics
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenViewBase,\
     TokenObtainPairView
+from rest_framework.permissions import AllowAny
 from .serializers import CustomeTokenObtainPairSerializer, AcademyRegistrationSerializer
 
 User = get_user_model
 
 class RegisterView(generics.CreateAPIView):
+    permission_classes = [AllowAny]
     serializer_class = AcademyRegistrationSerializer
     
     def perform_create(self, serializer):
@@ -60,6 +62,7 @@ class RegisterView(generics.CreateAPIView):
         return response
 
 class LoginView(TokenObtainPairView):
+    permission_classes = [AllowAny]
     serializer_class = CustomeTokenObtainPairSerializer
     
     def post(self, request, *args, **kwargs):
