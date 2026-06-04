@@ -70,3 +70,38 @@ class Class(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class TeacherClass(models.Model):
+    id = models.UUIDField(
+        primary_key = True,
+        default = uuid.uuid4,
+        editable = False
+    )
+    assigned_class = models.ForeignKey(
+        "Class",
+        on_delete=models.CASCADE,
+        related_name="teacher_class",
+    )
+    teacher = models.ForeignKey(
+        "Teacher",
+        on_delete=models.CASCADE,
+        related_name="teacher_class",
+    )
+    assigned_at = models.DateField()
+
+    class Meta:
+        db_table = "teacher_classes"
+        verbose_name = "Teacher Class"
+        verbose_name_plural = "Teacher Classes"
+        ordering = ["assigned_class", "teacher", "assigned_at"]
+
+        constraints = [
+            models.UniqueConstraint(
+                fields = ["assigned_class", "teacher"],
+                name = "unique_teacher_per_class",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.teacher} - {self.assigned_class.name}"
