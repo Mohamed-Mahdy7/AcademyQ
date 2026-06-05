@@ -5,9 +5,9 @@ from django.db import models
 class Grade(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    Enrollment_id = models.UUIDField( primary_key=False, default=uuid.uuid4, editable=False)
+    enrollment_id = models.ForeignKey('enrollments.Enrollment', on_delete=models.CASCADE, related_name='grades')
 
-    session = models.ForeignKey('sessions.Session', on_delete=models.CASCADE, related_name='grades')
+    session = models.ForeignKey('subjects.Session', on_delete=models.CASCADE, related_name='grades')
 
     subject_name = models.CharField(max_length=255)
 
