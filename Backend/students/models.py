@@ -3,7 +3,7 @@ import uuid
 from core.models import Academy, User
 # Create your models here.
 
-class Student(models.Model):
+class Students(models.Model):
     class Status(models.TextChoices):
         ACTIVE="O", "Active"
         PENDING="A", "Pending"
