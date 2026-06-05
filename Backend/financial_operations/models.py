@@ -38,3 +38,16 @@ class Enrollment(models.Model):
  
     def __str__(self):
         return f"Enrollment {self.id} — Student {self.student_id} in Class {self.class_id}"
+    
+class Payment(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    enrollment_id = models.ForeignKey('Enrollment', on_delete=models.CASCADE, db_column='enrollment_id', related_name='payments')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    paid_on = models.DateField()
+    notes = models.TextField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'payment'
+
+    def __str__(self):
+        return f"Payment {self.id} — Enrollment {self.enrollment_id}"
