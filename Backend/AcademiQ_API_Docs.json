@@ -1,0 +1,1720 @@
+{
+  "meta": {
+    "title": "AcademiQ — Full API Documentation",
+    "team": "Edvora",
+    "base_url": "http://localhost:8000/api",
+    "production_url": "https://api.academiq.app/api",
+    "auth": "JWT Bearer Token — include Authorization: Bearer <access_token> on every protected endpoint",
+    "content_type": "application/json"
+  },
+  "conventions": {
+    "PK": "Primary Key (UUID)",
+    "FK": "Foreign Key",
+    "?": "Optional query parameter",
+    "*": "Required field in request body",
+    "[R]": "Read-only field in response"
+  },
+  "owners": ["Mahdy", "Yahya", "Zahwa", "Yamen", "Nasef"],
+  "sections": [
+    {
+      "id": 1,
+      "title": "Authentication",
+      "owner": "Mahdy",
+      "note": "All auth endpoints are public (no token required).",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/auth/register/",
+          "description": "Creates a new academy_owner record and the first Users record (role = owner) in a single transaction.",
+          "request_body": {
+            "academy_name": {"type": "string","required": true,"example": "Rainbow Academy"},
+            "academy_email": {"type": "string","required": true,"example": "owner@rainbow.com"},
+            "academy_password": {"type": "string","required": true,"example": "securepass123"},
+            "academy_phone": {"type": "string","required": true,"example": "01012345678"},
+            "owner_name": {"type": "string","required": true,"example": "Mohamed Ali"},
+            "owner_phone": {"type": "string","required": true,"example": "01098765432"}
+          },
+          "responses": {
+            "201": {
+              "academy_id": "uuid",
+              "academy_name": "Rainbow Academy",
+              "owner_user_id": "uuid",
+              "access": "eyJhbGci...",
+              "refresh": "eyJhbGci..."
+            }
+          },
+          "frontend": {
+            "component": "RegisterPage",
+            "route": "/register",
+            "notes": "On success: store tokens, redirect to /dashboard."
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/auth/login/",
+          "description": "Authenticates against either academy_owner (owner login) or Users table (staff login). Returns JWT pair.",
+          "request_body": {
+            "email": {"type": "string","required": true,"example": "owner@rainbow.com"},
+            "password": {"type": "string","required": true,"example": "securepass123"}
+          },
+          "responses": {
+            "200": {
+              "access": "eyJhbGci...",
+              "refresh": "eyJhbGci...",
+              "user": {
+                "id": "uuid",
+                "name": "Mohamed Ali",
+                "role": "owner",
+                "academy_id": "uuid",
+                "academy_name": "Rainbow Academy"
+              }
+            },
+            "401": {
+              "detail": "Invalid credentials."
+            }
+          },
+          "frontend": {
+            "component": "LoginPage",
+            "route": "/login",
+            "notes": "On success: store access + refresh in localStorage, store user object in AcademyContext, redirect to /dashboard."
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/auth/token/refresh/",
+          "description": "Returns a new access token using a valid refresh token.",
+          "request_body": {
+            "refresh": {"type": "string","required": true,"example": "eyJhbGci..."}
+          },
+          "responses": {
+            "200": {
+              "access": "eyJhbGci..."
+            },
+            "401": {
+              "detail": "Token is invalid or expired."
+            }
+          },
+          "frontend": {
+            "component": "axiosClient interceptor",
+            "route": "(global)",
+            "notes": "Called automatically by the Axios response interceptor when any request returns 401. If refresh also fails, clears tokens and redirects to /login. Not triggered by a user action."
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/auth/logout/",
+          "description": "Blacklists the refresh token. Requires valid access token.",
+          "request_body": {
+            "refresh": {"type": "string","required": true,"example": "eyJhbGci..."}
+          },
+          "responses": {
+            "205": "Empty body."
+          },
+          "frontend": {
+            "component": "Topbar logout button",
+            "notes": "handleLogout() — clears localStorage tokens, calls this endpoint, redirects to /login."
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Academy Owner",
+      "owner": "Mahdy",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/academy/",
+          "description": "Returns the current academy's profile. Scoped to request.user.academy_id.",
+          "responses": {
+            "200": {
+              "id": "uuid [R]",
+              "academy_name": "Rainbow Academy",
+              "academy_email": "owner@rainbow.com",
+              "academy_phone": "01012345678",
+              "created_at": "2025-09-01T10:00:00Z [R]",
+              "subscription_end": "2026-09-01",
+              "is_active": "true [R]"
+            }
+          },
+          "frontend": {
+            "component": "AcademyContext",
+            "notes": "Called once on app load after login. Also read by DashboardPage for subscription expiry warning banner."
+          }
+        },
+        {
+          "method": "PATCH",
+          "path": "/academy/",
+          "description": "Updates the current academy's profile. Owner role only.",
+          "request_body": {
+            "academy_name": {"type": "string","required": false,"example": "Rainbow Academy Updated"},
+            "academy_phone": {"type": "string","required": false,"example": "01099999999"}
+          },
+          "responses": {
+            "200": "Updated academy object (same shape as GET)."
+          },
+          "frontend": {
+            "component": "SettingsPage",
+            "route": "/settings",
+            "notes": "Academy Profile section. Edit form with save button."
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Users",
+      "owner": "Mahdy",
+      "note": "Covers staff accounts (admin, receptionist). Student and teacher user accounts are created via their own endpoints.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/users/",
+          "description": "Lists all staff users in the academy.",
+          "query_params": {
+            "role": "admin|receptionist",
+            "search": "name_or_email"
+          },
+          "responses": {
+            "200": [
+              {
+                "id": "uuid",
+                "name": "Sara Ahmed",
+                "email": "sara@rainbow.com",
+                "phone": "01011112222",
+                "role": "admin",
+                "is_active": true,
+                "created_at": "2025-09-01T10:00:00Z [R]"
+              }
+            ]
+          },
+          "frontend": {
+            "component": "UsersPage",
+            "route": "/users",
+            "notes": "Staff list table with role badge and status toggle."
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/users/",
+          "description": "Creates a new staff user account.",
+          "request_body": {
+            "name": {"type": "string","required": true,"example": "Sara Ahmed"},
+            "email": {"type": "string","required": true,"example": "sara@rainbow.com"},
+            "password": {"type": "string","required": true,"example": "temppass123"},
+            "phone": {"type": "string","required": false,"example": "01011112222"},
+            "role": {"type": "string","required": true,"enum": ["admin","receptionist"]}
+          },
+          "responses": {
+            "201": "Created user object."
+          },
+          "frontend": {
+            "component": "UsersPage → AddUserModal",
+            "notes": "Form for name, email, temp password, role selector."
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/users/{id}/",
+          "description": "Returns a single user's detail.",
+          "responses": {
+            "200": "Single user object."
+          },
+          "frontend": {
+            "component": "UserDetailModal",
+            "notes": "Opened by clicking a user row in UsersPage."
+          }
+        },
+        {
+          "method": "PATCH",
+          "path": "/users/{id}/",
+          "description": "Updates a user's details. Cannot change email (unique login identifier).",
+          "request_body": {
+            "name": {"type": "string","required": false,"example": "Sara Mohamed"},
+            "phone": {"type": "string","required": false,"example": "01099988877"},
+            "role": {"type": "string","required": false,"example": "receptionist"},
+            "is_active": {"type": "boolean","required": false,"example": false}
+          },
+          "responses": {
+            "200": "Updated user object."
+          },
+          "frontend": {
+            "component": "UserDetailModal edit form",
+            "notes": "Setting is_active: false deactivates the account without deleting it."
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/users/{id}/",
+          "description": "Soft delete — sets is_active = false.",
+          "responses": {
+            "204": "Empty body."
+          },
+          "frontend": {
+            "component": "UserDetailModal → Deactivate → confirmation dialog"
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Students",
+      "owner": "Mahdy",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/students/",
+          "description": "Lists all students in the academy.",
+          "query_params": {
+            "status": "active|paused|dropped",
+            "search": "name",
+            "educational_level": "integer"
+          },
+          "responses": {
+            "200": [
+              {
+                "id": "uuid",
+                "academy_id": "uuid [R]",
+                "user_id": "uuid [R]",
+                "name": "Ahmed Mohamed [R] computed from first+last",
+                "parent_phone": "01022223333",
+                "educational_level": 7,
+                "status": "active",
+                "enrolled_at": "2025-09-01",
+                "update_at": "2025-10-15T08:22:00Z [R]",
+                "enrollment_count": "2 [R] annotated",
+                "overdue_payments_count": "1 [R] annotated"
+              }
+            ]
+          },
+          "frontend": {
+            "component": "StudentListPage",
+            "route": "/students",
+            "notes": "enrollment_count shown as badge. overdue_payments_count > 0 triggers a red warning badge on the row."
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/students/",
+          "description": "Creates a Users account and a Students profile in a single transaction.",
+          "request_body": {
+            "first_name": {"type": "string","required": true,"example": "Ahmed"},
+            "last_name": {"type": "string","required": true,"example": "Mohamed"},
+            "email": {"type": "string","required": true,"example": "ahmed@example.com","note": "becomes login email"},
+            "password": {"type": "string","required": true,"example": "temppass123"},
+            "parent_phone": {"type": "string","required": true,"example": "01022223333"},
+            "educational_level": {"type": "integer","required": true,"example": 7},
+            "status": {"type": "string","required": false,"default": "active"}
+          },
+          "responses": {
+            "201": "Created student object with user_id and id."
+          },
+          "frontend": {
+            "component": "StudentListPage → StudentFormModal"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/students/{id}/",
+          "description": "Returns full student detail, annotated with live computed fields.",
+          "responses": {
+            "200": {
+              "id": "uuid",
+              "name": "Ahmed Mohamed",
+              "parent_phone": "01022223333",
+              "educational_level": 7,
+              "status": "active",
+              "enrolled_at": "2025-09-01",
+              "update_at": "2025-10-15T08:22:00Z",
+              "enrollment_count": 2,
+              "total_paid": "1500.00",
+              "overdue_payments_count": 1,
+              "attendance_pct_overall": 82.5
+            }
+          },
+          "frontend": {
+            "component": "StudentProfilePage",
+            "route": "/students/:id",
+            "notes": "Header section showing all summary badges. Also called by StudentFormModal when in edit mode."
+          }
+        },
+        {
+          "method": "PATCH",
+          "path": "/students/{id}/",
+          "description": "Updates student fields. Does not update the linked Users account (use /users/{id}/ for that).",
+          "request_body": {
+            "parent_phone": {"type": "string","required": false},
+            "educational_level": {"type": "integer","required": false},
+            "status": {"type": "string","required": false,"enum": ["active","paused","dropped"]}
+          },
+          "responses": {
+            "200": "Updated student object."
+          },
+          "frontend": {
+            "component": "StudentFormModal in edit mode"
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/students/{id}/",
+          "description": "Soft delete — sets status = dropped. Row is never removed.",
+          "responses": {
+            "204": "Empty body."
+          },
+          "frontend": {
+            "component": "StudentProfilePage → Drop Student → confirmation dialog"
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Teachers",
+      "owner": "Zahwa",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/teachers/",
+          "description": "Lists all teachers in the academy.",
+          "query_params": {
+            "search": "name"
+          },
+          "responses": {
+            "200": [
+              {
+                "id": "uuid",
+                "user_id": "uuid [R]",
+                "name": "Dr. Fatma Hassan [R] from Users",
+                "email": "fatma@rainbow.com [R] from Users",
+                "rate_per_session": "150.00",
+                "session_duration": "01:30:00",
+                "assigned_class_count": "3 [R] annotated",
+                "sessions_this_month": "12 [R] annotated"
+              }
+            ]
+          },
+          "frontend": {
+            "component": "TeachersPage",
+            "route": "/teachers"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/teachers/",
+          "description": "Creates a Users account (role = teacher) and a Teachers profile in a single transaction.",
+          "request_body": {
+            "name": {"type": "string","required": true,"example": "Dr. Fatma Hassan"},
+            "email": {"type": "string","required": true,"example": "fatma@rainbow.com"},
+            "password": {"type": "string","required": true,"example": "temppass123"},
+            "phone": {"type": "string","required": false,"example": "01033334444"},
+            "rate_per_session": {"type": "decimal","required": true,"example": "150.00"},
+            "session_duration": {"type": "string","required": true,"format": "HH:MM:SS","example": "01:30:00"}
+          },
+          "responses": {
+            "201": "Created teacher object."
+          },
+          "frontend": {
+            "component": "TeachersPage → TeacherFormModal"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/teachers/{id}/",
+          "description": "Teacher detail with assigned classes and session history.",
+          "responses": {
+            "200": {
+              "id": "uuid",
+              "name": "Dr. Fatma Hassan",
+              "email": "fatma@rainbow.com",
+              "phone": "01033334444",
+              "rate_per_session": "150.00",
+              "session_duration": "01:30:00",
+              "assigned_classes": [
+                {
+                  "class_id": "uuid",
+                  "class_name": "Math G7 Mon/Wed",
+                  "subject": "Mathematics"
+                }
+              ],
+              "sessions_this_month": 12
+            }
+          },
+          "frontend": {
+            "component": "TeacherDetailModal"
+          }
+        },
+        {
+          "method": "PATCH",
+          "path": "/teachers/{id}/",
+          "description": "Updates teacher profile fields.",
+          "request_body": {
+            "rate_per_session": {"type": "decimal","required": false},
+            "session_duration": {"type": "string","required": false,"format": "HH:MM:SS"}
+          },
+          "responses": {
+            "200": "Updated teacher object."
+          },
+          "frontend": {
+            "component": "TeacherDetailModal edit form"
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/teachers/{id}/",
+          "description": "Soft delete — sets linked Users.is_active = false. Teachers table has no own flag.",
+          "responses": {
+            "204": "Empty body."
+          },
+          "frontend": {
+            "component": "TeacherDetailModal → Deactivate → confirmation dialog"
+          }
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Subjects",
+      "owner": "Yahya",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/subjects/",
+          "description": "Lists all subjects in the academy.",
+          "query_params": {
+            "is_active": "true|false",
+            "search": "name"
+          },
+          "responses": {
+            "200": [
+              {
+                "id": "uuid",
+                "name": "Mathematics",
+                "description": "Core mathematics curriculum",
+                "session_count": 24,
+                "is_active": true,
+                "class_count": "3 [R] annotated"
+              }
+            ]
+          },
+          "frontend": {
+            "component": "SubjectsPage",
+            "route": "/subjects"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/subjects/",
+          "description": "Creates a new subject.",
+          "request_body": {
+            "name": {"type": "string","required": true,"example": "Mathematics"},
+            "description": {"type": "string","required": false},
+            "session_count": {"type": "integer","required": true,"example": 24}
+          },
+          "responses": {
+            "201": "Created subject object."
+          },
+          "frontend": {
+            "component": "SubjectsPage → SubjectFormModal"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/subjects/{id}/",
+          "description": "Subject detail.",
+          "responses": {
+            "200": "Single subject object including class_count."
+          },
+          "frontend": {
+            "component": "SubjectDetailModal"
+          }
+        },
+        {
+          "method": "PATCH",
+          "path": "/subjects/{id}/",
+          "description": "Updates subject fields.",
+          "request_body": {
+            "name": {"type": "string","required": false},
+            "session_count": {"type": "integer","required": false},
+            "is_active": {"type": "boolean","required": false}
+          },
+          "responses": {
+            "200": "Updated subject object."
+          },
+          "frontend": {
+            "component": "SubjectFormModal in edit mode"
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/subjects/{id}/",
+          "description": "Soft delete — sets is_active = false. Blocked if active classes depend on it.",
+          "responses": {
+            "204": "Empty body.",
+            "400": {
+              "detail": "Cannot deactivate subject with active classes."
+            }
+          },
+          "frontend": {
+            "component": "SubjectDetailModal → Deactivate → confirmation dialog"
+          }
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Classes",
+      "owner": "Yahya",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/classes/",
+          "description": "Lists all classes in the academy.",
+          "query_params": {
+            "subject_id": "uuid",
+            "is_active": "true|false",
+            "teacher_id": "uuid"
+          },
+          "responses": {
+            "200": [
+              {
+                "id": "uuid",
+                "name": "Math G7 Mon/Wed 4pm",
+                "subject_id": "uuid",
+                "subject_name": "Mathematics [R]",
+                "session_time": "16:00:00",
+                "start_date": "2025-09-01",
+                "end_date": "2026-01-31",
+                "is_active": true,
+                "enrolled_count": "18 [R] annotated",
+                "sessions_completed": "10 [R] annotated",
+                "session_count": "24 [R] from subject",
+                "teachers": [
+                  {
+                    "teacher_id": "uuid",
+                    "name": "Dr. Fatma Hassan"
+                  }
+                ]
+              }
+            ]
+          },
+          "frontend": {
+            "component": "ClassListPage",
+            "route": "/classes",
+            "notes": "Progress bar uses sessions_completed / session_count."
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/classes/",
+          "description": "Creates a new class.",
+          "request_body": {
+            "name": {"type": "string","required": true,"example": "Math G7 Mon/Wed 4pm"},
+            "subject_id": {"type": "uuid","required": true},
+            "session_time": {"type": "string","required": true,"format": "HH:MM:SS","example": "16:00:00"},
+            "start_date": {"type": "date","required": true,"example": "2025-09-01"},
+            "end_date": {"type": "date","required": true,"example": "2026-01-31"}
+          },
+          "responses": {
+            "201": "Created class object."
+          },
+          "frontend": {
+            "component": "ClassListPage → ClassFormModal"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/classes/{id}/",
+          "description": "Class detail with enrolled students, sessions progress, and assigned teachers.",
+          "responses": {
+            "200": {
+              "id": "uuid",
+              "name": "Math G7 Mon/Wed 4pm",
+              "subject_id": "uuid",
+              "subject_name": "Mathematics",
+              "session_time": "16:00:00",
+              "start_date": "2025-09-01",
+              "end_date": "2026-01-31",
+              "is_active": true,
+              "enrolled_count": 18,
+              "sessions_completed": 10,
+              "session_count": 24,
+              "teachers": [
+                {
+                  "teacher_id": "uuid",
+                  "name": "Dr. Fatma Hassan",
+                  "assigned_at": "2025-09-01"
+                }
+              ]
+            }
+          },
+          "frontend": {
+            "component": "ClassDetailPage",
+            "route": "/classes/:id",
+            "notes": "Header section. Four tabs below: Students (Zahwa), Sessions (Yamen), Grades (Nasef), Teachers (Yahya)."
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/classes/{id}/students/",
+          "description": "Lists all students currently enrolled in this class. Read-only join across Enrollment.",
+          "responses": {
+            "200": [
+              {
+                "enrollment_id": "uuid",
+                "student_id": "uuid",
+                "student_name": "Ahmed Mohamed",
+                "enrollment_status": "active",
+                "fee_amount": "500.00",
+                "payment_cycle": "2025-10-01"
+              }
+            ]
+          },
+          "frontend": {
+            "component": "ClassDetailPage → Students tab"
+          }
+        },
+        {
+          "method": "PATCH",
+          "path": "/classes/{id}/",
+          "description": "Updates class fields.",
+          "request_body": {
+            "name": {"type": "string","required": false},
+            "session_time": {"type": "string","required": false},
+            "end_date": {"type": "date","required": false},
+            "is_active": {"type": "boolean","required": false}
+          },
+          "responses": {
+            "200": "Updated class object."
+          },
+          "frontend": {
+            "component": "ClassDetailPage → Edit → ClassFormModal in edit mode"
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/classes/{id}/",
+          "description": "Soft delete — sets is_active = false. Blocked if active enrollments exist.",
+          "responses": {
+            "204": "Empty body.",
+            "400": {
+              "detail": "Cannot deactivate class with active enrollments."
+            }
+          },
+          "frontend": {
+            "component": "ClassDetailPage → Deactivate Class → confirmation dialog"
+          }
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Teacher–Class Assignment",
+      "owner": "Yahya",
+      "note": "Uses the teacher_class junction table.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/classes/{id}/teachers/",
+          "description": "Lists all teachers assigned to a class.",
+          "responses": {
+            "200": [
+              {
+                "assignment_id": "uuid",
+                "teacher_id": "uuid",
+                "teacher_name": "Dr. Fatma Hassan",
+                "rate_per_session": "150.00",
+                "assigned_at": "2025-09-01"
+              }
+            ]
+          },
+          "frontend": {
+            "component": "ClassDetailPage → Teachers tab"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/teacher-class/",
+          "description": "Assigns a teacher to a class.",
+          "request_body": {
+            "class_id": {"type": "uuid","required": true},
+            "teacher_id": {"type": "uuid","required": true}
+          },
+          "responses": {
+            "201": {
+              "assignment_id": "uuid",
+              "class_id": "uuid",
+              "teacher_id": "uuid",
+              "teacher_name": "Dr. Fatma Hassan",
+              "assigned_at": "2025-10-15 [R] auto today"
+            },
+            "400": {
+              "detail": "Teacher already assigned to this class."
+            }
+          },
+          "frontend": {
+            "component": "ClassDetailPage → Teachers tab → Assign Teacher"
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/teacher-class/{assignment_id}/",
+          "description": "Hard delete — permanently removes the teacher-class assignment.",
+          "responses": {
+            "204": "Empty body."
+          },
+          "frontend": {
+            "component": "ClassDetailPage → Teachers tab → remove button → confirmation dialog"
+          }
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Enrollment",
+      "owner": "Zahwa",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/enrollments/",
+          "description": "Lists enrollments. Must supply at least one filter.",
+          "query_params": {
+            "student_id": "uuid",
+            "class_id": "uuid",
+            "status": "active|paused|dropped|completed"
+          },
+          "responses": {
+            "200": [
+              {
+                "id": "uuid",
+                "student_id": "uuid",
+                "student_name": "Ahmed Mohamed [R]",
+                "class_id": "uuid",
+                "class_name": "Math G7 Mon/Wed [R]",
+                "fee_amount": "500.00",
+                "payment_cycle": "2025-10-01",
+                "start_date": "2025-09-01",
+                "end_date": "2026-01-31",
+                "status": "active",
+                "total_paid": "1000.00 [R] annotated",
+                "balance_due": "500.00 [R] annotated"
+              }
+            ]
+          },
+          "frontend": {
+            "component": "StudentProfilePage → Enrollment tab / ClassDetailPage → Students tab"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/enrollments/",
+          "description": "Enrolls a student in a class.",
+          "request_body": {
+            "student_id": {"type": "uuid","required": true},
+            "class_id": {"type": "uuid","required": true},
+            "fee_amount": {"type": "decimal","required": true,"example": "500.00"},
+            "payment_cycle": {"type": "date","required": true,"example": "2025-10-01","note": "day-of-month due date"},
+            "start_date": {"type": "date","required": true},
+            "end_date": {"type": "date","required": true}
+          },
+          "responses": {
+            "201": "Created enrollment object.",
+            "400": {
+              "detail": "Student is already enrolled in this class."
+            }
+          },
+          "frontend": {
+            "component": "ClassDetailPage → Students tab → EnrollStudentModal / StudentProfilePage → Enrollment tab"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/enrollments/{id}/",
+          "description": "Enrollment detail with payment history.",
+          "responses": {
+            "200": {
+              "id": "uuid",
+              "student_name": "Ahmed Mohamed",
+              "class_name": "Math G7 Mon/Wed",
+              "fee_amount": "500.00",
+              "payment_cycle": "2025-10-01",
+              "start_date": "2025-09-01",
+              "end_date": "2026-01-31",
+              "status": "active",
+              "total_paid": "1000.00",
+              "balance_due": "500.00",
+              "payments": [
+                {
+                  "id": "uuid",
+                  "amount": "500.00",
+                  "paid_on": "2025-09-05",
+                  "notes": ""
+                },
+                {
+                  "id": "uuid",
+                  "amount": "500.00",
+                  "paid_on": "2025-10-03",
+                  "notes": ""
+                }
+              ]
+            }
+          },
+          "frontend": {
+            "component": "StudentProfilePage → Enrollment tab → EnrollmentDetailModal"
+          }
+        },
+        {
+          "method": "PATCH",
+          "path": "/enrollments/{id}/",
+          "description": "Updates enrollment status or fee terms.",
+          "request_body": {
+            "status": {"type": "string","required": false,"enum": ["active","paused","dropped","completed"]},
+            "fee_amount": {"type": "decimal","required": false},
+            "end_date": {"type": "date","required": false}
+          },
+          "responses": {
+            "200": "Updated enrollment object."
+          },
+          "frontend": {
+            "component": "EnrollmentDetailModal → status change buttons and edit fee form"
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/enrollments/{id}/",
+          "description": "Soft delete — sets status = dropped.",
+          "responses": {
+            "204": "Empty body."
+          },
+          "frontend": {
+            "component": "EnrollmentDetailModal → Drop Enrollment → confirmation dialog"
+          }
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Payments",
+      "owner": "Zahwa",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/payments/",
+          "description": "Lists payment records.",
+          "query_params": {
+            "enrollment_id": "uuid",
+            "student_id": "uuid",
+            "month": "YYYY-MM"
+          },
+          "responses": {
+            "200": [
+              {
+                "id": "uuid",
+                "enrollment_id": "uuid",
+                "student_name": "Ahmed Mohamed [R]",
+                "class_name": "Math G7 Mon/Wed [R]",
+                "amount": "500.00",
+                "paid_on": "2025-10-03",
+                "notes": "Cash payment",
+                "created_at": "2025-10-03T11:22:00Z [R]"
+              }
+            ]
+          },
+          "frontend": {
+            "component": "StudentProfilePage → Payments tab / PaymentsPage",
+            "route": "/payments"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/payments/",
+          "description": "Records a payment against an enrollment. Updates the enrollment's balance_due.",
+          "request_body": {
+            "enrollment_id": {"type": "uuid","required": true},
+            "amount": {"type": "decimal","required": true,"example": "500.00"},
+            "paid_on": {"type": "date","required": true},
+            "notes": {"type": "string","required": false}
+          },
+          "responses": {
+            "201": "Created payment object."
+          },
+          "frontend": {
+            "component": "StudentProfilePage → Payments tab → RecordPaymentModal / PaymentsPage → overdue row"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/payments/summary/",
+          "description": "Academy-level financial summary. Used for dashboard KPI cards.",
+          "query_params": {
+            "month": "YYYY-MM (defaults to current month)"
+          },
+          "responses": {
+            "200": {
+              "month": "2025-10",
+              "revenue_expected": "12500.00",
+              "revenue_collected": "10500.00",
+              "collection_rate_pct": 84.0,
+              "overdue_count": 5,
+              "overdue_total": "2000.00"
+            }
+          },
+          "frontend": {
+            "component": "DashboardPage — Revenue KPI, Collection Rate, Overdue Payments cards"
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/payments/{id}/",
+          "description": "Hard delete — permanently removes the payment record and recalculates enrollment balance_due. No audit trail.",
+          "responses": {
+            "204": "Empty body."
+          },
+          "frontend": {
+            "component": "StudentProfilePage → Payments tab → delete icon → confirmation dialog"
+          }
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Sessions",
+      "owner": "Yamen",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/sessions/",
+          "description": "Lists sessions for a class.",
+          "query_params": {
+            "class_id": "uuid (required)",
+            "ordering": "-session_num (default: newest first)"
+          },
+          "responses": {
+            "200": [
+              {
+                "id": "uuid",
+                "class_id": "uuid",
+                "session_num": 10,
+                "session_date": "2025-10-14",
+                "notes": "Covered chapter 5",
+                "present_count": "15 [R] annotated",
+                "absent_count": "3 [R] annotated",
+                "total_enrolled": "18 [R] annotated",
+                "turnout_pct": "83.3 [R] annotated"
+              }
+            ]
+          },
+          "frontend": {
+            "component": "ClassDetailPage → Sessions tab"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/sessions/",
+          "description": "Creates a new session. session_num is auto-calculated as max(session_num) + 1 for that class.",
+          "request_body": {
+            "class_id": {"type": "uuid","required": true},
+            "session_date": {"type": "date","required": true},
+            "notes": {"type": "string","required": false}
+          },
+          "responses": {
+            "201": "Created session object with auto-assigned session_num.",
+            "400": {
+              "detail": "A session already exists for this class on this date."
+            }
+          },
+          "frontend": {
+            "component": "ClassDetailPage → Sessions tab → NewSessionModal"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/sessions/{id}/",
+          "description": "Session detail with attendance summary.",
+          "responses": {
+            "200": {
+              "id": "uuid",
+              "class_id": "uuid",
+              "class_name": "Math G7 Mon/Wed",
+              "session_num": 10,
+              "session_date": "2025-10-14",
+              "notes": "Covered chapter 5",
+              "present_count": 15,
+              "absent_count": 3,
+              "total_enrolled": 18,
+              "turnout_pct": 83.3
+            }
+          },
+          "frontend": {
+            "component": "AttendanceMarkingPage",
+            "route": "/classes/:id/attendance/:session_id"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/classes/{id}/attendance/summary/",
+          "description": "Per-session turnout summary for a class over its lifetime.",
+          "responses": {
+            "200": {
+              "class_id": "uuid",
+              "class_name": "Math G7 Mon/Wed",
+              "sessions_completed": 10,
+              "session_count": 24,
+              "average_turnout_pct": 85.5,
+              "sessions": [
+                {
+                  "session_num": 1,
+                  "session_date": "2025-09-03",
+                  "turnout_pct": 100.0
+                },
+                {
+                  "session_num": 2,
+                  "session_date": "2025-09-08",
+                  "turnout_pct": 88.9
+                }
+              ]
+            }
+          },
+          "frontend": {
+            "component": "ClassDetailPage → Sessions tab — summary bar"
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/sessions/{id}/",
+          "description": "Hard delete — removes session and all linked attendance records. Blocked if grades are linked.",
+          "responses": {
+            "204": "Empty body.",
+            "400": {
+              "detail": "Cannot delete session with linked grade entries."
+            }
+          },
+          "frontend": {
+            "component": "ClassDetailPage → Sessions tab → delete icon → confirmation dialog"
+          }
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Attendance",
+      "owner": "Yamen",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/sessions/{id}/attendance/",
+          "description": "Bulk creates or updates attendance records for a session. Safe to call multiple times — uses update_or_create internally.",
+          "request_body": {
+            "records": [{"enrollment_id": "uuid","present": true},{"enrollment_id": "uuid","present": false}]
+          },
+          "responses": {
+            "200": {
+              "session_id": "uuid",
+              "processed": 18,
+              "present_count": 15,
+              "absent_count": 3
+            }
+          },
+          "frontend": {
+            "component": "AttendanceMarkingPage → Submit Attendance button"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/sessions/{id}/attendance/",
+          "description": "Lists all attendance records for a session with student names.",
+          "responses": {
+            "200": [
+              {
+                "id": "uuid",
+                "enrollment_id": "uuid",
+                "student_id": "uuid [R]",
+                "student_name": "Ahmed Mohamed [R]",
+                "present": true
+              }
+            ]
+          },
+          "frontend": {
+            "component": "AttendanceMarkingPage — called on page load, pre-fills toggles if records exist."
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/students/{id}/attendance/stats/",
+          "description": "Per-student attendance statistics for a specific class.",
+          "query_params": {
+            "class_id": "uuid (required)",
+            "days": "integer lookback window in days (default: 28)"
+          },
+          "responses": {
+            "200": {
+              "student_id": "uuid",
+              "class_id": "uuid",
+              "total_sessions": 10,
+              "present_count": 8,
+              "absent_count": 2,
+              "attendance_pct": 80.0,
+              "days_window": 28
+            }
+          },
+          "frontend": {
+            "component": "StudentProfilePage → Attendance tab / DashboardPage → at-risk panel / AttendanceSummaryWidget"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/students/{id}/attendance/history/",
+          "description": "Chronological session attendance history for a student in a specific class.",
+          "query_params": {
+            "class_id": "uuid (required)"
+          },
+          "responses": {
+            "200": [
+              {
+                "session_id": "uuid",
+                "session_num": 10,
+                "session_date": "2025-10-14",
+                "present": true
+              },
+              {
+                "session_id": "uuid",
+                "session_num": 9,
+                "session_date": "2025-10-09",
+                "present": false
+              }
+            ]
+          },
+          "frontend": {
+            "component": "StudentProfilePage → Attendance tab → per-class session history list"
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/attendance/{id}/",
+          "description": "Hard delete — removes a single attendance record. Use the bulk POST to re-submit corrected attendance instead when possible.",
+          "responses": {
+            "204": "Empty body."
+          },
+          "frontend": {
+            "component": "AttendanceMarkingPage → remove individual record (edge case)"
+          }
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "title": "Grades",
+      "owner": "Nasef",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/grades/",
+          "description": "Creates a new grade entry.",
+          "request_body": {
+            "enrollment_id": {"type": "uuid","required": true},
+            "session_id": {"type": "uuid","required": true},
+            "subject_name": {"type": "string","required": true,"note": "denormalized copy"},
+            "score": {"type": "decimal","required": true,"example": "7.50"},
+            "max_score": {"type": "decimal","required": true,"example": "10.00"},
+            "assigned_on": {"type": "date","required": true}
+          },
+          "responses": {
+            "201": {
+              "id": "uuid",
+              "enrollment_id": "uuid",
+              "session_id": "uuid",
+              "subject_name": "Mathematics",
+              "score": "7.50",
+              "max_score": "10.00",
+              "score_pct": "75.0 [R] computed",
+              "assigned_on": "2025-10-14",
+              "created_at": "2025-10-14T12:00:00Z [R]"
+            },
+            "400": {
+              "detail": "Grade for this assessment already exists for this student in this session."
+            }
+          },
+          "frontend": {
+            "component": "ClassDetailPage → Grades tab → grade entry form"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/grades/",
+          "description": "Lists all grades for an enrollment.",
+          "query_params": {
+            "enrollment_id": "uuid (required)",
+            "ordering": "-assigned_on (default: newest first)"
+          },
+          "responses": {
+            "200": [
+              {
+                "id": "uuid",
+                "subject_name": "Mathematics",
+                "score": "7.50",
+                "max_score": "10.00",
+                "score_pct": 75.0,
+                "assigned_on": "2025-10-14",
+                "session_num": "10 [R] from session"
+              }
+            ]
+          },
+          "frontend": {
+            "component": "StudentProfilePage → Grades tab"
+          }
+        },
+        {
+          "method": "PATCH",
+          "path": "/grades/{id}/",
+          "description": "Corrects a grade entry.",
+          "request_body": {
+            "score": {"type": "decimal","required": false},
+            "notes": {"type": "string","required": false}
+          },
+          "responses": {
+            "200": "Updated grade object."
+          },
+          "frontend": {
+            "component": "StudentProfilePage → Grades tab → edit icon → inline edit form"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/grades/summary/",
+          "description": "Computed grade summary for a student in a class. Must always return a valid JSON response, even when no grades exist.",
+          "query_params": {
+            "enrollment_id": "uuid (required)"
+          },
+          "responses": {
+            "200_with_data": {
+              "enrollment_id": "uuid",
+              "assessment_count": 5,
+              "average_pct": 78.0,
+              "latest_score_pct": 82.0,
+              "trend": "improving"
+            },
+            "200_no_grades": {
+              "enrollment_id": "uuid",
+              "assessment_count": 0,
+              "average_pct": null,
+              "latest_score_pct": null,
+              "trend": null
+            }
+          },
+          "trend_logic": {
+            "improving": "difference > +5% (avg of last 3 vs avg of 3 before)",
+            "declining": "difference < -5%",
+            "stable": "within ±5%",
+            "null": "fewer than 3 scores"
+          },
+          "frontend": {
+            "component": "StudentProfilePage → Grades tab summary bar / ClassDetailPage → Class Grades tab"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/classes/{id}/grades/summary/",
+          "description": "All enrolled students' grade summaries for a class in one call.",
+          "responses": {
+            "200": [
+              {
+                "enrollment_id": "uuid",
+                "student_name": "Ahmed Mohamed",
+                "assessment_count": 5,
+                "average_pct": 78.0,
+                "trend": "improving"
+              },
+              {
+                "enrollment_id": "uuid",
+                "student_name": "Sara Khaled",
+                "assessment_count": 3,
+                "average_pct": 52.0,
+                "trend": "declining"
+              }
+            ]
+          },
+          "frontend": {
+            "component": "ClassDetailPage → Grades tab — class-wide grade summary table, color-coded by average_pct"
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/grades/{id}/",
+          "description": "Hard delete — permanently removes the grade entry.",
+          "responses": {
+            "204": "Empty body."
+          },
+          "frontend": {
+            "component": "StudentProfilePage → Grades tab → delete icon → confirmation dialog"
+          }
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "title": "Dashboard & Aggregation",
+      "owner": "Mahdy",
+      "note": "All endpoints are read-only aggregations. No new models. Can only be built after Sprint 3–4.",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/dashboard/summary/",
+          "description": "Top-level academy KPIs for the dashboard header.",
+          "responses": {
+            "200": {
+              "active_students_count": 87,
+              "active_classes_count": 6,
+              "active_enrollments_count": 112,
+              "revenue_expected_this_month": "12500.00",
+              "revenue_collected_this_month": "10500.00",
+              "collection_rate_pct": 84.0,
+              "overdue_enrollments_count": 5,
+              "overdue_total": "2000.00",
+              "avg_attendance_pct_last_28_days": 81.5
+            }
+          },
+          "frontend": {
+            "component": "DashboardPage",
+            "route": "/dashboard",
+            "notes": "KPI card row at the top. Called once on mount, cached for 5 minutes."
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/dashboard/at-risk/",
+          "description": "Students at risk based on attendance and payment status. Base layer for Phase 2 AI retention agent.",
+          "query_params": {
+            "attendance_threshold": "integer % (default: 70)",
+            "overdue_days": "integer days (default: 14)"
+          },
+          "responses": {
+            "200": [
+              {
+                "student_id": "uuid",
+                "student_name": "Ahmed Mohamed",
+                "risk_factors": [
+                  "low_attendance",
+                  "overdue_fee"
+                ],
+                "attendance_pct": 62.5,
+                "overdue_amount": "500.00",
+                "overdue_days": 18,
+                "enrolled_classes": [
+                  "Math G7 Mon/Wed"
+                ]
+              }
+            ]
+          },
+          "frontend": {
+            "component": "DashboardPage — At-Risk Students panel"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/dashboard/activity/",
+          "description": "Most recent actions across the academy for the activity feed.",
+          "query_params": {
+            "limit": "integer (default: 20)"
+          },
+          "responses": {
+            "200": [
+              {
+                "type": "payment",
+                "description": "Payment of 500 EGP recorded for Ahmed Mohamed",
+                "timestamp": "2025-10-14T11:22:00Z",
+                "student_id": "uuid",
+                "student_name": "Ahmed Mohamed"
+              },
+              {
+                "type": "enrollment",
+                "description": "Sara Khaled enrolled in English B2 Wed/Fri",
+                "timestamp": "2025-10-13T09:10:00Z",
+                "student_id": "uuid",
+                "student_name": "Sara Khaled"
+              },
+              {
+                "type": "session",
+                "description": "Session 10 marked for Math G7 Mon/Wed — 15/18 attended",
+                "timestamp": "2025-10-12T17:05:00Z",
+                "class_id": "uuid",
+                "class_name": "Math G7 Mon/Wed"
+              }
+            ]
+          },
+          "frontend": {
+            "component": "DashboardPage — Recent Activity feed section"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/dashboard/teachers/",
+          "description": "Per-teacher workload summary.",
+          "responses": {
+            "200": [
+              {
+                "teacher_id": "uuid",
+                "teacher_name": "Dr. Fatma Hassan",
+                "class_count": 3,
+                "total_enrolled_students": 52,
+                "sessions_this_month": 12,
+                "earnings_this_month": "1800.00 (rate_per_session × sessions_this_month)"
+              }
+            ]
+          },
+          "frontend": {
+            "component": "TeachersPage — workload badges / DashboardPage — optional teacher workload section"
+          }
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "title": "Error Reference",
+      "error_shape": {
+        "generic": {
+          "detail": "Human-readable error message."
+        },
+        "validation": {
+          "field_name": [
+            "Error message for this field."
+          ]
+        }
+      },
+      "status_codes": [
+        {
+          "code": 400,
+          "meaning": "Bad Request",
+          "cause": "Missing required field, invalid value, constraint violation"
+        },
+        {
+          "code": 401,
+          "meaning": "Unauthorized",
+          "cause": "Missing or expired JWT token"
+        },
+        {
+          "code": 403,
+          "meaning": "Forbidden",
+          "cause": "Valid token but insufficient role"
+        },
+        {
+          "code": 404,
+          "meaning": "Not Found",
+          "cause": "Record does not exist or belongs to a different academy"
+        },
+        {
+          "code": 409,
+          "meaning": "Conflict",
+          "cause": "Duplicate record (e.g. same student enrolled twice in same class)"
+        },
+        {
+          "code": 500,
+          "meaning": "Server Error",
+          "cause": "Unhandled exception — check Django logs"
+        }
+      ],
+      "notes": "A 404 is returned when a record exists but belongs to a different academy. This prevents information leakage."
+    },
+    {
+      "id": 16,
+      "title": "Frontend Mapping Summary",
+      "mappings": [
+        {
+          "component": "LoginPage",
+          "route": "/login",
+          "endpoints": ["POST /auth/login/"],
+          "owner": "Mahdy"
+        },
+        {
+          "component": "RegisterPage",
+          "route": "/register",
+          "endpoints": ["POST /auth/register/"],
+          "owner": "Mahdy"
+        },
+        {
+          "component": "AcademyContext",
+          "route": "(global)",
+          "endpoints": ["GET /academy/"],
+          "owner": "Mahdy"
+        },
+        {
+          "component": "axiosClient interceptor",
+          "route": "(global)",
+          "endpoints": ["POST /auth/token/refresh/"],
+          "owner": "Mahdy"
+        },
+        {
+          "component": "DashboardPage",
+          "route": "/dashboard",
+          "endpoints": [
+            "GET /dashboard/summary/",
+            "GET /dashboard/at-risk/",
+            "GET /dashboard/activity/",
+            "GET /payments/summary/"
+          ],
+          "owner": "Mahdy"
+        },
+        {
+          "component": "StudentListPage",
+          "route": "/students",
+          "endpoints": ["GET /students/"],
+          "owner": "Mahdy"
+        },
+        {
+          "component": "StudentProfilePage",
+          "route": "/students/:id",
+          "endpoints": ["GET /students/:id/"],
+          "owner": "Mahdy"
+        },
+        {
+          "component": "StudentProfilePage → Enrollment tab",
+          "route": "(tab)",
+          "endpoints": [
+            "GET /enrollments/?student_id=",
+            "POST /enrollments/"
+          ],
+          "owner": "Zahwa"
+        },
+        {
+          "component": "StudentProfilePage → Payments tab",
+          "route": "(tab)",
+          "endpoints": [
+            "GET /payments/?student_id=",
+            "POST /payments/"
+          ],
+          "owner": "Zahwa"
+        },
+        {
+          "component": "StudentProfilePage → Attendance tab",
+          "route": "(tab)",
+          "endpoints": [
+            "GET /students/:id/attendance/stats/?class_id=",
+            "GET /students/:id/attendance/history/?class_id="
+          ],
+          "owner": "Yamen"
+        },
+        {
+          "component": "StudentProfilePage → Grades tab",
+          "route": "(tab)",
+          "endpoints": [
+            "GET /grades/?enrollment_id=",
+            "GET /grades/summary/?enrollment_id="
+          ],
+          "owner": "Nasef"
+        },
+        {
+          "component": "StudentFormModal",
+          "route": "(modal)",
+          "endpoints": [
+            "POST /students/",
+            "PATCH /students/:id/"
+          ],
+          "owner": "Mahdy"
+        },
+        {
+          "component": "SubjectsPage",
+          "route": "/subjects",
+          "endpoints": [
+            "GET /subjects/",
+            "POST /subjects/",
+            "PATCH /subjects/:id/"
+          ],
+          "owner": "Yahya"
+        },
+        {
+          "component": "ClassListPage",
+          "route": "/classes",
+          "endpoints": ["GET /classes/"],
+          "owner": "Yahya"
+        },
+        {
+          "component": "ClassDetailPage",
+          "route": "/classes/:id",
+          "endpoints": ["GET /classes/:id/"],
+          "owner": "Yahya"
+        },
+        {
+          "component": "ClassDetailPage → Students tab",
+          "route": "(tab)",
+          "endpoints": [
+            "GET /classes/:id/students/",
+            "POST /enrollments/"
+          ],
+          "owner": "Yahya shell, Zahwa data"
+        },
+        {
+          "component": "ClassDetailPage → Sessions tab",
+          "route": "(tab)",
+          "endpoints": [
+            "GET /sessions/?class_id=",
+            "POST /sessions/",
+            "GET /classes/:id/attendance/summary/"
+          ],
+          "owner": "Yamen"
+        },
+        {
+          "component": "ClassDetailPage → Grades tab",
+          "route": "(tab)",
+          "endpoints": ["GET /classes/:id/grades/summary/"],
+          "owner": "Nasef"
+        },
+        {
+          "component": "ClassDetailPage → Teachers tab",
+          "route": "(tab)",
+          "endpoints": [
+            "GET /classes/:id/teachers/",
+            "POST /teacher-class/",
+            "DELETE /teacher-class/:id/"
+          ],
+          "owner": "Yahya"
+        },
+        {
+          "component": "AttendanceMarkingPage",
+          "route": "/classes/:id/attendance/:session_id",
+          "endpoints": [
+            "GET /sessions/:id/attendance/",
+            "POST /sessions/:id/attendance/"
+          ],
+          "owner": "Yamen"
+        },
+        {
+          "component": "TeachersPage",
+          "route": "/teachers",
+          "endpoints": [
+            "GET /teachers/",
+            "POST /teachers/",
+            "GET /dashboard/teachers/"
+          ],
+          "owner": "Zahwa"
+        },
+        {
+          "component": "PaymentsPage",
+          "route": "/payments",
+          "endpoints": [
+            "GET /payments/?month=",
+            "GET /payments/summary/",
+            "POST /payments/"
+          ],
+          "owner": "Zahwa"
+        },
+        {
+          "component": "SettingsPage",
+          "route": "/settings",
+          "endpoints": [
+            "GET /academy/",
+            "PATCH /academy/"
+          ],
+          "owner": "Mahdy"
+        },
+        {
+          "component": "UsersPage",
+          "route": "/users",
+          "endpoints": [
+            "GET /users/",
+            "POST /users/",
+            "PATCH /users/:id/"
+          ],
+          "owner": "Mahdy"
+        }
+      ]
+    }
+  ]
+}

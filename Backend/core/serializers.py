@@ -78,10 +78,16 @@ class CustomeTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
         data.update({
-            "full_name": self.user.full_name,
+            "id": self.user.id,
+            "name": self.user.full_name,
             "email": self.user.email,
             "phone": self.user.phone,
             "role": self.user.role,
+            "academy_id": (
+                self.user.academy.id
+                if self.user.academy
+                else None
+            ),
             "academy_name": (
                 self.user.academy.name
                 if self.user.academy

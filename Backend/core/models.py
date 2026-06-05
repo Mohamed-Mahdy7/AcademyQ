@@ -38,7 +38,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         OWNER="O", "Owner"
         ADMIN="A", "Admin"
         TEACHER='T', "Teacher"
-        STUDENT='S', "Studebt"
+        STUDENT='S', "Student"
     
     id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     academy=models.ForeignKey(

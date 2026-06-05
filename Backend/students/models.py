@@ -5,9 +5,9 @@ from core.models import Academy, User
 
 class Students(models.Model):
     class Status(models.TextChoices):
-        ACTIVE="O", "Active"
-        PENDING="A", "Pending"
-        CANCELED='T', "Canceled"
+        ACTIVE="A", "Active"
+        PENDING="P", "Pending"
+        DROPPED='D', "Dropped"
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=True)
     academy = models.ForeignKey(
