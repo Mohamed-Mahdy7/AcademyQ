@@ -41,7 +41,7 @@ class Enrollment(models.Model):
     
 class Payment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    enrollment_id = models.ForeignKey('Enrollment', on_delete=models.CASCADE, db_column='enrollment_id', related_name='payments')
+    enrollment_id = models.ForeignKey('Enrollment', on_delete=models.PROTECT, db_column='enrollment_id', related_name='payments')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     paid_on = models.DateField()
     notes = models.TextField(blank=True, null=True)
