@@ -25,8 +25,8 @@ class Enrollment(models.Model):
     ]
  
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    class_id = models.ForeignKey('classes.Classes',on_delete=models.CASCADE,db_column='class_id',related_name='enrollments')
-    student_id = models.ForeignKey('students.Students',on_delete=models.CASCADE,db_column='student_id',related_name='enrollments')
+    class_id = models.ForeignKey('classes.Classes',on_delete=models.PROTECT,db_column='class_id',related_name='enrollments')
+    student_id = models.ForeignKey('students.Students',on_delete=models.PROTECT,db_column='student_id',related_name='enrollments')
     fee_amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_cycle = models.DateField()
     start_date = models.DateField()
