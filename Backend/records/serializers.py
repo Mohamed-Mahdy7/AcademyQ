@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import SubjectSession, Attendance
+from django.db import transaction
 
 
 class SubjectSessionSerializer(serializers.ModelSerializer):
@@ -22,12 +23,18 @@ class SubjectSessionSerializer(serializers.ModelSerializer):
         read_only_fields = ['session_num']
 
     def create(self, validated_data):
+
         class_obj = validated_data['class_obj']
-        last = SubjectSession.objects.filter(
-            class_obj=class_obj
-        ).order_by('session_num').last()
-        validated_data['session_num'] = (last.session_num + 1) if last else 1
-        return super().create(validated_data)
+        with transaction.atomic():
+            last = (
+                SubjectSession.objects
+                .select_for_update()
+                .filter(class_obj=class_obj)
+                .order_by('session_num')
+                .last()
+            )
+            validated_data['session_num'] = (last.session_num + 1) if last else 1
+            return super().create(validated_data)
 
 
 class AttendanceSerializer(serializers.ModelSerializer):
