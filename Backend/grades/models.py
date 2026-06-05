@@ -7,7 +7,7 @@ class Grade(models.Model):
 
     enrollment_id = models.ForeignKey('enrollments.Enrollment', on_delete=models.CASCADE, related_name='grades')
 
-    session = models.ForeignKey('subjects.Session', on_delete=models.CASCADE, related_name='grades')
+    session = models.ForeignKey('subjects.Session', on_delete=models.SET_NULL, related_name='grades')
 
     subject_name = models.CharField(max_length=255)
 
