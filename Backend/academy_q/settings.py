@@ -34,7 +34,10 @@ INSTALLED_APPS = [
     'django_filters',
     'core',
     'grades',
-    
+    'structure',
+    'students',
+    'records',
+    'financial_operations',
     
 ]
 

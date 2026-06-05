@@ -1,14 +1,14 @@
 import uuid
 from django.db import models
-from enrollments.models import Enrollment
-from subjects.models import subject_Session
+from financial_operations.models import Enrollment
+from records.models import SubjectSession
 
 class Grade(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     enrollment_id = models.ForeignKey(Enrollment, on_delete=models.CASCADE, related_name='grades')
 
-    session = models.ForeignKey(subject_Session, on_delete=models.CASCADE, related_name='grades')
+    session = models.ForeignKey(SubjectSession, on_delete=models.SET_NULL, related_name='grades')
 
     subject_name = models.CharField(max_length=255)
 
