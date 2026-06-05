@@ -1,7 +1,7 @@
 from django.db import models
 import uuid
 from structure.models import Class
-from students.models import Student
+from students.models import Students
 # Create your models here.
 
 
@@ -28,7 +28,7 @@ class Enrollment(models.Model):
  
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     class_id = models.ForeignKey(Class, on_delete=models.PROTECT,db_column='class_id',related_name='enrollments')
-    student_id = models.ForeignKey(Student, on_delete=models.PROTECT,db_column='student_id',related_name='enrollments')
+    student_id = models.ForeignKey(Students, on_delete=models.PROTECT,db_column='student_id',related_name='enrollments')
     fee_amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_cycle = models.DateField()
     start_date = models.DateField()
