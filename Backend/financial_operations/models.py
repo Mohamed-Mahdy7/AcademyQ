@@ -1,5 +1,7 @@
 from django.db import models
 import uuid
+from structure.models import Class
+from students.models import Student
 # Create your models here.
 
 
@@ -25,8 +27,8 @@ class Enrollment(models.Model):
     ]
  
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    class_id = models.ForeignKey('classes.Classes',on_delete=models.PROTECT,db_column='class_id',related_name='enrollments')
-    student_id = models.ForeignKey('students.Students',on_delete=models.PROTECT,db_column='student_id',related_name='enrollments')
+    class_id = models.ForeignKey(Class, on_delete=models.PROTECT,db_column='class_id',related_name='enrollments')
+    student_id = models.ForeignKey(Student, on_delete=models.PROTECT,db_column='student_id',related_name='enrollments')
     fee_amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_cycle = models.DateField()
     start_date = models.DateField()
@@ -41,7 +43,7 @@ class Enrollment(models.Model):
     
 class Payment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    enrollment_id = models.ForeignKey('Enrollment', on_delete=models.PROTECT, db_column='enrollment_id', related_name='payments')
+    enrollment_id = models.ForeignKey(Enrollment, on_delete=models.PROTECT, db_column='enrollment_id', related_name='payments')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     paid_on = models.DateField()
     notes = models.TextField(blank=True, null=True)
