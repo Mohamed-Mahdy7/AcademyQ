@@ -46,7 +46,7 @@ class Class(models.Model):
     )
     subject = models.ForeignKey(
         "Subject",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="classes",
     )
     name = models.CharField(max_length=64)
