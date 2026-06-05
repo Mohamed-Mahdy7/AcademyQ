@@ -33,6 +33,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_filters',
     'core',
+    'grades',
+    'structure',
     'students',
     'records',
     'financial_operations',
