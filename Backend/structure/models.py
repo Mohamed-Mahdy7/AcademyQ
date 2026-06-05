@@ -84,7 +84,7 @@ class TeacherClass(models.Model):
         related_name="teacher_class",
     )
     teacher = models.ForeignKey(
-        "Teacher",
+        "financial_operations.Teachers",
         on_delete=models.CASCADE,
         related_name="teacher_class",
     )
