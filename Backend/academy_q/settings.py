@@ -33,7 +33,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_filters',
     'core',
-    
+    'financial_operations',
     
 ]
 
