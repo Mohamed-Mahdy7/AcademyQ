@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 import uuid
 # Create your models here.
@@ -8,7 +9,24 @@ class Academy(models.Model):
     name=models.CharField(max_length=100, null=False)
     email=models.EmailField(unique=True)
     phone=models.CharField(max_length=15)
+    address=models.TextField(blank=True)
+    subscription_end=models.DateField(null=True)
+    setup_complete=models.BooleanField(default=False)
     created_at=models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        db_table = 'academy'
+        verbose_name = 'Academy'
+        ordering = ['name']
+        
+    def has_active_subscription(self):
+        return (
+            self.subscription_end is not None
+            and self.subscription_end >= timezone.now().date()
+        )
+    
+    def __str__(self):
+        return self.name
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -61,5 +79,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD='email'
     REQUIRED_FIELDS=[]
     
+    class Meta:
+        db_table = 'users'
+        verbose_name = 'User'
+        ordering = ['full_name']
+    
     def __str__(self):
-        return self.email
+        return self.full_name
