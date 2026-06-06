@@ -1,15 +1,14 @@
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, generics
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.views import TokenViewBase,\
-    TokenObtainPairView
+from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny
-from .serializers import CustomeTokenObtainPairSerializer, AcademyRegistrationSerializer
+from .serializers import AcademySerializer, CustomeTokenObtainPairSerializer, AcademyRegistrationSerializer
+from .permissions import ActiveSubscriptionRequired
 
-User = get_user_model
+User = get_user_model()
 
 class RegisterView(generics.CreateAPIView):
     permission_classes = [AllowAny]
@@ -32,16 +31,9 @@ class RegisterView(generics.CreateAPIView):
             "email": user.email,
             "phone": user.phone,
             "role": user.role,
-            'academy_id': (
-                user.academy.name
-                if user.academy
-                else None
-            ),
-            "academy_name": (
-                user.academy.name
-                if user.academy
-                else None
-            ),
+            'academy_id': user.academy.id if user.academy else None,
+            "academy_name": user.academy.name if user.academy else None,
+            "setup_complete": user.academy.setup_complete,
         }
         response = Response(user_data, status=status.HTTP_201_CREATED)
         
@@ -60,6 +52,51 @@ class RegisterView(generics.CreateAPIView):
             samesite='lax'
         )
         return response
+
+
+class AcademyView(generics.RetrieveUpdateAPIView):
+    serializer_class = AcademySerializer
+    
+    def get_object(self):
+        return self.request.user.academy
+
+
+class ComopleteSetupView(APIView):
+    def post(self, request):
+        academy = request.user.academy
+        required_fields = [
+            academy.name,
+            academy.email,
+            academy.phone,
+            academy.address
+        ]
+        
+        if not all (required_fields):
+            return Response({
+                "error": "Academy profile is incomplete."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not academy.subjects.exists():
+            return Response({
+                "error": "At least one subject is required."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not academy.has_active_subscription():
+            return Response(
+                {"error": "Subscription is not configured."},
+                status=400
+            )
+        
+        academy.setup_complete = True
+        academy.save(update_fields=["setup_complete"])
+        
+        refresh = RefreshToken.for_user(request.user)
+        
+        return Response({
+            "setup_complete": True,
+            "refresh": str(refresh),
+            "access": str(refresh.access_token)
+        }, status=status.HTTP_200_OK)
 
 class LoginView(TokenObtainPairView):
     permission_classes = [AllowAny]

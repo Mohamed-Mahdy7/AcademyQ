@@ -1,3 +1,5 @@
+from datetime import timedelta
+from django.utils import timezone
 from django.db import transaction
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth import get_user_model
@@ -30,7 +32,8 @@ class AcademyRegistrationSerializer(serializers.Serializer):
         academy = Academy.objects.create(
             name=validated_data["academy_name"],
             email=validated_data["academy_email"],
-            phone=validated_data["academy_phone"]
+            phone=validated_data["academy_phone"],
+            subscription_end=timezone.now().date() + timedelta(days=30)
         )
 
         owner = User.objects.create_user(
@@ -42,6 +45,11 @@ class AcademyRegistrationSerializer(serializers.Serializer):
             role=User.Roles.OWNER
         )
         return owner
+
+class AcademySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Academy
+        fields = ["name", "email", "phone", "address", "subscription_end"]
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -75,6 +83,23 @@ class EmailBackend(ModelBackend):
         return None
 
 class CustomeTokenObtainPairSerializer(TokenObtainPairSerializer):
+    
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['role'] = user.role
+        token['academy_id'] = (
+            str(user.academy.id)
+            if user.academy
+            else None
+        )
+        token['setup_complete'] = (
+            user.academy.setup_complete
+            if user.academy
+            else True
+        )
+        return token
+    
     def validate(self, attrs):
         data = super().validate(attrs)
         data.update({
@@ -83,15 +108,8 @@ class CustomeTokenObtainPairSerializer(TokenObtainPairSerializer):
             "email": self.user.email,
             "phone": self.user.phone,
             "role": self.user.role,
-            "academy_id": (
-                self.user.academy.id
-                if self.user.academy
-                else None
-            ),
-            "academy_name": (
-                self.user.academy.name
-                if self.user.academy
-                else None
-            ),
+            "academy_id": self.user.academy.id if self.user.academy else None,
+            "academy_name": self.user.academy.name if self.user.academy else None,
+            "setup_complete": self.user.academy.setup_complete if self.user.academy else True,
         })
         return data
