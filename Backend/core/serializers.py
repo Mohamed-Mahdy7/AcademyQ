@@ -1,4 +1,5 @@
 from datetime import timedelta
+from tkinter.ttk import Style
 from django.utils import timezone
 from django.db import transaction
 from django.contrib.auth.backends import ModelBackend
@@ -113,3 +114,51 @@ class CustomeTokenObtainPairSerializer(TokenObtainPairSerializer):
             "setup_complete": self.user.academy.setup_complete if self.user.academy else True,
         })
         return data
+
+
+class StaffCreateSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(
+        write_only=True, 
+        style={'input_type': 'password'})
+    confirm_password = serializers.CharField(
+        write_only=True,
+        style={'input_type': 'password'})
+
+    class Meta:
+        model = User
+        fields = [
+            "full_name",
+            "email",
+            "phone",
+            "password",
+            "confirm_password",
+            "role"
+        ]
+
+    def validate_password(self, attrs):
+        if (attrs["password"] != attrs["confirm_password"]):
+            raise serializers.ValidationError({
+                "confirm_password": "Passwords do not match"
+                })
+        return attrs
+    
+    def validate_role(self, value):
+
+        allowed_roles = [
+            User.Roles.ADMIN,
+            User.Roles.TEACHER,
+            User.Roles.STUDENT,
+        ]
+
+        if value not in allowed_roles:
+            raise serializers.ValidationError(
+                "Role should be one from the selections."
+            )
+        return value
+
+    def create(self, validated_data):
+        academy = self.context["request"].user.academy
+        return User.objects.create_user(
+            academy=academy,
+            **validated_data
+        )

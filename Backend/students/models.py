@@ -28,3 +28,11 @@ class Students(models.Model):
     status = models.CharField(max_length=1, choices=Status.choices, null=False)
     enrolled_at = models.DateTimeField(auto_now_add=True),
     update_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        db_table = 'students'
+        verbose_name = 'Student'
+        ordering = ['user__full_name']
+    
+    def __str__(self):
+        return self.user.full_name
