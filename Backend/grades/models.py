@@ -3,7 +3,6 @@ from django.db import models
 from financial_operations.models import Enrollment
 from records.models import SubjectSession
 
-
 class Grade(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
