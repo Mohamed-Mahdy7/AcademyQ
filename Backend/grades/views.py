@@ -21,7 +21,7 @@ class GradeViewSet(viewsets.ModelViewSet):
                 enrollment_id=enrollment_id
             )
 
-        return queryset.order_by("-assigned_at")
+        return queryset.order_by("assigned_at")
 
     @action(detail=False, methods=["get"])
     def summary(self, request):
@@ -40,7 +40,7 @@ class GradeViewSet(viewsets.ModelViewSet):
 
         grades = Grade.objects.filter(
             enrollment_id=enrollment_id
-        ).order_by("-assigned_at")
+        ).order_by("assigned_at")
 
         if not grades.exists():
             return Response({
