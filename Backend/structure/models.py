@@ -15,6 +15,7 @@ class Subject(models.Model):
     name = models.CharField(max_length=64)
     description = models.TextField()
     session_count = models.PositiveIntegerField()
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         db_table = "subjects"
