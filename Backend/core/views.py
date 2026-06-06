@@ -1,12 +1,14 @@
 from django.contrib.auth import get_user_model
+from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, generics
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny
-from .serializers import AcademySerializer, CustomeTokenObtainPairSerializer, AcademyRegistrationSerializer
-from .permissions import ActiveSubscriptionRequired
+from .serializers import AcademySerializer, CustomeTokenObtainPairSerializer,\
+    AcademyRegistrationSerializer, StaffCreateSerializer, UserSerializer
+from .permissions import ActiveSubscriptionRequired, IsOwner
 
 User = get_user_model()
 
@@ -132,6 +134,24 @@ class LoginView(TokenObtainPairView):
                 samesite='lax'
             )
         return response
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsOwner]
+    
+    def get_queryset(self):
+        return User.objects.filter(
+            academy=self.request.user.academy
+        ).exclude(role=User.Roles.OWNER)
+    
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return StaffCreateSerializer
+        
+        return UserSerializer
+    
+    def perform_create(self, serializer):
+        serializer.save()
 
 
 class RefreshTokenView(APIView):
