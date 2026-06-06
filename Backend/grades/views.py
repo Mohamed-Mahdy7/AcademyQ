@@ -21,7 +21,7 @@ class GradeViewSet(viewsets.ModelViewSet):
                 enrollment_id=enrollment_id
             )
 
-        return queryset.order_by("-assigned_at")
+        return queryset.order_by("assigned_at")
 
     @action(detail=False, methods=["get"])
     def summary(self, request):
@@ -70,7 +70,7 @@ class GradeViewSet(viewsets.ModelViewSet):
 
         trend = None
 
-        if len(percentages) >= 6:
+        if len(percentages) >= 3:
             last_three_avg = (
                 sum(percentages[:3])
                 / len(percentages[:3])
