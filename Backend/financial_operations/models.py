@@ -10,7 +10,7 @@ class Teachers(models.Model):
     academy_id = models.ForeignKey('core.Academy', on_delete=models.CASCADE, db_column='academy_id', related_name='teachers')
     user_id = models.ForeignKey('core.User', on_delete=models.CASCADE, db_column='user_id', related_name='teacher_profile')
     rate_per_session = models.DecimalField(max_digits=10, decimal_places=2)
-    session_duration = models.TimeField()
+    session_duration = models.DurationField()
 
     class Meta:
         db_table = 'teachers'
@@ -30,7 +30,7 @@ class Enrollment(models.Model):
     class_id = models.ForeignKey(Class, on_delete=models.PROTECT,db_column='class_id',related_name='enrollments')
     student_id = models.ForeignKey(Students, on_delete=models.PROTECT,db_column='student_id',related_name='enrollments')
     fee_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    payment_cycle = models.DateField()
+    payment_cycle = models.DurationField(null=True, blank=True)
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
