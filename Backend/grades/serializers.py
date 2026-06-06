@@ -14,11 +14,11 @@ class GradeSerializer(serializers.ModelSerializer):
             "subject_name",
             "score",
             "max_score",
-            "created_at",
+            "assigned_at",
         ]
  
         read_only_fields = [
             "id",
-            "created_at"
+            "assigned_at"
         ]
     

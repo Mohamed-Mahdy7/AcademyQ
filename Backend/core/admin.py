@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User
+from .models import User, Academy
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
@@ -36,6 +36,17 @@ class UserAdmin(BaseUserAdmin):
             "classes": ("wide",),
             "fields": ("full_name", "email", "phone", "academy",
                 "role", "password1", "password2",
+            ),
+        }),
+    )
+
+@admin.register(Academy)
+class AcademyAdmin(admin.ModelAdmin):
+    add_fieldsets = (
+        (None, {
+            "classes": ("wide",),
+            "fields": ("name", "email", "phone", "address",
+                "subscription_end", "setup_complete",
             ),
         }),
     )
