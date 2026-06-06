@@ -3,5 +3,5 @@ __pycache__
 .dockerignore
 Dockerfile
 docker-compose.yml
-Backend/*/migrations/
+Backend/*/migrations/*
 Backend/API_Docs.md
