@@ -4,9 +4,9 @@ from .models import User
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    ordering = ("email",)
+    ordering = ("full_name",)
 
-    list_display = ("email", "full_name", "role",
+    list_display = ("full_name", "email", "role",
         "phone", "is_staff", "is_active",
     )
 
@@ -34,7 +34,7 @@ class UserAdmin(BaseUserAdmin):
     add_fieldsets = (
         (None, {
             "classes": ("wide",),
-            "fields": ("email", "full_name", "phone", "academy",
+            "fields": ("full_name", "email", "phone", "academy",
                 "role", "password1", "password2",
             ),
         }),
