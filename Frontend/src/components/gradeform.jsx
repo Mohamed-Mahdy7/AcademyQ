@@ -36,7 +36,7 @@ export default function GradeForm({
     // );
 
         if (onSubmit) {
-      onSubmit(form);   // 👈 هنا الربط
+      onSubmit(form);  
     }
 
   };
