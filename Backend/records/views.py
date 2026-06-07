@@ -1,8 +1,9 @@
-from rest_framework import status, generics
-from rest_framework.views import APIView
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db import transaction
 from django.db.models import Count, Q
+from core.permissions import IsOwner, ActiveSubscriptionRequired
 from .models import SubjectSession, Attendance
 from .serializers import (
     SubjectSessionSerializer,
@@ -11,13 +12,14 @@ from .serializers import (
 )
 
 
-class SubjectSessionListCreateView(generics.ListCreateAPIView):
+class SubjectSessionViewSet(viewsets.ModelViewSet):
     serializer_class = SubjectSessionSerializer
+    http_method_names = ['get', 'post', 'head', 'options']
+    permission_classes = [IsOwner, ActiveSubscriptionRequired]
 
     def get_queryset(self):
-        academy_id = self.request.user.academy_id
         qs = SubjectSession.objects.filter(
-            class_obj__academy_id=academy_id
+            class_obj__academy_id=self.request.user.academy_id
         ).annotate(
             present_count=Count('attendance_records', filter=Q(attendance_records__present=True)),
             absent_count=Count('attendance_records', filter=Q(attendance_records__present=False)),
@@ -29,55 +31,16 @@ class SubjectSessionListCreateView(generics.ListCreateAPIView):
             qs = qs.filter(class_obj__id=class_id)
         return qs
 
+    @action(detail=True, methods=['get', 'post'], url_path='attendance')
+    def attendance(self, request, pk=None):
+        session = self.get_object()
 
-class SubjectSessionDetailView(generics.RetrieveAPIView):
-    serializer_class = SubjectSessionSerializer
-
-    def get_queryset(self):
-        return SubjectSession.objects.filter(
-            class_obj__academy_id=self.request.user.academy_id
-        ).annotate(
-            present_count=Count('attendance_records', filter=Q(attendance_records__present=True)),
-            absent_count=Count('attendance_records', filter=Q(attendance_records__present=False)),
-            total_enrolled=Count('attendance_records'),
-        )
-
-
-class AttendanceBulkView(APIView):
-    """
-    GET  /api/sessions/{id}/attendance/  — list records for a session
-    POST /api/sessions/{id}/attendance/  — bulk create/update
-    """
-
-    def get_session(self, session_id, academy_id):
-        try:
-            return SubjectSession.objects.get(
-                id=session_id,
-                class_obj__academy_id=academy_id
+        if request.method == 'GET':
+            records = Attendance.objects.filter(session=session).select_related(
+                'enrollment__student__user'
             )
-        except SubjectSession.DoesNotExist:
-            return None
-
-    def get(self, request, session_id):
-        session = self.get_session(session_id, request.user.academy_id)
-        if not session:
-            return Response(
-                {'detail': 'Session not found.'},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        records = Attendance.objects.filter(session=session).select_related(
-            'enrollment__student__user'
-        )
-        serializer = AttendanceSerializer(records, many=True)
-        return Response(serializer.data)
-
-    def post(self, request, session_id):
-        session = self.get_session(session_id, request.user.academy_id)
-        if not session:
-            return Response(
-                {'detail': 'Session not found.'},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            serializer = AttendanceSerializer(records, many=True)
+            return Response(serializer.data)
 
         serializer = AttendanceBulkSerializer(data=request.data)
         if not serializer.is_valid():
@@ -104,12 +67,25 @@ class AttendanceBulkView(APIView):
         )
 
 
-class StudentAttendanceStatsView(APIView):
-    """
-    GET /api/students/{student_id}/attendance/stats/?class_id={id}
-    """
+class StudentAttendanceViewSet(viewsets.ModelViewSet):
+    serializer_class = AttendanceSerializer
+    http_method_names = ['get', 'head', 'options']
+    permission_classes = [IsOwner, ActiveSubscriptionRequired]
 
-    def get(self, request, student_id):
+    def get_queryset(self):
+        return Attendance.objects.filter(
+            enrollment__student_id__id=self.kwargs.get('student_id'),
+            enrollment__class_id__academy_id=self.request.user.academy_id,
+        )
+    
+    def list(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def retrieve(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    @action(detail=False, methods=['get'], url_path='stats')
+    def stats(self, request, student_id=None):
         class_id = request.query_params.get('class_id')
         if not class_id:
             return Response(
@@ -117,10 +93,8 @@ class StudentAttendanceStatsView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        records = Attendance.objects.filter(
-            enrollment__student__id=student_id,
-            enrollment__class_obj__id=class_id,
-            enrollment__class_obj__academy_id=request.user.academy_id,
+        records = self.get_queryset().filter(
+            enrollment__class_id__id=class_id
         )
 
         total = records.count()
@@ -135,13 +109,8 @@ class StudentAttendanceStatsView(APIView):
             'attendance_pct': pct,
         })
 
-
-class StudentAttendanceHistoryView(APIView):
-    """
-    GET /api/students/{student_id}/attendance/history/?class_id={id}
-    """
-
-    def get(self, request, student_id):
+    @action(detail=False, methods=['get'], url_path='history')
+    def history(self, request, student_id=None):
         class_id = request.query_params.get('class_id')
         if not class_id:
             return Response(
@@ -149,10 +118,8 @@ class StudentAttendanceHistoryView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        records = Attendance.objects.filter(
-            enrollment__student__id=student_id,
-            enrollment__class_obj__id=class_id,
-            enrollment__class_obj__academy_id=request.user.academy_id,
+        records = self.get_queryset().filter(
+            enrollment__class_id__id=class_id
         ).select_related('session').order_by('session__session_date')
 
         data = [
@@ -166,19 +133,29 @@ class StudentAttendanceHistoryView(APIView):
         return Response(data)
 
 
-class ClassAttendanceSummaryView(APIView):
-    """
-    GET /api/classes/{class_id}/attendance/summary/
-    """
+class ClassAttendanceViewSet(viewsets.ModelViewSet):
+    serializer_class = SubjectSessionSerializer
+    http_method_names = ['get', 'head', 'options']
+    permission_classes = [IsOwner, ActiveSubscriptionRequired]
 
-    def get(self, request, class_id):
-        sessions = SubjectSession.objects.filter(
-            class_obj__id=class_id,
-            class_obj__academy_id=request.user.academy_id,
+    def get_queryset(self):
+        return SubjectSession.objects.filter(
+            class_obj__id=self.kwargs.get('class_id'),
+            class_obj__academy_id=self.request.user.academy_id,
         ).annotate(
             present_count=Count('attendance_records', filter=Q(attendance_records__present=True)),
             total_enrolled=Count('attendance_records'),
         ).order_by('session_num')
+
+    def list(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def retrieve(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    @action(detail=False, methods=['get'], url_path='summary')
+    def summary(self, request, class_id=None):
+        sessions = self.get_queryset()
 
         data = [
             {

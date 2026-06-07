@@ -2,13 +2,6 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import api from "../../api";
 
-// --- mock data (replace with real API calls in S2/S3) ---
-const MOCK_ENROLLMENTS = [
-  { enrollment_id: "enr-1", student_name: "Ali Hassan" },
-  { enrollment_id: "enr-2", student_name: "Sara Mohamed" },
-  { enrollment_id: "enr-3", student_name: "Omar Khaled" },
-];
-
 const todayStr = () => new Date().toISOString().split("T")[0];
 
 export default function AttendanceMarkingPage() {
@@ -16,47 +9,56 @@ export default function AttendanceMarkingPage() {
 
   const [selectedDate, setSelectedDate] = useState(todayStr());
   const [notes, setNotes] = useState("");
-  const [enrollments, setEnrollments] = useState(MOCK_ENROLLMENTS);
+  const [enrollments, setEnrollments] = useState([]);
   const [attendance, setAttendance] = useState({});
+  const [sessionId, setSessionId] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [toast, setToast] = useState(null); // { type: 'success'|'danger', message }
+  const [toast, setToast] = useState(null);
 
-  // Initialize attendance state when enrollments load
+  // Load enrollments once on mount
   useEffect(() => {
-    const initial = {};
-    enrollments.forEach((e) => {
-      initial[e.enrollment_id] = false;
-    });
-    setAttendance(initial);
-  }, [enrollments]);
+    api.get(`/api/enrollments/?class_id=${classId}`)
+      .then(res => {
+        const data = res.data.results ?? res.data;
+        setEnrollments(data);
+        const initial = {};
+        data.forEach(e => { initial[e.id] = false; });
+        setAttendance(initial);
+      })
+      .catch(() => showToast("danger", "Failed to load students."));
+  }, [classId]);
 
-  // TODO S3: replace with real API call
-  // useEffect(() => {
-  //   api.get(`/api/enrollments/?class_id=${classId}`)
-  //     .then(res => setEnrollments(res.data.results))
-  // }, [classId]);
+  // Check if session exists for selected date, pre-fill if so
+  useEffect(() => {
+    if (!classId || !selectedDate) return;
 
-  // TODO S3: check if session exists for selectedDate, pre-fill if so
-  // useEffect(() => {
-  //   api.get(`/api/sessions/?class_id=${classId}&date=${selectedDate}`)
-  //     .then(res => {
-  //       if (res.data.results.length > 0) {
-  //         const session = res.data.results[0];
-  //         setIsEditMode(true);
-  //         // load existing attendance records and pre-fill attendance state
-  //       } else {
-  //         setIsEditMode(false);
-  //       }
-  //     })
-  // }, [classId, selectedDate]);
+    api.get(`/api/sessions/?class_id=${classId}`)
+      .then(res => {
+        const data = res.data.results ?? res.data;
+        const existing = data.find(s => s.session_date === selectedDate);
 
-  const togglePresence = (enrollmentId) => {
-    setAttendance((prev) => ({
-      ...prev,
-      [enrollmentId]: !prev[enrollmentId],
-    }));
-  };
+        if (existing) {
+          setSessionId(existing.id);
+          setIsEditMode(true);
+          setNotes(existing.notes || "");
+          return api.get(`/api/sessions/${existing.id}/attendance/`);
+        } else {
+          setSessionId(null);
+          setIsEditMode(false);
+          setNotes("");
+          return null;
+        }
+      })
+      .then(res => {
+        if (!res) return;
+        const data = res.data.results ?? res.data;
+        const prefilled = {};
+        data.forEach(r => { prefilled[r.enrollment] = r.present; });
+        setAttendance(prev => ({ ...prev, ...prefilled }));
+      })
+      .catch(() => showToast("danger", "Failed to check session."));
+  }, [classId, selectedDate]);
 
   const showToast = (type, message) => {
     setToast({ type, message });
@@ -70,34 +72,37 @@ export default function AttendanceMarkingPage() {
       present,
     }));
 
-    // TODO S3: replace with real API call
-    // try {
-    //   await api.post(`/api/sessions/${sessionId}/attendance/`, { records });
-    //   showToast("success", isEditMode ? "Attendance updated." : "Attendance saved.");
-    // } catch {
-    //   showToast("danger", "Failed to save attendance.");
-    // } finally {
-    //   setSubmitting(false);
-    // }
+    try {
+      let activeSessionId = sessionId;
 
-    // Mock success for scaffold
-    setTimeout(() => {
+      if (!activeSessionId) {
+        const sessionRes = await api.post(`/api/sessions/`, {
+          class_id: classId,
+          session_date: selectedDate,
+          notes,
+        });
+        activeSessionId = sessionRes.data.id;
+        setSessionId(activeSessionId);
+      }
+
+      await api.post(`/api/sessions/${activeSessionId}/attendance/`, { records });
       showToast("success", isEditMode ? "Attendance updated." : "Attendance saved.");
+    } catch {
+      showToast("danger", "Failed to save attendance.");
+    } finally {
       setSubmitting(false);
-    }, 600);
+    }
   };
 
   return (
     <div className="container py-4">
 
-      {/* Toast */}
       {toast && (
         <div className={`alert alert-${toast.type} alert-dismissible`} role="alert">
           {toast.message}
         </div>
       )}
 
-      {/* Header */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h4 className="mb-0">
           Attendance Marking
@@ -108,7 +113,6 @@ export default function AttendanceMarkingPage() {
         <span className="text-muted small">Class ID: {classId}</span>
       </div>
 
-      {/* Date Picker + Notes */}
       <div className="card mb-4">
         <div className="card-body row g-3">
           <div className="col-md-4">
@@ -133,39 +137,30 @@ export default function AttendanceMarkingPage() {
         </div>
       </div>
 
-      {/* Attendance Grid */}
       <div className="card mb-4">
         <div className="card-header d-flex justify-content-between">
           <span className="fw-semibold">Students ({enrollments.length})</span>
           <span className="text-muted small">
-            Present: {Object.values(attendance).filter(Boolean).length} /  {enrollments.length}
+            Present: {Object.values(attendance).filter(Boolean).length} / {enrollments.length}
           </span>
         </div>
         <ul className="list-group list-group-flush">
           {enrollments.map((e) => (
             <li
-              key={e.enrollment_id}
+              key={e.id}
               className="list-group-item d-flex justify-content-between align-items-center"
             >
               <span>{e.student_name}</span>
               <div className="d-flex gap-2">
                 <button
-                  className={`btn btn-sm ${
-                    attendance[e.enrollment_id] ? "btn-success" : "btn-outline-success"
-                  }`}
-                  onClick={() =>
-                    setAttendance((prev) => ({ ...prev, [e.enrollment_id]: true }))
-                  }
+                  className={`btn btn-sm ${attendance[e.id] ? "btn-success" : "btn-outline-success"}`}
+                  onClick={() => setAttendance(prev => ({ ...prev, [e.id]: true }))}
                 >
                   Present
                 </button>
                 <button
-                  className={`btn btn-sm ${
-                    !attendance[e.enrollment_id] ? "btn-danger" : "btn-outline-danger"
-                  }`}
-                  onClick={() =>
-                    setAttendance((prev) => ({ ...prev, [e.enrollment_id]: false }))
-                  }
+                  className={`btn btn-sm ${!attendance[e.id] ? "btn-danger" : "btn-outline-danger"}`}
+                  onClick={() => setAttendance(prev => ({ ...prev, [e.id]: false }))}
                 >
                   Absent
                 </button>
@@ -175,7 +170,6 @@ export default function AttendanceMarkingPage() {
         </ul>
       </div>
 
-      {/* Submit */}
       <button
         className="btn btn-primary px-4"
         onClick={handleSubmit}

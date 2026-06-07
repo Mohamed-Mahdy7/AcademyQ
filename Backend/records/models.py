@@ -11,6 +11,7 @@ class SubjectSession(models.Model):
     notes = models.TextField(blank=True, default='')
 
     class Meta:
+        db_table = 'subject_sessions'
         constraints = [
             models.UniqueConstraint(
                 fields=['class_obj', 'session_date'],
@@ -32,6 +33,7 @@ class Attendance(models.Model):
     recorded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        db_table = 'attendance'
         constraints = [
             models.UniqueConstraint(
                 fields=['session', 'enrollment'],
