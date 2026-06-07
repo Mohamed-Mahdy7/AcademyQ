@@ -74,8 +74,8 @@ class StudentAttendanceViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Attendance.objects.filter(
-            enrollment__student__id=self.kwargs.get('student_id'),
-            enrollment__class_obj__academy_id=self.request.user.academy_id,
+            enrollment__student_id__id=self.kwargs.get('student_id'),
+            enrollment__class_id__academy_id=self.request.user.academy_id,
         )
     
     def list(self, request, *args, **kwargs):
@@ -94,7 +94,7 @@ class StudentAttendanceViewSet(viewsets.ModelViewSet):
             )
 
         records = self.get_queryset().filter(
-            enrollment__class_obj__id=class_id
+            enrollment__class_id__id=class_id
         )
 
         total = records.count()
@@ -119,7 +119,7 @@ class StudentAttendanceViewSet(viewsets.ModelViewSet):
             )
 
         records = self.get_queryset().filter(
-            enrollment__class_obj__id=class_id
+            enrollment__class_id__id=class_id
         ).select_related('session').order_by('session__session_date')
 
         data = [
