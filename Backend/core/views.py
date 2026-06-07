@@ -6,8 +6,10 @@ from rest_framework import status, generics
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny
-from .serializers import AcademySerializer, CustomeTokenObtainPairSerializer,\
-    AcademyRegistrationSerializer, StaffCreateSerializer, UserSerializer
+from rest_framework.exceptions import PermissionDenied
+from .serializers import (AcademySerializer, CustomeTokenObtainPairSerializer,
+    AcademyRegistrationSerializer, StaffCreateSerializer, StudentCreateSerializer, 
+    StudentProfileUpdateSerializer, UserSerializer)
 from .permissions import ActiveSubscriptionRequired, IsOwner
 
 User = get_user_model()
@@ -153,6 +155,31 @@ class UserViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save()
 
+
+class StudentRegistrationView(generics.CreateAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = StudentCreateSerializer
+
+
+class StudentProfileView(generics.RetrieveUpdateAPIView):
+    serializer_class = StudentProfileUpdateSerializer
+    permission_classes = []
+
+    def get_queryset(self):
+        user = self.request.user
+
+        # Only Admin and Student can access this endpoint
+        if user.role not in [
+            User.Roles.ADMIN,
+            User.Roles.STUDENT,
+        ]:
+            raise PermissionDenied(
+                "You do not have permission to access this endpoint."
+            )
+
+        return User.objects.filter(
+            role=User.Roles.STUDENT
+        )
 
 class RefreshTokenView(APIView):
     def post(self, request):

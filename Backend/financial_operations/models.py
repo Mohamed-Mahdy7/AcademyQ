@@ -1,14 +1,13 @@
 from django.db import models
 import uuid
 from structure.models import Class
-from students.models import Students
 # Create your models here.
 
 
 class Teachers(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     academy_id = models.ForeignKey('core.Academy', on_delete=models.CASCADE, db_column='academy_id', related_name='teachers')
-    user_id = models.ForeignKey('core.User', on_delete=models.CASCADE, db_column='user_id', related_name='teacher_profile')
+    user_id = models.OneToOneField('core.User', on_delete=models.CASCADE, db_column='user_id', related_name='teacher_profile')
     rate_per_session = models.DecimalField(max_digits=10, decimal_places=2)
     session_duration = models.DurationField()
 
@@ -28,7 +27,13 @@ class Enrollment(models.Model):
  
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     class_id = models.ForeignKey(Class, on_delete=models.PROTECT,db_column='class_id',related_name='enrollments')
-    student_id = models.ForeignKey(Students, on_delete=models.PROTECT,db_column='student_id',related_name='enrollments')
+    student_id = models.ForeignKey(
+        'core.User', 
+        on_delete=models.PROTECT,
+        db_column='student_id',
+        related_name='enrollments',
+        limit_choices_to={'role': 'S'}
+        )
     fee_amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_cycle = models.DurationField(null=True, blank=True)
     start_date = models.DateField()

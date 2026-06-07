@@ -70,7 +70,7 @@ class GradeViewSet(viewsets.ModelViewSet):
 
         trend = None
 
-        if len(percentages) >= 6:
+        if len(percentages) >= 3:
             last_three_avg = (
                 sum(percentages[:3])
                 / len(percentages[:3])

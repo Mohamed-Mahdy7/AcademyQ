@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from .models import Teachers, Enrollment, Payment
 from django.db import models as django_models
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
 class TeachersSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='user_id.full_name', read_only=True)
     email = serializers.EmailField(source='user_id.email', read_only=True)
@@ -31,7 +33,10 @@ class PaymentSerializer(serializers.ModelSerializer):
         ]
 
 class EnrollmentSerializer(serializers.ModelSerializer):
-    student_name = serializers.CharField(source='student_id.user_id.full_name', read_only=True)
+    student_name = serializers.SlugRelatedField(
+        queryset=User.objects.filter(role=User.Roles.STUDENT),
+        slug_field='full_name'
+        )    
     class_name = serializers.CharField(source='class_id.name', read_only=True)
     total_paid = serializers.SerializerMethodField()
     balance_due = serializers.SerializerMethodField()
@@ -42,7 +47,6 @@ class EnrollmentSerializer(serializers.ModelSerializer):
             'id',
             'class_id',
             'class_name',
-            'student_id',
             'student_name',
             'fee_amount',
             'payment_cycle',

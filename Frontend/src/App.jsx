@@ -1,4 +1,5 @@
-import './App.css'
+ import "./App.css";
+import GradeForm from "./components/gradeform";
 
 function App() {
   return (
@@ -7,4 +8,5 @@ function App() {
   )
 }
 
-export default App
+
+export default App;

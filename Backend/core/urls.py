@@ -7,5 +7,7 @@ urlpatterns =[
     path("token/refresh/", views.RefreshTokenView.as_view(), name="refresh"),
     path("logout/", views.LogoutView.as_view(), name='logout'),
     path("academy/", views.AcademyView.as_view(), name='academy'),
-    path("academy/complete-setup/", views.ComopleteSetupView.as_view(), name="complete-setup")
+    path("academy/complete-setup/", views.ComopleteSetupView.as_view(), name="complete_setup"),
+    path("users/register/student/", views.StudentRegistrationView.as_view(), name="register_student"),
+    path("users/students/profile/", views.StudentProfileView.as_view(),name="student_profile_update"),
 ]

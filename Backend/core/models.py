@@ -58,6 +58,31 @@ class User(AbstractBaseUser, PermissionsMixin):
         TEACHER='T', "Teacher"
         STUDENT='S', "Student"
     
+    class Status(models.TextChoices):
+        ACTIVE="A", "Active"
+        PENDING="P", "Pending"
+        DROPPED='D', "Dropped"
+    
+    class EducationalLevel(models.IntegerChoices):
+        PRIMARY_1 = 1, "Primary 1"
+        PRIMARY_2 = 2, "Primary 2"
+        PRIMARY_3 = 3, "Primary 3"
+        PRIMARY_4 = 4, "Primary 4"
+        PRIMARY_5 = 5, "Primary 5"
+        PRIMARY_6 = 6, "Primary 6"
+        PREP_1 = 7, "Preparatory 1"
+        PREP_2 = 8, "Preparatory 2"
+        PREP_3 = 9, "Preparatory 3"
+        SEC_1 = 10, "Secondary 1"
+        SEC_2 = 11, "Secondary 2"
+        SEC_3 = 12, "Secondary 3"
+        COLLEGE_1 = 13, "College 1"
+        COLLEGE_2 = 14, "College 2"
+        COLLEGE_3 = 15, "College 3"
+        COLLEGE_4 = 16, "College 4"
+        COLLEGE_5 = 17, "College 5"
+        COLLEGE_6 = 18, "College 6"
+    
     id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     academy=models.ForeignKey(
         Academy,
@@ -70,6 +95,18 @@ class User(AbstractBaseUser, PermissionsMixin):
     email=models.EmailField(unique=True)
     phone=models.CharField(max_length=20)
     role=models.CharField(max_length=10, choices=Roles.choices, null=False)
+    parent_phone = models.CharField(max_length=15)
+    educational_level = models.IntegerField(
+        choices=EducationalLevel.choices,
+        null=False
+        )
+    status = models.CharField(
+        max_length=10,
+        choices=Status.choices,
+        default="P",
+        null=False)
+    enrolled_at = models.DateTimeField(null=True)
+    update_at = models.DateTimeField(auto_now=True)
     is_active=models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
@@ -77,7 +114,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects=UserManager()
     
     USERNAME_FIELD='email'
-    REQUIRED_FIELDS=[]
+    REQUIRED_FIELDS=["educational_level"]
     
     class Meta:
         db_table = 'users'
