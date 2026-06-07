@@ -30,12 +30,12 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     # 'rest_framework_simplejwt.token_blacklist',
     'djoser',
+    'django_extensions',
     'corsheaders',
     'django_filters',
     'core',
     'grades',
     'structure',
-    'students',
     'records',
     'financial_operations',
     

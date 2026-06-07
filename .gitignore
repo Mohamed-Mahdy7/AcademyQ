@@ -5,3 +5,4 @@ Dockerfile
 docker-compose.yml
 Backend/*/migrations/*
 Backend/API_Docs.md
+cookies*
