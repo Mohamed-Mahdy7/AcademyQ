@@ -1,4 +1,7 @@
+from dataclasses import fields
 from datetime import timedelta
+from email.policy import default
+from pyexpat import model
 from django.utils import timezone
 from django.db import transaction
 from django.contrib.auth.backends import ModelBackend
@@ -41,6 +44,7 @@ class AcademyRegistrationSerializer(serializers.Serializer):
             full_name=validated_data["full_name"],
             email=validated_data["email"],
             phone=validated_data["phone"],
+            educational_level=0,
             password=validated_data["password"],
             role=User.Roles.OWNER
         )
@@ -69,6 +73,23 @@ class UserSerializer(serializers.ModelSerializer):
             "is_active",
             "academy_name",
         ]
+
+
+class StudentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "id", "full_name", "email", "phone", "role",
+            'parent_phone', 'educational_level', "academy"
+        ]
+        read_only_fields = ['role']
+    
+    
+    def create(self, validated_data):
+        return User.objects.create(
+            **validated_data,
+            role=User.Roles.STUDENT,
+        )
 
 class EmailBackend(ModelBackend):
     def authenticate(self, request, email=None, password=None, **kwargs):
