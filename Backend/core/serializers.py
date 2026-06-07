@@ -1,7 +1,5 @@
 from dataclasses import fields
 from datetime import timedelta
-from email.policy import default
-from pyexpat import model
 from django.utils import timezone
 from django.db import transaction
 from django.contrib.auth.backends import ModelBackend

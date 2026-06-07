@@ -1,32 +1,32 @@
 import uuid
 from django.db import models
 
+
 class Subject(models.Model):
     id = models.UUIDField(
-        primary_key = True,
-        default = uuid.uuid4,
-        editable = False,
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
     )
     academy = models.ForeignKey(
-        'core.Academy',
+        "core.Academy",
         on_delete=models.CASCADE,
         related_name="subjects",
     )
     name = models.CharField(max_length=64)
     description = models.TextField()
     session_count = models.PositiveIntegerField()
-    is_active = models.BooleanField(default=True)
 
     class Meta:
         db_table = "subjects"
         verbose_name = "Subject"
         verbose_name_plural = "Subjects"
         ordering = ["name"]
-        
+
         constraints = [
             models.UniqueConstraint(
-                fields = ["academy", "name"],
-                name = "unique_subject_name_per_academy",
+                fields=["academy", "name"],
+                name="unique_subject_name_per_academy",
             )
         ]
 
@@ -36,9 +36,9 @@ class Subject(models.Model):
 
 class Class(models.Model):
     id = models.UUIDField(
-        primary_key = True,
-        default = uuid.uuid4,
-        editable = False,
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
     )
     academy = models.ForeignKey(
         "core.Academy",
@@ -48,6 +48,11 @@ class Class(models.Model):
     subject = models.ForeignKey(
         "Subject",
         on_delete=models.PROTECT,
+        related_name="classes",
+    )
+    teachers = models.ManyToManyField(
+        "financial_operations.Teachers",
+        through="TeacherClass",
         related_name="classes",
     )
     name = models.CharField(max_length=64)
@@ -64,8 +69,8 @@ class Class(models.Model):
 
         constraints = [
             models.UniqueConstraint(
-                fields = ["academy", "subject", "name"],
-                name = "unique_class_name_per_subject_academy",
+                fields=["academy", "subject", "name"],
+                name="unique_class_name_per_subject_academy",
             )
         ]
 
@@ -74,20 +79,16 @@ class Class(models.Model):
 
 
 class TeacherClass(models.Model):
-    id = models.UUIDField(
-        primary_key = True,
-        default = uuid.uuid4,
-        editable = False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     assigned_class = models.ForeignKey(
         "Class",
         on_delete=models.CASCADE,
-        related_name="teacher_class",
+        related_name="teacher_assignments",
     )
     teacher = models.ForeignKey(
         "financial_operations.Teachers",
         on_delete=models.CASCADE,
-        related_name="teacher_class",
+        related_name="class_assignments",
     )
     assigned_at = models.DateField()
 
@@ -99,8 +100,8 @@ class TeacherClass(models.Model):
 
         constraints = [
             models.UniqueConstraint(
-                fields = ["assigned_class", "teacher"],
-                name = "unique_teacher_per_class",
+                fields=["assigned_class", "teacher"],
+                name="unique_teacher_per_class",
             )
         ]
 
