@@ -1,12 +1,14 @@
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, generics
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.decorators import action
 from .serializers import (AcademySerializer, CustomeTokenObtainPairSerializer,
     AcademyRegistrationSerializer, StaffCreateSerializer, StudentCreateSerializer, 
     StudentProfileUpdateSerializer, UserSerializer)
@@ -152,6 +154,15 @@ class UserViewSet(viewsets.ModelViewSet):
         
         return UserSerializer
     
+    @action(
+        detail=False, 
+        methods=["GET", "PUT"],
+        permission_classes = [IsAuthenticated]
+        )
+    def me(self, request):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
+    
     def perform_create(self, serializer):
         serializer.save()
 
@@ -163,23 +174,19 @@ class StudentRegistrationView(generics.CreateAPIView):
 
 class StudentProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = StudentProfileUpdateSerializer
-    permission_classes = []
 
-    def get_queryset(self):
+    def get_object(self):
         user = self.request.user
 
-        # Only Admin and Student can access this endpoint
-        if user.role not in [
-            User.Roles.ADMIN,
-            User.Roles.STUDENT,
-        ]:
-            raise PermissionDenied(
-                "You do not have permission to access this endpoint."
+        if user.role == User.Roles.ADMIN:
+            return get_object_or_404(
+                User,
+                pk=self.kwargs["pk"],
+                role=User.Roles.STUDENT
             )
 
-        return User.objects.filter(
-            role=User.Roles.STUDENT
-        )
+        if user.role == User.Roles.STUDENT:
+            return user
 
 class RefreshTokenView(APIView):
     def post(self, request):

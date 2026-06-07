@@ -1,12 +1,13 @@
- import "./App.css";
-import GradeForm from "./components/gradeform";
+import "./App.css";
 
 function App() {
+  if (loading) {
+    return <div>Loading...</div>;
+  }
   return (
     <>
     </>
   )
 }
-
 
 export default App;
