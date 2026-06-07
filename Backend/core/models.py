@@ -97,7 +97,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     role=models.CharField(max_length=10, choices=Roles.choices, null=False)
     parent_phone = models.CharField(max_length=15)
     educational_level = models.IntegerField(
-        max_length=15,
         choices=EducationalLevel.choices,
         null=False
         )
@@ -115,7 +114,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects=UserManager()
     
     USERNAME_FIELD='email'
-    REQUIRED_FIELDS=[]
+    REQUIRED_FIELDS=["educational_level"]
     
     class Meta:
         db_table = 'users'
