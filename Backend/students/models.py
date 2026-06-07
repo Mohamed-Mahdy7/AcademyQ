@@ -23,10 +23,10 @@ class Students(models.Model):
         related_name='user_student',
         null=False
     )
-    patent_phone = models.CharField(max_length=15)
+    parent_phone = models.CharField(max_length=15)
     educational_level = models.IntegerField(null=False)
     status = models.CharField(max_length=1, choices=Status.choices, null=False)
-    enrolled_at = models.DateTimeField(auto_now_add=True),
+    enrolled_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True)
     
     class Meta:
