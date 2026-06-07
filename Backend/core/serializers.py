@@ -1,5 +1,4 @@
 from datetime import timedelta
-from tkinter.ttk import Style
 from django.utils import timezone
 from django.db import transaction
 from django.contrib.auth.backends import ModelBackend
