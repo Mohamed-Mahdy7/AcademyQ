@@ -38,16 +38,27 @@ class SubjectSessionSerializer(serializers.ModelSerializer):
 
 
 class AttendanceSerializer(serializers.ModelSerializer):
+    student_id = serializers.UUIDField(
+        source='enrollment.student_id.id',
+        read_only=True
+    )
+    student_name = serializers.CharField(
+        source='enrollment.student_id.user_id.full_name',
+        read_only=True
+    )
+
     class Meta:
         model = Attendance
         fields = [
             'id',
             'session',
             'enrollment',
+            'student_id',
+            'student_name',
             'present',
             'recorded_at',
         ]
-        read_only_fields = ['recorded_at']
+        read_only_fields = ['recorded_at', 'student_id', 'student_name']
 
 
 class AttendanceBulkItemSerializer(serializers.Serializer):
