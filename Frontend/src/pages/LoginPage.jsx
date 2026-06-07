@@ -1,0 +1,71 @@
+import { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+
+function Login() {
+    const {login, checkAuth} = useContext(AuthContext);
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const navigate = useNavigate()
+
+    async function handleSubmit(e) {
+        e.preventDefault();
+
+        const success = await login(
+            email,
+            password
+        );
+
+        if (!success) {
+            alert("Invalid credentials");
+        } else {navigate("/")}
+    };
+
+    return (
+        <main className="min-h-screen bg-surface flex items-center justify-center p-6">
+            <form 
+                onSubmit={handleSubmit}
+                className="w-full max-w-md bg-card p-8 rounded-2xl shodow-card border border-border space-y-5"
+            >
+                <h1 className="text-3xl font font-bold text-navy text-center">
+                    Login
+                </h1>
+                <div className="space-y-2">
+                    <label htmlFor="email" className="form-label">
+                        Email
+                    </label>
+                    <input 
+                        type="email" 
+                        name="email" 
+                        id="email"
+                        placeholder="Enter your email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="form-input"
+                        required
+                    />
+                </div>
+                <div className="space-y-2">
+                    <label htmlFor="password" className="form-label">
+                        Password
+                    </label>
+                    <input 
+                        type="password" 
+                        name="password" 
+                        id="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="form-input"
+                        required
+                    />
+                </div>
+                <button type="submit" className="btn-primary">
+                    Login
+                </button>
+            </form>
+        </main>
+    )
+}
+
+export default Login

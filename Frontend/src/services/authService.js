@@ -9,8 +9,8 @@ export const studentRegisterRequest = (data) =>
 export const loginRequest = (data) =>
     api.post("/api/auth/login/", data);
 
-export const refreshTokenRequest = (data) => 
-    api.post("/api/auth/token/refresh/", data);
+export const meRequest = () =>
+    api.get("/api/users/me/");
 
 export const logoutRequest = () =>
     api.post("/api/auth/logout/");

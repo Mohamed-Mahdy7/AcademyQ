@@ -13,6 +13,7 @@ class AcademyRegistrationSerializer(serializers.Serializer):
     academy_name = serializers.CharField(max_length=100)
     academy_email = serializers.EmailField()
     academy_phone = serializers.CharField(max_length=15)
+    address = serializers.CharField(max_length=1000)
     full_name = serializers.CharField(max_length=100)
     email = serializers.EmailField()
     phone = serializers.CharField(max_length=20)
@@ -33,6 +34,7 @@ class AcademyRegistrationSerializer(serializers.Serializer):
             name=validated_data["academy_name"],
             email=validated_data["academy_email"],
             phone=validated_data["academy_phone"],
+            address=validated_data["address"],
             subscription_end=timezone.now().date() + timedelta(days=30)
         )
 
