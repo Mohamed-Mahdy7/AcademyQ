@@ -10,10 +10,11 @@ export const getGrades =  (enrollmentId) =>
 
   
 ;
-
-export const getGradeSummary = (enrollmentId) => 
- api.get(`/grades/summary/?enrollment_id=${enrollmentId}`);
+export const listGrade = () => 
+   api.get("/grades/", data);
+    
 ;
+ 
 
 export const updateGrade =  (id, data) =>  api.patch(
     `/grades/${id}/`,data);

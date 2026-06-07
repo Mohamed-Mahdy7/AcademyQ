@@ -43,7 +43,7 @@ export default function GradeForm({
 
   return (
     <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px", width: "300px"  }}>
-      <div style={{ display: "flex", flexDirection: "row", gap: "1000px", backgroundColor: "#f0f0f0", padding: "10px", borderRadius: "5px" }}> 
+      <div style={{ display: "flex", flexDirection: "row", gap: "1000px", background: "#f0f0f0", padding: "10px", borderRadius: "5px" }}> 
       <select
         name="enrollment"
         onChange={handleChange}
@@ -98,7 +98,7 @@ export default function GradeForm({
         onChange={handleChange}
       />
 
-      <input
+       <input   style={{ border: "1px solid black" }}
         type="date"
         name="assigned_at"
         onChange={handleChange}
