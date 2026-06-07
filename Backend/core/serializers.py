@@ -1,4 +1,3 @@
-from dataclasses import fields
 from datetime import timedelta
 from django.utils import timezone
 from django.db import transaction
@@ -73,22 +72,6 @@ class UserSerializer(serializers.ModelSerializer):
         ]
 
 
-class StudentCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = [
-            "id", "full_name", "email", "phone", "role",
-            'parent_phone', 'educational_level', "academy"
-        ]
-        read_only_fields = ['role']
-    
-    
-    def create(self, validated_data):
-        return User.objects.create(
-            **validated_data,
-            role=User.Roles.STUDENT,
-        )
-
 class EmailBackend(ModelBackend):
     def authenticate(self, request, email=None, password=None, **kwargs):
         User = get_user_model()
@@ -137,10 +120,19 @@ class CustomeTokenObtainPairSerializer(TokenObtainPairSerializer):
 class StaffCreateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         write_only=True, 
-        style={'input_type': 'password'})
+        style={'input_type': 'password'}
+        )
     confirm_password = serializers.CharField(
         write_only=True,
-        style={'input_type': 'password'})
+        style={'input_type': 'password'}
+        )
+    role = serializers.ChoiceField(
+        choices=[
+            (User.Roles.ADMIN, "Admin"),
+            (User.Roles.TEACHER, "Teacher"),
+            (User.Roles.STUDENT, "Student"),
+        ]
+    )
 
     class Meta:
         model = User
@@ -153,30 +145,62 @@ class StaffCreateSerializer(serializers.ModelSerializer):
             "role"
         ]
 
-    def validate_password(self, attrs):
+    def validate(self, attrs):
+        if (attrs["password"] != attrs["confirm_password"]):
+            raise serializers.ValidationError({
+                "confirm_password": "Passwords do not match"
+                })
+        return attrs
+
+    def create(self, validated_data):
+        academy = self.context["request"].user.academy
+        validated_data.pop("confirm_password")
+        
+        return User.objects.create_user(
+            academy=academy,
+            **validated_data
+        )
+
+
+class StudentCreateSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(
+        write_only=True, 
+        style={'input_type': 'password'}
+        )
+    confirm_password = serializers.CharField(
+        write_only=True,
+        style={'input_type': 'password'}
+        )
+    class Meta:
+        model = User
+        fields = [
+            "id", "full_name", "email", "phone", 'parent_phone',
+            'educational_level', "academy", "password", "confirm_password"
+        ]
+    
+    def validate(self, attrs):
         if (attrs["password"] != attrs["confirm_password"]):
             raise serializers.ValidationError({
                 "confirm_password": "Passwords do not match"
                 })
         return attrs
     
-    def validate_role(self, value):
-
-        allowed_roles = [
-            User.Roles.ADMIN,
-            User.Roles.TEACHER,
-            User.Roles.STUDENT,
-        ]
-
-        if value not in allowed_roles:
-            raise serializers.ValidationError(
-                "Role should be one from the selections."
-            )
-        return value
-
     def create(self, validated_data):
-        academy = self.context["request"].user.academy
+        validated_data.pop("confirm_password")
+        
         return User.objects.create_user(
-            academy=academy,
-            **validated_data
+            **validated_data,
+            role=User.Roles.STUDENT,
         )
+
+
+class StudentProfileUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "full_name",
+            "email",
+            "phone",
+            "parent_phone",
+            "educational_level",
+        ]

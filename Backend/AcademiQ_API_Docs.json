@@ -124,7 +124,7 @@
       "endpoints": [
         {
           "method": "GET",
-          "path": "/academy/",
+          "path": "/auth/academy/",
           "description": "Returns the current academy's profile. Scoped to request.user.academy_id.",
           "responses": {
             "200": {
@@ -144,7 +144,7 @@
         },
         {
           "method": "PATCH",
-          "path": "/academy/",
+          "path": "/auth/academy/",
           "description": "Updates the current academy's profile. Owner role only.",
           "request_body": {
             "academy_name": {"type": "string","required": false,"example": "Rainbow Academy Updated"},
