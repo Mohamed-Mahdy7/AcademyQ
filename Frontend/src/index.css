@@ -27,3 +27,23 @@
     --shadow-modal:  0 20px 60px -10px rgb(15 40 84 / 0.25);
     --shadow-input:  0 0 0 3px rgb(73 136 196 / 0.20);
 }
+
+@layer components {
+    .form-input {
+        @apply w-full px-4 py-3 rounded-xl border border-border bg-white;
+        @apply focus:outline-none focus:ring-2 focus:ring-blue focus:border-blue;
+    }
+
+    .form-label {
+        @apply block text-sm font-medium text-navy mb-2;
+    }
+
+    .btn-primary {
+        @apply w-full py-3 rounded-xl bg-navy text-white font-semibold;
+        @apply hover:bg-navy-mid transition;
+    }
+
+    .form-card {
+        @apply bg-card rounded-2xl border border-border shadow-card p-8;
+    }
+}

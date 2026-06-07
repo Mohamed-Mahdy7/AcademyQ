@@ -26,14 +26,11 @@ export function AuthProvider({ children }) {
         }
     }
 
-// academy_name, academy_email, academy_phone, 
-//         full_name, email, phone, password, confirm_password
 
     async function register(data) {
         console.log(data);
         try {
             await registerRequest(data);
-            await login(data.email, data.password);
             return true;
         } catch (error) {
             console.error(error.response?.data)
@@ -45,7 +42,6 @@ export function AuthProvider({ children }) {
         console.log(data);
         try {
             await studentRegisterRequest(data);
-            await login(data.email, data.password);
             return true;
         } catch (error) {
             console.error(error.response?.data)
