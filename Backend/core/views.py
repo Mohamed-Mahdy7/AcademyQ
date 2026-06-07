@@ -7,7 +7,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny
 from .serializers import AcademySerializer, CustomeTokenObtainPairSerializer,\
-    AcademyRegistrationSerializer, StaffCreateSerializer, UserSerializer
+    AcademyRegistrationSerializer, StaffCreateSerializer, StudentCreateSerializer, UserSerializer
 from .permissions import ActiveSubscriptionRequired, IsOwner
 
 User = get_user_model()
@@ -152,6 +152,11 @@ class UserViewSet(viewsets.ModelViewSet):
     
     def perform_create(self, serializer):
         serializer.save()
+
+
+class StudentRegistrationView(generics.CreateAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = StudentCreateSerializer
 
 
 class RefreshTokenView(APIView):
