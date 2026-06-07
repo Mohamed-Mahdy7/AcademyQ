@@ -8,7 +8,7 @@ from students.models import Students
 class Teachers(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     academy_id = models.ForeignKey('core.Academy', on_delete=models.CASCADE, db_column='academy_id', related_name='teachers')
-    user_id = models.ForeignKey('core.User', on_delete=models.CASCADE, db_column='user_id', related_name='teacher_profile')
+    user_id = models.ForeignKey('core.User', on_delete=models.CASCADE, db_column='user_id', related_name='teacher_profile', unique=True)
     rate_per_session = models.DecimalField(max_digits=10, decimal_places=2)
     session_duration = models.DurationField()
 
