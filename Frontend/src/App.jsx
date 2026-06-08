@@ -38,7 +38,7 @@ function App() {
                   <TeachersPage />
                 </ProtectedRoute>
               } />
-              <Route path="attendance" element={
+              <Route path="classes/:classId/attendance" element={
                 <ProtectedRoute>
                   <AttendanceMarkingPage />
                 </ProtectedRoute>

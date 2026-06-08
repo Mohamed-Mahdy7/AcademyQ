@@ -77,7 +77,7 @@ export default function AttendanceMarkingPage() {
 
       if (!activeSessionId) {
         const sessionRes = await api.post(`/api/sessions/`, {
-          class_id: classId,
+          class_obj: classId,
           session_date: selectedDate,
           notes,
         });
