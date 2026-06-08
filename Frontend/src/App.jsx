@@ -46,6 +46,21 @@ function App() {
                   <AttendanceMarkingPage />
                 </ProtectedRoute>
               } />
+              <Route path="/subjects" element={
+                <ProtectedRoute>
+                  <SubjectsPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/subjects/add" element={
+                <ProtectedRoute>
+                  <AddSubjectPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/subjects/:id/edit" element={
+                <ProtectedRoute>
+                  <EditSubjectPage />
+                </ProtectedRoute>
+              } />
               {/* <Routes path="grade" element={
                 <ProtectedRoute>
                   <GradeForm />
