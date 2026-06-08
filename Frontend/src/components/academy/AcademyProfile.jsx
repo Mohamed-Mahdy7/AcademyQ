@@ -1,7 +1,7 @@
 import { AcademyContext } from "../../context/AcademyContext";
 import { useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import ForomHeading from "./FormHeading";
+import FormHeading from "./FormHeading";
 
 export default function AcademyProfileForm() {
     const { academy, updateAcademy } = useContext(AcademyContext);
@@ -43,7 +43,7 @@ export default function AcademyProfileForm() {
 
     return (
         <>
-            <ForomHeading 
+            <FormHeading
                 heading="Academy Profile"
                 subheading="Update your academy's basic information"
             />
