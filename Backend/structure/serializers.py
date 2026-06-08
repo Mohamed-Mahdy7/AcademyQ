@@ -221,9 +221,9 @@ class SubjectCreateSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         request = self.context["request"]
-        academy = self.user.academy
+        academy = request.user.academy
 
-        if Subjects.objects.filter(academy=academy, name=attrs["name"]).exists():
+        if Subject.objects.filter(academy=academy, name=attrs["name"]).exists():
             raise serializers.ValidationError(
                 "Subject with this name already exists in this academy"
             )
