@@ -43,7 +43,7 @@ class AttendanceSerializer(serializers.ModelSerializer):
         read_only=True
     )
     student_name = serializers.CharField(
-        source='enrollment.student_id.user_id.full_name',
+        source='enrollment.student_id.full_name',
         read_only=True
     )
 
@@ -59,7 +59,6 @@ class AttendanceSerializer(serializers.ModelSerializer):
             'recorded_at',
         ]
         read_only_fields = ['recorded_at', 'student_id', 'student_name']
-
 
 class AttendanceBulkItemSerializer(serializers.Serializer):
     enrollment_id = serializers.UUIDField()
