@@ -1,314 +1,210 @@
+from datetime import date, timedelta, time
+from decimal import Decimal
+
+from core.models import Academy, User
+from financial_operations.models import Teachers, Enrollment, Payment
+from structure.models import Subject, Class, TeacherClass
+from records.models import SubjectSession, Attendance
+from grades.models import Grade
+
+# =====================
+# Academy
+# =====================
+
 academy = Academy.objects.create(
-    name="Future Minds Academy",
-    email="info@futureminds.com",
-    phone="+201001112233",
+    name="Future Academy",
+    email="academy@example.com",
+    phone="01000000000",
     address="Tanta, Egypt",
-    subscription_end="2027-12-31",
+    subscription_end=date.today() + timedelta(days=365),
     setup_complete=True,
 )
 
+# =====================
+# Users
+# =====================
 
 owner = User.objects.create_user(
-    email="owner@futureminds.com",
-    password="test123",
+    email="owner@example.com",
+    password="123456",
+    academy=academy,
+    full_name="Academy Owner",
+    phone="01011111111",
+    parent_phone="",
+    educational_level=18,
+    role=User.Roles.OWNER,
+)
+
+teacher_user = User.objects.create_user(
+    email="teacher@example.com",
+    password="123456",
+    academy=academy,
     full_name="Ahmed Hassan",
-    phone="+201001112234",
-    role="O",
-    academy=academy,
-    is_staff=True,
+    phone="01022222222",
+    parent_phone="",
+    educational_level=18,
+    role=User.Roles.TEACHER,
 )
 
-
-admin = User.objects.create_user(
-    email="admin@futureminds.com",
-    password="test123",
-    full_name="Sara Mohamed",
-    phone="+201001112235",
-    role="A",
+student1 = User.objects.create_user(
+    email="student1@example.com",
+    password="123456",
     academy=academy,
-    is_staff=True,
-)
-
-
-teacher_user1 = User.objects.create_user(
-    email="teacher.math@futureminds.com",
-    password="test123",
     full_name="Mohamed Ali",
-    phone="+201001112236",
-    role="T",
-    academy=academy,
+    phone="01033333333",
+    parent_phone="01099999991",
+    educational_level=User.EducationalLevel.SEC_1,
+    role=User.Roles.STUDENT,
 )
 
-teacher_user2 = User.objects.create_user(
-    email="teacher.physics@futureminds.com",
-    password="test123",
-    full_name="Mona Ibrahim",
-    phone="+201001112237",
-    role="T",
+student2 = User.objects.create_user(
+    email="student2@example.com",
+    password="123456",
     academy=academy,
+    full_name="Sara Ahmed",
+    phone="01044444444",
+    parent_phone="01099999992",
+    educational_level=User.EducationalLevel.SEC_1,
+    role=User.Roles.STUDENT,
 )
 
+# =====================
+# Teacher profile
+# =====================
 
-student_user1 = User.objects.create_user(
-    email="student1@gmail.com",
-    password="test123",
-    full_name="Youssef Mahmoud",
-    phone="+201001112238",
-    role="S",
-    academy=academy,
-)
-
-student_user2 = User.objects.create_user(
-    email="student2@gmail.com",
-    password="test123",
-    full_name="Mariam Adel",
-    phone="+201001112239",
-    role="S",
-    academy=academy,
-)
-
-student_user3 = User.objects.create_user(
-    email="student3@gmail.com",
-    password="test123",
-    full_name="Omar Khaled",
-    phone="+201001112240",
-    role="S",
-    academy=academy,
-)
-
-
-teacher1 = Teachers.objects.create(
+teacher = Teachers.objects.create(
     academy_id=academy,
-    user_id=teacher_user1,
-    rate_per_session=200,
-    session_duration="01:30:00",
+    user_id=teacher_user,
+    rate_per_session=Decimal("150.00"),
+    session_duration=timedelta(hours=2),
 )
 
-teacher2 = Teachers.objects.create(
-    academy_id=academy,
-    user_id=teacher_user2,
-    rate_per_session=250,
-    session_duration="02:00:00",
-)
-
-
-student1 = Students.objects.create(
-    academy=academy,
-    user=student_user1,
-    patent_phone="+201005551111",
-    educational_level=11,
-    status="A",
-)
-
-student2 = Students.objects.create(
-    academy=academy,
-    user=student_user2,
-    patent_phone="+201005552222",
-    educational_level=11,
-    status="A",
-)
-
-student3 = Students.objects.create(
-    academy=academy,
-    user=student_user3,
-    patent_phone="+201005553333",
-    educational_level=12,
-    status="A",
-)
-
+# =====================
+# Subject
+# =====================
 
 math = Subject.objects.create(
     academy=academy,
     name="Mathematics",
-    description="Advanced Mathematics",
-    session_count=24,
-)
-
-physics = Subject.objects.create(
-    academy=academy,
-    name="Physics",
-    description="High School Physics",
+    description="Secondary mathematics course",
     session_count=20,
 )
 
+# =====================
+# Class
+# =====================
 
-math_class = Class.objects.create(
+class_a = Class.objects.create(
     academy=academy,
     subject=math,
-    name="Math Grade 11 - A",
-    session_time="17:00",
-    start_date="2026-01-15",
-    end_date="2026-05-15",
+    name="Math Sec1 A",
+    session_time=time(16, 0),
+    start_date=date.today(),
+    end_date=date.today() + timedelta(days=90),
 )
 
-physics_class = Class.objects.create(
-    academy=academy,
-    subject=physics,
-    name="Physics Grade 11 - A",
-    session_time="19:00",
-    start_date="2026-01-15",
-    end_date="2026-05-15",
-)
-
+# =====================
+# Teacher Assignment
+# =====================
 
 TeacherClass.objects.create(
-    assigned_class=math_class,
-    teacher=teacher1,
-    assigned_at="2026-01-01",
+    assigned_class=class_a,
+    teacher=teacher,
+    assigned_at=date.today(),
 )
 
-TeacherClass.objects.create(
-    assigned_class=physics_class,
-    teacher=teacher2,
-    assigned_at="2026-01-01",
-)
-
+# =====================
+# Enrollments
+# =====================
 
 enrollment1 = Enrollment.objects.create(
-    class_id=math_class,
+    class_id=class_a,
     student_id=student1,
-    fee_amount=1200,
-    start_date="2026-01-15",
-    status="active",
+    fee_amount=Decimal("500.00"),
+    payment_cycle=timedelta(days=30),
+    start_date=date.today(),
 )
 
 enrollment2 = Enrollment.objects.create(
-    class_id=math_class,
+    class_id=class_a,
     student_id=student2,
-    fee_amount=1200,
-    start_date="2026-01-15",
-    status="active",
+    fee_amount=Decimal("500.00"),
+    payment_cycle=timedelta(days=30),
+    start_date=date.today(),
 )
 
-enrollment3 = Enrollment.objects.create(
-    class_id=physics_class,
-    student_id=student1,
-    fee_amount=1400,
-    start_date="2026-01-15",
-    status="active",
+# =====================
+# Sessions
+# =====================
+
+session1 = SubjectSession.objects.create(
+    class_obj=class_a,
+    session_num=1,
+    session_date=date.today(),
+    notes="Introduction"
 )
 
-enrollment4 = Enrollment.objects.create(
-    class_id=physics_class,
-    student_id=student3,
-    fee_amount=1400,
-    start_date="2026-01-15",
-    status="active",
+session2 = SubjectSession.objects.create(
+    class_obj=class_a,
+    session_num=2,
+    session_date=date.today() + timedelta(days=7),
+    notes="Algebra"
 )
 
+# =====================
+# Attendance
+# =====================
+
+Attendance.objects.create(
+    session=session1,
+    enrollment=enrollment1,
+    present=True
+)
+
+Attendance.objects.create(
+    session=session1,
+    enrollment=enrollment2,
+    present=False
+)
+
+# =====================
+# Grades
+# =====================
+
+Grade.objects.create(
+    enrollment=enrollment1,
+    session=session1,
+    subject_name="Mathematics",
+    score=92,
+    max_score=100,
+    assigned_at=date.today()
+)
+
+Grade.objects.create(
+    enrollment=enrollment2,
+    session=session1,
+    subject_name="Mathematics",
+    score=78,
+    max_score=100,
+    assigned_at=date.today()
+)
+
+# =====================
+# Payments
+# =====================
 
 Payment.objects.create(
     enrollment_id=enrollment1,
-    amount=1200,
-    paid_on="2026-01-15",
-    notes="Full payment",
+    amount=Decimal("500.00"),
+    paid_on=date.today(),
+    notes="First payment"
 )
 
 Payment.objects.create(
     enrollment_id=enrollment2,
-    amount=600,
-    paid_on="2026-01-15",
-    notes="First installment",
+    amount=Decimal("250.00"),
+    paid_on=date.today(),
+    notes="Partial payment"
 )
 
-Payment.objects.create(
-    enrollment_id=enrollment3,
-    amount=1400,
-    paid_on="2026-01-15",
-)
-
-
-session1 = SubjectSession.objects.create(
-    class_obj=math_class,
-    session_num=1,
-    session_date="2026-01-15",
-    notes="Introduction",
-)
-
-session2 = SubjectSession.objects.create(
-    class_obj=math_class,
-    session_num=2,
-    session_date="2026-01-22",
-    notes="Algebra",
-)
-
-session3 = SubjectSession.objects.create(
-    class_obj=physics_class,
-    session_num=1,
-    session_date="2026-01-16",
-    notes="Motion",
-)
-
-
-Attendance.objects.create(
-    session=session1,
-    enrollment=enrollment1,
-    present=True,
-)
-
-Attendance.objects.create(
-    session=session1,
-    enrollment=enrollment2,
-    present=False,
-)
-
-Attendance.objects.create(
-    session=session2,
-    enrollment=enrollment1,
-    present=True,
-)
-
-Attendance.objects.create(
-    session=session2,
-    enrollment=enrollment2,
-    present=True,
-)
-
-Attendance.objects.create(
-    session=session3,
-    enrollment=enrollment3,
-    present=True,
-)
-
-Attendance.objects.create(
-    session=session3,
-    enrollment=enrollment4,
-    present=True,
-)
-
-
-Grade.objects.create(
-    enrollment=enrollment1,
-    session=session1,
-    subject_name="Quiz 1",
-    score=18,
-    max_score=20,
-    assigned_at="2026-01-15",
-)
-
-Grade.objects.create(
-    enrollment=enrollment2,
-    session=session1,
-    subject_name="Quiz 1",
-    score=14,
-    max_score=20,
-    assigned_at="2026-01-15",
-)
-
-Grade.objects.create(
-    enrollment=enrollment3,
-    session=session3,
-    subject_name="Physics Quiz",
-    score=17,
-    max_score=20,
-    assigned_at="2026-01-16",
-)
-
-Grade.objects.create(
-    enrollment=enrollment4,
-    session=session3,
-    subject_name="Physics Quiz",
-    score=19,
-    max_score=20,
-    assigned_at="2026-01-16",
-)
+print("Sample data created successfully!")
