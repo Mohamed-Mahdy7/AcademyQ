@@ -1,10 +1,10 @@
 import { useContext } from "react";
-import ForomHeading from "./FormHeading";
+import FormHeading from "./FormHeading";
 
 export default function Notifications() {
     return (
         <>
-            <ForomHeading 
+            <FormHeading
                 heading="Notifications"
                 subheading="Configure how you receive alerts"
             />

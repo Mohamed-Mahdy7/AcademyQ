@@ -311,7 +311,7 @@ LAYER: COMPONENTS
 }
 
 .kpi-label {
-@apply text-[10px] font-semibold uppercase tracking-widest text-blue mb-2;
+@apply text-[12px] font-semibold uppercase tracking-widest text-blue mb-2;
 }
 
 .kpi-value {
