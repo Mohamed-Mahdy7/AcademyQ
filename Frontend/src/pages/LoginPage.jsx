@@ -60,7 +60,7 @@ function Login() {
                         required
                     />
                 </div>
-                <button type="submit" className="btn-primary">
+                <button type="submit" className="btn-primary w-full">
                     Login
                 </button>
             </form>
