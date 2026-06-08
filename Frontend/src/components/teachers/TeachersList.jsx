@@ -2,19 +2,47 @@ import TeacherCard from "./TeacherCard";
 
 export default function TeachersList({ teachers, onEdit, onDelete }) {
   if (teachers.length === 0) {
-    return <p>No teachers yet. Add one to get started.</p>;
+    return (
+      <div className="empty-state">
+        <div className="empty-state-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <p className="empty-state-title">No teachers yet</p>
+        <p className="empty-state-desc">
+          Add your first teacher to get started managing classes and sessions.
+        </p>
+      </div>
+    );
   }
 
   return (
-    <div>
-      {teachers.map((teacher) => (
-        <TeacherCard
-          key={teacher.id}
-          teacher={teacher}
-          onEdit={onEdit}
-          onDelete={onDelete}
-        />
-      ))}
+    <div className="table-wrap">
+      <table className="table">
+        <thead className="table-thead">
+          <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Rate / session</th>
+            <th>Duration</th>
+            <th className="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {teachers.map((teacher) => (
+            <TeacherCard
+              key={teacher.id}
+              teacher={teacher}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
