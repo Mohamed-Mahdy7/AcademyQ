@@ -33,10 +33,9 @@ class PaymentSerializer(serializers.ModelSerializer):
         ]
 
 class EnrollmentSerializer(serializers.ModelSerializer):
-    student_name = serializers.SlugRelatedField(
-        queryset=User.objects.filter(role=User.Roles.STUDENT),
-        slug_field='full_name'
-        )    
+    student_name = serializers.CharField(
+        source='student_id.full_name', read_only=True
+    )    
     class_name = serializers.CharField(source='class_id.name', read_only=True)
     total_paid = serializers.SerializerMethodField()
     balance_due = serializers.SerializerMethodField()
@@ -47,6 +46,7 @@ class EnrollmentSerializer(serializers.ModelSerializer):
             'id',
             'class_id',
             'class_name',
+            'student_id',
             'student_name',
             'fee_amount',
             'payment_cycle',
