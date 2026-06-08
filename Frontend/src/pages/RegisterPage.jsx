@@ -163,7 +163,7 @@ function Register() {
                     />
                 </div>
             </div>
-            <button type="submit" className="btn-primary mt-4">Register</button>
+            <button type="submit" className="btn-primary mt-4 w-full">Register</button>
         </form>
     )
 

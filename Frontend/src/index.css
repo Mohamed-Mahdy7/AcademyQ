@@ -1,49 +1,1366 @@
 @import "tailwindcss";
 
+/* ============================================================
+ACADEMIQ DESIGN SYSTEM
+Palette: #0F2854 · #1C4D8D · #4988C4 · #BDE8F5
+============================================================ */
+
 @theme {
-    /* Brand */
-    --color-navy:        #0F2854;
-    --color-navy-mid:    #1C4D8D;
-    --color-blue:        #4988C4;
-    --color-sky:         #BDE8F5;
-    --color-sky-pale:    #F0FAFD;
+/* ── Brand ───────────────────────────────────────────────── */
+--color-navy:         #0F2854;
+--color-navy-mid:     #1C4D8D;
+--color-blue:         #4988C4;
+--color-sky:          #BDE8F5;
+--color-sky-pale:     #F0FAFD;
 
-    /* Surfaces */
-    --color-surface:     #F8FAFC;
-    --color-card:        #FFFFFF;
-    --color-muted:       #F1F5F9;
-    --color-border:      #E2E8F0;
+/* ── Surfaces ────────────────────────────────────────────── */
+--color-surface:      #F8FAFC;
+--color-card:         #FFFFFF;
+--color-muted:        #F1F5F9;
+--color-border:       #E2E8F0;
 
-    /* Semantic */
-    --color-success:     #166534;
-    --color-success-bg:  #DCFCE7;
-    --color-warning:     #B45309;
-    --color-warning-bg:  #FEF3C7;
-    --color-danger:      #B91C1C;
-    --color-danger-bg:   #FEE2E2;
+/* ── Semantic ────────────────────────────────────────────── */
+--color-success:      #166534;
+--color-success-bg:   #DCFCE7;
+--color-warning:      #B45309;
+--color-warning-bg:   #FEF3C7;
+--color-danger:       #B91C1C;
+--color-danger-bg:    #FEE2E2;
+--color-info:         #1C4D8D;
+--color-info-bg:      #BDE8F5;
 
-    /* Shadows */
-    --shadow-card:   0 1px 3px 0 rgb(15 40 84 / 0.08);
-    --shadow-modal:  0 20px 60px -10px rgb(15 40 84 / 0.25);
-    --shadow-input:  0 0 0 3px rgb(73 136 196 / 0.20);
+/* ── Shadows ─────────────────────────────────────────────── */
+--shadow-card:        0 1px 3px 0 rgb(15 40 84 / 0.08), 0 1px 2px -1px rgb(15 40 84 / 0.06);
+--shadow-modal:       0 20px 60px -10px rgb(15 40 84 / 0.25);
+--shadow-input:       0 0 0 3px rgb(73 136 196 / 0.20);
+--shadow-dropdown:    0 8px 24px -4px rgb(15 40 84 / 0.14);
+--shadow-button:      0 2px 4px 0 rgb(28 77 141 / 0.20);
+--shadow-toast:       0 8px 32px -4px rgb(15 40 84 / 0.18);
+
+/* ── Transitions ─────────────────────────────────────────── */
+--transition-base:    150ms cubic-bezier(0.4, 0, 0.2, 1);
+--transition-slow:    300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+
+/* ============================================================
+LAYER: COMPONENTS
+============================================================ */
 @layer components {
-    .form-input {
-        @apply w-full px-4 py-3 rounded-xl border border-border bg-white;
-        @apply focus:outline-none focus:ring-2 focus:ring-blue focus:border-blue;
-    }
 
-    .form-label {
-        @apply block text-sm font-medium text-navy mb-2;
-    }
+/* ==========================================================
+    1. LAYOUT
+    ========================================================== */
 
-    .btn-primary {
-        @apply w-full py-3 rounded-xl bg-navy text-white font-semibold;
-        @apply hover:bg-navy-mid transition;
-    }
+/* Page wrapper — wraps sidebar + main */
+.page-shell {
+@apply flex min-h-screen bg-surface font-sans;
+}
 
-    .form-card {
-        @apply bg-card rounded-2xl border border-border shadow-card p-8;
-    }
+/* Main content area next to sidebar */
+.page-main {
+@apply flex-1 flex flex-col min-w-0 bg-surface;
+}
+
+/* Scrollable content body below topbar */
+.page-body {
+@apply flex-1 p-6 overflow-y-auto;
+}
+
+/* Section within a page — adds vertical spacing */
+.page-section {
+@apply mb-8;
+}
+
+/* Centered narrow content (auth pages, setup wizard) */
+.page-centered {
+@apply min-h-screen bg-surface flex items-center justify-center p-4;
+}
+
+
+/* ==========================================================
+    2. SIDEBAR
+    ========================================================== */
+
+.sidebar {
+@apply w-64 min-h-screen bg-navy flex flex-col flex-shrink-0;
+}
+
+.sidebar-collapsed {
+@apply w-16 min-h-screen bg-navy flex flex-col flex-shrink-0;
+}
+
+/* Academy name + logo area at top of sidebar */
+.sidebar-header {
+@apply px-5 py-4 border-b border-white/10 flex items-center gap-3;
+}
+
+.sidebar-logo {
+@apply w-8 h-8 rounded-lg bg-navy-mid flex items-center justify-center
+        text-white font-bold text-sm flex-shrink-0;
+}
+
+.sidebar-academy-name {
+@apply text-white font-semibold text-sm truncate;
+}
+
+.sidebar-academy-sub {
+@apply text-sky/70 text-xs truncate mt-0.5;
+}
+
+/* Nav container */
+.sidebar-nav {
+@apply flex-1 px-3 py-4 space-y-0.5 overflow-y-auto;
+}
+
+/* Section label inside nav (e.g. "Management") */
+.sidebar-section-label {
+@apply text-sky/40 text-[10px] font-semibold uppercase tracking-widest
+        px-3 pt-4 pb-1 select-none;
+}
+
+/* Nav link — default (inactive) */
+.sidebar-link {
+@apply flex items-center gap-3 px-3 py-2.5 rounded-lg
+        text-sky/70 hover:bg-white/8 hover:text-white
+        text-sm font-medium transition-colors cursor-pointer select-none;
+}
+
+/* Nav link — active */
+.sidebar-link-active {
+@apply flex items-center gap-3 px-3 py-2.5 rounded-lg
+        bg-navy-mid text-white
+        text-sm font-medium cursor-pointer select-none;
+}
+
+/* Nav link icon */
+.sidebar-icon {
+@apply w-4 h-4 flex-shrink-0;
+}
+
+/* Badge count inside nav link (e.g. "5 overdue") */
+.sidebar-badge {
+@apply ml-auto text-[10px] font-semibold bg-danger text-white
+        px-1.5 py-0.5 rounded-full leading-none;
+}
+
+/* Bottom of sidebar — user info + logout */
+.sidebar-footer {
+@apply px-3 py-3 border-t border-white/10;
+}
+
+.sidebar-user {
+@apply flex items-center gap-3 px-3 py-2 rounded-lg
+        hover:bg-white/8 transition-colors cursor-pointer;
+}
+
+.sidebar-user-name {
+@apply text-white text-sm font-medium truncate;
+}
+
+.sidebar-user-role {
+@apply text-sky/50 text-xs truncate;
+}
+
+
+/* ==========================================================
+    3. TOPBAR / NAVBAR
+    ========================================================== */
+
+.topbar {
+@apply h-14 bg-card border-b border-border
+        flex items-center justify-between px-6 flex-shrink-0
+        sticky top-0 z-30;
+}
+
+/* Page title shown in topbar */
+.topbar-title {
+@apply text-base font-semibold text-navy;
+}
+
+/* Breadcrumb inside topbar */
+.topbar-breadcrumb {
+@apply flex items-center gap-1.5 text-sm text-blue;
+}
+
+.topbar-breadcrumb-sep {
+@apply text-border select-none;
+}
+
+.topbar-breadcrumb-current {
+@apply text-navy font-medium;
+}
+
+/* Right side of topbar */
+.topbar-actions {
+@apply flex items-center gap-3;
+}
+
+/* Icon button in topbar (notifications, help) */
+.topbar-icon-btn {
+@apply relative w-8 h-8 rounded-lg text-blue hover:bg-sky-pale
+        flex items-center justify-center transition-colors;
+}
+
+/* Notification dot on topbar icon */
+.topbar-dot {
+@apply absolute top-1 right-1 w-2 h-2 rounded-full bg-danger;
+}
+
+/* Avatar in topbar */
+.topbar-avatar {
+@apply w-8 h-8 rounded-full bg-navy-mid text-white
+        flex items-center justify-center text-xs font-semibold
+        cursor-pointer hover:ring-2 hover:ring-blue transition-all;
+}
+
+
+/* ==========================================================
+    4. TYPOGRAPHY
+    ========================================================== */
+
+/* Page / section titles */
+.heading-display {
+@apply text-3xl font-bold text-navy leading-tight;
+}
+
+.heading-1 {
+@apply text-2xl font-bold text-navy leading-tight;
+}
+
+.heading-2 {
+@apply text-xl font-semibold text-navy leading-snug;
+}
+
+.heading-3 {
+@apply text-base font-semibold text-navy;
+}
+
+.heading-4 {
+@apply text-sm font-semibold text-navy;
+}
+
+/* Section subtitle / description */
+.subheading {
+@apply text-sm text-blue mt-1;
+}
+
+/* Body copy */
+.text-body {
+@apply text-sm text-navy;
+}
+
+.text-body-muted {
+@apply text-sm text-blue;
+}
+
+/* Small labels */
+.text-caption {
+@apply text-xs text-blue;
+}
+
+/* Column header / all-caps label */
+.text-label {
+@apply text-[10px] font-semibold uppercase tracking-widest text-blue;
+}
+
+/* Monospace — IDs, endpoints, code */
+.text-mono {
+@apply text-xs font-mono text-navy/70;
+}
+
+/* Inline code */
+.inline-code {
+@apply text-xs font-mono bg-sky px-1.5 py-0.5 rounded text-navy;
+}
+
+
+/* ==========================================================
+    5. CARDS
+    ========================================================== */
+
+/* Default card */
+.card {
+@apply bg-card border border-border rounded-xl shadow-card;
+}
+
+/* Card with padding */
+.card-body {
+@apply bg-card border border-border rounded-xl shadow-card p-5;
+}
+
+/* Card header (title row inside a card) */
+.card-header {
+@apply flex items-center justify-between px-5 py-4
+        border-b border-border;
+}
+
+.card-header-title {
+@apply text-base font-semibold text-navy;
+}
+
+/* Card footer */
+.card-footer {
+@apply flex items-center justify-end gap-3 px-5 py-4
+        border-t border-border bg-muted/40 rounded-b-xl;
+}
+
+/* KPI / metric card */
+.kpi-card {
+@apply bg-card border border-border rounded-xl shadow-card p-5;
+}
+
+.kpi-label {
+@apply text-[10px] font-semibold uppercase tracking-widest text-blue mb-2;
+}
+
+.kpi-value {
+@apply text-3xl font-bold text-navy;
+}
+
+.kpi-sub {
+@apply text-xs text-blue mt-1;
+}
+
+/* Info / highlight card (blue tinted) */
+.card-info {
+@apply bg-sky-pale border border-sky rounded-xl p-5;
+}
+
+/* Warning card */
+.card-warning {
+@apply bg-warning-bg border border-warning/30 rounded-xl p-5;
+}
+
+/* Danger / at-risk card */
+.card-danger {
+@apply bg-danger-bg border border-danger/30 rounded-xl p-5;
+}
+
+/* Success card */
+.card-success {
+@apply bg-success-bg border border-success/30 rounded-xl p-5;
+}
+
+/* Clickable card (e.g. class cards in list) */
+.card-interactive {
+@apply bg-card border border-border rounded-xl shadow-card p-5
+        hover:border-blue hover:shadow-[0_4px_12px_0_rgb(73_136_196/0.15)]
+        cursor-pointer transition-all;
+}
+
+
+/* ==========================================================
+    6. FORM INPUTS
+    ========================================================== */
+
+/* Standard text input */
+.form-input {
+@apply w-full px-3 py-2.5 rounded-lg border border-border bg-card
+        text-sm text-navy placeholder:text-blue/40
+        focus:outline-none focus:border-blue focus:shadow-input
+        transition-all;
+}
+
+/* Input error state */
+.form-input-error {
+@apply w-full px-3 py-2.5 rounded-lg border border-danger bg-card
+        text-sm text-navy placeholder:text-blue/40
+        focus:outline-none focus:shadow-[0_0_0_3px_rgb(185_28_28/0.15)]
+        transition-all;
+}
+
+/* Input disabled state */
+.form-input-disabled {
+@apply w-full px-3 py-2.5 rounded-lg border border-border bg-muted
+        text-sm text-navy/40 cursor-not-allowed;
+}
+
+/* Select / dropdown */
+.form-select {
+@apply w-full px-3 py-2.5 rounded-lg border border-border bg-card
+        text-sm text-navy
+        focus:outline-none focus:border-blue focus:shadow-input
+        transition-all cursor-pointer;
+}
+
+/* Textarea */
+.form-textarea {
+@apply w-full px-3 py-2.5 rounded-lg border border-border bg-card
+        text-sm text-navy placeholder:text-blue/40 resize-none
+        focus:outline-none focus:border-blue focus:shadow-input
+        transition-all;
+}
+
+/* Checkbox */
+.form-checkbox {
+@apply w-4 h-4 rounded border-border text-navy-mid
+        focus:ring-blue focus:ring-2 cursor-pointer;
+}
+
+/* Radio */
+.form-radio {
+@apply w-4 h-4 border-border text-navy-mid
+        focus:ring-blue focus:ring-2 cursor-pointer;
+}
+
+/* Form field label */
+.form-label {
+@apply block text-sm font-medium text-navy mb-1.5;
+}
+
+/* Required asterisk */
+.form-required {
+@apply text-danger ml-0.5;
+}
+
+/* Helper / hint text below input */
+.form-hint {
+@apply text-xs text-blue mt-1.5;
+}
+
+/* Error message below input */
+.form-error {
+@apply text-xs text-danger mt-1.5 flex items-center gap-1;
+}
+
+/* Field group (label + input + hint stacked) */
+.form-field {
+@apply flex flex-col gap-0;
+}
+
+/* Input with left icon */
+.input-icon-wrap {
+@apply relative;
+}
+
+.input-icon-left {
+@apply absolute left-3 top-1/2 -translate-y-1/2
+        w-4 h-4 text-blue pointer-events-none;
+}
+
+.form-input-icon {
+@apply w-full pl-9 pr-3 py-2.5 rounded-lg border border-border bg-card
+        text-sm text-navy placeholder:text-blue/40
+        focus:outline-none focus:border-blue focus:shadow-input
+        transition-all;
+}
+
+/* Input with right action (e.g. show/hide password) */
+.input-icon-right {
+@apply absolute right-3 top-1/2 -translate-y-1/2
+        w-4 h-4 text-blue cursor-pointer hover:text-navy;
+}
+
+/* Search input */
+.form-search {
+@apply w-full pl-9 pr-3 py-2 rounded-lg border border-border bg-muted
+        text-sm text-navy placeholder:text-blue/40
+        focus:outline-none focus:border-blue focus:bg-card focus:shadow-input
+        transition-all;
+}
+
+/* Form card container (auth, setup) */
+.form-card {
+@apply bg-card rounded-2xl border border-border shadow-modal p-8 w-full;
+}
+
+
+/* ==========================================================
+    7. BUTTONS
+    ========================================================== */
+
+/* Primary */
+.btn,
+.btn-primary,
+.btn-primary-lg,
+.btn-secondary,
+.btn-ghost,
+.btn-muted,
+.btn-danger,
+.btn-danger-outline,
+.btn-success {
+@apply inline-flex items-center justify-center gap-2
+        px-4 py-2 rounded-lg text-sm font-medium
+        transition-colors cursor-pointer select-none;
+}
+
+
+.btn-primary {
+@apply bg-navy-mid text-white hover:bg-navy shadow-button;
+}
+
+.btn-primary-lg {
+@apply bg-navy-mid text-white hover:bg-navy shadow-button
+        px-5 py-2.5 text-base;
+}
+
+/* Secondary / outline */
+.btn-secondary {
+@apply border border-navy-mid text-navy-mid
+        hover:bg-sky-pale;
+}
+
+/* Ghost */
+.btn-ghost {
+@apply text-navy-mid hover:bg-sky-pale;
+}
+
+/* Muted (cancel, back) */
+.btn-muted {
+@apply bg-muted text-navy border border-border
+        hover:bg-border;
+}
+
+/* Danger */
+.btn-danger {
+@apply bg-danger text-white hover:bg-danger/90;
+}
+
+.btn-danger-outline {
+@apply border border-danger text-danger hover:bg-danger-bg;
+}
+
+/* Success */
+.btn-success {
+@apply bg-success text-white hover:bg-success/90;
+}
+
+/* Icon-only button */
+.btn-icon {
+@apply w-8 h-8 rounded-lg flex items-center justify-center
+        text-blue hover:bg-sky-pale hover:text-navy
+        transition-colors cursor-pointer;
+}
+
+.btn-icon-sm {
+@apply w-7 h-7 rounded-md flex items-center justify-center
+        text-blue hover:bg-sky-pale hover:text-navy
+        transition-colors cursor-pointer;
+}
+
+/* Disabled state — apply to any btn variant */
+.btn-disabled {
+@apply opacity-50 cursor-not-allowed pointer-events-none;
+}
+
+/* Loading state inside a button */
+.btn-spinner {
+@apply w-4 h-4 rounded-full border-2 border-white/30
+        border-t-white animate-spin;
+}
+
+
+/* ==========================================================
+    8. BADGES & CHIPS
+    ========================================================== */
+
+/* Base badge */
+.badge,
+.badge-success,
+.badge-warning,
+.badge-danger,
+.badge-info,
+.badge-navy,
+.badge-muted,
+.badge-pct-good,
+.badge-pct-warn,
+.badge-pct-bad,
+.badge-grade-good,
+.badge-grade-warn,
+.badge-grade-bad,
+.badge-count {
+@apply inline-flex items-center gap-1
+        text-xs font-medium px-2.5 py-0.5 rounded-full;
+}
+
+/* Semantic badge variants */
+.badge-success {
+@apply bg-success-bg text-success;
+}
+
+.badge-warning {
+@apply bg-warning-bg text-warning;
+}
+
+.badge-danger {
+@apply bg-danger-bg text-danger;
+}
+
+.badge-info {
+@apply bg-sky text-navy;
+}
+
+.badge-navy {
+@apply bg-navy text-sky text-[10px] uppercase tracking-wider;
+}
+
+.badge-muted {
+@apply bg-muted text-blue;
+}
+
+/* Role badge */
+.badge-role {
+@apply inline-flex items-center text-[10px] font-semibold
+        uppercase tracking-widest px-2 py-0.5 rounded
+        bg-navy text-sky;
+}
+
+/* Attendance percentage badge — use with JS to pick class */
+.badge-pct-good  { @apply bg-success-bg text-success; }  /* ≥80% */
+.badge-pct-warn  { @apply bg-warning-bg text-warning; }  /* 70–79% */
+.badge-pct-bad   { @apply bg-danger-bg  text-danger;  }  /* <70%  */
+
+/* Grade percentage badge — same thresholds */
+.badge-grade-good { @apply bg-success-bg text-success; }  /* ≥70% */
+.badge-grade-warn { @apply bg-warning-bg text-warning; }  /* 50–69% */
+.badge-grade-bad  { @apply bg-danger-bg  text-danger;  }  /* <50%  */
+
+/* Count / number tag (e.g. "24 sessions") */
+.badge-count {
+@apply bg-sky text-navy font-semibold;
+}
+
+/* Category / subject tag (rounded square) */
+.badge-tag {
+@apply inline-flex items-center text-xs font-medium
+        px-2.5 py-0.5 rounded-md bg-sky-pale text-navy-mid
+        border border-sky;
+}
+
+/* Sprint / phase tag */
+.badge-sprint {
+@apply inline-flex items-center text-xs font-medium
+        px-2 py-0.5 rounded-md bg-muted text-blue;
+}
+
+
+/* ==========================================================
+    9. TABLE
+    ========================================================== */
+
+/* Table wrapper */
+.table-wrap {
+@apply bg-card border border-border rounded-xl overflow-hidden;
+}
+
+/* Table element */
+.table {
+@apply w-full border-collapse;
+}
+
+/* Table header row */
+.table-thead tr {
+@apply bg-muted border-b border-border;
+}
+
+.table-thead th {
+@apply text-left px-4 py-3 text-[10px] font-semibold
+        uppercase tracking-widest text-blue whitespace-nowrap;
+}
+
+/* Table body row */
+.table-row {
+@apply border-b border-border hover:bg-sky-pale
+        transition-colors cursor-pointer;
+}
+
+.table-row:last-child {
+@apply border-b-0;
+}
+
+/* Table cell */
+.table-cell {
+@apply px-4 py-3 text-sm text-navy whitespace-nowrap;
+}
+
+.table-cell-muted {
+@apply px-4 py-3 text-sm text-blue whitespace-nowrap;
+}
+
+/* Clickable row action column */
+.table-actions {
+@apply px-4 py-3 flex items-center gap-1 justify-end;
+}
+
+
+/* ==========================================================
+    10. AVATAR
+    ========================================================== */
+
+.avatar,
+.avatar-sm,
+.avatar-md,
+.avatar-lg,
+.avatar-xl {
+@apply flex-shrink-0 rounded-full bg-navy-mid text-white
+        flex items-center justify-center font-semibold
+        select-none;
+}
+
+.avatar-sm  { @apply w-7 h-7 text-xs; }
+.avatar-md  { @apply w-9 h-9 text-sm; }
+.avatar-lg  { @apply w-12 h-12 text-base; }
+.avatar-xl  { @apply w-16 h-16 text-xl; }
+
+/* Avatar with ring (topbar, profile) */
+.avatar-ring {
+@apply ring-2 ring-blue ring-offset-1;
+}
+
+/* Avatar group (stacked) */
+.avatar-group {
+@apply flex items-center -space-x-2;
+}
+
+.avatar-group .avatar {
+@apply ring-2 ring-card;
+}
+
+
+/* ==========================================================
+    11. MODAL / DIALOG
+    ========================================================== */
+
+/* Backdrop */
+.modal-backdrop {
+@apply fixed inset-0 bg-navy/50 flex items-center
+        justify-center z-50 p-4;
+}
+
+/* Modal container */
+.modal,
+.modal-sm,
+.modal-md,
+.modal-lg,
+.modal-xl {
+@apply bg-card rounded-2xl shadow-modal w-full
+        max-h-[90vh] overflow-y-auto;
+}
+
+.modal-sm  { @apply max-w-sm;  }
+.modal-md  { @apply max-w-md;  }
+.modal-lg  { @apply max-w-lg;  }
+.modal-xl  { @apply max-w-2xl; }
+
+/* Modal header */
+.modal-header {
+@apply flex items-center justify-between px-6 py-4
+        border-b border-border sticky top-0 bg-card z-10 rounded-t-2xl;
+}
+
+.modal-title {
+@apply text-base font-semibold text-navy;
+}
+
+.modal-close {
+@apply flex-shrink-0;
+}
+
+/* Modal body */
+.modal-body {
+@apply px-6 py-5 space-y-4;
+}
+
+/* Modal footer */
+.modal-footer {
+@apply flex items-center justify-end gap-3 px-6 py-4
+        border-t border-border bg-muted/40 rounded-b-2xl;
+}
+
+
+/* ==========================================================
+    12. DROPDOWN / POPOVER
+    ========================================================== */
+
+.dropdown {
+@apply absolute z-40 bg-card border border-border rounded-xl
+        shadow-dropdown py-1 min-w-44 overflow-hidden;
+}
+
+.dropdown-item {
+@apply flex items-center gap-2.5 px-3 py-2.5 text-sm text-navy
+        hover:bg-sky-pale transition-colors cursor-pointer;
+}
+
+.dropdown-item-danger {
+@apply flex items-center gap-2.5 px-3 py-2.5 text-sm text-danger
+        hover:bg-danger-bg transition-colors cursor-pointer;
+}
+
+.dropdown-divider {
+@apply my-1 border-t border-border;
+}
+
+.dropdown-label {
+@apply px-3 py-1.5 text-[10px] font-semibold uppercase
+        tracking-widest text-blue select-none;
+}
+
+
+/* ==========================================================
+    13. TABS
+    ========================================================== */
+
+/* Tab bar container */
+.tab-bar {
+@apply flex items-center gap-0 border-b border-border;
+}
+
+/* Individual tab button */
+.tab {
+@apply px-4 py-3 text-sm font-medium text-blue
+        border-b-2 border-transparent -mb-px
+        hover:text-navy hover:border-blue/40
+        transition-colors cursor-pointer select-none whitespace-nowrap;
+}
+
+/* Active tab */
+.tab-active {
+@apply px-4 py-3 text-sm font-medium text-navy-mid
+        border-b-2 border-navy-mid -mb-px
+        cursor-pointer select-none whitespace-nowrap;
+}
+
+/* Pill-style tabs (inside cards) */
+.tab-pill-bar {
+@apply flex items-center gap-1 p-1 bg-muted rounded-lg;
+}
+
+.tab-pill {
+@apply px-3 py-1.5 text-sm font-medium text-blue rounded-md
+        hover:text-navy transition-colors cursor-pointer select-none;
+}
+
+.tab-pill-active {
+@apply px-3 py-1.5 text-sm font-medium text-navy bg-card
+        rounded-md shadow-card cursor-pointer select-none;
+}
+
+
+/* ==========================================================
+    14. PROGRESS BAR
+    ========================================================== */
+
+/* Track */
+.progress,
+.progress-sm,
+.progress-md,
+.progress-lg {
+@apply w-full bg-sky rounded-full overflow-hidden;
+}
+
+.progress-sm  { @apply h-1;   }
+.progress-md  { @apply h-1.5; }
+.progress-lg  { @apply h-2.5; }
+
+/* Fill */
+.progress-fill,
+.progress-fill-navy,
+.progress-fill-success,
+.progress-fill-warning,
+.progress-fill-danger {
+@apply h-full rounded-full transition-all duration-500;
+}
+
+.progress-fill-navy   { @apply bg-navy-mid; }
+.progress-fill-success{ @apply bg-success; }
+.progress-fill-warning{ @apply bg-warning; }
+.progress-fill-danger { @apply bg-danger; }
+
+
+/* ==========================================================
+    15. DIVIDER
+    ========================================================== */
+
+/* Horizontal rule */
+.divider {
+@apply border-t border-border my-4;
+}
+
+.divider-dashed {
+@apply border-t border-dashed border-border my-4;
+}
+
+/* Divider with text label */
+.divider-label {
+@apply flex items-center gap-3 my-4;
+}
+
+.divider-label::before,
+.divider-label::after {
+content: '';
+@apply flex-1 border-t border-border;
+}
+
+.divider-label span {
+@apply text-xs text-blue font-medium whitespace-nowrap;
+}
+
+/* Vertical divider */
+.divider-v {
+@apply w-px bg-border self-stretch mx-2;
+}
+
+
+/* ==========================================================
+    16. TOAST / ALERT
+    ========================================================== */
+
+/* Toast base */
+.toast,
+.toast-success,
+.toast-warning,
+.toast-danger,
+.toast-info {
+@apply flex items-start gap-3 bg-card rounded-xl
+        shadow-toast border px-4 py-3 min-w-72 max-w-sm;
+}
+
+.toast-success { @apply border-success/30; }
+.toast-warning { @apply border-warning/30; }
+.toast-danger  { @apply border-danger/30;  }
+.toast-info    { @apply border-blue/30;    }
+
+.toast-icon {
+@apply w-4 h-4 mt-0.5 flex-shrink-0;
+}
+
+.toast-title {
+@apply text-sm font-medium text-navy;
+}
+
+.toast-desc {
+@apply text-xs text-blue mt-0.5;
+}
+
+/* Inline alert (inside a page, not floating) */
+.alert,
+.alert-success,
+.alert-warning,
+.alert-danger,
+.alert-info {
+@apply flex items-start gap-3 rounded-xl px-4 py-3 border;
+}
+
+.alert-success { @apply bg-success-bg border-success/30 text-success; }
+.alert-warning { @apply bg-warning-bg border-warning/30 text-warning; }
+.alert-danger  { @apply bg-danger-bg  border-danger/30  text-danger;  }
+.alert-info    { @apply bg-sky-pale   border-sky        text-navy-mid; }
+
+.alert-title {
+@apply text-sm font-semibold;
+}
+
+.alert-desc {
+@apply text-sm mt-0.5 opacity-90;
+}
+
+
+/* ==========================================================
+    17. EMPTY STATE
+    ========================================================== */
+
+.empty-state {
+@apply flex flex-col items-center justify-center
+        py-16 text-center px-4;
+}
+
+.empty-state-icon {
+@apply w-12 h-12 rounded-2xl bg-sky flex items-center
+        justify-center mb-4;
+}
+
+.empty-state-icon svg {
+@apply w-6 h-6 text-navy-mid;
+}
+
+.empty-state-title {
+@apply text-base font-semibold text-navy mb-1;
+}
+
+.empty-state-desc {
+@apply text-sm text-blue max-w-xs mb-5;
+}
+
+
+/* ==========================================================
+    18. LOADING SKELETON
+    ========================================================== */
+
+/* Generic skeleton block */
+.skeleton {
+@apply bg-sky rounded animate-pulse;
+}
+
+.skeleton-text    { @apply h-4;   }
+.skeleton-text-sm { @apply h-3;   }
+.skeleton-title   { @apply h-6;   }
+.skeleton-avatar  { @apply rounded-full; }
+.skeleton-btn     { @apply h-9 rounded-lg; }
+.skeleton-card    { @apply h-32 rounded-xl; }
+.skeleton-input   { @apply h-10 rounded-lg; }
+
+
+/* ==========================================================
+    19. STEP INDICATOR (setup wizard, multi-step form)
+    ========================================================== */
+
+.steps {
+@apply flex items-center justify-center gap-0;
+}
+
+/* Step dot */
+.step-dot,
+.step-dot-done,
+.step-dot-active,
+.step-dot-pending {
+@apply w-8 h-8 rounded-full flex items-center justify-center
+        text-sm font-semibold flex-shrink-0 z-10;
+}
+
+.step-dot-done {
+@apply bg-success text-white;
+}
+
+.step-dot-active {
+@apply bg-navy-mid text-white ring-4 ring-sky;
+}
+
+.step-dot-pending {
+@apply bg-sky text-navy-mid;
+}
+
+/* Connector line between dots */
+.step-connector,
+.step-connector-done,
+.step-connector-active,
+.step-connector-pending {
+@apply h-0.5 w-16 flex-shrink-0;
+}
+
+.step-connector-done    { @apply bg-success; }
+.step-connector-active  { @apply bg-navy-mid; }
+.step-connector-pending { @apply bg-sky; }
+
+/* Step label below dot */
+.step-label,
+.step-label-done,
+.step-label-active,
+.step-label-pending {
+@apply text-xs font-medium mt-2 text-center;
+}
+
+.step-label-done    { @apply text-success; }
+.step-label-active  { @apply text-navy; }
+.step-label-pending { @apply text-blue; }
+
+
+/* ==========================================================
+    20. STAT / KPI ROW
+    ========================================================== */
+
+.stat-grid {
+@apply grid grid-cols-2 lg:grid-cols-4 gap-4;
+}
+
+.stat-card {
+@apply flex flex-col;
+}
+
+.stat-icon-wrap,
+.stat-icon-wrap-warn,
+.stat-icon-wrap-danger {
+@apply w-9 h-9 rounded-lg bg-sky-pale flex items-center
+        justify-center mb-3 flex-shrink-0;
+}
+
+.stat-icon-wrap svg {
+@apply w-5 h-5 text-navy-mid;
+}
+
+/* Icon wrap — warning variant */
+.stat-icon-wrap-warn {
+@apply bg-warning-bg;
+}
+
+.stat-icon-wrap-warn svg {
+@apply text-warning;
+}
+
+/* Icon wrap — danger variant */
+.stat-icon-wrap-danger {
+@apply bg-danger-bg;
+}
+
+.stat-icon-wrap-danger svg {
+@apply text-danger;
+}
+
+/* Trend line */
+.stat-trend-up   { @apply text-xs text-success flex items-center gap-0.5; }
+.stat-trend-down { @apply text-xs text-danger  flex items-center gap-0.5; }
+
+
+/* ==========================================================
+    21. FILTER BAR
+    ========================================================== */
+
+/* Toolbar row above a table or list */
+.filter-bar {
+@apply flex items-center gap-3 flex-wrap mb-4;
+}
+
+.filter-bar-right {
+@apply ml-auto flex items-center gap-2;
+}
+
+/* Filter select pill */
+.filter-select {
+@apply h-9 px-3 rounded-lg border border-border bg-card
+        text-sm text-navy focus:outline-none focus:border-blue
+        transition-colors cursor-pointer;
+}
+
+/* Active filter tag (dismissible) */
+.filter-tag {
+@apply inline-flex items-center gap-1.5 text-xs font-medium
+        px-2.5 py-1 rounded-lg bg-sky text-navy
+        border border-sky hover:border-blue transition-colors;
+}
+
+.filter-tag-x {
+@apply w-3 h-3 text-blue hover:text-navy cursor-pointer;
+}
+
+
+/* ==========================================================
+    22. PAGINATION
+    ========================================================== */
+
+.pagination {
+@apply flex items-center justify-between px-4 py-3
+        border-t border-border text-sm text-blue;
+}
+
+.pagination-info {
+@apply text-sm text-blue;
+}
+
+.pagination-btns {
+@apply flex items-center gap-1;
+}
+
+.pagination-btn {
+@apply w-8 h-8 rounded-lg flex items-center justify-center
+        text-sm text-blue hover:bg-sky-pale hover:text-navy
+        transition-colors cursor-pointer;
+}
+
+.pagination-btn-active {
+@apply w-8 h-8 rounded-lg flex items-center justify-center
+        text-sm font-semibold bg-navy-mid text-white cursor-pointer;
+}
+
+.pagination-btn-disabled {
+@apply w-8 h-8 rounded-lg flex items-center justify-center
+        text-sm text-border cursor-not-allowed;
+}
+
+
+/* ==========================================================
+    23. PROFILE / DETAIL HEADER
+    ========================================================== */
+
+/* Used at top of student profile, teacher detail */
+.detail-header {
+@apply bg-card border border-border rounded-xl p-6 mb-6;
+}
+
+.detail-header-row {
+@apply flex items-start gap-4;
+}
+
+.detail-header-meta {
+@apply flex-1 min-w-0;
+}
+
+.detail-header-name {
+@apply text-xl font-bold text-navy truncate;
+}
+
+.detail-header-sub {
+@apply text-sm text-blue mt-0.5;
+}
+
+.detail-header-badges {
+@apply flex items-center gap-2 mt-2 flex-wrap;
+}
+
+.detail-header-stats {
+@apply grid grid-cols-2 sm:grid-cols-4 gap-4 mt-5
+        pt-5 border-t border-border;
+}
+
+.detail-stat-label {
+@apply text-[10px] font-semibold uppercase tracking-widest text-blue mb-0.5;
+}
+
+.detail-stat-value {
+@apply text-lg font-bold text-navy;
+}
+
+
+/* ==========================================================
+    24. SUBSCRIPTION / EXPIRY BANNER
+    ========================================================== */
+
+.banner-warning {
+@apply flex items-center justify-between gap-4 px-5 py-3
+        bg-warning-bg border-b border-warning/30 text-sm text-warning;
+}
+
+.banner-danger {
+@apply flex items-center justify-between gap-4 px-5 py-3
+        bg-danger-bg border-b border-danger/30 text-sm text-danger;
+}
+
+.banner-info {
+@apply flex items-center justify-between gap-4 px-5 py-3
+        bg-sky-pale border-b border-sky text-sm text-navy-mid;
+}
+
+
+/* ==========================================================
+    25. ANNOUNCEMENT COMPOSER
+    ========================================================== */
+
+.announcement-target {
+@apply flex items-center gap-2 px-3 py-2 rounded-lg
+        border border-border bg-card text-sm text-navy
+        hover:border-blue cursor-pointer transition-colors;
+}
+
+.announcement-target-active {
+@apply flex items-center gap-2 px-3 py-2 rounded-lg
+        border border-navy-mid bg-sky-pale text-sm text-navy-mid
+        cursor-pointer;
+}
+
+
+/* ==========================================================
+    26. AT-RISK PANEL
+    ========================================================== */
+
+.risk-row {
+@apply flex items-center gap-3 px-4 py-3
+        border-b border-border last:border-0
+        hover:bg-sky-pale transition-colors cursor-pointer;
+}
+
+.risk-name {
+@apply text-sm font-medium text-navy flex-1 truncate;
+}
+
+.risk-issues {
+@apply flex items-center gap-1.5 flex-wrap;
+}
+
+.risk-tag-attendance {
+@apply text-[10px] font-medium px-2 py-0.5 rounded-full
+        bg-danger-bg text-danger;
+}
+
+.risk-tag-fee {
+@apply text-[10px] font-medium px-2 py-0.5 rounded-full
+        bg-warning-bg text-warning;
+}
+
+
+/* ==========================================================
+    27. ACTIVITY FEED
+    ========================================================== */
+
+.activity-item {
+@apply flex items-start gap-3 py-3
+        border-b border-border last:border-0;
+}
+
+.activity-dot,
+.activity-dot-payment,
+.activity-dot-enrollment,
+.activity-dot-session,
+.activity-dot-grade {
+@apply w-2 h-2 rounded-full mt-1.5 flex-shrink-0;
+}
+
+.activity-dot-payment    { @apply bg-success; }
+.activity-dot-enrollment { @apply bg-navy-mid; }
+.activity-dot-session    { @apply bg-blue; }
+.activity-dot-grade      { @apply bg-warning; }
+
+.activity-text {
+@apply text-sm text-navy flex-1;
+}
+
+.activity-time {
+@apply text-xs text-blue flex-shrink-0 mt-0.5;
+}
+
+
+/* ==========================================================
+    28. ENROLLMENT / PAYMENT ROW
+    ========================================================== */
+
+.enrollment-row {
+@apply flex items-center gap-4 px-4 py-3
+        border-b border-border last:border-0
+        hover:bg-sky-pale transition-colors;
+}
+
+.enrollment-class {
+@apply text-sm font-medium text-navy flex-1 truncate;
+}
+
+.enrollment-fee {
+@apply text-sm font-semibold text-navy whitespace-nowrap;
+}
+
+.enrollment-due {
+@apply text-xs text-blue whitespace-nowrap;
+}
+
+
+/* ==========================================================
+    29. SESSION GRID (attendance marking)
+    ========================================================== */
+
+/* Row per student */
+.attendance-row {
+@apply flex items-center gap-4 px-4 py-3
+        border-b border-border last:border-0;
+}
+
+.attendance-name {
+@apply text-sm text-navy flex-1;
+}
+
+/* Toggle buttons for present/absent */
+.attendance-toggle-present {
+@apply px-3 py-1.5 rounded-lg text-xs font-semibold
+        bg-success-bg text-success border border-success/30
+        cursor-pointer;
+}
+
+.attendance-toggle-absent {
+@apply px-3 py-1.5 rounded-lg text-xs font-semibold
+        bg-danger-bg text-danger border border-danger/30
+        cursor-pointer;
+}
+
+.attendance-toggle-inactive {
+@apply px-3 py-1.5 rounded-lg text-xs font-semibold
+        bg-muted text-blue border border-border
+        cursor-pointer hover:bg-sky-pale transition-colors;
+}
 }

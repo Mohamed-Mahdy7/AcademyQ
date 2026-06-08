@@ -10,6 +10,7 @@ export default function TeachersPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingTeacher, setEditingTeacher] = useState(null);
   const [formErrors, setFormErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [search, setSearch] = useState("");
 
@@ -32,13 +33,14 @@ export default function TeachersPage() {
   }
 
   async function handleSubmit(payload, id) {
+    setSubmitting(true);
     const result = id
       ? await editTeacher(id, {
           rate_per_session: payload.rate_per_session,
           session_duration: payload.session_duration,
         })
       : await addTeacher(payload);
-
+    setSubmitting(false);
     if (result.success) {
       closeForm();
     } else {
@@ -59,45 +61,131 @@ export default function TeachersPage() {
   );
 
   return (
-    <div>
-      <div>
-        <h1>Teachers</h1>
-        <p>{teachers.length} teacher{teachers.length !== 1 ? "s" : ""} in your academy</p>
-        <button onClick={openAdd}>Add teacher</button>
+    <div className="page-body">
+
+      {/* Page heading */}
+      <div className="page-section">
+        <div className="flex items-center justify-between mb-1">
+          <div>
+            <h1 className="heading-1">Teachers</h1>
+            <p className="subheading">Manage teacher profiles and class assignments</p>
+          </div>
+          <button className="btn-primary" onClick={openAdd}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Add teacher
+          </button>
+        </div>
       </div>
 
-      <input
-        type="text"
-        placeholder="Search by name or email..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      {/* KPI cards */}
+      <div className="stat-grid mb-6">
+        <div className="kpi-card">
+          <div className="flex items-center justify-between mb-2">
+            <p className="kpi-label">Total teachers</p>
+            <div className="stat-icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+          </div>
+          <p className="kpi-value">{teachers.length}</p>
+        </div>
+      </div>
 
-      {loading && <p>Loading teachers...</p>}
-      {error && <p>{error}</p>}
+      {/* Search + filter bar */}
+      <div className="filter-bar">
+        <div className="input-icon-wrap flex-1 max-w-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" className="input-icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            type="text"
+            placeholder="Search by name or email..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="form-search"
+          />
+        </div>
+        <div className="filter-bar-right">
+          <p className="text-caption">{filtered.length} result{filtered.length !== 1 ? "s" : ""}</p>
+        </div>
+      </div>
 
-      <TeachersList
-        teachers={filtered}
-        onEdit={openEdit}
-        onDelete={setDeleteConfirm}
-      />
+      {/* States */}
+      {loading && (
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="skeleton skeleton-card h-16 rounded-xl" />
+          ))}
+        </div>
+      )}
 
+      {error && (
+        <div className="alert alert-danger mb-4">
+          <p className="alert-desc">{error}</p>
+        </div>
+      )}
+
+      {/* Teachers table */}
+      {!loading && (
+        <TeachersList
+          teachers={filtered}
+          onEdit={openEdit}
+          onDelete={setDeleteConfirm}
+        />
+      )}
+
+      {/* Add / Edit modal */}
       {showForm && (
         <TeacherForm
           editingTeacher={editingTeacher}
           onSubmit={handleSubmit}
           onCancel={closeForm}
           errors={formErrors}
+          submitting={submitting}
         />
       )}
 
+      {/* Delete confirmation modal */}
       {deleteConfirm && (
-        <div>
-          <p>Deactivate {deleteConfirm.name}? They will no longer be able to log in.</p>
-          <button onClick={() => setDeleteConfirm(null)}>Cancel</button>
-          <button onClick={() => confirmDelete(deleteConfirm)}>Deactivate</button>
+        <div className="modal-backdrop">
+          <div className="modal modal-sm">
+            <div className="modal-header">
+              <h2 className="modal-title">Deactivate teacher?</h2>
+              <button className="btn-icon modal-close" onClick={() => setDeleteConfirm(null)}>
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="alert alert-warning">
+                <p className="alert-desc">
+                  <strong>{deleteConfirm.name}</strong>'s account will be deactivated.
+                  They will no longer be able to log in. No data will be deleted.
+                </p>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-muted" onClick={() => setDeleteConfirm(null)}>
+                Cancel
+              </button>
+              <button
+                className="btn-danger"
+                onClick={() => confirmDelete(deleteConfirm)}
+              >
+                Deactivate
+              </button>
+            </div>
+          </div>
         </div>
       )}
+
     </div>
   );
 }
