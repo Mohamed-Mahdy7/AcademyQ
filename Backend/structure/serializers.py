@@ -10,6 +10,15 @@ class ClassSummarySerializer(serializers.ModelSerializer):
         fields = ["id", "name", "session_time", "start_date", "end_date", "is_active"]
 
 
+class TeacherSummarySerializer(serializers.ModelSerializer):
+    teacher_name = serializers.CharField(source="user_id.full_name", read_only=True)
+
+    class Meta:
+        model = Teachers
+        fields = ["id", "teacher_name", "session_duration", "rate_per_session"]
+
+
+
 class ClassListSerializer(serializers.ModelSerializer):
     academy_name = serializers.CharField(source="academy.name", read_only=True)
     subject_name = serializers.CharField(source="subject.name", read_only=True)
@@ -41,6 +50,8 @@ class ClassDetailSerializer(serializers.ModelSerializer):
 
     students_count = serializers.IntegerField(read_only=True)
     sessions_count = serializers.IntegerField(read_only=True)
+
+    teachers = TeacherSummarySerializer(many=True)
 
     class Meta:
         model = Class
@@ -210,9 +221,9 @@ class SubjectCreateSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         request = self.context["request"]
-        academy = self.user.academy
+        academy = request.user.academy
 
-        if Subjects.objects.filter(academy=academy, name=attrs["name"]).exists():
+        if Subject.objects.filter(academy=academy, name=attrs["name"]).exists():
             raise serializers.ValidationError(
                 "Subject with this name already exists in this academy"
             )

@@ -12,6 +12,9 @@ import AttendanceMarkingPage from "./pages/attendance/AttendanceMarkingPage";
 import Sidebar from "./components/Sidebar";
 import DashboarLayout from "./components/DashboardLayout";
 import { AuthContext } from "./context/AuthContext";
+import SubjectsPage from "./pages/SubjectsPage";
+import AddSubjectPage from "./pages/AddSubjectPage";
+import EditSubjectPage from "./pages/EditSubjectPage";
 
 
 function App() {
@@ -41,6 +44,21 @@ function App() {
               <Route path="attendance" element={
                 <ProtectedRoute>
                   <AttendanceMarkingPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/subjects" element={
+                <ProtectedRoute>
+                  <SubjectsPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/subjects/add" element={
+                <ProtectedRoute>
+                  <AddSubjectPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/subjects/:id/edit" element={
+                <ProtectedRoute>
+                  <EditSubjectPage />
                 </ProtectedRoute>
               } />
               {/* <Routes path="grade" element={
