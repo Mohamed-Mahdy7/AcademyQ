@@ -7,7 +7,7 @@ import Register from "./pages/RegisterPage";
 import Login from "./pages/LoginPage";
 import TeachersPage from "./pages/TeachersPage";
 import AttendanceMarkingPage from "./pages/attendance/AttendanceMarkingPage";
-// import GradeForm from "./components/gradeform";
+import GradeForm from "./components/grades/gradeform";
 import { AuthContext } from "./context/AuthContext";
 
 
@@ -36,11 +36,11 @@ function App() {
             <AttendanceMarkingPage />
           </ProtectedRoute>
         } />
-        {/* <Routes path="grade" element={
+        <Route path="grades" element={
           <ProtectedRoute>
             <GradeForm />
           </ProtectedRoute>
-        }/> */}
+        }/>
       </Routes>
     </>
   )

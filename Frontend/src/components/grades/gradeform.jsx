@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useGrades } from "../context/gradecontext";
+import { useGrades } from "../../context/gradecontext";
 
 export default function GradeForm({
   enrollments,
