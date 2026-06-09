@@ -29,28 +29,44 @@ function SubjectForm({ onSubmit, initialData = {} }) {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <div>
-                <label>Name</label>
+        <form onSubmit={handleSubmit} className="space-y-5">
+
+            <div className="form-field">
+                <label className="form-label">
+                    Name <span className="form-required">*</span>
+                </label>
                 <input
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
                     required
+                    placeholder="e.g. Mathematics"
+                    className={errors.name ? "form-input-error" : "form-input"}
                 />
-                {errors.name && <span>{errors.name}</span>}
+                {errors.name && (
+                    <span className="form-error">{errors.name}</span>
+                )}
             </div>
-            <div>
-                <label>Description</label>
+
+            <div className="form-field">
+                <label className="form-label">Description</label>
                 <textarea
                     name="description"
                     value={formData.description}
                     onChange={handleChange}
+                    rows={3}
+                    placeholder="Brief description of the subject..."
+                    className={errors.description ? "form-input-error" : "form-textarea"}
                 />
-                {errors.description && <span>{errors.description}</span>}
+                {errors.description && (
+                    <span className="form-error">{errors.description}</span>
+                )}
             </div>
-            <div>
-                <label>Session Count</label>
+
+            <div className="form-field">
+                <label className="form-label">
+                    Session Count <span className="form-required">*</span>
+                </label>
                 <input
                     type="number"
                     name="session_count"
@@ -58,11 +74,26 @@ function SubjectForm({ onSubmit, initialData = {} }) {
                     onChange={handleChange}
                     required
                     min="1"
+                    placeholder="e.g. 24"
+                    className={errors.session_count ? "form-input-error" : "form-input"}
                 />
-                {errors.session_count && <span>{errors.session_count}</span>}
+                {errors.session_count && (
+                    <span className="form-error">{errors.session_count}</span>
+                )}
             </div>
-            {errors.non_field_errors && <p>{errors.non_field_errors}</p>}
-            <button type="submit">Save</button>
+
+            {errors.non_field_errors && (
+                <div className="alert-danger">
+                    <p className="alert-desc">{errors.non_field_errors}</p>
+                </div>
+            )}
+
+            <div className="flex justify-end">
+                <button type="submit" className="btn-primary">
+                    Save Subject
+                </button>
+            </div>
+
         </form>
     );
 }

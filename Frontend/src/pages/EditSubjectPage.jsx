@@ -24,17 +24,37 @@ function EditSubjectPage() {
     }, [id]);
 
     const handleSubmit = async (data) => {
-        await updateSubject(id, data);   // let SubjectForm catch errors
-        navigate("/subjects");
+        try {
+            await updateSubject(id, data);
+            navigate("/subjects");
+        } catch (error) {
+            throw error;
+        }
     };
 
-    if (loading) return <p>Loading...</p>;
-    if (!subject) return <p>Subject not found.</p>;
+    if (loading) return <p className="p-6 text-sm text-blue">Loading...</p>;
+    if (!subject) return <p className="p-6 text-sm text-danger">Subject not found.</p>;
 
     return (
-        <div>
-            <h1>Edit Subject</h1>
-            <SubjectForm onSubmit={handleSubmit} initialData={subject} />
+        <div className="page-body max-w-2xl">
+
+            <div className="flex items-center gap-3 mb-6">
+                <button
+                    className="btn-icon"
+                    onClick={() => navigate("/subjects")}
+                >
+                    ←
+                </button>
+                <div>
+                    <h1 className="heading-1">Edit Subject</h1>
+                    <p className="subheading">Update subject details for your academy</p>
+                </div>
+            </div>
+
+            <div className="card-body">
+                <SubjectForm onSubmit={handleSubmit} initialData={subject} />
+            </div>
+
         </div>
     );
 }
