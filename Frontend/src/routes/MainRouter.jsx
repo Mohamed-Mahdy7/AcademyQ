@@ -1,4 +1,9 @@
 import { Routes, Route } from "react-router-dom";
+import { AcademyProvider } from './context/AcademyContext.jsx'
+import { TeacherProvider } from './context/TeachersContext.jsx'
+import { GradeProvider } from './context/gradecontext.jsx'
+import { UsersProvider } from './context/UsersContext.jsx'
+import { StudentProvider } from './contextStudentsContext.jsx'
 import ProtectedRoute from "./../components/ProtectedRoute";
 import Dashboard from "./../pages/Dashboard";
 import Register from "./../pages/RegisterPage";
@@ -8,7 +13,6 @@ import TeachersPage from "./../pages/TeachersPage";
 import AttendanceMarkingPage from "./../pages/attendance/AttendanceMarkingPage";
 import Sidebar from "./../components/Sidebar";
 import DashboarLayout from "./../components/DashboardLayout";
-import { AuthContext } from "./../context/AuthContext";
 import SubjectsPage from "./../pages/SubjectsPage";
 import AddSubjectPage from "./../pages/AddSubjectPage";
 import EditSubjectPage from "./../pages/EditSubjectPage";
@@ -29,12 +33,16 @@ const MainRouter = () => {
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/settings" element={
                     <ProtectedRoute>
-                        <AcademyProfile />
+                        <AcademyProvider>
+                            <AcademyProfile />
+                        </AcademyProvider>
                     </ProtectedRoute>
                 } />
                 <Route path="teacher" element={
                     <ProtectedRoute>
-                        <TeachersPage />
+                        <TeacherProvider>
+                            <TeachersPage />
+                        </TeacherProvider>
                     </ProtectedRoute>
                 } />
                 <Route path="classes/:classId/attendance" element={
@@ -74,17 +82,23 @@ const MainRouter = () => {
                 }/>
                 <Route path="/grade" element={
                     <ProtectedRoute>
-                        <GradeForm />
+                        <GradeProvider>
+                            <GradeForm />
+                        </GradeProvider>
                     </ProtectedRoute>
                 } />
                 <Route path="/grade/history" element={
                     <ProtectedRoute>
-                        <GradeHistoryTab />
+                        <GradeProvider>
+                            <GradeHistoryTab />
+                        </GradeProvider>
                     </ProtectedRoute>
                 } />
                 <Route path="/grade/summary" element={
                     <ProtectedRoute>
-                        <GradeSummaryTab />
+                        <GradeProvider>
+                            <GradeSummaryTab />
+                        </GradeProvider>
                     </ProtectedRoute>
                 } />
             </Route>
