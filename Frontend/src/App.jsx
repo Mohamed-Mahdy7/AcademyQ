@@ -8,6 +8,7 @@ import Login from "./pages/LoginPage";
 import AcademyProfile from "./pages/SettingsPage";
 import TeachersPage from "./pages/TeachersPage";
 import AttendanceMarkingPage from "./pages/attendance/AttendanceMarkingPage";
+import GradeForm from "./components/grades/gradeform";
 // import GradeForm from "./components/gradeform";
 import Sidebar from "./components/Sidebar";
 import DashboarLayout from "./components/DashboardLayout";
@@ -15,6 +16,9 @@ import { AuthContext } from "./context/AuthContext";
 import SubjectsPage from "./pages/SubjectsPage";
 import AddSubjectPage from "./pages/AddSubjectPage";
 import EditSubjectPage from "./pages/EditSubjectPage";
+import { GradeProvider } from "./context/gradecontext";
+import GradeHistoryTab from "./components/grades/GradeHistoryTab";
+import GradeSummaryTab from "./components/grades/ClassGradeSummaryTab";
 
 import ClassesPage from "./pages/ClassesPage";
 import AddClassPage from "./pages/AddClassPage";
@@ -30,9 +34,9 @@ function App() {
       }
 
   return (
-    <>
+    <> 
       <MainRouter/>
-    </>
+    </>   
   )
 }
 
