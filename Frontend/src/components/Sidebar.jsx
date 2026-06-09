@@ -58,7 +58,7 @@ const Sidebar = () => {
                 </NavLink>
 
                 <NavLink
-                    to="/attendance"
+                    to="/classes/:classId/attendance"
                     className={({ isActive }) =>
                         isActive
                             ? "sidebar-link-active"
