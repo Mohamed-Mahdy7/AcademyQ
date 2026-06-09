@@ -34,60 +34,8 @@ function App() {
       }
 
   return (
-    <>  <GradeProvider>
-          <Routes>
-            <Route  path="register" element={<Register />} />
-            <Route path="login" element={<Login />} />
-            <Route element={<DashboarLayout />}>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/settings" element={
-                <ProtectedRoute>
-                  <AcademyProfile />
-                </ProtectedRoute>
-              } />
-              <Route path="teacher" element={
-                <ProtectedRoute>
-                  <TeachersPage />
-                </ProtectedRoute>
-              } />
-              <Route path="classes/:classId/attendance" element={
-                <ProtectedRoute>
-                  <AttendanceMarkingPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/subjects" element={
-                <ProtectedRoute>
-                  <SubjectsPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/subjects/add" element={
-                <ProtectedRoute>
-                  <AddSubjectPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/subjects/:id/edit" element={
-                <ProtectedRoute>
-                  <EditSubjectPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/grades" element={
-                <ProtectedRoute>
-                  <GradeForm />
-                </ProtectedRoute>
-              }/>
-              <Route path="/grades/history/:id" element={
-                <ProtectedRoute>
-                  <GradeHistoryTab />
-                </ProtectedRoute>
-              } />
-              <Route path="/grades/summary/:classId" element={
-                <ProtectedRoute>
-                  <GradeSummaryTab />
-                </ProtectedRoute>
-              } />
-            </Route>
-          </Routes>
-        </GradeProvider>
+    <> 
+      <MainRouter/>
     </>   
   )
 }
