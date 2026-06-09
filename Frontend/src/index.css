@@ -311,7 +311,7 @@ LAYER: COMPONENTS
 }
 
 .kpi-label {
-@apply text-[10px] font-semibold uppercase tracking-widest text-blue mb-2;
+@apply text-[12px] font-semibold uppercase tracking-widest text-blue mb-2;
 }
 
 .kpi-value {
@@ -560,6 +560,7 @@ LAYER: COMPONENTS
 .badge-success,
 .badge-warning,
 .badge-danger,
+.badge-danger-dark,
 .badge-info,
 .badge-navy,
 .badge-muted,
@@ -585,6 +586,10 @@ LAYER: COMPONENTS
 
 .badge-danger {
 @apply bg-danger-bg text-danger;
+}
+
+.badge-danger-dark {
+@apply bg-red-200 text-danger;
 }
 
 .badge-info {
