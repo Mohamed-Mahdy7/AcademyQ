@@ -16,6 +16,8 @@ import { AuthContext } from "./context/AuthContext";
 import SubjectsPage from "./pages/SubjectsPage";
 import AddSubjectPage from "./pages/AddSubjectPage";
 import EditSubjectPage from "./pages/EditSubjectPage";
+import { GradeProvider } from "./context/gradecontext";
+import GradeHistoryTab from "./components/grades/GradeHistoryTab";
 
 
 function App() {
@@ -26,7 +28,7 @@ function App() {
       }
 
   return (
-    <>
+    <>  <GradeProvider>
           <Routes>
             <Route  path="register" element={<Register />} />
             <Route path="login" element={<Login />} />
@@ -62,14 +64,25 @@ function App() {
                   <EditSubjectPage />
                 </ProtectedRoute>
               } />
-              {/* <Routes path="grade" element={
+              <Route path="/grades" element={
                 <ProtectedRoute>
                   <GradeForm />
                 </ProtectedRoute>
-              }/> */}
+              }/>
+              <Route path="/grades/history/:id" element={
+                <ProtectedRoute>
+                  <GradeHistoryTab />
+                </ProtectedRoute>
+              } />
+              <Route path="/grades/sammary/:classId" element={
+                <ProtectedRoute>
+                  <GradeHistoryTab />
+                </ProtectedRoute>
+              } />
             </Route>
           </Routes>
-    </>
+        </GradeProvider>
+    </>   
   )
 }
 
