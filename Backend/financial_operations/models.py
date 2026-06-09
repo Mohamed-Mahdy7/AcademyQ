@@ -42,6 +42,7 @@ class Enrollment(models.Model):
  
     class Meta:
         db_table = 'enrollment'
+        unique_together = [['student_id', 'class_id']]
  
     def __str__(self):
         return f"Enrollment {self.id} — Student {self.student_id} in Class {self.class_id}"
