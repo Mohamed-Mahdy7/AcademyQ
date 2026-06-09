@@ -60,6 +60,10 @@ class UserSerializer(serializers.ModelSerializer):
         source="academy.name", 
         read_only=True
     )
+    academy_id = serializers.CharField(
+        source="academy.id", 
+        read_only=True
+    )
 
     class Meta:
         model = User
@@ -70,6 +74,7 @@ class UserSerializer(serializers.ModelSerializer):
             "phone",
             "role",
             "is_active",
+            "academy_id",
             "academy_name",
         ]
 
