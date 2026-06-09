@@ -19,6 +19,7 @@ import EditSubjectPage from "./../pages/EditSubjectPage";
 import ClassesPage from "./../pages/ClassesPage";
 import AddClassPage from "./../pages/AddClassPage";
 import EditClassPage from "./../pages/EditClassPage";
+import ClassDetailPage from "./../pages/ClassDetailPage";
 import GradeForm from "./../components/grades/gradeform";
 import GradeHistoryTab from "./../components/grades/GradeHistoryTab";
 import GradeSummaryTab from "./../components/grades/ClassGradeSummaryTab";
@@ -76,6 +77,16 @@ const MainRouter = () => {
                     </ProtectedRoute>}
                 />
                 <Route path="/classes/:id/edit" element={
+                    <EditClassPage />}
+                />
+                <Route path="/classes/:id/" element={
+                    <ClassDetailPage />
+                } />
+                {/* <Routes path="grade" element={
+                <ProtectedRoute>
+                    <GradeForm />
+                </ProtectedRoute>
+              }/> */}
                     <ProtectedRoute>
                         <EditClassPage />
                     </ProtectedRoute>
