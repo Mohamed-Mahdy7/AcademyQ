@@ -16,6 +16,10 @@ import SubjectsPage from "./pages/SubjectsPage";
 import AddSubjectPage from "./pages/AddSubjectPage";
 import EditSubjectPage from "./pages/EditSubjectPage";
 
+import ClassesPage from "./pages/ClassesPage";
+import AddClassPage from "./pages/AddClassPage";
+import EditClassPage from "./pages/EditClassPage";
+
 
 function App() {
   const { loading } = useContext(AuthContext);
@@ -61,6 +65,17 @@ function App() {
                   <EditSubjectPage />
                 </ProtectedRoute>
               } />
+              <Route path="/classes" element={
+                <ProtectedRoute>
+                  <ClassesPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/classes/add" element={
+                <AddClassPage />} 
+              />
+              <Route path="/classes/:id/edit" element={
+                <EditClassPage />} 
+              />
               {/* <Routes path="grade" element={
                 <ProtectedRoute>
                   <GradeForm />
