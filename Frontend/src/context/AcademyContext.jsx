@@ -4,7 +4,7 @@ import { getAcademyRequest, updateAcademyRequest } from "../services/academyServ
 export const AcademyContext = createContext();
 
 export function AcademyProvider({  children }) {
-    const [academy, setAcademy] =useState(null)
+    const [academy, setAcademy] = useState(null)
 
     async function getAcademy() {
         try{
