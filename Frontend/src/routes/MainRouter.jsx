@@ -6,7 +6,6 @@ import Login from "./../pages/LoginPage";
 import AcademyProfile from "./../pages/SettingsPage";
 import TeachersPage from "./../pages/TeachersPage";
 import AttendanceMarkingPage from "./../pages/attendance/AttendanceMarkingPage";
-// import GradeForm from "./../components/gradeform";
 import Sidebar from "./../components/Sidebar";
 import DashboarLayout from "./../components/DashboardLayout";
 import { AuthContext } from "./../context/AuthContext";
@@ -16,6 +15,9 @@ import EditSubjectPage from "./../pages/EditSubjectPage";
 import ClassesPage from "./../pages/ClassesPage";
 import AddClassPage from "./../pages/AddClassPage";
 import EditClassPage from "./../pages/EditClassPage";
+import GradeForm from "./../components/grades/gradeform";
+import GradeHistoryTab from "./../components/grades/GradeHistoryTab";
+import GradeSummaryTab from "./../components/grades/ClassGradeSummaryTab";
 
 
 const MainRouter = () => {
@@ -61,16 +63,30 @@ const MainRouter = () => {
                     </ProtectedRoute>
                 } />
                 <Route path="/classes/add" element={
-                    <AddClassPage />}
+                    <ProtectedRoute>
+                        <AddClassPage />
+                    </ProtectedRoute>}
                 />
                 <Route path="/classes/:id/edit" element={
-                    <EditClassPage />}
-                />
-                {/* <Routes path="grade" element={
-                <ProtectedRoute>
-                    <GradeForm />
-                </ProtectedRoute>
-              }/> */}
+                    <ProtectedRoute>
+                        <EditClassPage />
+                    </ProtectedRoute>
+                }/>
+                <Route path="/grade" element={
+                    <ProtectedRoute>
+                        <GradeForm />
+                    </ProtectedRoute>
+                } />
+                <Route path="/grade/history" element={
+                    <ProtectedRoute>
+                        <GradeHistoryTab />
+                    </ProtectedRoute>
+                } />
+                <Route path="/grade/summary" element={
+                    <ProtectedRoute>
+                        <GradeSummaryTab />
+                    </ProtectedRoute>
+                } />
             </Route>
         </Routes>
     )
