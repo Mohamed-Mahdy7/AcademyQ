@@ -18,6 +18,7 @@ import AddSubjectPage from "./pages/AddSubjectPage";
 import EditSubjectPage from "./pages/EditSubjectPage";
 import { GradeProvider } from "./context/gradecontext";
 import GradeHistoryTab from "./components/grades/GradeHistoryTab";
+import GradeSummaryTab from "./components/grades/ClassGradeSummaryTab";
 
 
 function App() {
@@ -74,9 +75,9 @@ function App() {
                   <GradeHistoryTab />
                 </ProtectedRoute>
               } />
-              <Route path="/grades/sammary/:classId" element={
+              <Route path="/grades/summary/:classId" element={
                 <ProtectedRoute>
-                  <GradeHistoryTab />
+                  <GradeSummaryTab />
                 </ProtectedRoute>
               } />
             </Route>
