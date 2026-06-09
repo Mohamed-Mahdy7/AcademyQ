@@ -19,6 +19,7 @@ import EditSubjectPage from "./pages/EditSubjectPage";
 import ClassesPage from "./pages/ClassesPage";
 import AddClassPage from "./pages/AddClassPage";
 import EditClassPage from "./pages/EditClassPage";
+import MainRouter from "./routes/MainRouter";
 
 
 function App() {
@@ -30,59 +31,7 @@ function App() {
 
   return (
     <>
-          <Routes>
-            <Route  path="register" element={<Register />} />
-            <Route path="login" element={<Login />} />
-            <Route element={<DashboarLayout />}>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/settings" element={
-                <ProtectedRoute>
-                  <AcademyProfile />
-                </ProtectedRoute>
-              } />
-              <Route path="teacher" element={
-                <ProtectedRoute>
-                  <TeachersPage />
-                </ProtectedRoute>
-              } />
-              <Route path="classes/:classId/attendance" element={
-                <ProtectedRoute>
-                  <AttendanceMarkingPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/subjects" element={
-                <ProtectedRoute>
-                  <SubjectsPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/subjects/add" element={
-                <ProtectedRoute>
-                  <AddSubjectPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/subjects/:id/edit" element={
-                <ProtectedRoute>
-                  <EditSubjectPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/classes" element={
-                <ProtectedRoute>
-                  <ClassesPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/classes/add" element={
-                <AddClassPage />} 
-              />
-              <Route path="/classes/:id/edit" element={
-                <EditClassPage />} 
-              />
-              {/* <Routes path="grade" element={
-                <ProtectedRoute>
-                  <GradeForm />
-                </ProtectedRoute>
-              }/> */}
-            </Route>
-          </Routes>
+      <MainRouter/>
     </>
   )
 }
