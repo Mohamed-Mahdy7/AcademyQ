@@ -1,0 +1,6 @@
+How to use in the class detail page
+
+import EnrollmentTab from "../components/enrollments/EnrollmentTab";
+
+Inside your class detail page, inside the Students tab:
+<EnrollmentTab classId={classId} />

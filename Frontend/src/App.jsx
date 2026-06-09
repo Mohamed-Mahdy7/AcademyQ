@@ -20,6 +20,11 @@ import { GradeProvider } from "./context/gradecontext";
 import GradeHistoryTab from "./components/grades/GradeHistoryTab";
 import GradeSummaryTab from "./components/grades/ClassGradeSummaryTab";
 
+import ClassesPage from "./pages/ClassesPage";
+import AddClassPage from "./pages/AddClassPage";
+import EditClassPage from "./pages/EditClassPage";
+import MainRouter from "./routes/MainRouter";
+
 
 function App() {
   const { loading } = useContext(AuthContext);

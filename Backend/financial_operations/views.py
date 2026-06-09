@@ -39,6 +39,17 @@ class EnrollmentViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(status=status)
         return queryset
 
+    def perform_create(self, serializer):
+        student_id = self.request.data.get('student_id')
+        class_id = self.request.data.get('class_id')
+
+        if Enrollment.objects.filter(student_id=student_id, class_id=class_id).exists():
+            from rest_framework.exceptions import ValidationError
+            raise ValidationError(
+                {'detail': 'Student is already enrolled in this class.'}
+            )
+        serializer.save()
+
     def perform_destroy(self, instance):
         instance.status = 'dropped'
         instance.save()
