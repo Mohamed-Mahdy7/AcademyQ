@@ -1,9 +1,9 @@
 import { Routes, Route } from "react-router-dom";
-import { AcademyProvider } from './context/AcademyContext.jsx'
-import { TeacherProvider } from './context/TeachersContext.jsx'
-import { GradeProvider } from './context/gradecontext.jsx'
-import { UsersProvider } from './context/UsersContext.jsx'
-import { StudentProvider } from './contextStudentsContext.jsx'
+import { AcademyProvider } from './../context/AcademyContext.jsx'
+import { TeacherProvider } from './../context/TeachersContext.jsx'
+import { GradeProvider } from './../context/gradecontext.jsx'
+// import { UsersProvider } from './../context/UsersContext.jsx'
+// import { StudentProvider } from './../context/StudentsContext/jsx'
 import ProtectedRoute from "./../components/ProtectedRoute";
 import Dashboard from "./../pages/Dashboard";
 import Register from "./../pages/RegisterPage";
