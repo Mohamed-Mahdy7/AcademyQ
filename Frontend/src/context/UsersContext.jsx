@@ -48,7 +48,7 @@ export const UsersProvider = ({children}) => {
                 data: response.data
             };
         } catch (error) {
-            console.error(error);
+            console.error(error.response?.data);
             return {
                 success: false,
                 error

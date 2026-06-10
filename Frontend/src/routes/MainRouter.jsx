@@ -4,6 +4,7 @@ import { TeacherProvider } from './../context/TeachersContext.jsx'
 import { GradeProvider } from './../context/gradecontext.jsx'
 import { UsersProvider } from "../context/UsersContext.jsx";
 import { StudentProvider } from "../context/StudentsContext.jsx";
+import { PaymentProvider } from "../context/PaymentContext.jsx";
 import ProtectedRoute from "./../components/ProtectedRoute";
 import Dashboard from "./../pages/Dashboard";
 import Register from "./../pages/RegisterPage";
@@ -19,12 +20,12 @@ import EditSubjectPage from "./../pages/EditSubjectPage";
 import ClassesPage from "./../pages/ClassesPage";
 import AddClassPage from "./../pages/AddClassPage";
 import EditClassPage from "./../pages/EditClassPage";
-import ClassDetailPage from "./../pages/ClassDetailPage";
 import GradeForm from "./../components/grades/gradeform";
 import GradeHistoryTab from "./../components/grades/GradeHistoryTab";
 import GradeSummaryTab from "./../components/grades/ClassGradeSummaryTab";
 import UserRegister from './../pages/UsersRegisterPage.jsx'
 import StudentRegister from "../pages/StudentsRegisterPage.jsx";
+import PaymentsPage from "../pages/PaymentsPage.jsx"
 
 
 const MainRouter = () => {
@@ -93,16 +94,6 @@ const MainRouter = () => {
                     </ProtectedRoute>}
                 />
                 <Route path="/classes/:id/edit" element={
-                    <EditClassPage />}
-                />
-                <Route path="/classes/:id/" element={
-                    <ClassDetailPage />
-                } />
-                {/* <Routes path="grade" element={
-                <ProtectedRoute>
-                    <GradeForm />
-                </ProtectedRoute>
-              }/> */}
                     <ProtectedRoute>
                         <EditClassPage />
                     </ProtectedRoute>
@@ -128,6 +119,13 @@ const MainRouter = () => {
                         </GradeProvider>
                     </ProtectedRoute>
                 } />
+                <Route path="/payments" element={
+                    <ProtectedRoute>
+                        <PaymentProvider>
+                            <PaymentsPage />
+                        </PaymentProvider>
+                    </ProtectedRoute>
+                }/>
             </Route>
         </Routes>
     )
