@@ -1,7 +1,7 @@
 import api from "../api.js";
 
 export const createGrade = (data) => 
-   api.post("/grades/", data);
+   api.post("api/grades/", data);
   
 ;
 
