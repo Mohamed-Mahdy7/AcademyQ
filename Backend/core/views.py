@@ -1,3 +1,5 @@
+from cProfile import label
+
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
@@ -9,6 +11,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.decorators import action
+from .models import Academy
 from .serializers import (AcademySerializer, CustomeTokenObtainPairSerializer,
     AcademyRegistrationSerializer, StaffCreateSerializer, StudentCreateSerializer, 
     StudentProfileUpdateSerializer, UserSerializer)
@@ -66,6 +69,9 @@ class AcademyView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user.academy
 
+class AcademyListView(generics.ListAPIView):
+    queryset = Academy.objects.all()
+    serializer_class = AcademySerializer
 
 class ComopleteSetupView(APIView):
     def post(self, request):
@@ -166,11 +172,27 @@ class UserViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save()
 
+class RolesListView(APIView):
+    def get(self, request):
+        return Response([{
+            "value": value,
+            "label": label,
+        }for value, label in User.Roles.choises])
 
 class StudentRegistrationView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = StudentCreateSerializer
 
+
+class EducationalLevelListView(APIView):
+    def get(self, request):
+        return Response ([
+            {
+                "value": value,
+                "label": label,
+            }
+            for value, label in User.EducationalLevel.choices
+        ])
 
 class StudentProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = StudentProfileUpdateSerializer

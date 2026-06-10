@@ -2,8 +2,8 @@ import { Routes, Route } from "react-router-dom";
 import { AcademyProvider } from './../context/AcademyContext.jsx'
 import { TeacherProvider } from './../context/TeachersContext.jsx'
 import { GradeProvider } from './../context/gradecontext.jsx'
-// import { UsersProvider } from './../context/UsersContext.jsx'
-// import { StudentProvider } from './../context/StudentsContext/jsx'
+import { UsersProvider } from "../context/UsersContext.jsx";
+import { StudentProvider } from "../context/StudentsContext.jsx";
 import ProtectedRoute from "./../components/ProtectedRoute";
 import Dashboard from "./../pages/Dashboard";
 import Register from "./../pages/RegisterPage";
@@ -23,7 +23,8 @@ import ClassDetailPage from "./../pages/ClassDetailPage";
 import GradeForm from "./../components/grades/gradeform";
 import GradeHistoryTab from "./../components/grades/GradeHistoryTab";
 import GradeSummaryTab from "./../components/grades/ClassGradeSummaryTab";
-import PaymentsPage from "./../pages/PaymentsPage"
+import UserRegister from './../pages/UsersRegisterPage.jsx'
+import StudentRegister from "../pages/StudentsRegisterPage.jsx";
 
 
 const MainRouter = () => {
@@ -32,7 +33,21 @@ const MainRouter = () => {
             <Route path="register" element={<Register />} />
             <Route path="login" element={<Login />} />
             <Route element={<DashboarLayout />}>
-                <Route path="/" element={<Dashboard />} />
+            <Route path="/" element={<Dashboard />} />
+                <Route path="/users/register" element={
+                    <ProtectedRoute>
+                        <UsersProvider>
+                            <UserRegister />
+                        </UsersProvider>
+                    </ProtectedRoute>
+                } />
+                <Route path="/student/register" element={
+                    <ProtectedRoute>
+                        <StudentProvider>
+                            <StudentRegister />
+                        </StudentProvider>
+                    </ProtectedRoute>
+                } />
                 <Route path="/settings" element={
                     <ProtectedRoute>
                         <AcademyProvider>
@@ -96,7 +111,7 @@ const MainRouter = () => {
                     <ProtectedRoute>
                         <EditClassPage />
                     </ProtectedRoute>
-                
+                } />
                 <Route path="/grade" element={
                     <ProtectedRoute>
                         <GradeProvider>

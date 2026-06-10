@@ -1,13 +1,14 @@
 import { createContext, useEffect, useState } from "react";
-import { createStuedetRequest, updateStudentRequest } from "../services/studentService";
+import { createStudentRequest, updateStudentRequest } from "../services/studentService";
 
 export const StudentContext = createContext();
 
-const StudentProvider = ({children}) => {
+export const StudentProvider = ({children}) => {
     const [student, setStudent] = useState(null);
 
     async function createStudent(data) {
         try {
+            console.log(`DATA SENT: `, data);
             const response = await createStudentRequest(data);
             setStudent(response.data);
 
@@ -17,6 +18,7 @@ const StudentProvider = ({children}) => {
             };
         } catch (error) {
             console.error(error);
+            console.log(error.response?.data);
             return {
                 success: false,
                 error,
@@ -56,4 +58,3 @@ const StudentProvider = ({children}) => {
 
 }
 
-export default StudentProvider
