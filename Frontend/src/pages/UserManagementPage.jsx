@@ -2,6 +2,7 @@ import { useContext, useState } from "react"
 import KpiCard from "../components/KpiCard"
 import { UsersContext } from "../context/UsersContext"
 import UserRegister from "./UsersRegisterPage"
+import CardHeading from "../components/CardHeader"
 
 const UserManagement = () => {
     const {users} = useContext(UsersContext)
@@ -66,6 +67,78 @@ const UserManagement = () => {
                     </div>
                 </div>
             )}
+            <div className="table-wrap">
+                <div className="card-header">
+                    <h1 className="heading-3">All Staff Users</h1>
+                </div>
+                <table className="table">
+                    <thead className="table-thead">
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th className="text-right">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {users
+                            .filter(user => user.role !== "S")
+                            .map((user) => (
+                            <tr key={user.id} className="table-row">
+                                <td className="table-cell font-medium">
+                                    {user.full_name}
+                                </td>
+                                <td className="table-cell">
+                                    {user.email}
+                                </td>
+                                <td className="table-cell">
+                                    {user.phone}
+                                </td>
+                                <td className="table-cell">
+                                    {user.role === 'A' ?
+                                        <span className="badge-navy">
+                                            {user.role_display}
+                                        </span>
+                                        :
+                                        <span className="badge-info">
+                                            {user.role_display}
+                                        </span>
+                                    }
+                                </td>
+                                <td className="table-cell">
+                                    {user.status === 'A' ?
+                                        <span className="badge-success">
+                                            {user.status_display}
+                                        </span>
+                                        : user.status === 'P'?
+                                        <span className="badge-warning">
+                                            {user.status_display}
+                                        </span>
+                                        :
+                                        <span className="badge-danger">
+                                            {user.status_display}
+                                        </span>
+                                    }
+                                </td>
+                                <td className="table-cell">
+                                    {new Date(user.created_at).toLocaleDateString()}
+                                </td>
+                                <td className="table-cell">
+                                    <div className="flex justify-end">
+                                        <button className="btn-secondary">
+                                            Edit
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </>
     )
 }

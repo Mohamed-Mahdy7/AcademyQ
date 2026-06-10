@@ -29,7 +29,7 @@ function StudentRegister() {
     async function fetchAcademies() {
         try {
             const response = await api.get("api/auth/academies/");
-            setAcademies(response.data.results);
+            setAcademies(response.data);
         } catch (error) {
             console.error(error);
         }
