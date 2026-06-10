@@ -1,7 +1,6 @@
 import { useEffect, useState, useContext } from "react";
 import { getUsersRequest } from "../../services/usersService";
 import { AuthContext } from "../../context/AuthContext";
-import { AcademyContext } from "../../context/AcademyContext";
 
 const EMPTY_FORM = {
   user_id: "",
@@ -21,7 +20,6 @@ export default function TeacherForm({ editingTeacher, onSubmit, onCancel, errors
   const [form, setForm] = useState(EMPTY_FORM);
   const [availableUsers, setAvailableUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
-  const { academy } = useContext(AcademyContext);
 
   useEffect(() => {
     if (!editingTeacher) {
