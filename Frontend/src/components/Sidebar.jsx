@@ -69,6 +69,17 @@ const Sidebar = () => {
                 </NavLink>
 
                 <NavLink
+                    to="/payments"
+                    className={({ isActive }) =>
+                        isActive
+                            ? "sidebar-link-active"
+                            : "sidebar-link"
+                    }
+                >
+                    Payments
+                </NavLink>
+
+                <NavLink
                     to="/settings"
                     className={({ isActive }) =>
                         isActive

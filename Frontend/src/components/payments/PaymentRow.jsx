@@ -14,6 +14,16 @@ export default function PaymentRow({ payment, onDelete }) {
           {parseFloat(payment.amount).toFixed(2)} EGP
         </span>
       </td>
+      <td className="table-cell">
+        <span className={
+          payment.status === "completed" ? "badge-success" :
+          payment.status === "pending"   ? "badge-warning" :
+          payment.status === "cancelled" ? "badge-danger"  :
+          "badge-muted"
+        }>
+          {payment.status}
+        </span>
+      </td>
       <td className="table-cell-muted">{payment.paid_on}</td>
       <td className="table-cell-muted">
         {payment.notes || <span className="text-blue/40">—</span>}

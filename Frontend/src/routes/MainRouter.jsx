@@ -16,6 +16,7 @@ import EditSubjectPage from "./../pages/EditSubjectPage";
 import ClassesPage from "./../pages/ClassesPage";
 import AddClassPage from "./../pages/AddClassPage";
 import EditClassPage from "./../pages/EditClassPage";
+import PaymentsPage from "./../pages/PaymentsPage"
 
 
 const MainRouter = () => {
@@ -65,6 +66,11 @@ const MainRouter = () => {
                 />
                 <Route path="/classes/:id/edit" element={
                     <EditClassPage />}
+                />
+                <Route path="/payments" element={
+                    <ProtectedRoute>
+                    <PaymentsPage />
+                    </ProtectedRoute>}
                 />
                 {/* <Routes path="grade" element={
                 <ProtectedRoute>

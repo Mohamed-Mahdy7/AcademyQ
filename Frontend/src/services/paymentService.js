@@ -13,3 +13,9 @@ export const createPayment = (data) =>
 
 export const deletePayment = (id) =>
   api.delete(`/api/payments/${id}/`);
+
+export const editPayment = (id, data) =>
+  api.patch(`/api/payments/${id}/`, data);
+
+export const updatePayment = (id, data) =>
+  api.patch(`/api/payments/${id}/`, data);

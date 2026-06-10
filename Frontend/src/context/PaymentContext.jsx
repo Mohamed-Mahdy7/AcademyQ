@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import {getPayments, getPaymentsSummary, createPayment, deletePayment,} from "../services/paymentService";
+import {getPayments, getPaymentsSummary, createPayment, deletePayment, updatePayment, editPayment} from "../services/paymentService";
 
 export const PaymentContext = createContext();
 
@@ -60,6 +60,15 @@ export function PaymentProvider({ children }) {
     }
   }
 
+  async function editPayment(id, data) {
+    try {
+      await updatePayment(id, data);
+      return { success: true };
+    } catch (err) {
+      return { success: false, errors: err.response?.data || {} };
+    }
+  }
+
   return (
     <PaymentContext.Provider
       value={{
@@ -71,6 +80,7 @@ export function PaymentProvider({ children }) {
         listPayments,
         fetchSummary,
         addPayment,
+        editPayment,
         removePayment,
       }}
     >

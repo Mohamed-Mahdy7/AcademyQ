@@ -17,7 +17,7 @@ function getCurrentMonth() {
 export default function PaymentsPage() {
   const {
     payments, summary, loading, summaryLoading, error,
-    listPayments, fetchSummary, addPayment, removePayment,
+    listPayments, fetchSummary, addPayment, removePayment, editPayment,
   } = usePayment();
 
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth());
@@ -33,7 +33,13 @@ export default function PaymentsPage() {
 
   async function handleSubmit(payload) {
     setSubmitting(true);
-    const result = await addPayment(payload);
+
+    const result = await editPayment(payload.payment_id, {
+      status: payload.status,
+      paid_on: payload.paid_on,
+      notes: payload.notes,
+    });
+
     setSubmitting(false);
     if (result.success) {
       setShowForm(false);

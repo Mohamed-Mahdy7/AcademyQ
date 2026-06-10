@@ -1,14 +1,44 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getPayments } from "../../services/paymentService";
 
 const EMPTY_FORM = {
   enrollment_id: "",
   amount: "",
   paid_on: new Date().toISOString().split("T")[0],
   notes: "",
+  status: "completed",
 };
 
 export default function RecordPaymentForm({ onSubmit, onCancel, errors, submitting }) {
   const [form, setForm] = useState(EMPTY_FORM);
+  const [pendingPayments, setPendingPayments] = useState([]);
+  const [loadingPending, setLoadingPending] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState(null);
+
+  // Fetch all pending payments on mount
+  useEffect(() => {
+    setLoadingPending(true);
+    getPayments({ status: "pending" })
+      .then((res) => {
+        const data = res.data.results ?? res.data;
+        setPendingPayments(data);
+      })
+      .catch((err) => console.error("Failed to load pending payments", err))
+      .finally(() => setLoadingPending(false));
+  }, []);
+
+  function handlePaymentSelect(e) {
+    const paymentId = e.target.value;
+    const payment = pendingPayments.find((p) => p.id === paymentId);
+    setSelectedPayment(payment || null);
+    if (payment) {
+      setForm((prev) => ({
+        ...prev,
+        enrollment_id: payment.enrollment_id,
+        amount: payment.amount,
+      }));
+    }
+  }
 
   function handleChange(e) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -16,7 +46,7 @@ export default function RecordPaymentForm({ onSubmit, onCancel, errors, submitti
 
   function handleSubmit(e) {
     e.preventDefault();
-    onSubmit(form);
+    onSubmit({ ...form, payment_id: selectedPayment?.id });
   }
 
   return (
@@ -35,50 +65,43 @@ export default function RecordPaymentForm({ onSubmit, onCancel, errors, submitti
         <form onSubmit={handleSubmit}>
           <div className="modal-body">
 
-            {/* Enrollment ID */}
+            {/* Pending payments dropdown */}
             <div className="form-field">
               <label className="form-label">
-                Enrollment ID <span className="form-required">*</span>
+                Pending payment <span className="form-required">*</span>
               </label>
-              <input
-                type="text"
-                name="enrollment_id"
-                value={form.enrollment_id}
-                onChange={handleChange}
-                placeholder="Paste enrollment UUID"
-                className={errors?.enrollment_id ? "form-input-error" : "form-input"}
+              <select
+                onChange={handlePaymentSelect}
+                className="form-select"
                 required
-              />
-              {errors?.enrollment_id && (
-                <p className="form-error">
-                  {Array.isArray(errors.enrollment_id) ? errors.enrollment_id[0] : errors.enrollment_id}
-                </p>
+                defaultValue=""
+              >
+                <option value="" disabled>
+                  {loadingPending ? "Loading pending payments..." : "Select a pending payment"}
+                </option>
+                {pendingPayments.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.enrollment_id} — {parseFloat(p.amount).toFixed(2)} EGP
+                  </option>
+                ))}
+              </select>
+              {pendingPayments.length === 0 && !loadingPending && (
+                <p className="form-hint">No pending payments found.</p>
               )}
-              <p className="form-hint">Will be replaced with a dropdown once students API is ready</p>
             </div>
 
-            {/* Amount */}
-            <div className="form-field">
-              <label className="form-label">
-                Amount (EGP) <span className="form-required">*</span>
-              </label>
-              <input
-                type="number"
-                name="amount"
-                value={form.amount}
-                onChange={handleChange}
-                placeholder="e.g. 500"
-                min="0"
-                step="0.01"
-                className={errors?.amount ? "form-input-error" : "form-input"}
-                required
-              />
-              {errors?.amount && (
-                <p className="form-error">
-                  {Array.isArray(errors.amount) ? errors.amount[0] : errors.amount}
-                </p>
-              )}
-            </div>
+            {/* Selected payment info */}
+            {selectedPayment && (
+              <div className="alert alert-info">
+                <div>
+                  <p className="alert-title">Payment details</p>
+                  <p className="alert-desc">
+                    Amount: <strong>{parseFloat(selectedPayment.amount).toFixed(2)} EGP</strong>
+                    {selectedPayment.notes && <> · Notes: {selectedPayment.notes}</>}
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Payment date */}
             <div className="form-field">
@@ -111,6 +134,40 @@ export default function RecordPaymentForm({ onSubmit, onCancel, errors, submitti
               />
             </div>
 
+            {/* Action buttons */}
+            {selectedPayment && (
+              <div className="form-field">
+                <label className="form-label">Action</label>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setForm((prev) => ({ ...prev, status: "completed" }))}
+                    className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                      form.status === "completed"
+                        ? "bg-success-bg border-success/30 text-success"
+                        : "bg-muted border-border text-blue hover:bg-sky-pale"
+                    }`}
+                  >
+                    ✓ Complete
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setForm((prev) => ({ ...prev, status: "cancelled" }))}
+                    className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                      form.status === "cancelled"
+                        ? "bg-danger-bg border-danger/30 text-danger"
+                        : "bg-muted border-border text-blue hover:bg-sky-pale"
+                    }`}
+                  >
+                    ✕ Cancel
+                  </button>
+                </div>
+                <p className="form-hint">
+                  Selected: <strong>{form.status}</strong>
+                </p>
+              </div>
+            )}
+
             {errors?.detail && (
               <div className="alert alert-danger">
                 <p className="alert-desc">{errors.detail}</p>
@@ -125,12 +182,14 @@ export default function RecordPaymentForm({ onSubmit, onCancel, errors, submitti
             </button>
             <button
               type="submit"
-              className={`btn-primary ${submitting ? "btn-disabled" : ""}`}
-              disabled={submitting}
+              className={`${
+                form.status === "cancelled" ? "btn-danger" : "btn-primary"
+              } ${submitting || !selectedPayment ? "btn-disabled" : ""}`}
+              disabled={submitting || !selectedPayment}
             >
               {submitting ? (
                 <><span className="btn-spinner" /> Saving...</>
-              ) : "Record payment"}
+              ) : form.status === "cancelled" ? "Cancel payment" : "Complete payment"}
             </button>
           </div>
         </form>
