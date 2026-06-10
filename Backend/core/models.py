@@ -98,7 +98,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     parent_phone = models.CharField(max_length=15)
     educational_level = models.IntegerField(
         choices=EducationalLevel.choices,
-        null=False
+        null=True
         )
     status = models.CharField(
         max_length=10,

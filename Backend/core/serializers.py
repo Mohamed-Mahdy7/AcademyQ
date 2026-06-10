@@ -52,7 +52,7 @@ class AcademyRegistrationSerializer(serializers.Serializer):
 class AcademySerializer(serializers.ModelSerializer):
     class Meta:
         model = Academy
-        fields = ["name", "email", "phone", "address", "subscription_end"]
+        fields = ["id", "name", "email", "phone", "address", "subscription_end"]
 
 
 class UserSerializer(serializers.ModelSerializer):

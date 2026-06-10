@@ -22,14 +22,23 @@ class TeachersSerializer(serializers.ModelSerializer):
         ]
 
 class PaymentSerializer(serializers.ModelSerializer):
+    student_name = serializers.CharField(
+        source='enrollment_id.student_id.full_name', read_only=True
+    )
+    class_name = serializers.CharField(
+        source='enrollment_id.class_id.name', read_only=True
+    )
     class Meta:
         model = Payment
         fields = [
             'id',
             'enrollment_id',
+            'student_name', 
+            'class_name', 
             'amount',
             'paid_on',
             'notes',
+            'status',
         ]
 
 class EnrollmentSerializer(serializers.ModelSerializer):

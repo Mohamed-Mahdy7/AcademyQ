@@ -9,7 +9,7 @@ import {
 
 export const UsersContext = createContext();
 
-const UsersProvider = ({children}) => {
+export const UsersProvider = ({children}) => {
     const [users, setUsers] = useState([])
     const [user, setUser] = useState(null)
 
@@ -32,7 +32,7 @@ const UsersProvider = ({children}) => {
             return response.data;
         } catch (error) {
             console.error(error);
-            setUsers(null);
+            setUsers([]);
             return null;
         }
     }
@@ -41,13 +41,14 @@ const UsersProvider = ({children}) => {
         try{
             const response = await createUserRequest(data);
             setUser(response.data);
+            await getUsers();
+
             return {
                 success: true,
                 data: response.data
             };
-            await getUsers();
         } catch (error) {
-            console.error(error);
+            console.error(error.response?.data);
             return {
                 success: false,
                 error
@@ -59,11 +60,12 @@ const UsersProvider = ({children}) => {
         try{
             const response = await updateUserRequest(id, data);
             setUser(response.data);
+            await getUsers();
+
             return {
                 success: true,
                 data: response.data
             };
-            await getUsers();
         } catch (error) {
             console.error(error);
             return {
@@ -105,4 +107,3 @@ const UsersProvider = ({children}) => {
     );
 }
 
-export default UsersProvider

@@ -65,6 +65,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
         student_id = self.request.query_params.get('student_id')
         month = self.request.query_params.get('month')
         enrollment_id = self.request.query_params.get('enrollment_id')
+        status = self.request.query_params.get('status')
         if enrollment_id:
             queryset = queryset.filter(enrollment_id=enrollment_id)
         if student_id:
@@ -76,7 +77,10 @@ class PaymentViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(
                 paid_on__year=year,
                 paid_on__month=mon
-            )    
+            )   
+        if status:
+            queryset = queryset.filter(status=status) 
+            
         return queryset
     
 
