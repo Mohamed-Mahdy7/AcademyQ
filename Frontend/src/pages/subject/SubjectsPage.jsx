@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getSubjects, deleteSubject } from "../services/subjectService";
+import { getSubjects, deleteSubject } from "../../services/subjectService";
 
 function SubjectsPage() {
     const [subjects, setSubjects] = useState([]);
@@ -41,9 +41,9 @@ function SubjectsPage() {
     const avgSessions =
         totalSubjects > 0
             ? Math.round(
-                  subjects.reduce((sum, s) => sum + (s.session_count || 0), 0) /
-                      totalSubjects
-              )
+                subjects.reduce((sum, s) => sum + (s.session_count || 0), 0) /
+                totalSubjects
+            )
             : 0;
 
     return (

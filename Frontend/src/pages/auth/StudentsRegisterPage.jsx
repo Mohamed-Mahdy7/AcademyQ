@@ -1,9 +1,9 @@
 import { useContext, useEffect, useState } from "react";
-import { StudentContext } from "../context/StudentsContext";
+import { StudentContext } from "../../context/StudentsContext";
 import { useNavigate } from "react-router-dom";
-import api from "../api";
+import api from "../../api";
 
-function StudentRegister() {
+function StudentRegister({ onClose }) {
     const {createStudent} = useContext(StudentContext)
     const [full_name, setFullName] = useState("");
     const [email, setEmail] = useState("");
@@ -62,7 +62,7 @@ function StudentRegister() {
         try{
             const result = await createStudent(data);
             if(result.success) {
-                navigate("/")
+                onClose();
             }
         } catch (error) {
             console.error(error);

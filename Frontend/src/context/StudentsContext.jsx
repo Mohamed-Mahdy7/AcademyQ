@@ -1,10 +1,27 @@
 import { createContext, useEffect, useState } from "react";
-import { createStudentRequest, updateStudentRequest } from "../services/studentService";
+import { 
+    createStudentRequest, 
+    updateStudentRequest,
+    getStudentsRequest
+} from "../services/studentService";
 
 export const StudentContext = createContext();
 
 export const StudentProvider = ({children}) => {
+    const [students, setStudents] = useState([]);
     const [student, setStudent] = useState(null);
+
+    async function getStudents() {
+            try{
+                const response = await getStudentsRequest();
+                setStudents(response.data);
+                return response.data;
+            } catch (error) {
+                console.error(error);
+                setStudents([]);
+                return null;
+            }
+        }
 
     async function createStudent(data) {
         try {
@@ -44,10 +61,16 @@ export const StudentProvider = ({children}) => {
         }
     }
 
+    useEffect(() => {
+        getStudents();
+    }, []);
+
     return (
         <StudentContext.Provider
             value={{
                 student,
+                students,
+                getStudents,
                 createStudent,
                 updateStudent,
             }}

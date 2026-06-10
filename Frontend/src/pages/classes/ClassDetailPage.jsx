@@ -3,9 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
     getClass,
     getClassSessions,
-} from "../services/classService";
-import SessionsTab from "../components/attendance/SessionsTab";
-import TeachersTab from "../components/classes/TeachersTab";
+} from "../../services/classService";
+import SessionsTab from "../../components/attendance/SessionsTab";
+import TeachersTab from "../../components/classes/TeachersTab";
 
 const TABS = ["Students", "Sessions", "Grades", "Teachers"];
 
@@ -195,8 +195,8 @@ function StudentsTab({ enrollments }) {
                                         enrollment.status === "active"
                                             ? "badge-success"
                                             : enrollment.status === "dropped"
-                                            ? "badge-danger"
-                                            : "badge-warning"
+                                                ? "badge-danger"
+                                                : "badge-warning"
                                     }>
                                         {enrollment.status}
                                     </span>

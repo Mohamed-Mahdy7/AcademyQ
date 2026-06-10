@@ -169,6 +169,17 @@ class UserViewSet(viewsets.ModelViewSet):
     
     def perform_create(self, serializer):
         serializer.save()
+    
+    @action(detail=False, methods=["GET"])
+    def students(self, request):
+        students = self.get_queryset().filter(
+            role=User.Roles.STUDENT
+        )
+        serializer = StudentCreateSerializer(
+            students,
+            many=True
+        )
+        return Response(serializer.data)
 
 class RolesListView(APIView):
     def get(self, request):
