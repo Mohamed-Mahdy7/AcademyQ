@@ -1,8 +1,8 @@
 import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-// academy_name, academy_email, academy_phone, 
-//         full_name, email, phone, password, confirm_password
+
+
 function Register() {
     const {register} = useContext(AuthContext)
     const [academy_name, setAcademyName] = useState("");
@@ -19,6 +19,11 @@ function Register() {
     async function handleSubmit(e) {
         e.preventDefault();
 
+        if (password !== confirm_password) {
+            alert("Passwords do not match");
+            return;
+        }
+        
         const data = {
             academy_name,
             academy_email,
