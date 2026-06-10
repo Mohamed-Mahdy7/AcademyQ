@@ -87,10 +87,6 @@ const MainRouter = () => {
                     <GradeForm />
                 </ProtectedRoute>
               }/> */}
-                    <ProtectedRoute>
-                        <EditClassPage />
-                    </ProtectedRoute>
-                }/>
                 <Route path="/grade" element={
                     <ProtectedRoute>
                         <GradeProvider>
