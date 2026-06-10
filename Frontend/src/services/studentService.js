@@ -1,6 +1,6 @@
 import api from "../api";
 
-export const createStuedetRequest = (data) => 
+export const createStudentRequest = (data) => 
     api.post("api/auth/users/register/student/", data);
 
 export const updateStudentRequest = (id, data) =>
