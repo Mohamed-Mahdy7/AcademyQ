@@ -5,6 +5,7 @@ import {
     getClassEnrollments,
     getClassSessions,
 } from "../services/classService";
+import SessionsTab from "../components/attendance/SessionsTab";
 
 const TABS = ["Students", "Sessions", "Grades", "Teachers"];
 
@@ -27,8 +28,8 @@ function ClassDetailPage() {
                         getClassSessions(id),
                     ]);
                 setClassData(classRes.data);
-                setEnrollments(enrollmentsRes.data.results);
-                setSessions(sessionsRes.data.results);
+                setEnrollments(enrollmentsRes.data);
+                setSessions(sessionsRes.data);
             } catch (error) {
                 console.error("Error loading class detail:", error);
             } finally {
@@ -127,7 +128,7 @@ function ClassDetailPage() {
                         <StudentsTab enrollments={enrollments} />
                     )}
                     {activeTab === "Sessions" && (
-                        <SessionsTab sessions={sessions} />
+                        <SessionsTab sessions={sessions} classId={id} />
                     )}
                     {activeTab === "Grades" && (
                         <div className="empty-state">
@@ -204,89 +205,6 @@ function StudentsTab({ enrollments }) {
                                 </td>
                             </tr>
                         ))
-                    )}
-                </tbody>
-            </table>
-        </div>
-    );
-}
-
-/* ── Sessions Tab ─────────────────────────────────────────── */
-function SessionsTab({ sessions }) {
-    return (
-        <div>
-            <div className="flex items-center justify-between mb-4">
-                <h3 className="heading-3">Session History</h3>
-                <a href="#" className="btn-primary">Create Session</a>
-            </div>
-
-            <table className="table">
-                <thead className="table-thead">
-                    <tr>
-                        <th>Session #</th>
-                        <th>Date</th>
-                        <th>Attendance</th>
-                        <th>Turnout</th>
-                        <th>Notes</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {sessions.length === 0 ? (
-                        <tr>
-                            <td colSpan={5}>
-                                <div className="empty-state">
-                                    <p className="empty-state-title">No sessions yet</p>
-                                    <p className="empty-state-desc">
-                                        Create the first session to get started.
-                                    </p>
-                                </div>
-                            </td>
-                        </tr>
-                    ) : (
-                        sessions.map((session) => {
-                            const total = session.total_enrolled || 0;
-                            const present = session.present_count || 0;
-                            const absent = session.absent_count || 0;
-                            const turnout = total > 0
-                                ? Math.round((present / total) * 100)
-                                : 0;
-
-                            return (
-                                <tr key={session.id} className="table-row">
-                                    <td className="table-cell font-medium">
-                                        Session {session.session_num}
-                                    </td>
-                                    <td className="table-cell">
-                                        {session.session_date}
-                                    </td>
-                                    <td className="table-cell">
-                                        <span className="text-success font-semibold">
-                                            {present}
-                                        </span>
-                                        <span className="text-blue mx-1">/</span>
-                                        <span className="text-danger font-semibold">
-                                            {absent}
-                                        </span>
-                                    </td>
-                                    <td className="table-cell">
-                                        <div className="flex items-center gap-2">
-                                            <div className="progress-md w-24">
-                                                <div
-                                                    className="progress-fill-navy"
-                                                    style={{ width: `${turnout}%` }}
-                                                />
-                                            </div>
-                                            <span className="text-sm text-blue">
-                                                {turnout}%
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td className="table-cell-muted">
-                                        {session.notes || "—"}
-                                    </td>
-                                </tr>
-                            );
-                        })
                     )}
                 </tbody>
             </table>

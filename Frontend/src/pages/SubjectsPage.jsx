@@ -15,7 +15,7 @@ function SubjectsPage() {
     const loadSubjects = async () => {
         try {
             const response = await getSubjects();
-            setSubjects(response.data.results);
+            setSubjects(response.data);
         } catch (error) {
             console.error("Error:", error);
         } finally {
