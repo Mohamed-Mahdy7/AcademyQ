@@ -48,11 +48,18 @@ class Enrollment(models.Model):
         return f"Enrollment {self.id} — Student {self.student_id} in Class {self.class_id}"
     
 class Payment(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     enrollment_id = models.ForeignKey(Enrollment, on_delete=models.PROTECT, db_column='enrollment_id', related_name='payments')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     paid_on = models.DateField()
     notes = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
 
     class Meta:
         db_table = 'payment'

@@ -1,20 +1,21 @@
 import { useContext, useState } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { UsersContext } from "../context/UsersContext";
 import { useNavigate } from "react-router-dom";
 
 
-function Register() {
-    const {register} = useContext(AuthContext)
-    const [academy_name, setAcademyName] = useState("");
-    const [academy_email, setAcademyEmail] = useState("");
-    const [academy_phone, setAcademyPhone] = useState("");
-    const [address, setAcademyAddress] = useState("")
+function UserRegister() {
+    const {createUser} = useContext(UsersContext)
     const [full_name, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
     const [confirm_password, setConfirmPassword] = useState("");
+    const [role, setRole] = useState("");
     const navigate = useNavigate();
+    const roles = [
+        { value: "A", label: "Admin" },
+        { value: "T", label: "Teacher" },
+    ]
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -25,21 +26,22 @@ function Register() {
         }
         
         const data = {
-            academy_name,
-            academy_email,
-            academy_phone,
-            address,
             full_name,
             email,
             phone,
             password,
             confirm_password,
+            role,
         };
-        const success = await register(data);
-        if (!success) {
-            alert("Invalid credintials");
-        } else {navigate("/")}
+        const result = await createUser(data);
+
+        if (!result.success) {
+            alert("Invalid credentials");
+        } else {
+            navigate("/");
+        }
     }
+
 
     return (
         <form 
@@ -47,61 +49,9 @@ function Register() {
             className="form-card"
         >
             <h1 className="text-3xl font-bold text-navy mb-8">
-                Academy Registration
+                User Registration
             </h1>
             <div className="grid md:grid-cols-2 gap-5">
-                <div>
-                    <label htmlFor="academyName" className="form-label">Academy Name</label>
-                    <input 
-                        type="text" 
-                        name="academyName" 
-                        id="academyName"
-                        placeholder="Academy Name"
-                        value={academy_name}
-                        onChange={(e) => setAcademyName(e.target.value)}
-                        className="form-input"
-                        required
-                    />
-                </div>
-                <div>
-                    <label htmlFor="academyEmail" className="form-label">Academy Email</label>
-                    <input 
-                        type="email" 
-                        name="academyEmail" 
-                        id="academyEmail"
-                        placeholder="Academy Email"
-                        value={academy_email}
-                        onChange={(e) => setAcademyEmail(e.target.value)}
-                        className="form-input"
-                        required
-                    />
-                </div>
-                <div>
-                    <label htmlFor="academyPhone" className="form-label">Academy Phone</label>
-                    <input 
-                        type="text" 
-                        name="academyPhone" 
-                        id="academyPhone"
-                        placeholder="Academy Phone"
-                        value={academy_phone}
-                        onChange={(e) => setAcademyPhone(e.target.value)}
-                        className="form-input"
-                        required
-                    />
-                </div>
-                <div>
-                    <label htmlFor="address" className="form-label">Address</label>
-                    <input 
-                        type="text" 
-                        name="address" 
-                        id="address"
-                        placeholder="Address"
-                        value={address}
-                        onChange={(e) => setAcademyAddress(e.target.value)}
-                        className="form-input"
-                        required
-                    />
-                </div>
                 <div>
                     <label htmlFor="fullName" className="form-label">Full Name</label>
                     <input 
@@ -167,6 +117,27 @@ function Register() {
                         required
                     />
                 </div>
+                <div>
+                    <label htmlFor="role">Role</label>
+                    <select 
+                        name="role" 
+                        id="role"
+                        value={role}
+                        onChange={(e) => setRole(e.target.value)}
+                        required
+                        className="form-select"
+                    >
+                        <option value="">Select a role</option>
+                        {roles.map((roleOption) => (
+                            <option
+                                key={roleOption.value}
+                                value={roleOption.value}
+                            >
+                                {roleOption.label}
+                            </option>
+                        ))}
+                    </select>
+                </div>
             </div>
             <button type="submit" className="btn-primary mt-4 w-full">Register</button>
         </form>
@@ -174,4 +145,4 @@ function Register() {
 
 }
 
-export default Register;
+export default UserRegister;

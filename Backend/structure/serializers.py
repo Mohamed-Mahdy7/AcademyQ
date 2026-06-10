@@ -61,6 +61,27 @@ class ClassListSerializer(serializers.ModelSerializer):
         return None
 
 
+class TeacherClassDetailSerializer(serializers.ModelSerializer):
+    teacher_name = serializers.CharField(
+        source="teacher.user_id.full_name", read_only=True
+    )
+    teacher_id = serializers.UUIDField(source="teacher.id", read_only=True)
+    rate_per_session = serializers.DecimalField(
+        source="teacher.rate_per_session",
+        max_digits=10,
+        decimal_places=2,
+        read_only=True
+    )
+
+    class Meta:
+        model = TeacherClass
+        fields = [
+            "teacher_id",
+            "teacher_name",
+            "assigned_at",
+            "rate_per_session",
+        ]
+
 class ClassDetailSerializer(serializers.ModelSerializer):
     academy_name = serializers.CharField(source="academy.name", read_only=True)
     subject_name = serializers.CharField(source="subject.name", read_only=True)
@@ -70,7 +91,9 @@ class ClassDetailSerializer(serializers.ModelSerializer):
     students_count = serializers.IntegerField(read_only=True)
     sessions_count = serializers.IntegerField(read_only=True)
     avg_attendance = serializers.FloatField(read_only=True)
-    teachers = TeacherSummarySerializer(many=True)
+    teachers = TeacherClassDetailSerializer(
+        source="teacher_assignments", many=True, read_only=True
+    )
 
     class Meta:
         model = Class

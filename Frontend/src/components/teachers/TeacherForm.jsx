@@ -1,7 +1,6 @@
 import { useEffect, useState, useContext } from "react";
 import { getUsersRequest } from "../../services/usersService";
 import { AuthContext } from "../../context/AuthContext";
-import { AcademyContext } from "../../context/AcademyContext";
 
 const EMPTY_FORM = {
   user_id: "",
@@ -21,7 +20,6 @@ export default function TeacherForm({ editingTeacher, onSubmit, onCancel, errors
   const [form, setForm] = useState(EMPTY_FORM);
   const [availableUsers, setAvailableUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
-  const { academy } = useContext(AcademyContext);
 
   useEffect(() => {
     if (!editingTeacher) {
@@ -60,19 +58,23 @@ export default function TeacherForm({ editingTeacher, onSubmit, onCancel, errors
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
-function handleSubmit(e) {
-  e.preventDefault();
-  const payload = {
-    user_id: form.user_id,
-    academy_id: academy?.id,       
-    rate_per_session: form.rate_per_session,
-    session_duration: parseDurationToISO(
-      form.session_duration_hours,
-      form.session_duration_minutes
-    ),
-  };
-  onSubmit(payload, editingTeacher?.id);
-}
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    const selectedUser = availableUsers.find((u) => u.id === form.user_id);
+    const academyId = selectedUser?.academy_id || academy?.id;
+
+    const payload = {
+      user_id: form.user_id,
+      academy_id: academyId,
+      rate_per_session: form.rate_per_session,
+      session_duration: parseDurationToISO(
+        form.session_duration_hours,
+        form.session_duration_minutes
+      ),
+    };
+    onSubmit(payload, editingTeacher?.id);
+  }
 
   return (
     <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && onCancel()}>
