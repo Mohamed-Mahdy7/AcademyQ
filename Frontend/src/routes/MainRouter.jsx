@@ -23,6 +23,7 @@ import ClassDetailPage from "./../pages/ClassDetailPage";
 import GradeForm from "./../components/grades/gradeform";
 import GradeHistoryTab from "./../components/grades/GradeHistoryTab";
 import GradeSummaryTab from "./../components/grades/ClassGradeSummaryTab";
+import PaymentsPage from "./../pages/PaymentsPage"
 
 
 const MainRouter = () => {
@@ -82,6 +83,11 @@ const MainRouter = () => {
                 <Route path="/classes/:id/" element={
                     <ClassDetailPage />
                 } />
+                <Route path="/payments" element={
+                    <ProtectedRoute>
+                    <PaymentsPage />
+                    </ProtectedRoute>}
+                />
                 {/* <Routes path="grade" element={
                 <ProtectedRoute>
                     <GradeForm />
