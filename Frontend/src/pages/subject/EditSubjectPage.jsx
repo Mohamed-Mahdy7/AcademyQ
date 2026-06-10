@@ -1,59 +1,62 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import ClassForm from "../components/classes/ClassForm";
-import { getClass, updateClass } from "../services/classService";
+import SubjectForm from "../../components/subjects/SubjectForm";
+import { getSubject, updateSubject } from "../../services/subjectService";
 
-function EditClassPage() {
+function EditSubjectPage() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [classData, setClassData] = useState(null);
+    const [subject, setSubject] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchClass = async () => {
+        const fetchSubject = async () => {
             try {
-                const response = await getClass(id);
-                setClassData(response.data);
+                const response = await getSubject(id);
+                setSubject(response.data);
             } catch (error) {
                 console.error("Fetch error:", error);
             } finally {
                 setLoading(false);
             }
         };
-        fetchClass();
+        fetchSubject();
     }, [id]);
 
     const handleSubmit = async (data) => {
         try {
-            await updateClass(id, data);
-            navigate("/classes");
+            await updateSubject(id, data);
+            navigate("/subjects");
         } catch (error) {
             throw error;
         }
     };
 
     if (loading) return <p className="p-6 text-sm text-blue">Loading...</p>;
-    if (!classData) return <p className="p-6 text-sm text-danger">Class not found.</p>;
+    if (!subject) return <p className="p-6 text-sm text-danger">Subject not found.</p>;
 
     return (
         <div className="page-body max-w-2xl">
+
             <div className="flex items-center gap-3 mb-6">
                 <button
                     className="btn-icon"
-                    onClick={() => navigate("/classes")}
+                    onClick={() => navigate("/subjects")}
                 >
                     ←
                 </button>
                 <div>
-                    <h1 className="heading-1">Edit Class</h1>
-                    <p className="subheading">Update class details</p>
+                    <h1 className="heading-1">Edit Subject</h1>
+                    <p className="subheading">Update subject details for your academy</p>
                 </div>
             </div>
+
             <div className="card-body">
-                <ClassForm onSubmit={handleSubmit} initialData={classData} />
+                <SubjectForm onSubmit={handleSubmit} initialData={subject} />
             </div>
+
         </div>
     );
 }
 
-export default EditClassPage;
+export default EditSubjectPage;

@@ -26,8 +26,8 @@ function ClassForm({ onSubmit, initialData = {} }) {
                     getSubjects(),
                     getTeachers(),
                 ]);
-                setSubjects(subjectsRes.data.results);
-                setTeachers(teachersRes.data.results);
+                setSubjects(subjectsRes.data);
+                setTeachers(teachersRes.data);
             } catch (error) {
                 console.error("Error loading form options:", error);
             } finally {

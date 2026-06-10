@@ -64,6 +64,14 @@ class UserSerializer(serializers.ModelSerializer):
         source="academy.id", 
         read_only=True
     )
+    role_display = serializers.CharField(
+        source="get_role_display",
+        read_only=True
+    )
+    status_display = serializers.CharField(
+        source="get_status_display",
+        read_only=True
+    )
 
     class Meta:
         model = User
@@ -73,9 +81,12 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
             "phone",
             "role",
-            "is_active",
+            "role_display",
+            "status",
+            "status_display",
             "academy_id",
             "academy_name",
+            "created_at"
         ]
 
 
@@ -178,11 +189,15 @@ class StudentCreateSerializer(serializers.ModelSerializer):
         write_only=True,
         style={'input_type': 'password'}
         )
+    status_display = serializers.CharField(
+        source="get_status_display",
+        read_only=True
+    )
     class Meta:
         model = User
         fields = [
-            "id", "full_name", "email", "phone", 'parent_phone',
-            'educational_level', "academy", "password", "confirm_password"
+            "id", "full_name", "email", "phone", 'parent_phone', 'enrolled_at','educational_level', 
+            "academy", "password", "confirm_password", "status", "status_display"
         ]
     
     def validate(self, attrs):
@@ -210,4 +225,5 @@ class StudentProfileUpdateSerializer(serializers.ModelSerializer):
             "phone",
             "parent_phone",
             "educational_level",
+            "enrolled_at"
         ]

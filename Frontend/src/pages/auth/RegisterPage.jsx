@@ -1,10 +1,10 @@
 import { useContext, useState } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 
 function Register() {
-    const {register} = useContext(AuthContext)
+    const { register } = useContext(AuthContext)
     const [academy_name, setAcademyName] = useState("");
     const [academy_email, setAcademyEmail] = useState("");
     const [academy_phone, setAcademyPhone] = useState("");
@@ -23,7 +23,7 @@ function Register() {
             alert("Passwords do not match");
             return;
         }
-        
+
         const data = {
             academy_name,
             academy_email,
@@ -38,11 +38,11 @@ function Register() {
         const success = await register(data);
         if (!success) {
             alert("Invalid credintials");
-        } else {navigate("/")}
+        } else { navigate("/") }
     }
 
     return (
-        <form 
+        <form
             onSubmit={handleSubmit}
             className="form-card"
         >
@@ -52,9 +52,9 @@ function Register() {
             <div className="grid md:grid-cols-2 gap-5">
                 <div>
                     <label htmlFor="academyName" className="form-label">Academy Name</label>
-                    <input 
-                        type="text" 
-                        name="academyName" 
+                    <input
+                        type="text"
+                        name="academyName"
                         id="academyName"
                         placeholder="Academy Name"
                         value={academy_name}
@@ -65,9 +65,9 @@ function Register() {
                 </div>
                 <div>
                     <label htmlFor="academyEmail" className="form-label">Academy Email</label>
-                    <input 
-                        type="email" 
-                        name="academyEmail" 
+                    <input
+                        type="email"
+                        name="academyEmail"
                         id="academyEmail"
                         placeholder="Academy Email"
                         value={academy_email}
@@ -78,9 +78,9 @@ function Register() {
                 </div>
                 <div>
                     <label htmlFor="academyPhone" className="form-label">Academy Phone</label>
-                    <input 
-                        type="text" 
-                        name="academyPhone" 
+                    <input
+                        type="text"
+                        name="academyPhone"
                         id="academyPhone"
                         placeholder="Academy Phone"
                         value={academy_phone}
@@ -91,9 +91,9 @@ function Register() {
                 </div>
                 <div>
                     <label htmlFor="address" className="form-label">Address</label>
-                    <input 
-                        type="text" 
-                        name="address" 
+                    <input
+                        type="text"
+                        name="address"
                         id="address"
                         placeholder="Address"
                         value={address}
@@ -104,9 +104,9 @@ function Register() {
                 </div>
                 <div>
                     <label htmlFor="fullName" className="form-label">Full Name</label>
-                    <input 
-                        type="text" 
-                        name="fullName" 
+                    <input
+                        type="text"
+                        name="fullName"
                         id="fullName"
                         placeholder="Owner Full Name"
                         value={full_name}
@@ -117,9 +117,9 @@ function Register() {
                 </div>
                 <div>
                     <label htmlFor="email" className="form-label">Email</label>
-                    <input 
-                        type="email" 
-                        name="email" 
+                    <input
+                        type="email"
+                        name="email"
                         id="email"
                         placeholder="Email"
                         value={email}
@@ -130,9 +130,9 @@ function Register() {
                 </div>
                 <div>
                     <label htmlFor="phone" className="form-label">Phone</label>
-                    <input 
-                        type="text" 
-                        name="phone" 
+                    <input
+                        type="text"
+                        name="phone"
                         id="phone"
                         placeholder="Phone"
                         value={phone}
@@ -143,9 +143,9 @@ function Register() {
                 </div>
                 <div>
                     <label htmlFor="password" className="form-label">Password</label>
-                    <input 
-                        type="password" 
-                        name="password" 
+                    <input
+                        type="password"
+                        name="password"
                         id="password"
                         placeholder="Password"
                         value={password}
@@ -156,9 +156,9 @@ function Register() {
                 </div>
                 <div>
                     <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
-                    <input 
-                        type="password" 
-                        name="confirmPassword" 
+                    <input
+                        type="password"
+                        name="confirmPassword"
                         id="confirmPassword"
                         placeholder="Confirm Password"
                         value={confirm_password}

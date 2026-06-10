@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getClasses, deleteClass } from "../services/classService";
+import { getClasses, deleteClass } from "../../services/classService";
 
 function ClassesPage() {
     const [classes, setClasses] = useState([]);
@@ -42,12 +42,12 @@ function ClassesPage() {
     const avgCompletion =
         classes.length > 0
             ? Math.round(
-                  classes.reduce((sum, c) => {
-                      const total = c.subject_session_count || 0;
-                      const done = c.sessions_count || 0;
-                      return sum + (total > 0 ? (done / total) * 100 : 0);
-                  }, 0) / classes.length
-              )
+                classes.reduce((sum, c) => {
+                    const total = c.subject_session_count || 0;
+                    const done = c.sessions_count || 0;
+                    return sum + (total > 0 ? (done / total) * 100 : 0);
+                }, 0) / classes.length
+            )
             : 0;
 
     return (

@@ -1,38 +1,42 @@
 import { useNavigate } from "react-router-dom";
-import ClassForm from "../components/classes/ClassForm";
-import { createClass } from "../services/classService";
+import SubjectForm from "../../components/subjects/SubjectForm";
+import { createSubject } from "../../services/subjectService";
 
-function AddClassPage() {
+function AddSubjectPage() {
     const navigate = useNavigate();
 
     const handleSubmit = async (data) => {
         try {
-            await createClass(data);
-            navigate("/classes");
+            await createSubject(data);
+            navigate("/subjects");
         } catch (error) {
+            console.error("Create error:", error);
             throw error;
         }
     };
 
     return (
         <div className="page-body max-w-2xl">
+
             <div className="flex items-center gap-3 mb-6">
                 <button
                     className="btn-icon"
-                    onClick={() => navigate("/classes")}
+                    onClick={() => navigate("/subjects")}
                 >
                     ←
                 </button>
                 <div>
-                    <h1 className="heading-1">Create Class</h1>
-                    <p className="subheading">Add a new class to your academy</p>
+                    <h1 className="heading-1">Add Subject</h1>
+                    <p className="subheading">Create a new subject for your academy</p>
                 </div>
             </div>
+
             <div className="card-body">
-                <ClassForm onSubmit={handleSubmit} />
+                <SubjectForm onSubmit={handleSubmit} />
             </div>
+
         </div>
     );
 }
 
-export default AddClassPage;
+export default AddSubjectPage;

@@ -1,5 +1,8 @@
 import api from "../api";
 
+export const getStudentsRequest = () => 
+    api.get("api/users/students/");
+
 export const createStudentRequest = (data) => 
     api.post("api/auth/users/register/student/", data);
 

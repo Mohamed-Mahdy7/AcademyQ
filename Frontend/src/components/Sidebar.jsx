@@ -47,25 +47,14 @@ const Sidebar = () => {
                 </NavLink>
 
                 <NavLink
-                    to="/teacher"
+                    to="/students"
                     className={({ isActive }) =>
                         isActive
                             ? "sidebar-link-active"
                             : "sidebar-link"
                     }
                 >
-                    Teachers
-                </NavLink>
-
-                <NavLink
-                    to="/classes/:classId/attendance"
-                    className={({ isActive }) =>
-                        isActive
-                            ? "sidebar-link-active"
-                            : "sidebar-link"
-                    }
-                >
-                    Attendance
+                    Students
                 </NavLink>
 
                 <NavLink
@@ -77,6 +66,17 @@ const Sidebar = () => {
                     }
                 >
                     Classes
+                </NavLink>
+
+                <NavLink
+                    to="/teacher"
+                    className={({ isActive }) =>
+                        isActive
+                            ? "sidebar-link-active"
+                            : "sidebar-link"
+                    }
+                >
+                    Teachers
                 </NavLink>
 
                 <NavLink
