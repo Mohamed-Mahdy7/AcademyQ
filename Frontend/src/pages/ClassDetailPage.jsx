@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
     getClass,
-    getClassEnrollments,
     getClassSessions,
 } from "../services/classService";
+import SessionsTab from "../components/attendance/SessionsTab";
+import TeachersTab from "../components/classes/TeachersTab";
 
 const TABS = ["Students", "Sessions", "Grades", "Teachers"];
 
@@ -12,7 +13,6 @@ function ClassDetailPage() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [classData, setClassData] = useState(null);
-    const [enrollments, setEnrollments] = useState([]);
     const [sessions, setSessions] = useState([]);
     const [activeTab, setActiveTab] = useState("Students");
     const [loading, setLoading] = useState(true);
@@ -23,12 +23,10 @@ function ClassDetailPage() {
                 const [classRes, enrollmentsRes, sessionsRes] =
                     await Promise.all([
                         getClass(id),
-                        getClassEnrollments(id),
                         getClassSessions(id),
                     ]);
                 setClassData(classRes.data);
-                setEnrollments(enrollmentsRes.data.results);
-                setSessions(sessionsRes.data.results);
+                setSessions(sessionsRes.data);
             } catch (error) {
                 console.error("Error loading class detail:", error);
             } finally {
@@ -124,10 +122,15 @@ function ClassDetailPage() {
 
                 <div className="p-5">
                     {activeTab === "Students" && (
-                        <StudentsTab enrollments={enrollments} />
+                        <div className="empty-state">
+                            <p className="empty-state-title">Students coming soon</p>
+                            <p className="empty-state-desc">
+                                Comming soon.
+                            </p>
+                        </div>
                     )}
                     {activeTab === "Sessions" && (
-                        <SessionsTab sessions={sessions} />
+                        <SessionsTab sessions={sessions} classId={id} />
                     )}
                     {activeTab === "Grades" && (
                         <div className="empty-state">
@@ -138,7 +141,9 @@ function ClassDetailPage() {
                         </div>
                     )}
                     {activeTab === "Teachers" && (
-                        <TeachersTab teachers={classData.teachers ?? []} />
+                        <TeachersTab teachers={classData.teachers ?? []} classId={id} onUpdate={() => {
+                            getClass(id).then(res => setClassData(res.data));
+                        }} />
                     )}
                 </div>
             </div>
@@ -201,141 +206,6 @@ function StudentsTab({ enrollments }) {
                                 </td>
                                 <td className="table-actions">
                                     <a href="#" className="btn-secondary">View Profile</a>
-                                </td>
-                            </tr>
-                        ))
-                    )}
-                </tbody>
-            </table>
-        </div>
-    );
-}
-
-/* ── Sessions Tab ─────────────────────────────────────────── */
-function SessionsTab({ sessions }) {
-    return (
-        <div>
-            <div className="flex items-center justify-between mb-4">
-                <h3 className="heading-3">Session History</h3>
-                <a href="#" className="btn-primary">Create Session</a>
-            </div>
-
-            <table className="table">
-                <thead className="table-thead">
-                    <tr>
-                        <th>Session #</th>
-                        <th>Date</th>
-                        <th>Attendance</th>
-                        <th>Turnout</th>
-                        <th>Notes</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {sessions.length === 0 ? (
-                        <tr>
-                            <td colSpan={5}>
-                                <div className="empty-state">
-                                    <p className="empty-state-title">No sessions yet</p>
-                                    <p className="empty-state-desc">
-                                        Create the first session to get started.
-                                    </p>
-                                </div>
-                            </td>
-                        </tr>
-                    ) : (
-                        sessions.map((session) => {
-                            const total = session.total_enrolled || 0;
-                            const present = session.present_count || 0;
-                            const absent = session.absent_count || 0;
-                            const turnout = total > 0
-                                ? Math.round((present / total) * 100)
-                                : 0;
-
-                            return (
-                                <tr key={session.id} className="table-row">
-                                    <td className="table-cell font-medium">
-                                        Session {session.session_num}
-                                    </td>
-                                    <td className="table-cell">
-                                        {session.session_date}
-                                    </td>
-                                    <td className="table-cell">
-                                        <span className="text-success font-semibold">
-                                            {present}
-                                        </span>
-                                        <span className="text-blue mx-1">/</span>
-                                        <span className="text-danger font-semibold">
-                                            {absent}
-                                        </span>
-                                    </td>
-                                    <td className="table-cell">
-                                        <div className="flex items-center gap-2">
-                                            <div className="progress-md w-24">
-                                                <div
-                                                    className="progress-fill-navy"
-                                                    style={{ width: `${turnout}%` }}
-                                                />
-                                            </div>
-                                            <span className="text-sm text-blue">
-                                                {turnout}%
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td className="table-cell-muted">
-                                        {session.notes || "—"}
-                                    </td>
-                                </tr>
-                            );
-                        })
-                    )}
-                </tbody>
-            </table>
-        </div>
-    );
-}
-
-/* ── Teachers Tab ─────────────────────────────────────────── */
-function TeachersTab({ teachers }) {
-    return (
-        <div>
-            <div className="flex items-center justify-between mb-4">
-                <h3 className="heading-3">Assigned Teachers</h3>
-                <a href="#" className="btn-primary">Assign Teacher</a>
-            </div>
-
-            <table className="table">
-                <thead className="table-thead">
-                    <tr>
-                        <th>Teacher Name</th>
-                        <th>Assigned Date</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {teachers.length === 0 ? (
-                        <tr>
-                            <td colSpan={3}>
-                                <div className="empty-state">
-                                    <p className="empty-state-title">No teachers assigned</p>
-                                    <p className="empty-state-desc">
-                                        Assign a teacher to this class.
-                                    </p>
-                                </div>
-                            </td>
-                        </tr>
-                    ) : (
-                        teachers.map((teacher) => (
-                            <tr key={teacher.teacher_id} className="table-row">
-                                <td className="table-cell font-medium">
-                                    {teacher.teacher_name}
-                                </td>
-                                <td className="table-cell-muted">
-                                    {teacher.assigned_at ?? "—"}
-                                </td>
-                                <td className="table-actions">
-                                    <button className="btn-danger-outline">
-                                        Remove
-                                    </button>
                                 </td>
                             </tr>
                         ))

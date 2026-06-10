@@ -20,12 +20,14 @@ import EditSubjectPage from "./../pages/EditSubjectPage";
 import ClassesPage from "./../pages/ClassesPage";
 import AddClassPage from "./../pages/AddClassPage";
 import EditClassPage from "./../pages/EditClassPage";
+import ClassDetailPage from "./../pages/ClassDetailPage";
 import GradeForm from "./../components/grades/gradeform";
 import GradeHistoryTab from "./../components/grades/GradeHistoryTab";
 import GradeSummaryTab from "./../components/grades/ClassGradeSummaryTab";
 import UserRegister from './../pages/UsersRegisterPage.jsx'
 import StudentRegister from "../pages/StudentsRegisterPage.jsx";
 import PaymentsPage from "../pages/PaymentsPage.jsx"
+import UserManagement from "../pages/UserManagementPage.jsx";
 
 
 const MainRouter = () => {
@@ -93,6 +95,11 @@ const MainRouter = () => {
                         <AddClassPage />
                     </ProtectedRoute>}
                 />
+                <Route path="/classes/:id" element={
+                    <ProtectedRoute>
+                        <ClassDetailPage />
+                    </ProtectedRoute>
+                } />
                 <Route path="/classes/:id/edit" element={
                     <ProtectedRoute>
                         <EditClassPage />
@@ -126,6 +133,13 @@ const MainRouter = () => {
                         </PaymentProvider>
                     </ProtectedRoute>
                 }/>
+                <Route path="/users" element={
+                    <ProtectedRoute>
+                        <UsersProvider>
+                            <UserManagement />
+                        </UsersProvider>
+                    </ProtectedRoute>
+                } />
             </Route>
         </Routes>
     )

@@ -15,7 +15,7 @@ function ClassesPage() {
     const loadClasses = async () => {
         try {
             const response = await getClasses();
-            setClasses(response.data.results);
+            setClasses(response.data);
         } catch (error) {
             console.error("Error loading classes:", error);
         } finally {

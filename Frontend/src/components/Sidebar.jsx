@@ -102,6 +102,17 @@ const Sidebar = () => {
                 </NavLink>
 
                 <NavLink
+                    to="/users"
+                    className={({ isActive }) =>
+                        isActive
+                            ? "sidebar-link-active"
+                            : "sidebar-link"
+                    }
+                >
+                    Staff Users
+                </NavLink>
+
+                <NavLink
                     to="/settings"
                     className={({ isActive }) =>
                         isActive

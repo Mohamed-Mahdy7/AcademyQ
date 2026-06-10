@@ -3,7 +3,7 @@ import { UsersContext } from "../context/UsersContext";
 import { useNavigate } from "react-router-dom";
 
 
-function UserRegister() {
+function UserRegister({ onClose }) {
     const {createUser} = useContext(UsersContext)
     const [full_name, setFullName] = useState("");
     const [email, setEmail] = useState("");
@@ -38,7 +38,7 @@ function UserRegister() {
         if (!result.success) {
             alert("Invalid credentials");
         } else {
-            navigate("/");
+            onClose();
         }
     }
 
