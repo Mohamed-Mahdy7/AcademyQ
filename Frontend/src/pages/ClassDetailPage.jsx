@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
     getClass,
-    getClassEnrollments,
     getClassSessions,
 } from "../services/classService";
 import SessionsTab from "../components/attendance/SessionsTab";
+import TeachersTab from "../components/classes/TeachersTab";
 
 const TABS = ["Students", "Sessions", "Grades", "Teachers"];
 
@@ -13,7 +13,6 @@ function ClassDetailPage() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [classData, setClassData] = useState(null);
-    const [enrollments, setEnrollments] = useState([]);
     const [sessions, setSessions] = useState([]);
     const [activeTab, setActiveTab] = useState("Students");
     const [loading, setLoading] = useState(true);
@@ -24,11 +23,9 @@ function ClassDetailPage() {
                 const [classRes, enrollmentsRes, sessionsRes] =
                     await Promise.all([
                         getClass(id),
-                        getClassEnrollments(id),
                         getClassSessions(id),
                     ]);
                 setClassData(classRes.data);
-                setEnrollments(enrollmentsRes.data);
                 setSessions(sessionsRes.data);
             } catch (error) {
                 console.error("Error loading class detail:", error);
@@ -125,7 +122,12 @@ function ClassDetailPage() {
 
                 <div className="p-5">
                     {activeTab === "Students" && (
-                        <StudentsTab enrollments={enrollments} />
+                        <div className="empty-state">
+                            <p className="empty-state-title">Students coming soon</p>
+                            <p className="empty-state-desc">
+                                Comming soon.
+                            </p>
+                        </div>
                     )}
                     {activeTab === "Sessions" && (
                         <SessionsTab sessions={sessions} classId={id} />
@@ -139,7 +141,9 @@ function ClassDetailPage() {
                         </div>
                     )}
                     {activeTab === "Teachers" && (
-                        <TeachersTab teachers={classData.teachers ?? []} />
+                        <TeachersTab teachers={classData.teachers ?? []} classId={id} onUpdate={() => {
+                            getClass(id).then(res => setClassData(res.data));
+                        }} />
                     )}
                 </div>
             </div>
@@ -202,58 +206,6 @@ function StudentsTab({ enrollments }) {
                                 </td>
                                 <td className="table-actions">
                                     <a href="#" className="btn-secondary">View Profile</a>
-                                </td>
-                            </tr>
-                        ))
-                    )}
-                </tbody>
-            </table>
-        </div>
-    );
-}
-
-/* ── Teachers Tab ─────────────────────────────────────────── */
-function TeachersTab({ teachers }) {
-    return (
-        <div>
-            <div className="flex items-center justify-between mb-4">
-                <h3 className="heading-3">Assigned Teachers</h3>
-                <a href="#" className="btn-primary">Assign Teacher</a>
-            </div>
-
-            <table className="table">
-                <thead className="table-thead">
-                    <tr>
-                        <th>Teacher Name</th>
-                        <th>Assigned Date</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {teachers.length === 0 ? (
-                        <tr>
-                            <td colSpan={3}>
-                                <div className="empty-state">
-                                    <p className="empty-state-title">No teachers assigned</p>
-                                    <p className="empty-state-desc">
-                                        Assign a teacher to this class.
-                                    </p>
-                                </div>
-                            </td>
-                        </tr>
-                    ) : (
-                        teachers.map((teacher) => (
-                            <tr key={teacher.teacher_id} className="table-row">
-                                <td className="table-cell font-medium">
-                                    {teacher.teacher_name}
-                                </td>
-                                <td className="table-cell-muted">
-                                    {teacher.assigned_at ?? "—"}
-                                </td>
-                                <td className="table-actions">
-                                    <button className="btn-danger-outline">
-                                        Remove
-                                    </button>
                                 </td>
                             </tr>
                         ))
