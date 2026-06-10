@@ -6,28 +6,28 @@ export const createGrade = (data) =>
 ;
 
 export const getGrades =  (enrollmentId) => 
-  api.get(`/grades/?enrollment_id=${enrollmentId}`);
+  api.get(`api/grades/?enrollment_id=${enrollmentId}`);
 
   
 ;
 export const listGrade = () => 
-   api.get("/grades/");
+   api.get("api/grades/");
     
 ;
  export const getGradeSummary =  (enrollmentId) => 
-      api.get("/grades/summary/", {
+      api.get("api/grades/summary/", {
     params: { enrollment_id: enrollmentId },
   });
  
 
 
 export const getGradeHistory =  (enrollmentId) => 
-   api.get("/grades/history/", {
+   api.get("api/grades/history/", {
     params: { enrollment_id: enrollmentId },
   });
   
 export const updateGrade =  (id, data) =>
-     api.patch(`/grades/${id}/`,data);
+     api.patch(`api/grades/${id}/`,data);
 
 export const deleteGrade =  (id) =>
-    api.delete(`/grades/${id}/`);
+    api.delete(`api/grades/${id}/`);

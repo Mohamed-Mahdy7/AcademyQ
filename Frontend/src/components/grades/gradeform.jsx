@@ -23,19 +23,18 @@ export default function GradeForm({
       [e.target.name]: e.target.value,
     });
   };
-
+console.log("ENROLLMENTS PROP:", enrollments);
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const payload = {
-      enrollment_id: Number(form.enrollment),
-      session_id: Number(form.session),
-      subject_name: form.subject_name,
-      score: Number(form.score),
-      max_score: Number(form.max_score),
-      assigned_at: form.assigned_at,
-    };
-
+  enrollment: Number(form.enrollment),
+  session: Number(form.session),
+  subject_name: form.subject_name,
+  score: Number(form.score),
+  max_score: Number(form.max_score),
+  assigned_at: form.assigned_at,
+};
     try {
       await addGrade(payload);
 
@@ -65,7 +64,7 @@ export default function GradeForm({
 
       <select
         name="enrollment"
-        value={form.enrollment}
+        value={form.enrollment || ""}
         onChange={handleChange}
       >
         <option value="">Select Student</option>
@@ -78,7 +77,7 @@ export default function GradeForm({
 
       <select
         name="session"
-        value={form.session}
+        value={form.session || ""}
         onChange={handleChange}
       >
         <option value="">Select Session</option>

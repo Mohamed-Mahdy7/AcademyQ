@@ -105,14 +105,14 @@ const MainRouter = () => {
                         </GradeProvider>
                     </ProtectedRoute>
                 } />
-                <Route path="/grade/history" element={
+                <Route path="/grade/history/:id" element={
                     <ProtectedRoute>
                         <GradeProvider>
                             <GradeHistoryTab />
                         </GradeProvider>
                     </ProtectedRoute>
                 } />
-                <Route path="/grade/summary" element={
+                <Route path="/grade/summary/:id" element={
                     <ProtectedRoute>
                         <GradeProvider>
                             <GradeSummaryTab />

@@ -29,7 +29,7 @@ export const GradeProvider = ({ children }) => {
   };
 
    const loadHistory = async (enrollmentId) => {
-  if (!enrollmentId) return null;
+   
 
   const res = await getGradeHistory(enrollmentId);
   setHistory(res.data || null);
