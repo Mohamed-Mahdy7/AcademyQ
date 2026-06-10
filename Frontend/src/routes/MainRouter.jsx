@@ -26,6 +26,7 @@ import GradeSummaryTab from "./../components/grades/ClassGradeSummaryTab";
 import UserRegister from './../pages/UsersRegisterPage.jsx'
 import StudentRegister from "../pages/StudentsRegisterPage.jsx";
 import PaymentsPage from "../pages/PaymentsPage.jsx"
+import UserManagement from "../pages/UserManagementPage.jsx";
 
 
 const MainRouter = () => {
@@ -126,6 +127,13 @@ const MainRouter = () => {
                         </PaymentProvider>
                     </ProtectedRoute>
                 }/>
+                <Route path="/users" element={
+                    <ProtectedRoute>
+                        <UsersProvider>
+                            <UserManagement />
+                        </UsersProvider>
+                    </ProtectedRoute>
+                } />
             </Route>
         </Routes>
     )
