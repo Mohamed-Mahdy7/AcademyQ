@@ -1,7 +1,7 @@
 import api from "../api"
 
-export const getTeachers = (search = "") =>
-  api.get(`/api/teachers/?search=${search}`);
+export const getTeachers = (page = 1, search = "") =>
+  api.get(`/api/teachers/?page=${page}&search=${search}`);
 
 export const getTeacherById = (teacherId) =>
   api.get(`/api/teachers/${teacherId}/`);
