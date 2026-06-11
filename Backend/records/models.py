@@ -11,7 +11,7 @@ class ClassSession(models.Model):
     notes = models.TextField(blank=True, default='')
 
     class Meta:
-        db_table = 'subject_sessions'
+        db_table = 'class_sessions'
         constraints = [
             models.UniqueConstraint(
                 fields=['class_obj', 'session_date'],
