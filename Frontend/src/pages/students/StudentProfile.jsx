@@ -1,11 +1,8 @@
 import { useContext, useState, useEffect } from "react"
-import { useParams } from "react-router-dom"
-import { UsersContext } from "../../context/UsersContext"
+import { useParams, useNavigate } from "react-router-dom"
 import { StudentContext } from "../../context/StudentsContext"
 import KpiCard from "../../components/KpiCard"
-import StudentRegister from "../auth/StudentsRegisterPage"
-import CardHeading from "../../components/CardHeader"
-import EnrollmentTab from "../../components/enrollments/EnrollmentTab"
+import EditStudentProfile from "./EditStudentProfile"
 
 const tabs = ["Enrollments", "Grades", "Payments", "Attendance"];
 
@@ -13,7 +10,9 @@ const tabs = ["Enrollments", "Grades", "Payments", "Attendance"];
 const StudentProfile = () => {
     const { student, getStudent } = useContext(StudentContext);
     const [activeTab, setActiveTab] = useState("Enrollments");
+    const [showProfile, setshowProfile] = useState(false);
     const { id } = useParams();
+    const navigate = useNavigate();
 
     useEffect(() => {
         getStudent(id);
@@ -43,6 +42,7 @@ const StudentProfile = () => {
                             strokeLinecap="round" 
                             strokeLinejoin="round" 
                             className="lucide lucide-arrow-left w-4 h-4 text-navy"
+                            onClick={() => navigate("/students")}
                         >
                             <path d="m12 19-7-7 7-7"></path>
                             <path d="M19 12H5"></path>
@@ -57,11 +57,12 @@ const StudentProfile = () => {
                         </div>
                     </div>
                 </div>
-                {student.status === 'A' ?
-                    <span className="badge-success h-6">
-                        {student.status_display}
-                    </span>
-                    : student.status === 'P' ?
+                <div className="flex flex-col gap-3">
+                    {student.status === 'A' ?
+                        <span className="badge-success h-6">
+                            {student.status_display}
+                        </span>
+                        : student.status === 'P' ?
                         <span className="badge-warning h-6">
                             {student.status_display}
                         </span>
@@ -69,7 +70,36 @@ const StudentProfile = () => {
                         <span className="badge-danger h-6">
                             {student.status_display}
                         </span>
-                }
+                    }
+                    <button 
+                        className="btn-primary"
+                        onClick={() => setshowProfile(true)}
+                    >
+                        Update Profile
+                    </button>
+                </div>
+                {showProfile && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+                        onClick={() => setshowProfile(false)}
+                    />
+
+                    <div
+                        className="relative z-10 w-full max-w-5xl mx-4 bg-white rounded-3xl shadow-2xl"
+                    >
+                        <button
+                            onClick={() => setshowProfile(false)}
+                            className="absolute top-6 right-6 text-3xl text-navy"
+                        >
+                            x
+                        </button>
+
+                        <EditStudentProfile
+                            onClose={() => setshowProfile(false)}
+                        />
+                    </div>
+                </div>
+            )}
             </div>
             <div>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 my-6">
@@ -95,7 +125,7 @@ const StudentProfile = () => {
             <div>
             <nav>
                 <div className="card">
-                <div className="tab-bar rounded-t-lg bg-gray-100 px-5">
+                <div className="tab-bar rounded-t-lg bg-gray-00 px-5">
                     {tabs.map((tab) => (
                         <button
                             key={tab}

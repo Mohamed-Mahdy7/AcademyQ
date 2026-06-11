@@ -31,6 +31,7 @@ import GradeForm from "../components/grades/gradeform";
 import GradeHistoryTab from "../components/grades/GradeHistoryTab";
 import GradeSummaryTab from "../components/grades/ClassGradeSummaryTab";
 import StudentProfile from "../pages/students/StudentProfile.jsx";
+import EditStudentProfile from "../pages/students/EditStudentProfile.jsx";
 
 
 const MainRouter = () => {
@@ -142,11 +143,16 @@ const MainRouter = () => {
                 } />
                 <Route path="/student/:id" element={
                     <ProtectedRoute>
-                        <UsersProvider>
                             <StudentProvider>
                                 <StudentProfile />
                             </StudentProvider>
-                        </UsersProvider>
+                    </ProtectedRoute>
+                } />
+                <Route path="/student/update/:id" element={
+                    <ProtectedRoute>
+                            <StudentProvider>
+                                <EditStudentProfile />
+                            </StudentProvider>
                     </ProtectedRoute>
                 } />
             </Route>
