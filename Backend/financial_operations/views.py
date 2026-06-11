@@ -101,10 +101,10 @@ class PaymentViewSet(viewsets.ModelViewSet):
             today = timezone.now()
             year, mon = today.year, today.month
 
-        active_enrollments = Enrollment.objects.filter(
-            class_id__academy_id=academy,
-            status='active'
-        )
+        # active_enrollments = Enrollment.objects.filter(
+        #     class_id__academy_id=academy,
+        #     status='active'
+        # )
 
         revenue_expected = Payment.objects.filter(
             enrollment_id__class_id__academy_id=academy,
@@ -128,10 +128,10 @@ class PaymentViewSet(viewsets.ModelViewSet):
         else:
             collection_rate = 0.0
 
-        expected_enrollments = Enrollment.objects.filter(
-            class_id__academy_id=academy,
-            status='active'
-        )
+        # expected_enrollments = Enrollment.objects.filter(
+        #     class_id__academy_id=academy,
+        #     status='active'
+        # )
 
         paid_enrollments = Payment.objects.filter(
             enrollment_id__class_id__academy_id=academy,
@@ -140,13 +140,19 @@ class PaymentViewSet(viewsets.ModelViewSet):
             status='completed'
         ).values_list('enrollment_id', flat=True)
 
-        overdue_enrollments = expected_enrollments.exclude(
-            id__in=paid_enrollments
-        )
+        # overdue_enrollments = expected_enrollments.exclude(
+        #     id__in=paid_enrollments
+        # )
+
+        overdue_enrollments = Enrollment.objects.filter(
+            class_id__academy_id=academy,
+            status='active'
+        ).exclude(id__in=paid_enrollments)
+
         overdue_count = overdue_enrollments.count()
         overdue_total = float(revenue_expected) - float(revenue_collected)
-        if overdue_total < 0:
-            overdue_total = 0
+        # if overdue_total < 0:
+        #     overdue_total = 0
 
         return Response({
             'month': f'{year}-{str(mon).zfill(2)}',
