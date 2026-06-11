@@ -54,7 +54,7 @@ class ClassViewSet(viewsets.ModelViewSet):
 
         return (
             Class.objects.select_related("academy", "subject")
-            .prefetch_related("teacher_assignments__teacher__user_id")
+            .prefetch_related("teacher_assignments__teacher__user_id", "schedules")
             .annotate(
                 students_count=Count("enrollments", distinct=True),
                 sessions_count=Count("session_links", distinct=True),
@@ -163,7 +163,7 @@ class ClassScheduleViewSet(viewsets.ModelViewSet):
     serializer_class = ClassScheduleSerializer
 
     def get_queryset(self):
-        queryset = ClassSchedule.objects.filter(
+        queryset = ClassSchedule.objects.select_related("class_obj").filter(
             class_obj__academy=self.request.user.academy
         )
         class_id = self.request.query_params.get("class_id")

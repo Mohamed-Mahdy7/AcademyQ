@@ -63,6 +63,8 @@ class Class(models.Model):
         blank=True,
         help_text="Total planned sessions for this class delivery",
     )
+    session_price = models.PositiveIntegerField(blank=True, null=True)
+    session_duration = models.DurationField(blank=True, null=True)
 
     class Meta:
         db_table = "classes"
@@ -110,7 +112,6 @@ class ClassSchedule(models.Model):
     )
     day_of_week = models.IntegerField(choices=DAY_CHOICES)
     start_time = models.TimeField()
-    end_time = models.TimeField()
 
     class Meta:
         db_table = "class_schedules"

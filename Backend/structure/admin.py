@@ -5,7 +5,7 @@ from .models import Class, ClassSchedule, ClassSessionEnrollment, TeacherClass
 class ClassScheduleInline(admin.TabularInline):
     model = ClassSchedule
     extra = 1
-    fields = ["day_of_week", "start_time", "end_time"]
+    fields = ["day_of_week", "start_time"]
 
 
 class TeacherClassInline(admin.TabularInline):
@@ -43,7 +43,6 @@ class ClassScheduleAdmin(admin.ModelAdmin):
         "class_obj",
         "get_day_of_week_display",
         "start_time",
-        "end_time",
     ]
     list_filter = ["day_of_week", "class_obj"]
 
