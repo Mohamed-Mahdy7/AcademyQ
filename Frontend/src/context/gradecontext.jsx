@@ -4,7 +4,7 @@ import {
   getGrades,
   getGradeSummary,
   getClassSummary,
-} from "../services/grades";
+} from "../services/gradesService";
 
 const GradeContext = createContext();
 

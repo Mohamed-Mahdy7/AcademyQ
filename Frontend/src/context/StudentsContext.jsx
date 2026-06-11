@@ -2,7 +2,8 @@ import { createContext, useEffect, useState } from "react";
 import { 
     createStudentRequest, 
     updateStudentRequest,
-    getStudentsRequest
+    getStudentsRequest,
+    getStudentRequest
 } from "../services/studentService";
 
 export const StudentContext = createContext();
@@ -22,6 +23,25 @@ export const StudentProvider = ({children}) => {
                 return null;
             }
         }
+
+        async function getStudent(id) {
+        try {
+            const response = await getStudentRequest(id);
+            setStudent(response.data);
+
+            return {
+                success: true,
+                data: response.data,
+            };
+        } catch (error) {
+            console.error(error);
+
+            return {
+                success: false,
+                error,
+            };
+        }
+    }
 
     async function createStudent(data) {
         try {
@@ -43,7 +63,7 @@ export const StudentProvider = ({children}) => {
         }
     }
 
-    async function updateStudent(id, data) {
+    async function updateStudent(id, data=null) {
         try {
             const response = await updateStudentRequest(id, data);
             setStudent(response.data);
@@ -71,6 +91,7 @@ export const StudentProvider = ({children}) => {
                 student,
                 students,
                 getStudents,
+                getStudent,
                 createStudent,
                 updateStudent,
             }}
