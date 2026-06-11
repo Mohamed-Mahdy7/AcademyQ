@@ -5,19 +5,27 @@ import { StudentContext } from "../../context/StudentsContext"
 import KpiCard from "../../components/KpiCard"
 import StudentRegister from "../auth/StudentsRegisterPage"
 import CardHeading from "../../components/CardHeader"
+import EnrollmentTab from "../../components/enrollments/EnrollmentTab"
+
+const tabs = ["Enrollments", "Grades", "Payments", "Attendance"];
+
 
 const StudentProfile = () => {
     const { student, getStudent } = useContext(StudentContext);
+    const [activeTab, setActiveTab] = useState("Enrollments");
     const { id } = useParams();
 
     useEffect(() => {
         getStudent(id);
     }, [id]);
-
+    
     console.log("STUDENT: " , student)
     if (!student) {
         return <div>Loading...</div>;
     }
+
+    const totalPaid = `${student.total_paid} EGP`
+    const attendancePercentage = `${student.attendance_percentage} %`
 
     return (
         <>
@@ -71,11 +79,11 @@ const StudentProfile = () => {
                     />
                     <KpiCard
                         title="ATTENDANCE"
-                        value={student.attendance}
+                        value={attendancePercentage}
                     />
                     <KpiCard
                         title="TOTAL PAID"
-                        value={student.total_paid}
+                        value={totalPaid}
                     />
                     <KpiCard
                         title="OUTSTANDING"
@@ -86,7 +94,54 @@ const StudentProfile = () => {
 
             <div>
             <nav>
+                <div className="card">
+                <div className="tab-bar rounded-t-lg bg-gray-100 px-5">
+                    {tabs.map((tab) => (
+                        <button
+                            key={tab}
+                            className={activeTab === tab ? "tab-active" : "tab"}
+                            onClick={() => setActiveTab(tab)}
+                        >
+                            {tab}
+                        </button>
+                    ))}
+                </div>
 
+                <div className="p-5">
+                    {activeTab === "Enrollments" && (
+                        <div className="empty-state">
+                            <p className="empty-state-title">Enrollments coming soon</p>
+                            <p className="empty-state-desc">
+                                Enrollments records will be available here.
+                            </p>
+                        </div>
+                    )}
+                    {activeTab === "Grades" && (
+                        <div className="empty-state">
+                            <p className="empty-state-title">Grades coming soon</p>
+                            <p className="empty-state-desc">
+                                Grades records will be available here.
+                            </p>
+                        </div>
+                    )}
+                    {activeTab === "Payments" && (
+                        <div className="empty-state">
+                            <p className="empty-state-title">Payments coming soon</p>
+                            <p className="empty-state-desc">
+                                Payments records will be available here.
+                            </p>
+                        </div>
+                    )}
+                    {activeTab === "Attendance" && (
+                        <div className="empty-state">
+                            <p className="empty-state-title">Attendance coming soon</p>
+                            <p className="empty-state-desc">
+                                Attendance records will be available here.
+                            </p>
+                        </div>
+                    )}
+                </div>
+            </div>
             </nav>
 
             </div>

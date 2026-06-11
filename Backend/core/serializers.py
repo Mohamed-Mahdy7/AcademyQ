@@ -230,7 +230,7 @@ class StudentProfileUpdateSerializer(serializers.ModelSerializer):
         read_only=True
     )
     enrollments = serializers.SerializerMethodField()
-    attendance = serializers.SerializerMethodField()
+    attendance_percentage = serializers.SerializerMethodField()
     total_paid = serializers.SerializerMethodField()
 
     class Meta:
@@ -238,24 +238,33 @@ class StudentProfileUpdateSerializer(serializers.ModelSerializer):
         fields = [
             "id", "full_name", "email", "phone", "parent_phone", 
             "educational_level", "enrolled_at", "status", "status_display", 
-            "enrollments", "attendance", "total_paid", "created_at", "update_at"
+            "enrollments", "attendance_percentage", "total_paid", "created_at", "update_at"
         ]
     
     def get_enrollments(self, obj):
         return obj.enrollments.count()
 
-    def get_attendance(self, obj):
-        return Attendance.objects.filter(
+    def get_attendance_percentage(self, obj):
+        total = Attendance.objects.filter(
+            enrollment__student_id=obj
+        ).count()
+
+        present = Attendance.objects.filter(
             enrollment__student_id=obj,
             present=True
         ).count()
+
+        if total == 0:
+            return 0
+
+        return round((present / total) * 100, 2)
         
     def get_total_paid(self, obj):
-        total = Payment.objects.filter(
+        total_payment = Payment.objects.filter(
             enrollment_id__student_id=obj,
             status="completed"
         ).aggregate(
-            total=Sum("amount")
-        )["total"]
+            total_payment=Sum("amount")
+        )["total_payment"]
 
-        return total or 0
+        return total_payment or 0
