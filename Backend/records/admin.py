@@ -14,5 +14,5 @@ class ClassSessionAdmin(admin.ModelAdmin):
 class AttendanceAdmin(admin.ModelAdmin):
     list_display = ['enrollment', 'session', 'present', 'recorded_at']
     list_filter = ['present', 'session__session_date']
-    search_fields = ['enrollment__student_id__user__full_name']
+    search_fields = ['enrollment__student_id__full_name']
     ordering = ['session', 'enrollment']

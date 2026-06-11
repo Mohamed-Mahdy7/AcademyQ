@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from django.db import transaction
 from django.db.models import Count, Q
 from core.permissions import IsOwner, ActiveSubscriptionRequired
+from datetime import date, timedelta
+from structure.models import ClassSchedule
 from .models import ClassSession, Attendance
 from .serializers import (
     ClassSessionSerializer,
@@ -37,7 +39,7 @@ class ClassSessionViewSet(viewsets.ModelViewSet):
 
         if request.method == 'GET':
             records = Attendance.objects.filter(session=session).select_related(
-                'enrollment__student__user'
+                'enrollment__student__id'
             )
             serializer = AttendanceSerializer(records, many=True)
             return Response(serializer.data)
@@ -171,3 +173,111 @@ class ClassAttendanceViewSet(viewsets.ModelViewSet):
             for s in sessions
         ]
         return Response(data)
+    
+class GenerateSessionsViewSet(viewsets.ModelViewSet):
+    serializer_class = ClassSessionSerializer
+    http_method_names = ['post', 'head', 'options']
+    permission_classes = [IsOwner, ActiveSubscriptionRequired]
+
+    def get_queryset(self):
+        return ClassSession.objects.filter(
+            class_obj__academy_id=self.request.user.academy_id
+        )
+
+    @action(detail=False, methods=['post'], url_path='generate-sessions')
+    def generate_sessions(self, request, class_id=None):
+        start_date_str = request.data.get('start_date')
+        end_date_str = request.data.get('end_date')
+
+        if not start_date_str or not end_date_str:
+            return Response(
+                {'detail': 'start_date and end_date are required.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            start_date = date.fromisoformat(start_date_str)
+            end_date = date.fromisoformat(end_date_str)
+        except ValueError:
+            return Response(
+                {'detail': 'Invalid date format. Use YYYY-MM-DD.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if end_date < start_date:
+            return Response(
+                {'detail': 'end_date must be after start_date.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # verify class belongs to this academy
+        from structure.models import Class
+        try:
+            cls = Class.objects.get(
+                id=class_id,
+                academy_id=request.user.academy_id
+            )
+        except Class.DoesNotExist:
+            return Response(
+                {'detail': 'Class not found.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # fetch schedule slots
+        schedules = ClassSchedule.objects.filter(class_obj=cls)
+        if not schedules.exists():
+            return Response(
+                {'detail': 'No schedule configured for this class. Add schedule slots before generating sessions.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # build lookup of existing sessions for this class in date range
+        existing = set(
+            ClassSession.objects.filter(
+                class_obj=cls,
+                session_date__range=(start_date, end_date)
+            ).values_list('session_date', flat=True)
+        )
+
+        sessions_created = 0
+        skipped = 0
+
+        with transaction.atomic():
+            # lock existing sessions for this class to prevent race conditions
+            last = (
+                ClassSession.objects
+                .select_for_update()
+                .filter(class_obj=cls)
+                .order_by('session_num')
+                .last()
+            )
+            next_session_num = (last.session_num + 1) if last else 1
+
+            current_date = start_date
+            while current_date <= end_date:
+                # check if any schedule slot matches this day of week
+                matching_slots = [
+                    s for s in schedules
+                    if s.day_of_week == current_date.weekday()
+                ]
+
+                for slot in matching_slots:
+                    if current_date in existing:
+                        skipped += 1
+                    else:
+                        ClassSession.objects.create(
+                            class_obj=cls,
+                            session_date=current_date,
+                            session_num=next_session_num,
+                            notes=''
+                        )
+                        existing.add(current_date)
+                        next_session_num += 1
+                        sessions_created += 1
+
+                current_date += timedelta(days=1)
+
+        return Response(
+            {'sessions_created': sessions_created, 'skipped': skipped},
+            status=status.HTTP_200_OK
+        )
