@@ -208,13 +208,21 @@ class StudentProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         user = self.request.user
-
-        if user.role == User.Roles.ADMIN:
-            return get_object_or_404(
+        
+        if user.role in [User.Roles.OWNER, User.Roles.ADMIN]:
+            student = get_object_or_404(
                 User,
                 pk=self.kwargs["pk"],
                 role=User.Roles.STUDENT
             )
+
+            print(
+                "FOUND STUDENT:",
+                student.id,
+                student.full_name,
+                student.email
+            )
+            return student
 
         if user.role == User.Roles.STUDENT:
             return user

@@ -30,6 +30,7 @@ import StudentManagement from "../pages/students/StudentManagementpage.jsx";
 import GradeForm from "../components/grades/gradeform";
 import GradeHistoryTab from "../components/grades/GradeHistoryTab";
 import GradeSummaryTab from "../components/grades/ClassGradeSummaryTab";
+import StudentProfile from "../pages/students/StudentProfile.jsx";
 
 
 const MainRouter = () => {
@@ -135,6 +136,15 @@ const MainRouter = () => {
                         <UsersProvider>
                             <StudentProvider>
                                 <StudentManagement />
+                            </StudentProvider>
+                        </UsersProvider>
+                    </ProtectedRoute>
+                } />
+                <Route path="/student/:id" element={
+                    <ProtectedRoute>
+                        <UsersProvider>
+                            <StudentProvider>
+                                <StudentProfile />
                             </StudentProvider>
                         </UsersProvider>
                     </ProtectedRoute>
