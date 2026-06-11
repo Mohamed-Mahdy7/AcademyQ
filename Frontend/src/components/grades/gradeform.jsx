@@ -23,7 +23,7 @@ export default function GradeForm({
       [e.target.name]: e.target.value,
     });
   };
-console.log("ENROLLMENTS PROP:", enrollments);
+   
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -34,7 +34,10 @@ console.log("ENROLLMENTS PROP:", enrollments);
   score: Number(form.score),
   max_score: Number(form.max_score),
   assigned_at: form.assigned_at,
-};
+};    
+      console.log("FORM:", form);
+      console.log("PAYLOAD:", payload);
+      console.log("ENROLLMENTS PROP:", enrollments);
     try {
       await addGrade(payload);
 
@@ -58,6 +61,8 @@ console.log("ENROLLMENTS PROP:", enrollments);
 
   const safeEnrollments = enrollments || [];
   const safeSessions = sessions || [];
+  console.log("ENROLLMENTS:", safeEnrollments);
+console.log("SESSIONS:", safeSessions);
 
   return (
     <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px", width: "300px" }}>
