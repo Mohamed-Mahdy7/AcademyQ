@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getClassSummary } from "../../services/grades";
+import { getClassSummary } from "../../services/gradesService";
 
 export default function ClassGradeSummaryTab({ classId }) {
   const [data, setData] = useState(null);

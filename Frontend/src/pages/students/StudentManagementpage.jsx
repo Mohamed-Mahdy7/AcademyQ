@@ -1,4 +1,5 @@
 import { useContext, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { UsersContext } from "../../context/UsersContext"
 import { StudentContext } from "../../context/StudentsContext"
 import KpiCard from "../../components/KpiCard"
@@ -8,6 +9,7 @@ import CardHeading from "../../components/CardHeader"
 const StudentManagement = () => {
     const { students } = useContext(StudentContext);
     const [showRegister, setShowRegister] = useState(false);
+    const navigate = useNavigate();
 
     console.log("STUDENTS: ", students)
     const activeStudents = students?.filter(student => student.status === 'A').length || 0;
@@ -120,7 +122,10 @@ const StudentManagement = () => {
                                 </td>
                                 <td className="table-cell">
                                     <div className="flex justify-end">
-                                        <button className="btn-secondary">
+                                        <button 
+                                            className="btn-secondary"
+                                            onClick={() => (navigate(`/student/${student.id}`))}
+                                        >
                                             View Profile
                                         </button>
                                     </div>
