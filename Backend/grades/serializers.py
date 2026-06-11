@@ -1,10 +1,7 @@
-
 from rest_framework import serializers
 from .models import Grade
 
 class GradeSerializer(serializers.ModelSerializer):
-
-    
     class Meta:
         model = Grade
         fields = [
@@ -16,9 +13,4 @@ class GradeSerializer(serializers.ModelSerializer):
             "max_score",
             "assigned_at",
         ]
- 
-        read_only_fields = [
-            "id",
-            "assigned_at"
-        ]
-    
+        read_only_fields = ["id"]
