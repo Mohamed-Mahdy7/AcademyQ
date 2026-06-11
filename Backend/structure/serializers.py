@@ -1,13 +1,13 @@
 from rest_framework import serializers
 
-from .models import Subject, Class, TeacherClass
+from .models import Subject, Class, TeacherClass, ClassSchedule, ClassSessionEnrollment
 from financial_operations.models import Teachers
 
 
 class ClassSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = Class
-        fields = ["id", "name", "session_time", "start_date", "end_date", "is_active"]
+        fields = ["id", "name", "start_date", "end_date", "is_active"]
 
 
 class TeacherSummarySerializer(serializers.ModelSerializer):
@@ -25,9 +25,6 @@ class ClassListSerializer(serializers.ModelSerializer):
         view_name="class-detail",
         lookup_field="pk",
     )
-    subject_session_count = serializers.IntegerField(
-        source="subject.session_count", read_only=True
-    )
     students_count = serializers.IntegerField(read_only=True)
     sessions_count = serializers.IntegerField(read_only=True)
     teacher_name = serializers.SerializerMethodField()
@@ -42,9 +39,8 @@ class ClassListSerializer(serializers.ModelSerializer):
             "academy_name",
             "subject",
             "subject_name",
-            "subject_session_count",
+            "session_count",
             "name",
-            "session_time",
             "start_date",
             "end_date",
             "is_active",
@@ -85,9 +81,6 @@ class TeacherClassDetailSerializer(serializers.ModelSerializer):
 class ClassDetailSerializer(serializers.ModelSerializer):
     academy_name = serializers.CharField(source="academy.name", read_only=True)
     subject_name = serializers.CharField(source="subject.name", read_only=True)
-    subject_session_count = serializers.IntegerField(
-        source="subject.session_count", read_only=True
-    )
     students_count = serializers.IntegerField(read_only=True)
     sessions_count = serializers.IntegerField(read_only=True)
     avg_attendance = serializers.FloatField(read_only=True)
@@ -103,9 +96,8 @@ class ClassDetailSerializer(serializers.ModelSerializer):
             "academy_name",
             "subject",
             "subject_name",
-            "subject_session_count",
+            "session_count",
             "name",
-            "session_time",
             "start_date",
             "end_date",
             "is_active",
@@ -127,10 +119,10 @@ class ClassCreateSerializer(serializers.ModelSerializer):
             "id",
             "subject",
             "name",
-            "session_time",
             "start_date",
             "end_date",
             "is_active",
+            "session_count",
             "teachers",
         ]
 
@@ -168,10 +160,10 @@ class ClassUpdateSerializer(serializers.ModelSerializer):
         fields = [
             "subject",
             "name",
-            "session_time",
             "start_date",
             "end_date",
             "is_active",
+            "session_count",
             "teachers",
         ]
 
@@ -199,6 +191,44 @@ class ClassUpdateSerializer(serializers.ModelSerializer):
                 )
         return instance
 
+
+class ClassScheduleSerializer(serializers.ModelSerializer):
+    day_of_week_display = serializers.CharField(
+        source="get_day_of_week_display", read_only=True
+    )
+
+    class Meta:
+        model = ClassSchedule
+        fields = [
+            "id",
+            "class_obj",
+            "day_of_week",
+            "day_of_week_display",
+            "start_time",
+            "end_time",
+        ]
+        read_only_fields = ["class_obj"]
+
+
+class ClassSessionEnrollmentSerializer(serializers.ModelSerializer):
+    session_date = serializers.DateField(
+        source="session.session_date", read_only=True
+    )
+    notes = serializers.CharField(
+        source="session.notes", read_only=True
+    )
+
+    class Meta:
+        model = ClassSessionEnrollment
+        fields = [
+            "id",
+            "class_obj",
+            "session",
+            "session_num",
+            "session_date",
+            "notes",
+        ]
+        read_only_fields = ["class_obj", "session_num"]
 
 class SubjectListSerializer(serializers.ModelSerializer):
     subject_details = serializers.HyperlinkedIdentityField(

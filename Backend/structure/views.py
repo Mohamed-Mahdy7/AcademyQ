@@ -11,6 +11,8 @@ from .models import (
     Subject,
     Class,
     TeacherClass,
+    ClassSchedule,
+    ClassSessionEnrollment,
 )
 from .serializers import (
     SubjectListSerializer,
@@ -20,7 +22,9 @@ from .serializers import (
     ClassListSerializer,
     ClassDetailSerializer,
     ClassCreateSerializer,
-    ClassUpdateSerializer
+    ClassUpdateSerializer,
+    ClassScheduleSerializer,
+    ClassSessionEnrollmentSerializer,
 )
 
 
@@ -53,16 +57,18 @@ class ClassViewSet(viewsets.ModelViewSet):
             .prefetch_related("teacher_assignments__teacher__user_id")
             .annotate(
                 students_count=Count("enrollments", distinct=True),
-                sessions_count=Count("sessions", distinct=True),
+                sessions_count=Count("session_links", distinct=True),
                 sessions_this_week=Count(
-                    "sessions",
-                    filter=Q(sessions__session_date__range=(week_start, week_end)),
+                    "session_links",
+                    filter=Q(
+                        session_links__session__session_date__range=(week_start, week_end)
+                    ),
                     distinct=True,
                 ),
                 avg_attendance=Avg(
                     Case(
                         When(
-                            sessions__attendance_records__present=True,
+                            session_links__session__attendance_records__present=True,
                             then=100.0
                         ),
                         default=0.0,
@@ -151,3 +157,39 @@ class ClassViewSet(viewsets.ModelViewSet):
             {'detail': 'Teacher removed successfully.'},
             status=status.HTTP_204_NO_CONTENT
         )
+
+
+class ClassScheduleViewSet(viewsets.ModelViewSet):
+    serializer_class = ClassScheduleSerializer
+
+    def get_queryset(self):
+        queryset = ClassSchedule.objects.filter(
+            class_obj__academy=self.request.user.academy
+        )
+        class_id = self.request.query_params.get("class_id")
+        if class_id:
+            queryset = queryset.filter(class_obj__id=class_id)
+        return queryset.order_by("day_of_week", "start_time")
+
+    def perform_create(self, serializer):
+        class_id = self.kwargs.get("class_pk") or self.request.data.get("class_obj")
+        class_obj = Class.objects.get(
+            id=class_id,
+            academy=self.request.user.academy
+        )
+        serializer.save(class_obj=class_obj)
+
+
+class ClassSessionEnrollmentViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = ClassSessionEnrollmentSerializer
+
+    def get_queryset(self):
+        queryset = ClassSessionEnrollment.objects.select_related(
+            "session", "class_obj"
+        ).filter(
+            class_obj__academy=self.request.user.academy
+        )
+        class_id = self.request.query_params.get("class_id")
+        if class_id:
+            queryset = queryset.filter(class_obj__id=class_id)
+        return queryset.order_by("class_obj", "session_num")
