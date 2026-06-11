@@ -6,3 +6,4 @@ export const getAcademyRequest = () =>
 export const updateAcademyRequest = (data) =>
     api.put("/api/auth/academy/", data);
 
+
