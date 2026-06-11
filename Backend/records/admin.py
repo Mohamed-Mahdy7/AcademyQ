@@ -1,9 +1,9 @@
 from django.contrib import admin
-from .models import SubjectSession, Attendance
+from .models import ClassSession, Attendance
 
 
-@admin.register(SubjectSession)
-class SubjectSessionAdmin(admin.ModelAdmin):
+@admin.register(ClassSession)
+class ClassSessionAdmin(admin.ModelAdmin):
     list_display = ['session_num', 'class_obj', 'session_date', 'notes']
     list_filter = ['class_obj', 'session_date']
     search_fields = ['class_obj__name', 'notes']

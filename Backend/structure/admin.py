@@ -7,7 +7,7 @@ class TeacherClassInline(admin.TabularInline):
 
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
-    list_display = ("name", "academy", "session_count")
+    list_display = ("name", "academy")
     list_filter = ("academy",)
     search_fields = ("name", "academy__name")
 

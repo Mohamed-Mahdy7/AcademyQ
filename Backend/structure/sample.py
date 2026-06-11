@@ -4,7 +4,7 @@ from decimal import Decimal
 from core.models import Academy, User
 from financial_operations.models import Teachers, Enrollment, Payment
 from structure.models import Subject, Class, TeacherClass
-from records.models import SubjectSession, Attendance
+from records.models import ClassSession, Attendance
 from grades.models import Grade
 
 # =====================
@@ -137,14 +137,14 @@ enrollment2 = Enrollment.objects.create(
 # Sessions
 # =====================
 
-session1 = SubjectSession.objects.create(
+session1 = ClassSession.objects.create(
     class_obj=class_a,
     session_num=1,
     session_date=date.today(),
     notes="Introduction"
 )
 
-session2 = SubjectSession.objects.create(
+session2 = ClassSession.objects.create(
     class_obj=class_a,
     session_num=2,
     session_date=date.today() + timedelta(days=7),
