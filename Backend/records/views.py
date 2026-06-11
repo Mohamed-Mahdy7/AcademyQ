@@ -4,21 +4,21 @@ from rest_framework.response import Response
 from django.db import transaction
 from django.db.models import Count, Q
 from core.permissions import IsOwner, ActiveSubscriptionRequired
-from .models import SubjectSession, Attendance
+from .models import ClassSession, Attendance
 from .serializers import (
-    SubjectSessionSerializer,
+    ClassSessionSerializer,
     AttendanceSerializer,
     AttendanceBulkSerializer,
 )
 
 
-class SubjectSessionViewSet(viewsets.ModelViewSet):
-    serializer_class = SubjectSessionSerializer
+class ClassSessionViewSet(viewsets.ModelViewSet):
+    serializer_class = ClassSessionSerializer
     http_method_names = ['get', 'post', 'head', 'options']
     permission_classes = [IsOwner, ActiveSubscriptionRequired]
 
     def get_queryset(self):
-        qs = SubjectSession.objects.filter(
+        qs = ClassSession.objects.filter(
             class_obj__academy_id=self.request.user.academy_id
         ).annotate(
             present_count=Count('attendance_records', filter=Q(attendance_records__present=True)),
@@ -134,12 +134,12 @@ class StudentAttendanceViewSet(viewsets.ModelViewSet):
 
 
 class ClassAttendanceViewSet(viewsets.ModelViewSet):
-    serializer_class = SubjectSessionSerializer
+    serializer_class = ClassSessionSerializer
     http_method_names = ['get', 'head', 'options']
     permission_classes = [IsOwner, ActiveSubscriptionRequired]
 
     def get_queryset(self):
-        return SubjectSession.objects.filter(
+        return ClassSession.objects.filter(
             class_obj__id=self.kwargs.get('class_id'),
             class_obj__academy_id=self.request.user.academy_id,
         ).annotate(

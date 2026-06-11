@@ -143,6 +143,7 @@ function StudentRegister({ onClose }) {
                         onChange={(e) => setAcademy(e.target.value)}
                         className="form-select"
                     >
+                        <option value="">Select an academy</option>
                         {academies.map((academy) => (
                             <option
                                 key={academy.id}

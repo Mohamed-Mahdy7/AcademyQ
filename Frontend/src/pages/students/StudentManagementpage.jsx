@@ -70,7 +70,7 @@ const StudentManagement = () => {
             )}
             <div className="table-wrap">
                 <div className="card-header">
-                    <h1 className="heading-3">All Staff Users</h1>
+                    <h1 className="heading-3">All Students</h1>
                 </div>
                 <table className="table">
                     <thead className="table-thead">
