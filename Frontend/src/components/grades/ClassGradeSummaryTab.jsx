@@ -1,74 +1,61 @@
- import { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useState } from "react";
+import { getClassSummary } from "../../services/grades";
 
 export default function ClassGradeSummaryTab({ classId }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const fetchSummary = async (id) => {
-    if (!id) {
-      setData(null);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const res = await axios.get(
-        `/api/grades/class-summary?class_id=${id}`
-      );
-
-      setData(res.data);
-    } catch (error) {
-      console.error("Class summary error:", error);
-      setData(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchSummary(classId);
-  }, [classId]); // ✅ مهم جدًا
+    if (!classId) return;
+    setLoading(true);
+    getClassSummary(classId)
+      .then((res) => setData(res.data))
+      .catch(() => setData(null))
+      .finally(() => setLoading(false));
+  }, [classId]);
 
-  if (loading) return <div className="p-4">Loading class summary...</div>;
+  if (loading) return <p className="text-body-muted p-4">Loading...</p>;
 
-  if (!data || !data.students?.length) {
-    return <div className="p-4 text-gray-500">No grades for this class</div>;
-  }
-
-  const getColor = (avg) => {
-    if (avg >= 70) return "text-green-600";
-    if (avg >= 50) return "text-yellow-600";
-    return "text-red-600";
-  };
+  if (!data?.students?.length) return (
+    <div className="empty-state">
+      <p className="empty-state-title">No grades for this class</p>
+      <p className="empty-state-desc">Grades will appear here once added.</p>
+    </div>
+  );
 
   const getTrend = (trend) => {
-    if (trend === "improving") return "📈 Improving";
-    if (trend === "declining") return "📉 Declining";
-    return "➖ Stable";
+    if (trend === "improving") return <span className="badge-success">↑ Improving</span>;
+    if (trend === "declining") return <span className="badge-danger">↓ Declining</span>;
+    if (trend === "stable") return <span className="badge-muted">→ Stable</span>;
+    return <span className="badge-muted">—</span>;
   };
 
   return (
-    <div className="p-4">
-      <table className="w-full border">
-        <thead className="bg-gray-200">
+    <div className="table-wrap">
+      <table className="table">
+        <thead className="table-thead">
           <tr>
-            <th className="p-2">Student</th>
+            <th>Student</th>
             <th>Average</th>
             <th>Assessments</th>
             <th>Trend</th>
           </tr>
         </thead>
-
         <tbody>
           {data.students.map((s) => (
-            <tr key={s.student_id} className="border-t">
-              <td className="p-2">{s.student_name}</td>
-              <td className={getColor(s.average)}>{s.average}%</td>
-              <td>{s.assessments}</td>
-              <td>{getTrend(s.trend)}</td>
+            <tr key={s.student_id} className="table-row">
+              <td className="table-cell font-medium">{s.student_name}</td>
+              <td className="table-cell">
+                <span className={
+                  s.average >= 70 ? "badge-grade-good" :
+                  s.average >= 50 ? "badge-grade-warn" :
+                  "badge-grade-bad"
+                }>
+                  {s.average}%
+                </span>
+              </td>
+              <td className="table-cell">{s.assessments}</td>
+              <td className="table-cell">{getTrend(s.trend)}</td>
             </tr>
           ))}
         </tbody>
