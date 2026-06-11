@@ -81,7 +81,7 @@ export default function RecordPaymentForm({ onSubmit, onCancel, errors, submitti
                 </option>
                 {pendingPayments.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.enrollment_id} — {parseFloat(p.amount).toFixed(2)} EGP
+                    {p.student_name} with id {p.enrollment_id} 
                   </option>
                 ))}
               </select>

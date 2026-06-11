@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { getUsersRequest } from "../../services/usersService"
 
 const EMPTY_FORM = {
   student_id: "",
@@ -18,6 +19,8 @@ export default function EnrollmentForm({
   submitting,
 }) {
   const [form, setForm] = useState(EMPTY_FORM);
+  const [users, setUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
 
   useEffect(() => {
     if (editingEnrollment) {
@@ -33,6 +36,28 @@ export default function EnrollmentForm({
       setForm(EMPTY_FORM);
     }
   }, [editingEnrollment]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoadingUsers(true);
+        const res = await getUsersRequest();
+
+        // adjust depending on your API shape
+        setUsers(res.data || []);
+      } catch (err) {
+        console.error("Failed to load users", err);
+      } finally {
+        setLoadingUsers(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  const students = users.filter(
+    (u) => u.role === "S" || u.user_type === "student"
+  );
 
   function handleChange(e) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -71,21 +96,28 @@ export default function EnrollmentForm({
                 <label className="form-label">
                   Student ID <span className="form-required">*</span>
                 </label>
-                <input
-                  type="text"
+                <select
                   name="student_id"
                   value={form.student_id}
                   onChange={handleChange}
-                  placeholder="Paste student UUID"
                   className={errors?.student_id ? "form-input-error" : "form-input"}
                   required
-                />
+                >
+                  <option value="">
+                    {loadingUsers ? "Loading students..." : "Select a student"}
+                  </option>
+
+                  {students.map((student) => (
+                    <option key={student.id} value={student.id}>
+                      {student.full_name || student.username || student.email}
+                    </option>
+                  ))}
+                </select>
                 {errors?.student_id && (
                   <p className="form-error">
                     {Array.isArray(errors.student_id) ? errors.student_id[0] : errors.student_id}
                   </p>
                 )}
-                <p className="form-hint">Will be replaced with a dropdown once students API is ready</p>
               </div>
             )}
 
