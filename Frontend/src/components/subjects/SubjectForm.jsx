@@ -4,7 +4,6 @@ function SubjectForm({ onSubmit, initialData = {} }) {
     const [formData, setFormData] = useState({
         name: initialData.name || "",
         description: initialData.description || "",
-        session_count: initialData.session_count || "",
     });
     const [errors, setErrors] = useState({});
 
@@ -19,7 +18,6 @@ function SubjectForm({ onSubmit, initialData = {} }) {
             await onSubmit({
                 name: formData.name,
                 description: formData.description,
-                session_count: Number(formData.session_count),
             });
         } catch (error) {
             if (error.response?.data) {
@@ -60,25 +58,6 @@ function SubjectForm({ onSubmit, initialData = {} }) {
                 />
                 {errors.description && (
                     <span className="form-error">{errors.description}</span>
-                )}
-            </div>
-
-            <div className="form-field">
-                <label className="form-label">
-                    Session Count <span className="form-required">*</span>
-                </label>
-                <input
-                    type="number"
-                    name="session_count"
-                    value={formData.session_count}
-                    onChange={handleChange}
-                    required
-                    min="1"
-                    placeholder="e.g. 24"
-                    className={errors.session_count ? "form-input-error" : "form-input"}
-                />
-                {errors.session_count && (
-                    <span className="form-error">{errors.session_count}</span>
                 )}
             </div>
 
