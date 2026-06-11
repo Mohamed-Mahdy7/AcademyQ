@@ -61,7 +61,10 @@ class ClassViewSet(viewsets.ModelViewSet):
                 sessions_this_week=Count(
                     "session_links",
                     filter=Q(
-                        session_links__session__session_date__range=(week_start, week_end)
+                        session_links__session__session_date__range=(
+                            week_start,
+                            week_end,
+                        )
                     ),
                     distinct=True,
                 ),
@@ -69,7 +72,7 @@ class ClassViewSet(viewsets.ModelViewSet):
                     Case(
                         When(
                             session_links__session__attendance_records__present=True,
-                            then=100.0
+                            then=100.0,
                         ),
                         default=0.0,
                         output_field=FloatField(),
@@ -87,75 +90,70 @@ class ClassViewSet(viewsets.ModelViewSet):
             return ClassDetailSerializer
         return ClassListSerializer
 
-    @action(detail=True, methods=['post'], url_path='assign_teacher')
+    @action(detail=True, methods=["post"], url_path="assign_teacher")
     def assign_teacher(self, request, pk=None):
         class_obj = self.get_object()
-        teacher_id = request.data.get('teacher_id')
+        teacher_id = request.data.get("teacher_id")
 
         if not teacher_id:
             return Response(
-                {'detail': 'teacher_id is required.'},
-                status=status.HTTP_400_BAD_REQUEST
+                {"detail": "teacher_id is required."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         try:
             teacher = Teachers.objects.get(
-                id=teacher_id,
-                academy_id=request.user.academy_id
+                id=teacher_id, academy_id=request.user.academy_id
             )
         except Teachers.DoesNotExist:
             return Response(
-                {'detail': 'Teacher not found.'},
-                status=status.HTTP_404_NOT_FOUND
+                {"detail": "Teacher not found."}, status=status.HTTP_404_NOT_FOUND
             )
 
         if TeacherClass.objects.filter(
-            assigned_class=class_obj,
-            teacher=teacher
+            assigned_class=class_obj, teacher=teacher
         ).exists():
             return Response(
-                {'detail': 'Teacher is already assigned to this class.'},
-                status=status.HTTP_400_BAD_REQUEST
+                {"detail": "Teacher is already assigned to this class."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         TeacherClass.objects.create(
             assigned_class=class_obj,
             teacher=teacher,
-            assigned_at=request.data.get('assigned_at', class_obj.start_date)
+            assigned_at=request.data.get("assigned_at", class_obj.start_date),
         )
 
         return Response(
-            {'detail': 'Teacher assigned successfully.'},
-            status=status.HTTP_201_CREATED
+            {"detail": "Teacher assigned successfully."}, status=status.HTTP_201_CREATED
         )
 
-    @action(detail=True, methods=['delete'], url_path='remove_teacher')
+    @action(detail=True, methods=["delete"], url_path="remove_teacher")
     def remove_teacher(self, request, pk=None):
         class_obj = self.get_object()
-        teacher_id = request.data.get('teacher_id')
+        teacher_id = request.data.get("teacher_id")
 
         if not teacher_id:
             return Response(
-                {'detail': 'teacher_id is required.'},
-                status=status.HTTP_400_BAD_REQUEST
+                {"detail": "teacher_id is required."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         try:
             assignment = TeacherClass.objects.get(
-                assigned_class=class_obj,
-                teacher__id=teacher_id
+                assigned_class=class_obj, teacher__id=teacher_id
             )
         except TeacherClass.DoesNotExist:
             return Response(
-                {'detail': 'Teacher assignment not found.'},
-                status=status.HTTP_404_NOT_FOUND
+                {"detail": "Teacher assignment not found."},
+                status=status.HTTP_404_NOT_FOUND,
             )
 
         assignment.delete()
 
         return Response(
-            {'detail': 'Teacher removed successfully.'},
-            status=status.HTTP_204_NO_CONTENT
+            {"detail": "Teacher removed successfully."},
+            status=status.HTTP_204_NO_CONTENT,
         )
 
 
@@ -172,11 +170,8 @@ class ClassScheduleViewSet(viewsets.ModelViewSet):
         return queryset.order_by("day_of_week", "start_time")
 
     def perform_create(self, serializer):
-        class_id = self.kwargs.get("class_pk") or self.request.data.get("class_obj")
-        class_obj = Class.objects.get(
-            id=class_id,
-            academy=self.request.user.academy
-        )
+        class_id = self.request.data.get("class_obj")
+        class_obj = Class.objects.get(id=class_id, academy=self.request.user.academy)
         serializer.save(class_obj=class_obj)
 
 
@@ -186,9 +181,7 @@ class ClassSessionEnrollmentViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         queryset = ClassSessionEnrollment.objects.select_related(
             "session", "class_obj"
-        ).filter(
-            class_obj__academy=self.request.user.academy
-        )
+        ).filter(class_obj__academy=self.request.user.academy)
         class_id = self.request.query_params.get("class_id")
         if class_id:
             queryset = queryset.filter(class_obj__id=class_id)
