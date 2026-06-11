@@ -5,6 +5,7 @@ import { GradeProvider } from "../context/gradecontext.jsx";
 import { UsersProvider } from "../context/UsersContext.jsx";
 import { StudentProvider } from "../context/StudentsContext.jsx";
 import { PaymentProvider } from "../context/PaymentContext.jsx";
+import { EnrollmentProvider } from "../context/EnrollmentContext.jsx";
 import ProtectedRoute from "../components/ProtectedRoute";
 import Sidebar from "../components/Sidebar";
 import DashboarLayout from "../components/DashboardLayout";
@@ -84,7 +85,9 @@ const MainRouter = () => {
                 />
                 <Route path="/classes/:id" element={
                     <ProtectedRoute>
-                        <ClassDetailPage />
+                        <EnrollmentProvider>
+                            <ClassDetailPage />
+                        </EnrollmentProvider>
                     </ProtectedRoute>
                 } />
                 <Route path="/classes/:id/edit" element={

@@ -88,7 +88,7 @@ export default function EnrollmentTab({ classId }) {
     <div>
 
       {/* Stats row */}
-      <div className="stat-grid mb-6">
+      {/* <div className="stat-grid mb-6">
         <div className="kpi-card">
           <p className="kpi-label">Total enrolled</p>
           <p className="kpi-value">{enrollments.length}</p>
@@ -101,7 +101,7 @@ export default function EnrollmentTab({ classId }) {
           <p className="kpi-label">Total balance due</p>
           <p className="kpi-value text-danger">{totalBalance.toFixed(2)} EGP</p>
         </div>
-      </div>
+      </div> */}
 
       {/* Toolbar */}
       <div className="filter-bar">
@@ -110,7 +110,7 @@ export default function EnrollmentTab({ classId }) {
           onChange={(e) => setStatusFilter(e.target.value)}
           className="filter-select"
         >
-          <option value="">All statuses</option>
+          <option value="">Student status</option>
           <option value="active">Active</option>
           <option value="paused">Paused</option>
           <option value="dropped">Dropped</option>
