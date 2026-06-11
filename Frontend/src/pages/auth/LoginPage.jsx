@@ -1,9 +1,9 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 
 function Login() {
-    const {login, checkAuth} = useContext(AuthContext);
+    const { login, checkAuth } = useContext(AuthContext);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate()
@@ -18,12 +18,12 @@ function Login() {
 
         if (!success) {
             alert("Invalid credentials");
-        } else {navigate("/")}
+        } else { navigate("/") }
     };
 
     return (
         <main className="min-h-screen bg-surface flex items-center justify-center p-6">
-            <form 
+            <form
                 onSubmit={handleSubmit}
                 className="w-full max-w-md bg-card p-8 rounded-2xl shodow-card border border-border space-y-5"
             >
@@ -34,9 +34,9 @@ function Login() {
                     <label htmlFor="email" className="form-label">
                         Email
                     </label>
-                    <input 
-                        type="email" 
-                        name="email" 
+                    <input
+                        type="email"
+                        name="email"
                         id="email"
                         placeholder="Enter your email"
                         value={email}
@@ -49,9 +49,9 @@ function Login() {
                     <label htmlFor="password" className="form-label">
                         Password
                     </label>
-                    <input 
-                        type="password" 
-                        name="password" 
+                    <input
+                        type="password"
+                        name="password"
                         id="password"
                         placeholder="Password"
                         value={password}

@@ -2,7 +2,7 @@ import uuid
 from django.db import models
 
 
-class SubjectSession(models.Model):
+class ClassSession(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     class_obj = models.ForeignKey('structure.Class', on_delete=models.CASCADE, related_name='sessions')
     
@@ -26,7 +26,7 @@ class SubjectSession(models.Model):
 
 class Attendance(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    session = models.ForeignKey(SubjectSession, on_delete=models.CASCADE, related_name='attendance_records')
+    session = models.ForeignKey(ClassSession, on_delete=models.CASCADE, related_name='attendance_records')
 
     enrollment = models.ForeignKey('financial_operations.Enrollment', on_delete=models.CASCADE, related_name='attendance_records')
     present = models.BooleanField(default=False)

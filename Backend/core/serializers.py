@@ -1,4 +1,5 @@
 from datetime import timedelta
+from django.db.models import Sum
 from django.utils import timezone
 from django.db import transaction
 from django.contrib.auth.backends import ModelBackend
@@ -6,6 +7,8 @@ from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer 
 from rest_framework import serializers
 from .models import Academy, User
+from records.models import Attendance
+from financial_operations.models import Enrollment, Payment
 
 User=get_user_model()
 
@@ -64,6 +67,14 @@ class UserSerializer(serializers.ModelSerializer):
         source="academy.id", 
         read_only=True
     )
+    role_display = serializers.CharField(
+        source="get_role_display",
+        read_only=True
+    )
+    status_display = serializers.CharField(
+        source="get_status_display",
+        read_only=True
+    )
 
     class Meta:
         model = User
@@ -73,9 +84,12 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
             "phone",
             "role",
-            "is_active",
+            "role_display",
+            "status",
+            "status_display",
             "academy_id",
             "academy_name",
+            "created_at"
         ]
 
 
@@ -178,12 +192,21 @@ class StudentCreateSerializer(serializers.ModelSerializer):
         write_only=True,
         style={'input_type': 'password'}
         )
+    status_display = serializers.CharField(
+        source="get_status_display",
+        read_only=True
+    )
+    enrollments = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = [
-            "id", "full_name", "email", "phone", 'parent_phone',
-            'educational_level', "academy", "password", "confirm_password"
+            "id", "full_name", "email", "phone", 'parent_phone', 'enrolled_at','educational_level', 
+            "academy", "password", "confirm_password", "status", "status_display", "enrollments"
         ]
+    
+    def get_enrollments(self, obj):
+        return obj.enrollments.count()
     
     def validate(self, attrs):
         if (attrs["password"] != attrs["confirm_password"]):
@@ -202,12 +225,46 @@ class StudentCreateSerializer(serializers.ModelSerializer):
 
 
 class StudentProfileUpdateSerializer(serializers.ModelSerializer):
+    status_display = serializers.CharField(
+        source="get_status_display",
+        read_only=True
+    )
+    enrollments = serializers.SerializerMethodField()
+    attendance_percentage = serializers.SerializerMethodField()
+    total_paid = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = [
-            "full_name",
-            "email",
-            "phone",
-            "parent_phone",
-            "educational_level",
+            "id", "full_name", "email", "phone", "parent_phone", 
+            "educational_level", "enrolled_at", "status", "status_display", 
+            "enrollments", "attendance_percentage", "total_paid", "created_at", "update_at"
         ]
+    
+    def get_enrollments(self, obj):
+        return obj.enrollments.count()
+
+    def get_attendance_percentage(self, obj):
+        total = Attendance.objects.filter(
+            enrollment__student_id=obj
+        ).count()
+
+        present = Attendance.objects.filter(
+            enrollment__student_id=obj,
+            present=True
+        ).count()
+
+        if total == 0:
+            return 0
+
+        return round((present / total) * 100, 2)
+        
+    def get_total_paid(self, obj):
+        total_payment = Payment.objects.filter(
+            enrollment_id__student_id=obj,
+            status="completed"
+        ).aggregate(
+            total_payment=Sum("amount")
+        )["total_payment"]
+
+        return total_payment or 0

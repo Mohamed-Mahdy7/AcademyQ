@@ -84,6 +84,11 @@ class PaymentViewSet(viewsets.ModelViewSet):
         return queryset
     
 
+    def perform_destroy(self, instance):
+        instance.status = 'deleted'
+        instance.save()
+    
+
     @action(detail=False, methods=['get'], url_path='summary')
     def summary(self, request):
         academy = request.user.academy
@@ -101,14 +106,17 @@ class PaymentViewSet(viewsets.ModelViewSet):
             status='active'
         )
 
-        revenue_expected = active_enrollments.aggregate(
-            total=Sum('fee_amount')
-        )['total'] or 0
+        revenue_expected = Payment.objects.filter(
+            enrollment_id__class_id__academy_id=academy,
+            paid_on__year=year,
+            paid_on__month=mon,
+        ).aggregate(total=Sum('amount'))['total'] or 0
 
         revenue_collected = Payment.objects.filter(
             enrollment_id__class_id__academy_id=academy,
             paid_on__year=year,
-            paid_on__month=mon
+            paid_on__month=mon,
+            status='completed'
         ).aggregate(
             total=Sum('amount')
         )['total'] or 0
@@ -120,19 +128,25 @@ class PaymentViewSet(viewsets.ModelViewSet):
         else:
             collection_rate = 0.0
 
-        paid_enrollment_ids = Payment.objects.filter(
+        expected_enrollments = Enrollment.objects.filter(
+            class_id__academy_id=academy,
+            status='active'
+        )
+
+        paid_enrollments = Payment.objects.filter(
             enrollment_id__class_id__academy_id=academy,
             paid_on__year=year,
-            paid_on__month=mon
+            paid_on__month=mon,
+            status='completed'
         ).values_list('enrollment_id', flat=True)
 
-        overdue_enrollments = active_enrollments.exclude(
-            id__in=paid_enrollment_ids
+        overdue_enrollments = expected_enrollments.exclude(
+            id__in=paid_enrollments
         )
         overdue_count = overdue_enrollments.count()
-        overdue_total = overdue_enrollments.aggregate(
-            total=Sum('fee_amount')
-        )['total'] or 0
+        overdue_total = float(revenue_expected) - float(revenue_collected)
+        if overdue_total < 0:
+            overdue_total = 0
 
         return Response({
             'month': f'{year}-{str(mon).zfill(2)}',

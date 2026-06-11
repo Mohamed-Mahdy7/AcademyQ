@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getSubjects, deleteSubject } from "../services/subjectService";
+import { getSubjects, deleteSubject } from "../../services/subjectService";
 
 function SubjectsPage() {
     const [subjects, setSubjects] = useState([]);
@@ -38,13 +38,6 @@ function SubjectsPage() {
 
     const totalSubjects = subjects.length;
     const totalClasses = subjects.reduce((sum, s) => sum + (s.classes_count || 0), 0);
-    const avgSessions =
-        totalSubjects > 0
-            ? Math.round(
-                  subjects.reduce((sum, s) => sum + (s.session_count || 0), 0) /
-                      totalSubjects
-              )
-            : 0;
 
     return (
         <div className="page-body">
@@ -73,10 +66,6 @@ function SubjectsPage() {
                     <p className="kpi-label">Active Classes</p>
                     <p className="kpi-value">{totalClasses}</p>
                 </div>
-                <div className="kpi-card">
-                    <p className="kpi-label">Avg. Sessions</p>
-                    <p className="kpi-value">{avgSessions}</p>
-                </div>
             </div>
 
             {/* Table Card */}
@@ -90,7 +79,6 @@ function SubjectsPage() {
                         <tr>
                             <th>Subject Name</th>
                             <th>Description</th>
-                            <th>Sessions</th>
                             <th>Active Classes</th>
                             <th>Status</th>
                             <th>Actions</th>
@@ -122,9 +110,6 @@ function SubjectsPage() {
                                     </td>
                                     <td className="table-cell-muted">
                                         {subject.description || "—"}
-                                    </td>
-                                    <td className="table-cell">
-                                        {subject.session_count}
                                     </td>
                                     <td className="table-cell">
                                         <span className="badge-count">
@@ -185,7 +170,6 @@ function SubjectsPage() {
                     </div>
                 </div>
             )}
-
         </div>
     );
 }

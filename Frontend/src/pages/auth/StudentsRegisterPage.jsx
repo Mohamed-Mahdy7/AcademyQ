@@ -1,9 +1,9 @@
 import { useContext, useEffect, useState } from "react";
-import { StudentContext } from "../context/StudentsContext";
+import { StudentContext } from "../../context/StudentsContext";
 import { useNavigate } from "react-router-dom";
-import api from "../api";
+import api from "../../api";
 
-function StudentRegister() {
+function StudentRegister({ onClose }) {
     const {createStudent} = useContext(StudentContext)
     const [full_name, setFullName] = useState("");
     const [email, setEmail] = useState("");
@@ -29,7 +29,7 @@ function StudentRegister() {
     async function fetchAcademies() {
         try {
             const response = await api.get("api/auth/academies/");
-            setAcademies(response.data.results);
+            setAcademies(response.data);
         } catch (error) {
             console.error(error);
         }
@@ -62,7 +62,7 @@ function StudentRegister() {
         try{
             const result = await createStudent(data);
             if(result.success) {
-                navigate("/")
+                onClose();
             }
         } catch (error) {
             console.error(error);
@@ -143,6 +143,7 @@ function StudentRegister() {
                         onChange={(e) => setAcademy(e.target.value)}
                         className="form-select"
                     >
+                        <option value="">Select an academy</option>
                         {academies.map((academy) => (
                             <option
                                 key={academy.id}

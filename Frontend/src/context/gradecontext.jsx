@@ -3,61 +3,57 @@ import {
   createGrade,
   getGrades,
   getGradeSummary,
-  getGradeHistory,
-} from "../services/grades";
+  getClassSummary,
+} from "../services/gradesService";
 
 const GradeContext = createContext();
 
 export const GradeProvider = ({ children }) => {
   const [grades, setGrades] = useState([]);
   const [summary, setSummary] = useState(null);
-  const [history, setHistory] = useState(null);
-  const [loading, setloading] =useState(true)
+  const [loading, setLoading] = useState(false);
 
   const loadGrades = async (enrollmentId) => {
     if (!enrollmentId) return;
-
-    const res = await getGrades(enrollmentId);
-    setGrades(res.data || []);
+    setLoading(true);
+    try {
+      const res = await getGrades(enrollmentId);
+      setGrades(res.data.results ?? res.data);
+    } catch (error) {
+      console.error("loadGrades error:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const loadSummary = async (enrollmentId) => {
     if (!enrollmentId) return;
-
-    const res = await getGradeSummary(enrollmentId);
-    setSummary(res.data || null);
+    try {
+      const res = await getGradeSummary(enrollmentId);
+      setSummary(res.data);
+    } catch (error) {
+      console.error("loadSummary error:", error);
+    }
   };
 
-   const loadHistory = async (enrollmentId) => {
-   
-
-  const res = await getGradeHistory(enrollmentId);
-  setHistory(res.data || null);
-  return res.data;    
-};
-
-   const addGrade = async (payload) => {
-  try {
-    const res = await createGrade(payload);
-    return res.data;
-  } catch (error) {
-     console.log("STATUS:", error.response?.status);
-  console.log("DATA:", error.response?.data);
-  console.log("HEADERS:", error.response?.headers);
-    console.error("addGrade error:", error);
-    throw error;
-  }
-};
+  const addGrade = async (payload) => {
+    try {
+      const res = await createGrade(payload);
+      return res.data;
+    } catch (error) {
+      console.error("addGrade error:", error);
+      throw error;
+    }
+  };
 
   return (
     <GradeContext.Provider
       value={{
         grades,
         summary,
-        history,
+        loading,
         loadGrades,
         loadSummary,
-        loadHistory,
         addGrade,
       }}
     >

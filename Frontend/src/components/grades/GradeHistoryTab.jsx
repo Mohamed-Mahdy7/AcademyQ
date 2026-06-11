@@ -1,68 +1,70 @@
- import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useGrades } from "../../context/gradecontext";
 
-export default function GradeHistoryTab() {
-  const { id } = useParams();
-
-  const { loadHistory } = useGrades();
-
-  const [history, setHistory] = useState(null);
+export default function GradeHistoryTab({ enrollmentId }) {
+  const { loadGrades } = useGrades();
+  const [grades, setGrades] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!id) {
+    if (!enrollmentId) {
       setLoading(false);
       return;
     }
+    loadGrades(enrollmentId)
+      .then((data) => setGrades(data?.results ?? data ?? []))
+      .catch(() => setGrades([]))
+      .finally(() => setLoading(false));
+  }, [enrollmentId]);
 
-    const fetchData = async () => {
-      try {
-        const result = await loadHistory(id);
-        setHistory(result);
-      } catch (error) {
-        console.error("History error:", error);
-        setHistory(null);
-      } finally {
-        setLoading(false);
-      }
-    };
+  if (!enrollmentId) return (
+    <div className="empty-state">
+      <p className="empty-state-title">No enrollment selected</p>
+    </div>
+  );
 
-    fetchData();
-  }, [id]);
+  if (loading) return <p className="text-body-muted p-4">Loading grades...</p>;
 
-  if (!id) return <div>Invalid enrollment id</div>;
-
-  if (loading) return <div>Loading grades...</div>;
-
-  if (!history) return <div>No history found</div>;
+  if (!grades.length) return (
+    <div className="empty-state">
+      <p className="empty-state-title">No grades yet</p>
+      <p className="empty-state-desc">Grades will appear here once added.</p>
+    </div>
+  );
 
   return (
-    <div>
-      <h3>Average: {history.average}%</h3>
-      <p>Total: {history.total}</p>
-
-      <table>
-        <thead>
+    <div className="table-wrap">
+      <table className="table">
+        <thead className="table-thead">
           <tr>
-            <th>Assessment</th>
+            <th>Subject</th>
             <th>Score</th>
             <th>%</th>
-            <th>Session</th>
             <th>Date</th>
           </tr>
         </thead>
-
         <tbody>
-          {history.grades?.map((g) => (
-            <tr key={g.id}>
-              <td>{g.assessment_name}</td>
-              <td>{g.score}/{g.max_score}</td>
-              <td>{g.percentage}</td>
-              <td>{g.session}</td>
-              <td>{g.assigned_on}</td>
-            </tr>
-          ))}
+          {grades.map((g) => {
+            const pct = g.max_score
+              ? Math.round((g.score / g.max_score) * 100)
+              : 0;
+            return (
+              <tr key={g.id} className="table-row">
+                <td className="table-cell">{g.subject_name}</td>
+                <td className="table-cell">{g.score}/{g.max_score}</td>
+                <td className="table-cell">
+                  <span className={
+                    pct >= 70 ? "badge-grade-good" :
+                    pct >= 50 ? "badge-grade-warn" :
+                    "badge-grade-bad"
+                  }>
+                    {pct}%
+                  </span>
+                </td>
+                <td className="table-cell-muted">{g.assigned_at}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

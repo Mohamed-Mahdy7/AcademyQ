@@ -3,9 +3,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
     getClass,
     getClassSessions,
-} from "../services/classService";
-import SessionsTab from "../components/attendance/SessionsTab";
-import TeachersTab from "../components/classes/TeachersTab";
+} from "../../services/classService";
+import SessionsTab from "../../components/attendance/SessionsTab";
+import TeachersTab from "../../components/classes/TeachersTab";
+import EnrollmentTab from "../../components/enrollments/EnrollmentTab"
 
 const TABS = ["Students", "Sessions", "Grades", "Teachers"];
 
@@ -20,7 +21,7 @@ function ClassDetailPage() {
     useEffect(() => {
         const fetchAll = async () => {
             try {
-                const [classRes, enrollmentsRes, sessionsRes] =
+                const [classRes, sessionsRes] =
                     await Promise.all([
                         getClass(id),
                         getClassSessions(id),
@@ -122,12 +123,7 @@ function ClassDetailPage() {
 
                 <div className="p-5">
                     {activeTab === "Students" && (
-                        <div className="empty-state">
-                            <p className="empty-state-title">Students coming soon</p>
-                            <p className="empty-state-desc">
-                                Comming soon.
-                            </p>
-                        </div>
+                        <EnrollmentTab classId={id} />
                     )}
                     {activeTab === "Sessions" && (
                         <SessionsTab sessions={sessions} classId={id} />
@@ -195,8 +191,8 @@ function StudentsTab({ enrollments }) {
                                         enrollment.status === "active"
                                             ? "badge-success"
                                             : enrollment.status === "dropped"
-                                            ? "badge-danger"
-                                            : "badge-warning"
+                                                ? "badge-danger"
+                                                : "badge-warning"
                                     }>
                                         {enrollment.status}
                                     </span>

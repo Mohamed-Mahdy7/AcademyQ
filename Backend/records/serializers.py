@@ -1,15 +1,15 @@
 from rest_framework import serializers
-from .models import SubjectSession, Attendance
+from .models import ClassSession, Attendance
 from django.db import transaction
 
 
-class SubjectSessionSerializer(serializers.ModelSerializer):
+class ClassSessionSerializer(serializers.ModelSerializer):
     present_count = serializers.IntegerField(read_only=True)
     absent_count = serializers.IntegerField(read_only=True)
     total_enrolled = serializers.IntegerField(read_only=True)
 
     class Meta:
-        model = SubjectSession
+        model = ClassSession
         fields = [
             'id',
             'class_obj',
@@ -27,7 +27,7 @@ class SubjectSessionSerializer(serializers.ModelSerializer):
         class_obj = validated_data['class_obj']
         with transaction.atomic():
             last = (
-                SubjectSession.objects
+                ClassSession.objects
                 .select_for_update()
                 .filter(class_obj=class_obj)
                 .order_by('session_num')
