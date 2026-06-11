@@ -217,7 +217,6 @@ class SubjectListSerializer(serializers.ModelSerializer):
             "academy_name",
             "name",
             "description",
-            "session_count",
             "classes_count",
         ]
 
@@ -235,7 +234,6 @@ class SubjectDetailSerializer(serializers.ModelSerializer):
             "academy_name",
             "name",
             "description",
-            "session_count",
             "classes_count",
             "classes",
         ]
@@ -248,7 +246,6 @@ class SubjectCreateSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "description",
-            "session_count",
         ]
 
     def validate(self, attrs):
@@ -272,7 +269,6 @@ class SubjectUpdateSerializer(serializers.ModelSerializer):
         fields = [
             "name",
             "description",
-            "session_count",
         ]
 
     def validate(self, attrs):

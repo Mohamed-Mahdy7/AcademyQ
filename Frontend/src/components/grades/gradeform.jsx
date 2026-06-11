@@ -1,132 +1,147 @@
- import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useGrades } from "../../context/gradecontext";
 
-export default function GradeForm({
-  enrollments,
-  sessions,
-  subjectName,
-}) {
+export default function GradeForm({ enrollments = [], sessions = [], subjectName = "" }) {
   const { addGrade } = useGrades();
 
   const [form, setForm] = useState({
     enrollment: "",
     session: "",
-    subject_name: subjectName || "",
+    subject_name: subjectName,
     score: "",
     max_score: "",
     assigned_at: "",
   });
 
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setError(null);
+    setSuccess(false);
   };
-console.log("ENROLLMENTS PROP:", enrollments);
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+
+  const handleSubmit = async () => {
+    if (!form.enrollment || !form.score || !form.max_score || !form.assigned_at) {
+      setError("Please fill all required fields.");
+      return;
+    }
 
     const payload = {
-  enrollment: Number(form.enrollment),
-  session: Number(form.session),
-  subject_name: form.subject_name,
-  score: Number(form.score),
-  max_score: Number(form.max_score),
-  assigned_at: form.assigned_at,
-};
+      enrollment: form.enrollment,
+      session: form.session || null,
+      subject_name: form.subject_name,
+      score: form.score,
+      max_score: form.max_score,
+      assigned_at: form.assigned_at,
+    };
+
     try {
       await addGrade(payload);
-
-      alert("Grade added successfully");
-
-      // optional reset
+      setSuccess(true);
       setForm({
         enrollment: "",
         session: "",
-        subject_name: subjectName || "",
+        subject_name: subjectName,
         score: "",
         max_score: "",
         assigned_at: "",
       });
-
     } catch (error) {
-      console.error(error.response?.data || error);
-      alert("Error adding grade");
+      setError(error.response?.data?.detail || "Error adding grade.");
     }
   };
 
-  const safeEnrollments = enrollments || [];
-  const safeSessions = sessions || [];
-
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px", width: "300px" }}>
+    <div className="card-body space-y-4 max-w-md">
+      <h3 className="heading-3">Add Grade</h3>
 
-      <select
-        name="enrollment"
-        value={form.enrollment || ""}
-        onChange={handleChange}
-      >
-        <option value="">Select Student</option>
-        {safeEnrollments.map((item) => (
-          <option key={item.id} value={item.id}>
-            {item.student_name}
-          </option>
-        ))}
-      </select>
+      {error && <div className="alert alert-danger"><span>{error}</span></div>}
+      {success && <div className="alert alert-success"><span>Grade added successfully.</span></div>}
 
-      <select
-        name="session"
-        value={form.session || ""}
-        onChange={handleChange}
-      >
-        <option value="">Select Session</option>
-        {safeSessions.map((session) => (
-          <option key={session.id} value={session.id}>
-            {session.title}
-          </option>
-        ))}
-      </select>
+      <div className="form-field">
+        <label className="form-label">Student <span className="form-required">*</span></label>
+        <select
+          name="enrollment"
+          value={form.enrollment}
+          onChange={handleChange}
+          className="form-select"
+        >
+          <option value="">Select Student</option>
+          {enrollments.map((e) => (
+            <option key={e.id} value={e.id}>
+              {e.student_name}
+            </option>
+          ))}
+        </select>
+      </div>
 
-      <label>Subject Name</label>
-      
-      <input
-       style={{ border: "1px solid black" }} 
-        name="subject_name"
-        value={form.subject_name}
-        onChange={handleChange}
-      />
+      <div className="form-field">
+        <label className="form-label">Session</label>
+        <select
+          name="session"
+          value={form.session}
+          onChange={handleChange}
+          className="form-select"
+        >
+          <option value="">Select Session (optional)</option>
+          {sessions.map((s) => (
+            <option key={s.id} value={s.id}>
+              Session {s.session_num} — {s.session_date}
+            </option>
+          ))}
+        </select>
+      </div>
 
-      <label>Score</label>
-      <input
-       style={{ border: "1px solid black" }} 
-        type="number"
-        name="score"
-        value={form.score}
-        onChange={handleChange}
-      />
+      <div className="form-field">
+        <label className="form-label">Subject Name <span className="form-required">*</span></label>
+        <input
+          type="text"
+          name="subject_name"
+          value={form.subject_name}
+          onChange={handleChange}
+          className="form-input"
+        />
+      </div>
 
-      <label>Maximum Score</label>
-      <input
-       style={{ border: "1px solid black" }} 
-        type="number"
-        name="max_score"
-        value={form.max_score}
-        onChange={handleChange}
-      />
+      <div className="grid grid-cols-2 gap-4">
+        <div className="form-field">
+          <label className="form-label">Score <span className="form-required">*</span></label>
+          <input
+            type="number"
+            name="score"
+            value={form.score}
+            onChange={handleChange}
+            className="form-input"
+          />
+        </div>
+        <div className="form-field">
+          <label className="form-label">Max Score <span className="form-required">*</span></label>
+          <input
+            type="number"
+            name="max_score"
+            value={form.max_score}
+            onChange={handleChange}
+            className="form-input"
+          />
+        </div>
+      </div>
 
-      <label>Assigned Date</label>
-      <input
-       style={{ border: "1px solid black" }} 
-        type="date"
-        name="assigned_at"
-        value={form.assigned_at}
-        onChange={handleChange}
-      />
+      <div className="form-field">
+        <label className="form-label">Assigned Date <span className="form-required">*</span></label>
+        <input
+          type="date"
+          name="assigned_at"
+          value={form.assigned_at}
+          onChange={handleChange}
+          className="form-input"
+        />
+      </div>
 
-      <button style={{ padding: "10px", backgroundColor: "#4CAF50", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}  type="submit">
+      <button className="btn-primary w-full" onClick={handleSubmit}>
         Save Grade
       </button>
-    </form>
+    </div>
   );
 }
