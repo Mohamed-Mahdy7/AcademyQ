@@ -238,7 +238,7 @@ class StudentProfileUpdateSerializer(serializers.ModelSerializer):
         fields = [
             "id", "full_name", "email", "phone", "parent_phone", 
             "educational_level", "enrolled_at", "status", "status_display", 
-            "enrollments", "attendance_percentage", "total_paid", "created_at", "update_at"
+            "enrollments", "attendance_percentage", "total_paid", "created_at", "updated_at"
         ]
     
     def get_enrollments(self, obj):
