@@ -3,6 +3,7 @@ import { usePayment } from "../context/PaymentContext";
 import PaymentSummaryCards from "../components/payments/PaymentSummaryCards";
 import PaymentTable from "../components/payments/PaymentTable";
 import RecordPaymentForm from "../components/payments/RecordPaymentForm";
+import AddPaymentForm from "../components/payments/AddPaymentForm";
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -25,6 +26,7 @@ export default function PaymentsPage() {
   const [formErrors, setFormErrors]       = useState({});
   const [submitting, setSubmitting]       = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [showAddForm, setShowAddForm] = useState(false);
 
   useEffect(() => {
     fetchSummary(selectedMonth);
@@ -55,7 +57,22 @@ export default function PaymentsPage() {
     const result = await removePayment(payment.id);
     if (result.success) {
       setDeleteConfirm(null);
+      listPayments({ month: selectedMonth });
       fetchSummary(selectedMonth);
+    }
+  }
+
+  async function handleCreatePayment(payload) {
+    setSubmitting(true);
+    const result = await addPayment(payload);
+    setSubmitting(false);
+
+    if (result.success) {
+      setShowAddForm(false);
+      listPayments({ month: selectedMonth });
+      fetchSummary(selectedMonth);
+    } else {
+      setFormErrors(result.errors || {});
     }
   }
 
@@ -76,14 +93,28 @@ export default function PaymentsPage() {
       <div className="flex items-start justify-between mb-6">
         <div>
           <h1 className="heading-1">Payments & Finance</h1>
-          <p className="subheading">Track revenue, manage payments, and monitor outstanding fees</p>
+          <p className="subheading">
+            Track revenue, manage payments, and monitor outstanding fees
+          </p>
         </div>
-        <button className="btn-primary" onClick={() => setShowForm(true)}>
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-          Record payment
-        </button>
+
+        <div className="flex flex-col gap-2">
+          <button className="btn-primary" onClick={() => setShowAddForm(true)}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Add new payment
+          </button>
+
+          <button className="btn-primary" onClick={() => setShowForm(true)}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Record payment
+          </button>
+        </div>
       </div>
 
       {/* Month selector */}
@@ -144,8 +175,20 @@ export default function PaymentsPage() {
         </div>
       ) : (
         <PaymentTable
-          payments={payments}
+           payments={payments.filter(
+            (payment) => payment.status?.toLowerCase() !== "deleted"
+          )}
           onDelete={setDeleteConfirm}
+        />
+      )}
+
+      {/* Add payment modal */}
+      {showAddForm && (
+        <AddPaymentForm
+          onSubmit={handleCreatePayment}
+          onCancel={() => setShowAddForm(false)}
+          errors={formErrors}
+          submitting={submitting}
         />
       )}
 
