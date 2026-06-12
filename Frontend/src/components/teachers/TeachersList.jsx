@@ -8,17 +8,22 @@ export default function TeachersList({ teachers, onEdit, onDelete }) {
   if (teachers.length === 0) {
     return (
       <div className="empty-state">
-        <p>No teachers found.</p>
+        <div className="empty-state-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <p className="empty-state-title">No teachers yet</p>
+        <p className="empty-state-desc">Add your first teacher to get started.</p>
       </div>
     );
   }
 
   const totalPages = Math.ceil(teachers.length / pageSize);
-
-  const currentTeachers = teachers.slice(
-    (page - 1) * pageSize,
-    page * pageSize
-  );
+  const currentTeachers = teachers.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <>
@@ -27,13 +32,11 @@ export default function TeachersList({ teachers, onEdit, onDelete }) {
           <thead className="table-thead">
             <tr>
               <th>Name</th>
+              <th>Email</th>
               <th>Phone</th>
-              <th>Rate / session</th>
-              <th>Duration</th>
               <th className="text-right">Actions</th>
             </tr>
           </thead>
-
           <tbody>
             {currentTeachers.map((teacher) => (
               <TeacherCard
@@ -48,33 +51,35 @@ export default function TeachersList({ teachers, onEdit, onDelete }) {
       </div>
 
       {totalPages > 1 && (
-        <div
-          className="pagination"
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: "12px",
-            marginTop: "20px",
-          }}
-        >
-          <button
-            disabled={page === 1}
-            onClick={() => setPage((prev) => prev - 1)}
-          >
-            Previous
-          </button>
-
-          <span>
+        <div className="pagination">
+          <p className="pagination-info">
             Page {page} of {totalPages}
-          </span>
-
-          <button
-            disabled={page === totalPages}
-            onClick={() => setPage((prev) => prev + 1)}
-          >
-            Next
-          </button>
+          </p>
+          <div className="pagination-btns">
+            <button
+              className={page === 1 ? "pagination-btn-disabled" : "pagination-btn"}
+              disabled={page === 1}
+              onClick={() => setPage((prev) => prev - 1)}
+            >
+              ←
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              <button
+                key={p}
+                className={p === page ? "pagination-btn-active" : "pagination-btn"}
+                onClick={() => setPage(p)}
+              >
+                {p}
+              </button>
+            ))}
+            <button
+              className={page === totalPages ? "pagination-btn-disabled" : "pagination-btn"}
+              disabled={page === totalPages}
+              onClick={() => setPage((prev) => prev + 1)}
+            >
+              →
+            </button>
+          </div>
         </div>
       )}
     </>

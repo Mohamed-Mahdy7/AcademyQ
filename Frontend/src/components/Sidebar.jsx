@@ -128,12 +128,12 @@ const Sidebar = () => {
             <div className="sidebar-footer">
                 <div className="sidebar-user">
                     <div className="avatar-sm">
-                        {user?.username?.[0]?.toUpperCase() || "U"}
+                        {user?.full_name?.[0]?.toUpperCase() || "U"}
                     </div>
 
                     <div className="min-w-0">
                         <p className="sidebar-user-name">
-                            {user?.username}
+                            {user?.full_name}
                         </p>
 
                         <p className="sidebar-user-role">

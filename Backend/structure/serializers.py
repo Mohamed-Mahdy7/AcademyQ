@@ -1,13 +1,15 @@
+from datetime import datetime, timedelta
+from django.utils import timezone
 from rest_framework import serializers
 
-from .models import Subject, Class, TeacherClass
+from .models import Subject, Class, TeacherClass, ClassSchedule, ClassSessionEnrollment
 from financial_operations.models import Teachers
 
 
 class ClassSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = Class
-        fields = ["id", "name", "session_time", "start_date", "end_date", "is_active"]
+        fields = ["id", "name", "start_date", "end_date", "is_active"]
 
 
 class TeacherSummarySerializer(serializers.ModelSerializer):
@@ -25,13 +27,15 @@ class ClassListSerializer(serializers.ModelSerializer):
         view_name="class-detail",
         lookup_field="pk",
     )
-    subject_session_count = serializers.IntegerField(
-        source="subject.session_count", read_only=True
-    )
     students_count = serializers.IntegerField(read_only=True)
     sessions_count = serializers.IntegerField(read_only=True)
     teacher_name = serializers.SerializerMethodField()
     sessions_this_week = serializers.IntegerField(read_only=True)
+    class_price = serializers.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        read_only=True,
+    )
 
     class Meta:
         model = Class
@@ -42,9 +46,10 @@ class ClassListSerializer(serializers.ModelSerializer):
             "academy_name",
             "subject",
             "subject_name",
-            "subject_session_count",
+            "session_count",
+            "session_price",
+            "session_duration",
             "name",
-            "session_time",
             "start_date",
             "end_date",
             "is_active",
@@ -52,6 +57,7 @@ class ClassListSerializer(serializers.ModelSerializer):
             "sessions_count",
             "teacher_name",
             "sessions_this_week",
+            "class_price",
         ]
 
     def get_teacher_name(self, obj):
@@ -70,7 +76,7 @@ class TeacherClassDetailSerializer(serializers.ModelSerializer):
         source="teacher.rate_per_session",
         max_digits=10,
         decimal_places=2,
-        read_only=True
+        read_only=True,
     )
 
     class Meta:
@@ -82,17 +88,40 @@ class TeacherClassDetailSerializer(serializers.ModelSerializer):
             "rate_per_session",
         ]
 
+
+class ClassScheduleSerializer(serializers.ModelSerializer):
+    day_of_week_display = serializers.CharField(
+        source="get_day_of_week_display",
+        read_only=True,
+    )
+
+    class Meta:
+        model = ClassSchedule
+        fields = [
+            "id",
+            "class_obj",
+            "day_of_week",
+            "day_of_week_display",
+            "start_time",
+            "end_time",
+        ]
+        read_only_fields = ["class_obj", "end_time"]
+
+
 class ClassDetailSerializer(serializers.ModelSerializer):
     academy_name = serializers.CharField(source="academy.name", read_only=True)
     subject_name = serializers.CharField(source="subject.name", read_only=True)
-    subject_session_count = serializers.IntegerField(
-        source="subject.session_count", read_only=True
-    )
     students_count = serializers.IntegerField(read_only=True)
     sessions_count = serializers.IntegerField(read_only=True)
     avg_attendance = serializers.FloatField(read_only=True)
     teachers = TeacherClassDetailSerializer(
         source="teacher_assignments", many=True, read_only=True
+    )
+    schedules = ClassScheduleSerializer(many=True, read_only=True)
+    class_price = serializers.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        read_only=True,
     )
 
     class Meta:
@@ -103,9 +132,10 @@ class ClassDetailSerializer(serializers.ModelSerializer):
             "academy_name",
             "subject",
             "subject_name",
-            "subject_session_count",
+            "session_count",
+            "session_price",
+            "session_duration",
             "name",
-            "session_time",
             "start_date",
             "end_date",
             "is_active",
@@ -113,6 +143,8 @@ class ClassDetailSerializer(serializers.ModelSerializer):
             "students_count",
             "sessions_count",
             "avg_attendance",
+            "schedules",
+            "class_price",
         ]
 
 
@@ -127,10 +159,12 @@ class ClassCreateSerializer(serializers.ModelSerializer):
             "id",
             "subject",
             "name",
-            "session_time",
             "start_date",
             "end_date",
             "is_active",
+            "session_count",
+            "session_price",
+            "session_duration",
             "teachers",
         ]
 
@@ -148,13 +182,16 @@ class ClassCreateSerializer(serializers.ModelSerializer):
         teachers = validated_data.pop("teachers", [])
         request = self.context["request"]
         academy = request.user.academy
+
         class_obj = Class.objects.create(academy=academy, **validated_data)
+
         for teacher in teachers:
             TeacherClass.objects.create(
                 assigned_class=class_obj,
                 teacher=teacher,
                 assigned_at=validated_data.get("start_date"),
             )
+
         return class_obj
 
 
@@ -168,10 +205,12 @@ class ClassUpdateSerializer(serializers.ModelSerializer):
         fields = [
             "subject",
             "name",
-            "session_time",
             "start_date",
             "end_date",
             "is_active",
+            "session_count",
+            "session_price",
+            "session_duration",
             "teachers",
         ]
 
@@ -186,18 +225,49 @@ class ClassUpdateSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         teachers = validated_data.pop("teachers", None)
+
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
+
         instance.save()
+
         if teachers is not None:
-            TeacherClass.objects.filter(assigned_class=instance).delete()
+            existing_ids = set(
+                instance.teacher_assignments.values_list("teacher_id", flat=True)
+            )
+
+            new_ids = set(t.id for t in teachers)
+
             for teacher in teachers:
-                TeacherClass.objects.create(
-                    assigned_class=instance,
-                    teacher=teacher,
-                    assigned_at=instance.start_date,
-                )
+                if teacher.id not in existing_ids:
+                    TeacherClass.objects.create(
+                        assigned_class=instance,
+                        teacher=teacher,
+                        assigned_at=instance.start_date,
+                    )
+
+            TeacherClass.objects.filter(
+                assigned_class=instance, teacher_id__in=(existing_ids - new_ids)
+            ).delete()
+
         return instance
+
+
+class ClassSessionEnrollmentSerializer(serializers.ModelSerializer):
+    session_date = serializers.DateField(source="session.session_date", read_only=True)
+    notes = serializers.CharField(source="session.notes", read_only=True)
+
+    class Meta:
+        model = ClassSessionEnrollment
+        fields = [
+            "id",
+            "class_obj",
+            "session",
+            "session_num",
+            "session_date",
+            "notes",
+        ]
+        read_only_fields = ["class_obj", "session_num"]
 
 
 class SubjectListSerializer(serializers.ModelSerializer):

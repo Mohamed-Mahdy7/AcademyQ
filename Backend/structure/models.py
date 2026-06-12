@@ -1,5 +1,7 @@
 import uuid
 from django.db import models
+from django.core.exceptions import ValidationError
+from datetime import datetime
 
 
 class Subject(models.Model):
@@ -55,16 +57,32 @@ class Class(models.Model):
         related_name="classes",
     )
     name = models.CharField(max_length=64)
-    session_time = models.TimeField()
     start_date = models.DateField()
     end_date = models.DateField()
     is_active = models.BooleanField(default=True)
+    session_count = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text="Total planned sessions for this class delivery",
+    )
+    session_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Price per single session.",
+    )
+    session_duration = models.DurationField(
+        null=True,
+        blank=True,
+        help_text="Duration of each session e.g. 01:30:00",
+    )
 
     class Meta:
         db_table = "classes"
         verbose_name = "Class"
         verbose_name_plural = "Classes"
-        ordering = ["academy", "subject", "start_date", "session_time"]
+        ordering = ["academy", "subject", "start_date"]
 
         constraints = [
             models.UniqueConstraint(
@@ -73,8 +91,120 @@ class Class(models.Model):
             )
         ]
 
+    def clean(self):
+        if self.start_date and self.end_date:
+            if self.end_date <= self.start_date:
+                raise ValidationError(
+                    {"end_date": "End date must be after start date."}
+                )
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
+
+    @property
+    def class_price(self):
+        if self.session_price is not None and self.session_count is not None:
+            return self.session_price * self.session_count
+        return None
+
+
+class ClassSchedule(models.Model):
+    DAY_CHOICES = [
+        (0, "Monday"),
+        (1, "Tuesday"),
+        (2, "Wednesday"),
+        (3, "Thursday"),
+        (4, "Friday"),
+        (5, "Saturday"),
+        (6, "Sunday"),
+    ]
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    class_obj = models.ForeignKey(
+        "Class",
+        on_delete=models.CASCADE,
+        related_name="schedules",
+    )
+    day_of_week = models.IntegerField(choices=DAY_CHOICES)
+    start_time = models.TimeField()
+    end_time = models.TimeField(editable=False, null=True, blank=True)
+
+    class Meta:
+        db_table = "class_schedules"
+        verbose_name = "Class Schedule"
+        verbose_name_plural = "Class Schedules"
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["class_obj", "day_of_week", "start_time"],
+                name="unique_class_slot",
+            )
+        ]
+
+    def clean(self):
+        if self.start_time and self.class_obj_id:
+            cls = self.class_obj
+            if not cls.session_duration:
+                raise ValidationError(
+                    "Class must have a session duration before adding scedule slots."
+                )
+            start_dt = datetime.combine(datetime.today(), self.start_time)
+            self.end_time = (start_dt + cls.session_duration).time()
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.class_obj.name} — {self.get_day_of_week_display()} {self.start_time}"
+
+
+class ClassSessionEnrollment(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    class_obj = models.ForeignKey(
+        "Class",
+        on_delete=models.CASCADE,
+        related_name="session_links",
+    )
+    session = models.ForeignKey(
+        "records.ClassSession",
+        on_delete=models.CASCADE,
+        related_name="class_links",
+    )
+    session_num = models.IntegerField(
+        help_text="Sequential session number within this class."
+    )
+
+    class Meta:
+        db_table = "class_session_enrollments"
+        verbose_name = "Class Session Enrollment"
+        verbose_name_plural = "Class Session Enrollments"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["session", "class_obj"],
+                name="unique_session_per_class",
+            ),
+            models.UniqueConstraint(
+                fields=["class_obj", "session_num"],
+                name="unique_session_num_per_class",
+            ),
+        ]
+
+    def clean(self):
+        if self.session_num is not None and self.session_num < 1:
+            raise ValidationError(
+                {"session_num": "Session number must be greater than 0."}
+            )
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.class_obj.name} — Session #{self.session_num}"
 
 
 class TeacherClass(models.Model):
@@ -103,6 +233,22 @@ class TeacherClass(models.Model):
                 name="unique_teacher_per_class",
             )
         ]
+
+    def clean(self):
+        if self.assigned_at and self.assigned_class_id:
+            cls = self.assigned_class
+            if self.assigned_at < cls.start_date:
+                raise ValidationError(
+                    {"assigned_at": "Assigned date cannot be before class start date."}
+                )
+            if self.assigned_at > cls.end_date:
+                raise ValidationError(
+                    {"assigned_at": "Assigned date cannot be after class end date."}
+                )
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.teacher} - {self.assigned_class.name}"

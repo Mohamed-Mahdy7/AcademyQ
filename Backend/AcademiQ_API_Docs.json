@@ -281,7 +281,7 @@
                 "educational_level": 7,
                 "status": "active",
                 "enrolled_at": "2025-09-01",
-                "update_at": "2025-10-15T08:22:00Z [R]",
+                "updated_at": "2025-10-15T08:22:00Z [R]",
                 "enrollment_count": "2 [R] annotated",
                 "overdue_payments_count": "1 [R] annotated"
               }
@@ -325,7 +325,7 @@
               "educational_level": 7,
               "status": "active",
               "enrolled_at": "2025-09-01",
-              "update_at": "2025-10-15T08:22:00Z",
+              "updated_at": "2025-10-15T08:22:00Z",
               "enrollment_count": 2,
               "total_paid": "1500.00",
               "overdue_payments_count": 1,

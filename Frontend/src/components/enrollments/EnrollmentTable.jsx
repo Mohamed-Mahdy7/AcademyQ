@@ -1,6 +1,6 @@
 import EnrollmentRow from "./EnrollmentRow";
 
-export default function EnrollmentTable({ enrollments, onEdit, onDrop }) {
+export default function EnrollmentTable({ enrollments, classPrice, onEdit, onDrop }) {
   if (enrollments.length === 0) {
     return (
       <div className="empty-state">
@@ -13,9 +13,7 @@ export default function EnrollmentTable({ enrollments, onEdit, onDrop }) {
           </svg>
         </div>
         <p className="empty-state-title">No students enrolled</p>
-        <p className="empty-state-desc">
-          Enroll a student in this class to get started.
-        </p>
+        <p className="empty-state-desc">Enroll a student in this class to get started.</p>
       </div>
     );
   }
@@ -27,9 +25,8 @@ export default function EnrollmentTable({ enrollments, onEdit, onDrop }) {
           <tr>
             <th>Student</th>
             <th>Status</th>
-            <th>Monthly fee</th>
-            <th>Total paid</th>
-            <th>Balance due</th>
+            <th>Class price</th>
+            <th>Due date</th>
             <th>Start date</th>
             <th className="text-right">Actions</th>
           </tr>
@@ -39,6 +36,7 @@ export default function EnrollmentTable({ enrollments, onEdit, onDrop }) {
             <EnrollmentRow
               key={enrollment.id}
               enrollment={enrollment}
+              classPrice={classPrice}
               onEdit={onEdit}
               onDrop={onDrop}
             />
