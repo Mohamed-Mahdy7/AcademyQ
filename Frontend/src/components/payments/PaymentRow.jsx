@@ -11,7 +11,9 @@ export default function PaymentRow({ payment, onDelete }) {
       </td>
       <td className="table-cell">
         <span className="text-sm font-semibold text-success">
-          {parseFloat(payment.amount).toFixed(2)} EGP
+          {payment.amount
+            ? `${parseFloat(payment.amount).toFixed(2)} EGP`
+            : "—"}
         </span>
       </td>
       <td className="table-cell">

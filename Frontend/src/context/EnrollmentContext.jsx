@@ -26,13 +26,13 @@ export function EnrollmentProvider({ children }) {
   }
 
   async function addEnrollment(data) {
-    try {
-      await createEnrollment(data);
-      return { success: true };
-    } catch (err) {
-      return { success: false, errors: err.response?.data || {} };
-    }
+  try {
+    const res = await createEnrollment(data);
+    return { success: true, enrollmentId: res.data.id };  
+  } catch (err) {
+    return { success: false, errors: err.response?.data || {} };
   }
+}
 
   async function editEnrollment(id, data) {
     try {
