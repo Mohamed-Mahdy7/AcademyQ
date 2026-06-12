@@ -56,6 +56,7 @@ class Payment(models.Model):
     paid_on = models.DateField(null=True, blank=True)
     notes = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    amount = models.DecimalField(null = False, max_digits=10, decimal_places=2)
 
     class Meta:
         db_table = 'payment'

@@ -21,7 +21,6 @@ class PaymentSerializer(serializers.ModelSerializer):
     class_name = serializers.CharField(
         source='enrollment_id.class_id.name', read_only=True
     )
-    amount = serializers.SerializerMethodField()
 
     class Meta:
         model = Payment
@@ -36,13 +35,6 @@ class PaymentSerializer(serializers.ModelSerializer):
             'notes',
             'status',
         ]
-
-    def get_amount(self, obj):
-        cls = obj.enrollment_id.class_id
-        if cls.session_count is not None and cls.session_price is not None:
-            return str(cls.session_count * cls.session_price)
-        return None
-
 
 class EnrollmentSerializer(serializers.ModelSerializer):
     student_name = serializers.CharField(
