@@ -4,10 +4,10 @@ from .models import ClassSession, Attendance
 
 @admin.register(ClassSession)
 class ClassSessionAdmin(admin.ModelAdmin):
-    list_display = ['session_num', 'class_obj', 'session_date', 'notes']
-    list_filter = ['class_obj', 'session_date']
-    search_fields = ['class_obj__name', 'notes']
-    ordering = ['class_obj', 'session_num']
+    list_display = ['session_date', 'session_time', 'notes']
+    list_filter = ['session_date']
+    search_fields = ['notes']
+    ordering = ['session_date', 'session_time']
 
 
 @admin.register(Attendance)
