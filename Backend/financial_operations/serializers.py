@@ -17,8 +17,6 @@ class TeachersSerializer(serializers.ModelSerializer):
             'name',          
             'email',         
             'phone',
-            # 'rate_per_session',
-            # 'session_duration',
         ]
 
 class PaymentSerializer(serializers.ModelSerializer):
@@ -35,10 +33,10 @@ class PaymentSerializer(serializers.ModelSerializer):
             'enrollment_id',
             'student_name', 
             'class_name', 
-            'amount',
             'paid_on',
             'notes',
             'status',
+            'due_date',
         ]
 
 class EnrollmentSerializer(serializers.ModelSerializer):
@@ -46,8 +44,6 @@ class EnrollmentSerializer(serializers.ModelSerializer):
         source='student_id.full_name', read_only=True
     )    
     class_name = serializers.CharField(source='class_id.name', read_only=True)
-    # total_paid = serializers.SerializerMethodField()
-    # balance_due = serializers.SerializerMethodField()
     payments = PaymentSerializer(many=True, read_only=True)
     class Meta:
         model = Enrollment
@@ -57,13 +53,8 @@ class EnrollmentSerializer(serializers.ModelSerializer):
             'class_name',
             'student_id',
             'student_name',
-            # 'fee_amount',
-            # 'payment_cycle',
-            # 'start_date',
-            # 'end_date',
-            'status',
-            # 'total_paid',     
-            # 'balance_due',    
+              'start_date',
+            'status', 
             'payments',       
         ]
 

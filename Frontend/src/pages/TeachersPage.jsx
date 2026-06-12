@@ -4,42 +4,27 @@ import TeachersList from "../components/teachers/TeachersList";
 import TeacherForm from "../components/teachers/TeacherForm";
 
 export default function TeachersPage() {
-  const { teachers, loading, error, addTeacher, editTeacher, removeTeacher } =
-    useTeacher();
+  const { teachers, loading, error, addTeacher, removeTeacher } = useTeacher();
 
-  const [showForm, setShowForm] = useState(false);
-  const [editingTeacher, setEditingTeacher] = useState(null);
-  const [formErrors, setFormErrors] = useState({});
-  const [submitting, setSubmitting] = useState(false);
+  const [showForm, setShowForm]         = useState(false);
+  const [formErrors, setFormErrors]     = useState({});
+  const [submitting, setSubmitting]     = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
-  const [search, setSearch] = useState("");
+  const [search, setSearch]             = useState("");
 
   function openAdd() {
-    setEditingTeacher(null);
-    setFormErrors({});
-    setShowForm(true);
-  }
-
-  function openEdit(teacher) {
-    setEditingTeacher(teacher);
     setFormErrors({});
     setShowForm(true);
   }
 
   function closeForm() {
     setShowForm(false);
-    setEditingTeacher(null);
     setFormErrors({});
   }
 
-  async function handleSubmit(payload, id) {
+  async function handleSubmit(payload) {
     setSubmitting(true);
-    const result = id
-      ? await editTeacher(id, {
-          rate_per_session: payload.rate_per_session,
-          session_duration: payload.session_duration,
-        })
-      : await addTeacher(payload);
+    const result = await addTeacher(payload);
     setSubmitting(false);
     if (result.success) {
       closeForm();
@@ -63,7 +48,7 @@ export default function TeachersPage() {
   return (
     <div className="page-body">
 
-      {/* Page heading */}
+      {/* Header */}
       <div className="page-section">
         <div className="flex items-center justify-between mb-1">
           <div>
@@ -79,7 +64,7 @@ export default function TeachersPage() {
         </div>
       </div>
 
-      {/* KPI cards */}
+      {/* KPI */}
       <div className="stat-grid mb-6">
         <div className="kpi-card">
           <div className="flex items-center justify-between mb-2">
@@ -97,7 +82,7 @@ export default function TeachersPage() {
         </div>
       </div>
 
-      {/* Search + filter bar */}
+      {/* Search */}
       <div className="filter-bar">
         <div className="input-icon-wrap flex-1 max-w-sm">
           <svg xmlns="http://www.w3.org/2000/svg" className="input-icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -116,11 +101,10 @@ export default function TeachersPage() {
         </div>
       </div>
 
-      {/* States */}
       {loading && (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="skeleton skeleton-card h-16 rounded-xl" />
+            <div key={i} className="skeleton h-16 rounded-xl" />
           ))}
         </div>
       )}
@@ -131,19 +115,17 @@ export default function TeachersPage() {
         </div>
       )}
 
-      {/* Teachers table */}
       {!loading && (
         <TeachersList
           teachers={filtered}
-          onEdit={openEdit}
+          onEdit={() => {}}
           onDelete={setDeleteConfirm}
         />
       )}
 
-      {/* Add / Edit modal */}
       {showForm && (
         <TeacherForm
-          editingTeacher={editingTeacher}
+          editingTeacher={null}
           onSubmit={handleSubmit}
           onCancel={closeForm}
           errors={formErrors}
@@ -151,13 +133,12 @@ export default function TeachersPage() {
         />
       )}
 
-      {/* Delete confirmation modal */}
       {deleteConfirm && (
         <div className="modal-backdrop">
           <div className="modal modal-sm">
             <div className="modal-header">
               <h2 className="modal-title">Deactivate teacher?</h2>
-              <button className="btn-icon modal-close" onClick={() => setDeleteConfirm(null)}>
+              <button className="btn-icon" onClick={() => setDeleteConfirm(null)}>
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                 </svg>
@@ -172,13 +153,8 @@ export default function TeachersPage() {
               </div>
             </div>
             <div className="modal-footer">
-              <button className="btn-muted" onClick={() => setDeleteConfirm(null)}>
-                Cancel
-              </button>
-              <button
-                className="btn-danger"
-                onClick={() => confirmDelete(deleteConfirm)}
-              >
+              <button className="btn-muted" onClick={() => setDeleteConfirm(null)}>Cancel</button>
+              <button className="btn-danger" onClick={() => confirmDelete(deleteConfirm)}>
                 Deactivate
               </button>
             </div>

@@ -32,7 +32,7 @@ class Enrollment(models.Model):
         related_name='enrollments',
         limit_choices_to={'role': 'S'}
         )
-    
+    start_date = models.DateField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
  
     class Meta:
