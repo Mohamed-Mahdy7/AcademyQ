@@ -1,5 +1,7 @@
 import uuid
 from django.db import models
+from django.core.exceptions import ValidationError
+from datetime import datetime
 
 
 class Subject(models.Model):
@@ -63,14 +65,24 @@ class Class(models.Model):
         blank=True,
         help_text="Total planned sessions for this class delivery",
     )
-    session_price = models.PositiveIntegerField(blank=True, null=True)
-    session_duration = models.DurationField(blank=True, null=True)
+    session_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Price per single session.",
+    )
+    session_duration = models.DurationField(
+        null=True,
+        blank=True,
+        help_text="Duration of each session e.g. 01:30:00",
+    )
 
     class Meta:
         db_table = "classes"
         verbose_name = "Class"
         verbose_name_plural = "Classes"
-        ordering = ["academy", "subject", "start_date"] 
+        ordering = ["academy", "subject", "start_date"]
 
         constraints = [
             models.UniqueConstraint(
@@ -93,6 +105,12 @@ class Class(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def class_price(self):
+        if self.session_price is not None and self.session_count is not None:
+            return self.session_price * self.session_count
+        return None
+
 
 class ClassSchedule(models.Model):
     DAY_CHOICES = [
@@ -112,6 +130,7 @@ class ClassSchedule(models.Model):
     )
     day_of_week = models.IntegerField(choices=DAY_CHOICES)
     start_time = models.TimeField()
+    end_time = models.TimeField(editable=False, null=True, blank=True)
 
     class Meta:
         db_table = "class_schedules"
@@ -126,11 +145,14 @@ class ClassSchedule(models.Model):
         ]
 
     def clean(self):
-        if self.start_time and self.end_time:
-            if self.end_time <= self.start_time:
+        if self.start_time and self.class_obj_id:
+            cls = self.class_obj
+            if not cls.session_duration:
                 raise ValidationError(
-                    {"end_time": "End time must be after start time."}
+                    "Class must have a session duration before adding scedule slots."
                 )
+            start_dt = datetime.combine(datetime.today(), self.start_time)
+            self.end_time = (start_dt + cls.session_duration).time()
 
     def save(self, *args, **kwargs):
         self.full_clean()

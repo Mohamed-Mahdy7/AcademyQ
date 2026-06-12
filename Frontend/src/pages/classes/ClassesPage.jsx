@@ -43,7 +43,7 @@ function ClassesPage() {
         classes.length > 0
             ? Math.round(
                 classes.reduce((sum, c) => {
-                    const total = c.subject_session_count || 0;
+                    const total = c.session_count || 0;
                     const done = c.sessions_count || 0;
                     return sum + (total > 0 ? (done / total) * 100 : 0);
                 }, 0) / classes.length
@@ -150,7 +150,7 @@ function ClassesPage() {
 }
 
 function ClassCard({ cls, onViewDetails, onEdit, onDelete }) {
-    const total = cls.subject_session_count || 0;
+    const total = cls.session_count || 0;
     const done = cls.sessions_count || 0;
     const progressPercent = total > 0 ? Math.round((done / total) * 100) : 0;
 

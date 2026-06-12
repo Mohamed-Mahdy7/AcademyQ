@@ -6,10 +6,12 @@ function ClassForm({ onSubmit, initialData = {} }) {
     const [formData, setFormData] = useState({
         name: initialData.name || "",
         subject: initialData.subject || "",
-        session_time: initialData.session_time || "",
         start_date: initialData.start_date || "",
         end_date: initialData.end_date || "",
         is_active: initialData.is_active ?? true,
+        session_count: initialData.session_count || "",
+        session_price: initialData.session_price || "",
+        session_duration: initialData.session_duration || "",
         teachers: initialData.teachers
             ? initialData.teachers.map((t) => t.id)
             : [],
@@ -84,7 +86,7 @@ function ClassForm({ onSubmit, initialData = {} }) {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    placeholder="e.g. Math G7 Mon/Wed 4pm"
+                    placeholder="e.g. Math G7 Mon/Wed"
                     className={errors.name ? "form-input-error" : "form-input"}
                 />
                 {errors.name && <span className="form-error">{errors.name}</span>}
@@ -110,22 +112,6 @@ function ClassForm({ onSubmit, initialData = {} }) {
                     ))}
                 </select>
                 {errors.subject && <span className="form-error">{errors.subject}</span>}
-            </div>
-
-            {/* Session Time */}
-            <div className="form-field">
-                <label className="form-label">
-                    Session Time <span className="form-required">*</span>
-                </label>
-                <input
-                    type="time"
-                    name="session_time"
-                    value={formData.session_time}
-                    onChange={handleChange}
-                    required
-                    className={errors.session_time ? "form-input-error" : "form-input"}
-                />
-                {errors.session_time && <span className="form-error">{errors.session_time}</span>}
             </div>
 
             {/* Start & End Date */}
@@ -157,6 +143,49 @@ function ClassForm({ onSubmit, initialData = {} }) {
                         className={errors.end_date ? "form-input-error" : "form-input"}
                     />
                     {errors.end_date && <span className="form-error">{errors.end_date}</span>}
+                </div>
+            </div>
+
+            {/* Session Count, Price, Duration */}
+            <div className="grid grid-cols-3 gap-4">
+                <div className="form-field">
+                    <label className="form-label">Session Count</label>
+                    <input
+                        type="number"
+                        name="session_count"
+                        value={formData.session_count}
+                        onChange={handleChange}
+                        min="1"
+                        placeholder="e.g. 40"
+                        className={errors.session_count ? "form-input-error" : "form-input"}
+                    />
+                    {errors.session_count && <span className="form-error">{errors.session_count}</span>}
+                </div>
+                <div className="form-field">
+                    <label className="form-label">Session Price (EGP)</label>
+                    <input
+                        type="number"
+                        name="session_price"
+                        value={formData.session_price}
+                        onChange={handleChange}
+                        min="0"
+                        placeholder="e.g. 150"
+                        className={errors.session_price ? "form-input-error" : "form-input"}
+                    />
+                    {errors.session_price && <span className="form-error">{errors.session_price}</span>}
+                </div>
+                <div className="form-field">
+                    <label className="form-label">Session Duration</label>
+                    <input
+                        type="text"
+                        name="session_duration"
+                        value={formData.session_duration}
+                        onChange={handleChange}
+                        placeholder="e.g. 01:30:00"
+                        className={errors.session_duration ? "form-input-error" : "form-input"}
+                    />
+                    <span className="form-hint">Format: HH:MM:SS</span>
+                    {errors.session_duration && <span className="form-error">{errors.session_duration}</span>}
                 </div>
             </div>
 
