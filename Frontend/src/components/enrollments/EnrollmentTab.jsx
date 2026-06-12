@@ -1,30 +1,37 @@
 import { useEffect, useState } from "react";
 import { useEnrollment } from "../../context/EnrollmentContext";
+import { getClass } from "../../services/classService";
 import EnrollmentTable from "./EnrollmentTable";
 import EnrollmentForm from "./EnrollmentForm";
+import { createPayment } from "../../services/paymentService";
 
 export default function EnrollmentTab({ classId }) {
   const {
-    enrollments,
-    loading,
-    error,
-    listEnrollments,
-    addEnrollment,
-    editEnrollment,
-    removeEnrollment,
+    enrollments, loading, error,
+    listEnrollments, addEnrollment, editEnrollment, removeEnrollment,
   } = useEnrollment();
 
-  const [showForm, setShowForm]           = useState(false);
-  const [editingEnrollment, setEditing]   = useState(null);
-  const [formErrors, setFormErrors]       = useState({});
-  const [submitting, setSubmitting]       = useState(false);
-  const [dropConfirm, setDropConfirm]     = useState(null);
-  const [statusFilter, setStatusFilter]   = useState("");
+  const [showForm, setShowForm]         = useState(false);
+  const [editingEnrollment, setEditing] = useState(null);
+  const [formErrors, setFormErrors]     = useState({});
+  const [submitting, setSubmitting]     = useState(false);
+  const [dropConfirm, setDropConfirm]   = useState(null);
+  const [statusFilter, setStatusFilter] = useState("");
+  const [classPrice, setClassPrice]     = useState(null);
 
-  // Load enrollments for this class on mount and when classId changes
   useEffect(() => {
     if (classId) {
       listEnrollments({ class_id: classId });
+        getClass(classId)
+          .then((res) => {
+            const data = res.data;
+            const price = data.class_price ||
+              (data.session_count && data.session_price
+                ? data.session_count * data.session_price
+                : null);
+            setClassPrice(price);
+          })
+          .catch((err) => console.error("Failed to load class", err));
     }
   }, [classId]);
 
@@ -48,24 +55,55 @@ export default function EnrollmentTab({ classId }) {
 
   async function handleSubmit(payload, id) {
     setSubmitting(true);
-    const result = id
-      ? await editEnrollment(id, {
-          fee_amount: payload.fee_amount,
-          end_date: payload.end_date,
-          status: payload.status,
-        })
-      : await addEnrollment(payload);
-    setSubmitting(false);
 
-    if (result.success) {
-      closeForm();
-      listEnrollments({ class_id: classId });
-    } else {
-      setFormErrors(result.errors || {});
+    if (id) {
+      const result = await editEnrollment(id, { status: payload.status });
+      setSubmitting(false);
+      if (result.success) {
+        closeForm();
+        listEnrollments({ class_id: classId });
+      } else {
+        setFormErrors(result.errors || {});
+      }
+      return;
     }
-  }
 
-  async function confirmDrop(enrollment) {
+    const result = await addEnrollment({
+      student_id: payload.student_id,
+      class_id: classId,
+      start_date: payload.start_date,
+      status: "active",
+    });
+
+    if (!result.success) {
+      setSubmitting(false);
+      setFormErrors(result.errors || {});
+      return;
+    }
+
+    // Calculate due_date = start_date + 3 days
+    const startDate = new Date(payload.start_date);
+    startDate.setDate(startDate.getDate() + 3);
+    const dueDate = startDate.toISOString().split("T")[0];
+
+    // Create pending payment with due_date
+    try {
+      await createPayment({
+        enrollment_id: result.enrollmentId,
+        paid_on: null,
+        due_date: dueDate,
+        notes: "",
+        status: "pending",
+      });
+    } catch (err) {
+      console.error("Payment creation failed", err);
+    }
+
+    closeForm();
+    listEnrollments({ class_id: classId });
+  }                                        
+
+  async function confirmDrop(enrollment) { 
     const result = await removeEnrollment(enrollment.id);
     if (result.success) {
       setDropConfirm(null);
@@ -73,51 +111,28 @@ export default function EnrollmentTab({ classId }) {
     }
   }
 
-  // Stats
-  const activeCount  = enrollments.filter((e) => e.status === "active").length;
-  const totalBalance = enrollments.reduce(
-    (sum, e) => sum + parseFloat(e.balance_due || 0), 0
-  );
-
-  // Filter
   const filtered = statusFilter
     ? enrollments.filter((e) => e.status === statusFilter)
     : enrollments;
 
   return (
     <div>
-
-      {/* Stats row */}
-      {/* <div className="stat-grid mb-6">
-        <div className="kpi-card">
-          <p className="kpi-label">Total enrolled</p>
-          <p className="kpi-value">{enrollments.length}</p>
-        </div>
-        <div className="kpi-card">
-          <p className="kpi-label">Active</p>
-          <p className="kpi-value">{activeCount}</p>
-        </div>
-        <div className="kpi-card">
-          <p className="kpi-label">Total balance due</p>
-          <p className="kpi-value text-danger">{totalBalance.toFixed(2)} EGP</p>
-        </div>
-      </div> */}
-
-      {/* Toolbar */}
       <div className="filter-bar">
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
           className="filter-select"
         >
-          <option value="">Student status</option>
+          <option value="">All statuses</option>
           <option value="active">Active</option>
           <option value="paused">Paused</option>
           <option value="dropped">Dropped</option>
           <option value="completed">Completed</option>
         </select>
         <div className="filter-bar-right">
-          <p className="text-caption">{filtered.length} student{filtered.length !== 1 ? "s" : ""}</p>
+          <p className="text-caption">
+            {filtered.length} student{filtered.length !== 1 ? "s" : ""}
+          </p>
           <button className="btn-primary" onClick={openAdd}>
             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
@@ -127,7 +142,6 @@ export default function EnrollmentTab({ classId }) {
         </div>
       </div>
 
-      {/* States */}
       {loading && (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
@@ -142,19 +156,19 @@ export default function EnrollmentTab({ classId }) {
         </div>
       )}
 
-      {/* Table */}
       {!loading && (
         <EnrollmentTable
           enrollments={filtered}
+          classPrice={classPrice}
           onEdit={openEdit}
           onDrop={setDropConfirm}
         />
       )}
 
-      {/* Form modal */}
       {showForm && (
         <EnrollmentForm
           classId={classId}
+          classPrice={classPrice}
           editingEnrollment={editingEnrollment}
           onSubmit={handleSubmit}
           onCancel={closeForm}
@@ -163,7 +177,6 @@ export default function EnrollmentTab({ classId }) {
         />
       )}
 
-      {/* Drop confirmation */}
       {dropConfirm && (
         <div className="modal-backdrop">
           <div className="modal modal-sm">
@@ -189,7 +202,6 @@ export default function EnrollmentTab({ classId }) {
           </div>
         </div>
       )}
-
     </div>
   );
 }

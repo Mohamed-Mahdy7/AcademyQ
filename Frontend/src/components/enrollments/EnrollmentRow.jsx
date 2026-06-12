@@ -8,7 +8,8 @@ function getStatusClass(status) {
   }
 }
 
-export default function EnrollmentRow({ enrollment, onEdit, onDrop }) {
+export default function EnrollmentRow({ enrollment, classPrice, onEdit, onDrop }) {
+  const dueDate = enrollment.payments?.[0]?.due_date || "—";
   return (
     <tr className="table-row">
       {/* Student */}
@@ -25,30 +26,17 @@ export default function EnrollmentRow({ enrollment, onEdit, onDrop }) {
         </span>
       </td>
 
-      {/* Fee */}
+      {/* Class price */}
       <td className="table-cell">
         <span className="text-sm font-semibold text-navy">
-          {parseFloat(enrollment.fee_amount).toFixed(2)} EGP
+          {classPrice
+            ? `${parseFloat(classPrice).toFixed(2)} EGP`
+            : "—"}
         </span>
       </td>
 
-      {/* Total paid */}
-      <td className="table-cell">
-        <span className="text-sm text-navy">{enrollment.total_paid} EGP</span>
-      </td>
-
-      {/* Balance due */}
-      <td className="table-cell">
-        <span
-          className={
-            parseFloat(enrollment.balance_due) > 0
-              ? "text-sm font-semibold text-danger"
-              : "text-sm text-navy"
-          }
-        >
-          {enrollment.balance_due} EGP
-        </span>
-      </td>
+      {/* Due date — empty until sessions done */}
+      <td className="table-cell-muted">{dueDate}</td>
 
       {/* Start date */}
       <td className="table-cell-muted">{enrollment.start_date}</td>
