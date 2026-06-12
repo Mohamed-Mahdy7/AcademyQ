@@ -31,7 +31,7 @@ class Enrollment(models.Model):
         related_name='enrollments',
         limit_choices_to={'role': 'S'}
     )
-    start_date = models.DateField(null=True, blank=True)  # ← add back
+    start_date = models.DateField(null=True, blank=True) 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
 
     class Meta:
@@ -52,10 +52,11 @@ class Payment(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     enrollment_id = models.ForeignKey(Enrollment, on_delete=models.PROTECT, db_column='enrollment_id', related_name='payments')
-    due_date = models.DateField(null=True, blank=True)  # ← make nullable
+    due_date = models.DateField(null=True, blank=True) 
     paid_on = models.DateField(null=True, blank=True)
     notes = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    amount = models.DecimalField(null = False, max_digits=10, decimal_places=2)
 
     class Meta:
         db_table = 'payment'

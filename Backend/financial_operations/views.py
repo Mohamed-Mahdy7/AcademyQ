@@ -8,7 +8,9 @@ from django.db.models import Sum, F, ExpressionWrapper, DecimalField
 from django.utils import timezone
 from datetime import timedelta
 from structure.models import Class
-
+from datetime import date, datetime
+from django.db import transaction
+from rest_framework.exceptions import ValidationError
 
 class TeachersViewSet(viewsets.ModelViewSet):
     serializer_class = TeachersSerializer
@@ -44,13 +46,13 @@ class EnrollmentViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(status=status)
         return queryset
 
+    @transaction.atomic
     def perform_create(self, serializer):
         student_id = self.request.data.get('student_id')
         class_id = self.request.data.get('class_id')
         start_date = self.request.data.get('start_date')
 
-        if Enrollment.objects.filter(student_id=student_id, class_id=class_id).exists():
-            from rest_framework.exceptions import ValidationError
+        if Enrollment.objects.filter(student_id=student_id, class_id=class_id).exists(): 
             raise ValidationError(
                 {'detail': 'Student is already enrolled in this class.'}
             )
@@ -60,28 +62,28 @@ class EnrollmentViewSet(viewsets.ModelViewSet):
         # Auto-create pending payment with due_date = start_date + 3 days
         try:
             class_obj = Class.objects.get(id=class_id)
-            if class_obj.session_price and class_obj.session_count:
-                from datetime import date, datetime
-                if start_date:
-                    start = datetime.strptime(start_date, '%Y-%m-%d').date()
-                    due = start + timedelta(days=3)
-                else:
-                    due = date.today() + timedelta(days=3)
-
-                Payment.objects.create(
-                    enrollment_id=enrollment,
-                    due_date=due,
-                    paid_on=None,
-                    notes="",
-                    status="pending",
-                )
         except Class.DoesNotExist:
-            pass
+            return
+        if class_obj.session_price and class_obj.session_count:
+            amount = class_obj.session_count * class_obj.session_price
+            if start_date:
+                start = datetime.strptime(start_date, '%Y-%m-%d').date()
+                due = start + timedelta(days=3)
+            else:
+                due = date.today() + timedelta(days=3)
+
+            Payment.objects.create(
+                enrollment_id=enrollment,
+                amount=amount,
+                due_date=due,
+                paid_on=None,
+                notes="",
+                status="pending",
+            )
 
     def perform_destroy(self, instance):
         instance.status = 'dropped'
         instance.save()
-
 
 class PaymentViewSet(viewsets.ModelViewSet):
     serializer_class = PaymentSerializer
@@ -90,7 +92,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = Payment.objects.filter(
             enrollment_id__class_id__academy_id=self.request.user.academy_id
-        ).exclude(status='deleted')  # ← always exclude deleted
+        ).exclude(status='deleted') 
 
         student_id = self.request.query_params.get('student_id')
         month = self.request.query_params.get('month')
@@ -119,7 +121,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], url_path='summary')
     def summary(self, request):
-        academy = request.user.academy
+        academy_id = request.user.academy_id
 
         month = request.query_params.get('month')
         if month:
@@ -136,7 +138,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
 
         # Use due_date for month filtering — paid_on is null for pending
         base_payments = Payment.objects.filter(
-            enrollment_id__class_id__academy_id=academy,
+            enrollment_id__class_id__academy_id=academy_id,
             due_date__year=year,
             due_date__month=mon,
         ).exclude(status='deleted')
@@ -163,9 +165,13 @@ class PaymentViewSet(viewsets.ModelViewSet):
         ).values_list('enrollment_id', flat=True)
 
         overdue_enrollments = Enrollment.objects.filter(
-            class_id__academy_id=academy,
-            status='active'
-        ).exclude(id__in=paid_enrollments)
+            class_id__academy_id=academy_id,
+            status='active',
+            payments__status='pending',
+            payments__due_date__year=year,
+            payments__due_date__month=mon,
+            payments__due_date__lt=date.today(), 
+        ).distinct()
 
         overdue_count = overdue_enrollments.count()
         overdue_total = max(float(revenue_expected) - float(revenue_collected), 0)
