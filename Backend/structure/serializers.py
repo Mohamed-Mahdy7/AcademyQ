@@ -31,7 +31,11 @@ class ClassListSerializer(serializers.ModelSerializer):
     sessions_count = serializers.IntegerField(read_only=True)
     teacher_name = serializers.SerializerMethodField()
     sessions_this_week = serializers.IntegerField(read_only=True)
-    class_price = serializers.SerializerMethodField()
+    class_price = serializers.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        read_only=True,
+    )
 
     class Meta:
         model = Class
@@ -43,6 +47,8 @@ class ClassListSerializer(serializers.ModelSerializer):
             "subject",
             "subject_name",
             "session_count",
+            "session_price",
+            "session_duration",
             "name",
             "start_date",
             "end_date",
@@ -53,11 +59,6 @@ class ClassListSerializer(serializers.ModelSerializer):
             "sessions_this_week",
             "class_price",
         ]
-
-    def get_class_price(self, obj):
-        if obj.session_count is not None and obj.session_price is not None:
-            return obj.session_count * obj.session_price
-        return None
 
     def get_teacher_name(self, obj):
         assignment = obj.teacher_assignments.select_related("teacher__user_id").first()
@@ -93,7 +94,6 @@ class ClassScheduleSerializer(serializers.ModelSerializer):
         source="get_day_of_week_display",
         read_only=True,
     )
-    end_time = serializers.SerializerMethodField()
 
     class Meta:
         model = ClassSchedule
@@ -105,19 +105,7 @@ class ClassScheduleSerializer(serializers.ModelSerializer):
             "start_time",
             "end_time",
         ]
-        read_only_fields = ["class_obj"]
-
-    def get_end_time(self, obj):
-        duration = obj.class_obj.session_duration
-
-        start_dt = datetime.combine(
-            datetime.today(),
-            obj.start_time,
-        )
-
-        end_dt = start_dt + duration
-
-        return end_dt.time()
+        read_only_fields = ["class_obj", "end_time"]
 
 
 class ClassDetailSerializer(serializers.ModelSerializer):
@@ -130,7 +118,11 @@ class ClassDetailSerializer(serializers.ModelSerializer):
         source="teacher_assignments", many=True, read_only=True
     )
     schedules = ClassScheduleSerializer(many=True, read_only=True)
-    class_price = serializers.SerializerMethodField()
+    class_price = serializers.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        read_only=True,
+    )
 
     class Meta:
         model = Class
@@ -141,6 +133,8 @@ class ClassDetailSerializer(serializers.ModelSerializer):
             "subject",
             "subject_name",
             "session_count",
+            "session_price",
+            "session_duration",
             "name",
             "start_date",
             "end_date",
@@ -152,11 +146,6 @@ class ClassDetailSerializer(serializers.ModelSerializer):
             "schedules",
             "class_price",
         ]
-
-    def get_class_price(self, obj):
-        if obj.session_count is not None and obj.session_price is not None:
-            return obj.session_count * obj.session_price
-        return None
 
 
 class ClassCreateSerializer(serializers.ModelSerializer):
@@ -198,7 +187,9 @@ class ClassCreateSerializer(serializers.ModelSerializer):
 
         for teacher in teachers:
             TeacherClass.objects.create(
-                assigned_class=class_obj, teacher=teacher, assigned_at=timezone.now()
+                assigned_class=class_obj,
+                teacher=teacher,
+                assigned_at=validated_data.get("start_date"),
             )
 
         return class_obj

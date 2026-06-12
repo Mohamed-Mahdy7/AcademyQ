@@ -53,7 +53,7 @@ const StudentProfile = () => {
                         <div className="flex gap-2">
                             <span className="text-caption">{student.parent_phone}</span>
                             <span className="text-caption">Grade {student.educational_level}</span>
-                            <span className="text-caption">Enrolled since {student.enrolled_at}</span>
+                            <span className="text-caption">Enrolled since {new Date(student.enrolled_at).toLocaleDateString()}</span>
                         </div>
                     </div>
                 </div>
