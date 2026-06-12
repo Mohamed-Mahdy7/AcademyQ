@@ -3,7 +3,8 @@ import { useParams, useNavigate } from "react-router-dom"
 import { StudentContext } from "../../context/StudentsContext"
 import KpiCard from "../../components/KpiCard"
 import EditStudentProfile from "./EditStudentProfile"
-import StudentEnrollmentTab from "../../components/enrollments/StudentEnrollmentTab";
+import StudentEnrollmentTab from "../../components/enrollments/StudentEnrollmentTab"
+import StudentPaymentTab from "../../components/payments/StudentPaymentTab"
 
 const tabs = ["Enrollments", "Grades", "Payments", "Attendance"];
 
@@ -151,12 +152,7 @@ const StudentProfile = () => {
                         </div>
                     )}
                     {activeTab === "Payments" && (
-                        <div className="empty-state">
-                            <p className="empty-state-title">Payments coming soon</p>
-                            <p className="empty-state-desc">
-                                Payments records will be available here.
-                            </p>
-                        </div>
+                        <StudentPaymentTab studentId={student.id} />
                     )}
                     {activeTab === "Attendance" && (
                         <div className="empty-state">

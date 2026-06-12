@@ -145,7 +145,9 @@ const MainRouter = () => {
                     <ProtectedRoute>
                             <StudentProvider>
                                 <EnrollmentProvider>
-                                    <StudentProfile />
+                                    <PaymentProvider>
+                                        <StudentProfile />
+                                    </PaymentProvider>
                                 </EnrollmentProvider>
                             </StudentProvider>
                     </ProtectedRoute>
