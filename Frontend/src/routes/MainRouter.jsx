@@ -7,8 +7,7 @@ import { StudentProvider } from "../context/StudentsContext.jsx";
 import { PaymentProvider } from "../context/PaymentContext.jsx";
 import { EnrollmentProvider } from "../context/EnrollmentContext.jsx";
 import ProtectedRoute from "../components/ProtectedRoute";
-import Sidebar from "../components/Sidebar";
-import DashboarLayout from "../components/DashboardLayout";
+import MainLayout from "../components/DashboardLayout";
 import Dashboard from "../pages/Dashboard.jsx";
 import AcademyProfile from "../pages/SettingsPage.jsx";
 import TeachersPage from "../pages/TeachersPage.jsx";
@@ -40,7 +39,7 @@ const MainRouter = () => {
         <Routes>
             <Route path="register" element={<Register />} />
             <Route path="login" element={<Login />} />
-            <Route element={<DashboarLayout />}>
+            <Route element={<MainLayout />}>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/settings" element={
                     <ProtectedRoute>
