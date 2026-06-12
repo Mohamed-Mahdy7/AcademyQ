@@ -4,7 +4,6 @@ from .views import (
     ClassSessionViewSet,
     StudentAttendanceViewSet,
     ClassAttendanceViewSet,
-    GenerateSessionsViewSet
 )
 
 router = DefaultRouter()
@@ -29,10 +28,9 @@ urlpatterns = [
         ClassAttendanceViewSet.as_view({'get': 'summary'}),
         name='class-attendance-summary'
     ),
-
     path(
         'classes/<uuid:class_id>/generate-sessions/',
-        GenerateSessionsViewSet.as_view({'post': 'generate_sessions'}),
+        ClassSessionViewSet.as_view({'post': 'generate_sessions'}),
         name='generate-sessions'
     ),
 ]
