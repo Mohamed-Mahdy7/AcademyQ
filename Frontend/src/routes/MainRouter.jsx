@@ -144,7 +144,9 @@ const MainRouter = () => {
                 <Route path="/student/:id" element={
                     <ProtectedRoute>
                             <StudentProvider>
-                                <StudentProfile />
+                                <EnrollmentProvider>
+                                    <StudentProfile />
+                                </EnrollmentProvider>
                             </StudentProvider>
                     </ProtectedRoute>
                 } />
