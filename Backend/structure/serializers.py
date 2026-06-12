@@ -32,7 +32,6 @@ class ClassListSerializer(serializers.ModelSerializer):
     teacher_name = serializers.SerializerMethodField()
     sessions_this_week = serializers.IntegerField(read_only=True)
     class_price = serializers.DecimalField(
-        source="class_price",
         max_digits=10,
         decimal_places=2,
         read_only=True,
@@ -120,7 +119,6 @@ class ClassDetailSerializer(serializers.ModelSerializer):
     )
     schedules = ClassScheduleSerializer(many=True, read_only=True)
     class_price = serializers.DecimalField(
-        source="class_price",
         max_digits=10,
         decimal_places=2,
         read_only=True,

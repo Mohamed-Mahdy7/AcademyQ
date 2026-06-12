@@ -6,9 +6,11 @@ import {
 } from "../../services/classService";
 import SessionsTab from "../../components/attendance/SessionsTab";
 import TeachersTab from "../../components/classes/TeachersTab";
-import EnrollmentTab from "../../components/enrollments/EnrollmentTab"
+import EnrollmentTab from "../../components/enrollments/EnrollmentTab";
 
 const TABS = ["Students", "Sessions", "Grades", "Teachers"];
+
+const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 function ClassDetailPage() {
     const { id } = useParams();
@@ -21,11 +23,10 @@ function ClassDetailPage() {
     useEffect(() => {
         const fetchAll = async () => {
             try {
-                const [classRes, sessionsRes] =
-                    await Promise.all([
-                        getClass(id),
-                        getClassSessions(id),
-                    ]);
+                const [classRes, sessionsRes] = await Promise.all([
+                    getClass(id),
+                    getClassSessions(id),
+                ]);
                 setClassData(classRes.data);
                 setSessions(sessionsRes.data);
             } catch (error) {
@@ -41,7 +42,7 @@ function ClassDetailPage() {
     if (!classData) return <p className="p-6 text-sm text-danger">Class not found.</p>;
 
     const sessionsDone = classData.sessions_count || 0;
-    const sessionsTotal = classData.subject_session_count || 0;
+    const sessionsTotal = classData.session_count || 0;  // was subject_session_count
     const progressPercent = sessionsTotal > 0
         ? Math.round((sessionsDone / sessionsTotal) * 100)
         : 0;
@@ -49,6 +50,17 @@ function ClassDetailPage() {
         ? classData.avg_attendance.toFixed(1)
         : "0.0";
     const primaryTeacher = classData.teachers?.[0]?.teacher_name ?? "—";
+
+    const schedules = classData.schedules ?? [];
+    const scheduleSummary = schedules.length > 0
+        ? (() => {
+            const days = schedules
+                .map(s => DAY_NAMES[s.day_of_week])
+                .join(" / ");
+            const first = schedules[0];
+            return `${days} — ${first.start_time} to ${first.end_time}`;
+        })()
+        : null;
 
     return (
         <div className="page-body">
@@ -64,13 +76,23 @@ function ClassDetailPage() {
                     </button>
                     <div>
                         <h1 className="heading-1">{classData.name}</h1>
-                        <div className="flex items-center gap-3 mt-1">
+                        <div className="flex items-center gap-3 mt-1 flex-wrap">
                             <span className="text-caption flex items-center gap-1">
                                 📖 {classData.subject_name}
                             </span>
                             <span className="text-caption flex items-center gap-1">
                                 📅 {classData.start_date} - {classData.end_date}
                             </span>
+                            {scheduleSummary && (
+                                <span className="text-caption flex items-center gap-1">
+                                    🕐 {scheduleSummary}
+                                </span>
+                            )}
+                            {classData.class_price && (
+                                <span className="text-caption flex items-center gap-1">
+                                    💰 {classData.class_price} EGP
+                                </span>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -137,77 +159,17 @@ function ClassDetailPage() {
                         </div>
                     )}
                     {activeTab === "Teachers" && (
-                        <TeachersTab teachers={classData.teachers ?? []} classId={id} onUpdate={() => {
-                            getClass(id).then(res => setClassData(res.data));
-                        }} />
+                        <TeachersTab
+                            teachers={classData.teachers ?? []}
+                            classId={id}
+                            onUpdate={() => {
+                                getClass(id).then(res => setClassData(res.data));
+                            }}
+                        />
                     )}
                 </div>
             </div>
 
-        </div>
-    );
-}
-
-/* ── Students Tab ─────────────────────────────────────────── */
-function StudentsTab({ enrollments }) {
-    return (
-        <div>
-            <div className="flex items-center justify-between mb-4">
-                <h3 className="heading-3">
-                    Enrolled Students ({enrollments.length})
-                </h3>
-                <a href="#" className="btn-primary">Enroll Student</a>
-            </div>
-
-            <table className="table">
-                <thead className="table-thead">
-                    <tr>
-                        <th>Student Name</th>
-                        <th>Status</th>
-                        <th>Monthly Fee</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {enrollments.length === 0 ? (
-                        <tr>
-                            <td colSpan={4}>
-                                <div className="empty-state">
-                                    <p className="empty-state-title">No students enrolled</p>
-                                    <p className="empty-state-desc">
-                                        Enroll the first student to get started.
-                                    </p>
-                                </div>
-                            </td>
-                        </tr>
-                    ) : (
-                        enrollments.map((enrollment) => (
-                            <tr key={enrollment.id} className="table-row">
-                                <td className="table-cell font-medium">
-                                    {enrollment.student_name}
-                                </td>
-                                <td className="table-cell">
-                                    <span className={
-                                        enrollment.status === "active"
-                                            ? "badge-success"
-                                            : enrollment.status === "dropped"
-                                                ? "badge-danger"
-                                                : "badge-warning"
-                                    }>
-                                        {enrollment.status}
-                                    </span>
-                                </td>
-                                <td className="table-cell">
-                                    {enrollment.fee_amount} EGP
-                                </td>
-                                <td className="table-actions">
-                                    <a href="#" className="btn-secondary">View Profile</a>
-                                </td>
-                            </tr>
-                        ))
-                    )}
-                </tbody>
-            </table>
         </div>
     );
 }
