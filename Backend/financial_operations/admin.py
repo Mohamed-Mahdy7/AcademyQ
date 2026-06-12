@@ -11,7 +11,7 @@ class TeachersAdmin(admin.ModelAdmin):
 
 @admin.register(Enrollment)
 class EnrollmentAdmin(admin.ModelAdmin):
-    list_display = ['id', 'student_id', 'class_id', 'status', 'start_date']
+    list_display = ['id', 'student_id', 'class_id', 'status']
     search_fields = ['student_id__user__full_name']
     list_filter = ['status']
 

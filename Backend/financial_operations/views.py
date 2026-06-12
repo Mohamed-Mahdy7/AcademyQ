@@ -4,21 +4,26 @@ from .models import Teachers, Enrollment, Payment
 from .serializers import TeachersSerializer, EnrollmentSerializer, PaymentSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.db.models import Sum
+from django.db.models import Sum, F, ExpressionWrapper, DecimalField
 from django.utils import timezone
-# Create your views here.
+from datetime import timedelta
+from structure.models import Class
+
 
 class TeachersViewSet(viewsets.ModelViewSet):
     serializer_class = TeachersSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Teachers.objects.filter(academy_id=self.request.user.academy_id).select_related('user_id')
-    
+        return Teachers.objects.filter(
+            academy_id=self.request.user.academy_id
+        ).select_related('user_id')
+
     def perform_destroy(self, instance):
         user = instance.user_id
         user.is_active = False
         user.save()
+
 
 class EnrollmentViewSet(viewsets.ModelViewSet):
     serializer_class = EnrollmentSerializer
@@ -42,17 +47,41 @@ class EnrollmentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         student_id = self.request.data.get('student_id')
         class_id = self.request.data.get('class_id')
+        start_date = self.request.data.get('start_date')
 
         if Enrollment.objects.filter(student_id=student_id, class_id=class_id).exists():
             from rest_framework.exceptions import ValidationError
             raise ValidationError(
                 {'detail': 'Student is already enrolled in this class.'}
             )
-        serializer.save()
+
+        enrollment = serializer.save()
+
+        # Auto-create pending payment with due_date = start_date + 3 days
+        try:
+            class_obj = Class.objects.get(id=class_id)
+            if class_obj.session_price and class_obj.session_count:
+                from datetime import date, datetime
+                if start_date:
+                    start = datetime.strptime(start_date, '%Y-%m-%d').date()
+                    due = start + timedelta(days=3)
+                else:
+                    due = date.today() + timedelta(days=3)
+
+                Payment.objects.create(
+                    enrollment_id=enrollment,
+                    due_date=due,
+                    paid_on=None,
+                    notes="",
+                    status="pending",
+                )
+        except Class.DoesNotExist:
+            pass
 
     def perform_destroy(self, instance):
         instance.status = 'dropped'
         instance.save()
+
 
 class PaymentViewSet(viewsets.ModelViewSet):
     serializer_class = PaymentSerializer
@@ -61,33 +90,32 @@ class PaymentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = Payment.objects.filter(
             enrollment_id__class_id__academy_id=self.request.user.academy_id
-        )
+        ).exclude(status='deleted')  # ← always exclude deleted
+
         student_id = self.request.query_params.get('student_id')
         month = self.request.query_params.get('month')
         enrollment_id = self.request.query_params.get('enrollment_id')
         status = self.request.query_params.get('status')
+
         if enrollment_id:
             queryset = queryset.filter(enrollment_id=enrollment_id)
         if student_id:
-            queryset = queryset.filter(
-                enrollment_id__student_id=student_id
-            )
+            queryset = queryset.filter(enrollment_id__student_id=student_id)
         if month:
             year, mon = month.split('-')
+            # Filter by due_date month since paid_on can be null for pending
             queryset = queryset.filter(
-                paid_on__year=year,
-                paid_on__month=mon
-            )   
+                due_date__year=year,
+                due_date__month=mon
+            )
         if status:
-            queryset = queryset.filter(status=status) 
-            
+            queryset = queryset.filter(status=status)
+
         return queryset
-    
 
     def perform_destroy(self, instance):
         instance.status = 'deleted'
         instance.save()
-    
 
     @action(detail=False, methods=['get'], url_path='summary')
     def summary(self, request):
@@ -101,25 +129,27 @@ class PaymentViewSet(viewsets.ModelViewSet):
             today = timezone.now()
             year, mon = today.year, today.month
 
-        # active_enrollments = Enrollment.objects.filter(
-        #     class_id__academy_id=academy,
-        #     status='active'
-        # )
+        class_price_expr = ExpressionWrapper(
+            F('enrollment_id__class_id__session_count') * F('enrollment_id__class_id__session_price'),
+            output_field=DecimalField(max_digits=10, decimal_places=2)
+        )
 
-        revenue_expected = Payment.objects.filter(
+        # Use due_date for month filtering — paid_on is null for pending
+        base_payments = Payment.objects.filter(
             enrollment_id__class_id__academy_id=academy,
-            paid_on__year=year,
-            paid_on__month=mon,
-        ).aggregate(total=Sum('amount'))['total'] or 0
+            due_date__year=year,
+            due_date__month=mon,
+        ).exclude(status='deleted')
 
-        revenue_collected = Payment.objects.filter(
-            enrollment_id__class_id__academy_id=academy,
-            paid_on__year=year,
-            paid_on__month=mon,
+        revenue_expected = base_payments.annotate(
+            class_price=class_price_expr
+        ).aggregate(total=Sum('class_price'))['total'] or 0
+
+        revenue_collected = base_payments.filter(
             status='completed'
-        ).aggregate(
-            total=Sum('amount')
-        )['total'] or 0
+        ).annotate(
+            class_price=class_price_expr
+        ).aggregate(total=Sum('class_price'))['total'] or 0
 
         if revenue_expected > 0:
             collection_rate = round(
@@ -128,21 +158,9 @@ class PaymentViewSet(viewsets.ModelViewSet):
         else:
             collection_rate = 0.0
 
-        # expected_enrollments = Enrollment.objects.filter(
-        #     class_id__academy_id=academy,
-        #     status='active'
-        # )
-
-        paid_enrollments = Payment.objects.filter(
-            enrollment_id__class_id__academy_id=academy,
-            paid_on__year=year,
-            paid_on__month=mon,
+        paid_enrollments = base_payments.filter(
             status='completed'
         ).values_list('enrollment_id', flat=True)
-
-        # overdue_enrollments = expected_enrollments.exclude(
-        #     id__in=paid_enrollments
-        # )
 
         overdue_enrollments = Enrollment.objects.filter(
             class_id__academy_id=academy,
@@ -150,9 +168,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
         ).exclude(id__in=paid_enrollments)
 
         overdue_count = overdue_enrollments.count()
-        overdue_total = float(revenue_expected) - float(revenue_collected)
-        # if overdue_total < 0:
-        #     overdue_total = 0
+        overdue_total = max(float(revenue_expected) - float(revenue_collected), 0)
 
         return Response({
             'month': f'{year}-{str(mon).zfill(2)}',
