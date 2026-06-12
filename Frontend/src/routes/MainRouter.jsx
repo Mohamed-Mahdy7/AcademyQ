@@ -7,8 +7,7 @@ import { StudentProvider } from "../context/StudentsContext.jsx";
 import { PaymentProvider } from "../context/PaymentContext.jsx";
 import { EnrollmentProvider } from "../context/EnrollmentContext.jsx";
 import ProtectedRoute from "../components/ProtectedRoute";
-import Sidebar from "../components/Sidebar";
-import DashboarLayout from "../components/DashboardLayout";
+import MainLayout from "../components/DashboardLayout";
 import Dashboard from "../pages/Dashboard.jsx";
 import AcademyProfile from "../pages/SettingsPage.jsx";
 import TeachersPage from "../pages/TeachersPage.jsx";
@@ -31,6 +30,8 @@ import GradeForm from "../components/grades/gradeform";
 import GradeHistoryTab from "../components/grades/GradeHistoryTab";
 import GradeSummaryTab from "../components/grades/ClassGradeSummaryTab";
 import StudentProfile from "../pages/students/StudentProfile.jsx";
+import EditStudentProfile from "../pages/students/EditStudentProfile.jsx";
+import EditUserProfile from "../pages/users/EditUserProfile.jsx";
 
 
 const MainRouter = () => {
@@ -38,7 +39,7 @@ const MainRouter = () => {
         <Routes>
             <Route path="register" element={<Register />} />
             <Route path="login" element={<Login />} />
-            <Route element={<DashboarLayout />}>
+            <Route element={<MainLayout />}>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/settings" element={
                     <ProtectedRoute>
@@ -142,10 +143,22 @@ const MainRouter = () => {
                 } />
                 <Route path="/student/:id" element={
                     <ProtectedRoute>
-                        <UsersProvider>
                             <StudentProvider>
                                 <StudentProfile />
                             </StudentProvider>
+                    </ProtectedRoute>
+                } />
+                <Route path="/student/update/:id" element={
+                    <ProtectedRoute>
+                            <StudentProvider>
+                                <EditStudentProfile />
+                            </StudentProvider>
+                    </ProtectedRoute>
+                } />
+                <Route path="/user/update/:id" element={
+                    <ProtectedRoute>
+                        <UsersProvider>
+                            <EditUserProfile />
                         </UsersProvider>
                     </ProtectedRoute>
                 } />

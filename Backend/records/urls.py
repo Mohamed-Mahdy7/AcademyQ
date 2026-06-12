@@ -28,4 +28,9 @@ urlpatterns = [
         ClassAttendanceViewSet.as_view({'get': 'summary'}),
         name='class-attendance-summary'
     ),
+    path(
+        'classes/<uuid:class_id>/generate-sessions/',
+        ClassSessionViewSet.as_view({'post': 'generate_sessions'}),
+        name='generate-sessions'
+    ),
 ]

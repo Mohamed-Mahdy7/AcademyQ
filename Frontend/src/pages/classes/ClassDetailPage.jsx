@@ -66,14 +66,14 @@ function ClassDetailPage() {
                         <h1 className="heading-1">{classData.name}</h1>
                         <div className="flex items-center gap-3 mt-1 flex-wrap">
                             <span className="text-caption flex items-center gap-1">
-                                📖 {classData.subject_name}
+                                 {classData.subject_name}
                             </span>
                             <span className="text-caption flex items-center gap-1">
-                                📅 {classData.start_date} - {classData.end_date}
+                                 {classData.start_date} - {classData.end_date}
                             </span>
                             {classData.class_price && (
                                 <span className="text-caption flex items-center gap-1">
-                                    💰 {classData.class_price} EGP
+                                     {classData.class_price} EGP
                                 </span>
                             )}
                         </div>
