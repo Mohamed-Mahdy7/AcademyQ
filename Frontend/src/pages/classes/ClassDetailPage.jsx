@@ -4,13 +4,12 @@ import {
     getClass,
     getClassSessions,
 } from "../../services/classService";
+import ScheduleSection from "../../components/classes/ScheduleSection";
 import SessionsTab from "../../components/attendance/SessionsTab";
 import TeachersTab from "../../components/classes/TeachersTab";
 import EnrollmentTab from "../../components/enrollments/EnrollmentTab";
 
 const TABS = ["Students", "Sessions", "Grades", "Teachers"];
-
-const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 function ClassDetailPage() {
     const { id } = useParams();
@@ -51,17 +50,6 @@ function ClassDetailPage() {
         : "0.0";
     const primaryTeacher = classData.teachers?.[0]?.teacher_name ?? "—";
 
-    const schedules = classData.schedules ?? [];
-    const scheduleSummary = schedules.length > 0
-        ? (() => {
-            const days = schedules
-                .map(s => DAY_NAMES[s.day_of_week])
-                .join(" / ");
-            const first = schedules[0];
-            return `${days} — ${first.start_time} to ${first.end_time}`;
-        })()
-        : null;
-
     return (
         <div className="page-body">
 
@@ -83,11 +71,6 @@ function ClassDetailPage() {
                             <span className="text-caption flex items-center gap-1">
                                 📅 {classData.start_date} - {classData.end_date}
                             </span>
-                            {scheduleSummary && (
-                                <span className="text-caption flex items-center gap-1">
-                                    🕐 {scheduleSummary}
-                                </span>
-                            )}
                             {classData.class_price && (
                                 <span className="text-caption flex items-center gap-1">
                                     💰 {classData.class_price} EGP
@@ -128,6 +111,15 @@ function ClassDetailPage() {
                     </p>
                 </div>
             </div>
+
+            {/* Schedule Section */}
+            <ScheduleSection
+                classId={id}
+                sessionDuration={classData.session_duration}
+                onUpdate={() => {
+                    getClass(id).then(res => setClassData(res.data));
+                }}
+            />
 
             {/* Tabs */}
             <div className="card">
