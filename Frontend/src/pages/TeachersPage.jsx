@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState , useEffect} from "react";
 import { useTeacher } from "../context/TeachersContext";
+import { getClasses } from "../services/classService";
 import TeachersList from "../components/teachers/TeachersList";
 import TeacherForm from "../components/teachers/TeacherForm";
 
@@ -11,6 +12,20 @@ export default function TeachersPage() {
   const [submitting, setSubmitting]     = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [search, setSearch]             = useState("");
+  const [classes, setClasses] = useState([]);
+
+  useEffect(() => {
+    loadClasses();
+  }, []);
+
+  async function loadClasses() {
+    try {
+      const response = await getClasses();
+      setClasses(response.data);
+    } catch (error) {
+      console.error("Failed to load classes", error);
+    }
+  }
 
   function openAdd() {
     setFormErrors({});
@@ -45,6 +60,13 @@ export default function TeachersPage() {
       t.email?.toLowerCase().includes(search.toLowerCase())
   );
 
+  const activeClasses = classes.filter(c => c.is_active).length;
+
+  const totalSessions = classes.reduce(
+    (sum, c) => sum + (c.session_count || 0),
+    0
+  );
+
   return (
     <div className="page-body">
 
@@ -67,18 +89,18 @@ export default function TeachersPage() {
       {/* KPI */}
       <div className="stat-grid mb-6">
         <div className="kpi-card">
-          <div className="flex items-center justify-between mb-2">
-            <p className="kpi-label">Total teachers</p>
-            <div className="stat-icon-wrap">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                <circle cx="9" cy="7" r="4"/>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-              </svg>
-            </div>
-          </div>
+          <p className="kpi-label">Total Teachers</p>
           <p className="kpi-value">{teachers.length}</p>
+        </div>
+
+        <div className="kpi-card">
+          <p className="kpi-label">Active Classes</p>
+          <p className="kpi-value">{activeClasses}</p>
+        </div>
+
+        <div className="kpi-card">
+          <p className="kpi-label">Sessions</p>
+          <p className="kpi-value">{totalSessions}</p>
         </div>
       </div>
 

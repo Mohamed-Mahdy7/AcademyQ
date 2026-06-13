@@ -75,33 +75,16 @@ export default function EnrollmentTab({ classId }) {
       status: "active",
     });
 
+    setSubmitting(false);
+
     if (!result.success) {
-      setSubmitting(false);
       setFormErrors(result.errors || {});
       return;
     }
 
-    // Calculate due_date = start_date + 3 days
-    const startDate = new Date(payload.start_date);
-    startDate.setDate(startDate.getDate() + 3);
-    const dueDate = startDate.toISOString().split("T")[0];
-
-    // Create pending payment with due_date
-    try {
-      await createPayment({
-        enrollment_id: result.enrollmentId,
-        paid_on: null,
-        due_date: dueDate,
-        notes: "",
-        status: "pending",
-      });
-    } catch (err) {
-      console.error("Payment creation failed", err);
-    }
-
     closeForm();
     listEnrollments({ class_id: classId });
-  }                                        
+  }                                      
 
   async function confirmDrop(enrollment) { 
     const result = await removeEnrollment(enrollment.id);
