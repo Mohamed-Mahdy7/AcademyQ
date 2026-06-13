@@ -5,6 +5,7 @@ import KpiCard from "../../components/KpiCard"
 import EditStudentProfile from "./EditStudentProfile"
 import StudentEnrollmentTab from "../../components/enrollments/StudentEnrollmentTab"
 import StudentPaymentTab from "../../components/payments/StudentPaymentTab"
+import AttendanceTab from "../../components/attendance/AttendanceTab"
 
 const tabs = ["Enrollments", "Grades", "Payments", "Attendance"];
 
@@ -155,12 +156,7 @@ const StudentProfile = () => {
                         <StudentPaymentTab studentId={student.id} />
                     )}
                     {activeTab === "Attendance" && (
-                        <div className="empty-state">
-                            <p className="empty-state-title">Attendance coming soon</p>
-                            <p className="empty-state-desc">
-                                Attendance records will be available here.
-                            </p>
-                        </div>
+                        <AttendanceTab studentId={id} />
                     )}
                 </div>
             </div>

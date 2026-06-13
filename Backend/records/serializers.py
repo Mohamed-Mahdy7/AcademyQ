@@ -34,6 +34,7 @@ class ClassSessionSerializer(serializers.ModelSerializer):
 
         with transaction.atomic():
             session = ClassSession.objects.create(**validated_data)
+            last_junction = None
             for cls in classes:
                 last = (
                     ClassSessionEnrollment.objects
@@ -43,11 +44,13 @@ class ClassSessionSerializer(serializers.ModelSerializer):
                     .last()
                 )
                 next_num = (last.session_num + 1) if last else 1
-                ClassSessionEnrollment.objects.create(
+                last_junction = ClassSessionEnrollment.objects.create(
                     session=session,
                     class_obj=cls,
                     session_num=next_num,
                 )
+        if last_junction:
+            session.session_num = last_junction.session_num
         return session
 
 

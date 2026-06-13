@@ -5,6 +5,8 @@ from rest_framework.views import APIView
 from django.db import transaction
 from django.db.models import Count, Q, OuterRef, Subquery, IntegerField
 from core.permissions import IsOwner, ActiveSubscriptionRequired
+from financial_operations.models import Payment, Enrollment
+from django.utils import timezone
 from .models import ClassSession, Attendance
 from .serializers import (
     ClassSessionSerializer,
@@ -64,13 +66,6 @@ class ClassSessionViewSet(viewsets.ModelViewSet):
             self.request.user.academy_id,
             class_id=class_id
         )
-    # def get_object(self):
-    #     pk = self.kwargs.get('pk')
-    #     print("get_object called with pk:", pk)
-    #     from django.shortcuts import get_object_or_404
-    #     session = get_object_or_404(ClassSession, id=pk)
-    #     self.check_object_permissions(self.request, session)
-    #     return session
 
     @action(detail=True, methods=['get', 'post'], url_path='attendance')
     def attendance(self, request, pk=None):
@@ -121,20 +116,24 @@ class ClassSessionViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def _create_pending_payment(self, enrollment_id):
-        from financial_operations.models import Payment, Enrollment
-        from django.utils import timezone
 
         try:
             enrollment = Enrollment.objects.get(id=enrollment_id)
-            # only create if no pending payment exists for this enrollment
             if not Payment.objects.filter(
                 enrollment_id=enrollment,
                 status='pending'
             ).exists():
+                cls = enrollment.class_id
+                amount = (
+                    cls.session_count * cls.session_price
+                    if cls.session_count and cls.session_price
+                    else 0
+                )
                 Payment.objects.create(
                     enrollment_id=enrollment,
                     due_date=timezone.now().date(),
-                    status='pending'
+                    status='pending',
+                    amount=amount
                 )
         except Enrollment.DoesNotExist:
             pass
