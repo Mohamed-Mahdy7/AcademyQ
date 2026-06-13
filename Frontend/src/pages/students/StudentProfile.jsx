@@ -5,6 +5,8 @@ import KpiCard from "../../components/KpiCard"
 import EditStudentProfile from "./EditStudentProfile"
 import StudentEnrollmentTab from "../../components/enrollments/StudentEnrollmentTab"
 import StudentPaymentTab from "../../components/payments/StudentPaymentTab"
+import AttendanceTab from "../../components/attendance/AttendanceTab"
+import GradeHistoryTab from "../../components/grades/GradeHistoryTab"
 
 const tabs = ["Enrollments", "Grades", "Payments", "Attendance"];
 
@@ -107,7 +109,7 @@ const StudentProfile = () => {
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 my-6">
                     <KpiCard
                         title="ENROLLMENTS"
-                        value={student.enrollments}
+                        value={student.enrollments.length}
                     />
                     <KpiCard
                         title="ATTENDANCE"
@@ -144,23 +146,15 @@ const StudentProfile = () => {
                         <StudentEnrollmentTab studentId={student.id} />
                     )}
                     {activeTab === "Grades" && (
-                        <div className="empty-state">
-                            <p className="empty-state-title">Grades coming soon</p>
-                            <p className="empty-state-desc">
-                                Grades records will be available here.
-                            </p>
-                        </div>
+                        <GradeHistoryTab 
+                        enrollmentId={student.enrollments.map(e => e.id)}
+                        />
                     )}
                     {activeTab === "Payments" && (
                         <StudentPaymentTab studentId={student.id} />
                     )}
                     {activeTab === "Attendance" && (
-                        <div className="empty-state">
-                            <p className="empty-state-title">Attendance coming soon</p>
-                            <p className="empty-state-desc">
-                                Attendance records will be available here.
-                            </p>
-                        </div>
+                        <AttendanceTab studentId={student.id} />
                     )}
                 </div>
             </div>

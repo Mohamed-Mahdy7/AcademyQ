@@ -15,9 +15,10 @@ class GradeViewSet(viewsets.ModelViewSet):
         queryset = Grade.objects.filter(
             enrollment__class_id__academy_id=self.request.user.academy_id
         )
-        enrollment_id = self.request.query_params.get("enrollment_id")
-        if enrollment_id:
-            queryset = queryset.filter(enrollment_id=enrollment_id)
+        enrollment_ids = self.request.query_params.get("enrollment_ids")
+        if enrollment_ids:
+            ids = enrollment_ids.split(",")
+            queryset = queryset.filter(enrollment_id__in=ids)
         return queryset.order_by("assigned_at")
 
     @action(detail=False, methods=["get"])
