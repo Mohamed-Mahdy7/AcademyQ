@@ -1,16 +1,33 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import GenerateSessionsModal from "./GenerateSessionsModal";
+import api from "../../api";
 
 export default function SessionsTab({ sessions, classId, classStartDate, classEndDate, onSessionsGenerated }) {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
+  const [deleting, setDeleting] = useState(null);
 
   const handleSuccess = (result) => {
     const { sessions_created, skipped } = result;
     if (onSessionsGenerated) onSessionsGenerated();
     alert(`${sessions_created} sessions created, ${skipped} skipped.`);
-    // Zahwa's toast system would be better here — use it if available
+  };
+
+  const handleDelete = async (e, sessionId) => {
+    e.stopPropagation();
+    console.log("delete clicked:", sessionId);
+    if (!window.confirm('Delete this session and all its attendance records?')) return;
+    console.log("confirmed, sending delete...");
+    setDeleting(sessionId);
+    try {
+      await api.delete(`/api/sessions/${sessionId}/`);
+      if (onSessionsGenerated) onSessionsGenerated(); // reuse refresh callback
+    } catch {
+      alert('Failed to delete session.');
+    } finally {
+      setDeleting(null);
+    }
   };
 
   return (
@@ -18,10 +35,7 @@ export default function SessionsTab({ sessions, classId, classStartDate, classEn
       <div className="flex items-center justify-between mb-4">
         <h3 className="heading-3">Session History</h3>
         <div className="flex gap-2">
-          <button
-            className="btn-secondary"
-            onClick={() => setShowModal(true)}
-          >
+          <button className="btn-secondary" onClick={() => setShowModal(true)}>
             Generate Sessions
           </button>
           <button
@@ -41,12 +55,13 @@ export default function SessionsTab({ sessions, classId, classStartDate, classEn
             <th>Attendance</th>
             <th>Turnout</th>
             <th>Notes</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
           {sessions.length === 0 ? (
             <tr>
-              <td colSpan={5}>
+              <td colSpan={6}>
                 <div className="empty-state">
                   <p className="empty-state-title">No sessions yet</p>
                   <p className="empty-state-desc">
@@ -60,9 +75,7 @@ export default function SessionsTab({ sessions, classId, classStartDate, classEn
               const total = session.total_enrolled || 0;
               const present = session.present_count || 0;
               const absent = session.absent_count || 0;
-              const turnout = total > 0
-                ? Math.round((present / total) * 100)
-                : 0;
+              const turnout = total > 0 ? Math.round((present / total) * 100) : 0;
 
               return (
                 <tr
@@ -93,6 +106,15 @@ export default function SessionsTab({ sessions, classId, classStartDate, classEn
                     </div>
                   </td>
                   <td className="table-cell-muted">{session.notes || "—"}</td>
+                  <td className="table-actions">
+                    <button
+                      className="btn-danger-outline"
+                      onClick={(e) => handleDelete(e, session.id)}
+                      disabled={deleting === session.id}
+                    >
+                      {deleting === session.id ? "Deleting..." : "Delete"}
+                    </button>
+                  </td>
                 </tr>
               );
             })

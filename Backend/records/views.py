@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from django.db import transaction
 from django.db.models import Count, Q, OuterRef, Subquery, IntegerField
 from core.permissions import IsOwner, ActiveSubscriptionRequired
@@ -22,7 +23,7 @@ def get_annotated_sessions(academy_id, class_id=None):
 
     session_ids = qs.values_list('session_id', flat=True)
 
-    sessions = ClassSession.objects.filter(
+    sessions = list(ClassSession.objects.filter(  # force evaluate
         id__in=session_ids
     ).annotate(
         present_count=Count(
@@ -34,9 +35,8 @@ def get_annotated_sessions(academy_id, class_id=None):
             filter=Q(attendance_records__present=False)
         ),
         total_enrolled=Count('attendance_records'),
-    )
+    ))
 
-    # annotate session_num per class
     if class_id:
         junction_map = {
             str(e.session_id): e.session_num
@@ -44,19 +44,33 @@ def get_annotated_sessions(academy_id, class_id=None):
         }
         for s in sessions:
             s.session_num = junction_map.get(str(s.id), None)
+        sessions.sort(key=lambda s: s.session_num or 0)
+
     return sessions
 
 class ClassSessionViewSet(viewsets.ModelViewSet):
     serializer_class = ClassSessionSerializer
-    http_method_names = ['get', 'post', 'head', 'options']
+    http_method_names = ['get', 'post', 'delete', 'head', 'options']
     permission_classes = [IsOwner, ActiveSubscriptionRequired]
+    pagination_class = None
 
     def get_queryset(self):
+        if self.action in ['destroy', 'retrieve', 'attendance']:
+            return ClassSession.objects.filter(
+                class_links__class_obj__academy_id=self.request.user.academy_id
+            )
         class_id = self.request.query_params.get('class_id')
         return get_annotated_sessions(
             self.request.user.academy_id,
             class_id=class_id
-        ).order_by('session_date', 'session_time')
+        )
+    # def get_object(self):
+    #     pk = self.kwargs.get('pk')
+    #     print("get_object called with pk:", pk)
+    #     from django.shortcuts import get_object_or_404
+    #     session = get_object_or_404(ClassSession, id=pk)
+    #     self.check_object_permissions(self.request, session)
+    #     return session
 
     @action(detail=True, methods=['get', 'post'], url_path='attendance')
     def attendance(self, request, pk=None):
@@ -96,6 +110,15 @@ class ClassSessionViewSet(viewsets.ModelViewSet):
             {'created': created, 'updated': updated},
             status=status.HTTP_200_OK
         )
+
+    def destroy(self, request, pk=None):
+        session = self.get_object()
+        with transaction.atomic():
+            Attendance.objects.filter(session=session).delete()
+            from structure.models import ClassSessionEnrollment
+            ClassSessionEnrollment.objects.filter(session=session).delete()
+            session.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def _create_pending_payment(self, enrollment_id):
         from financial_operations.models import Payment, Enrollment
@@ -233,3 +256,106 @@ class ClassAttendanceViewSet(viewsets.ModelViewSet):
             for s in sessions
         ]
         return Response(data)
+    
+class GenerateSessionsView(APIView):
+    permission_classes = [IsOwner, ActiveSubscriptionRequired]
+
+    def post(self, request, class_id):
+        from datetime import date, timedelta
+        from structure.models import ClassSchedule, ClassSessionEnrollment, Class
+
+        start_date_str = request.data.get('start_date')
+        end_date_str = request.data.get('end_date')
+
+        if not start_date_str or not end_date_str:
+            return Response(
+                {'detail': 'start_date and end_date are required.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            start_date = date.fromisoformat(start_date_str)
+            end_date = date.fromisoformat(end_date_str)
+        except ValueError:
+            return Response(
+                {'detail': 'Invalid date format. Use YYYY-MM-DD.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if end_date < start_date:
+            return Response(
+                {'detail': 'end_date must be after start_date.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            cls = Class.objects.get(
+                id=class_id,
+                academy_id=request.user.academy_id
+            )
+        except Class.DoesNotExist:
+            return Response(
+                {'detail': 'Class not found.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        schedules = ClassSchedule.objects.filter(class_obj=cls)
+        if not schedules.exists():
+            return Response(
+                {'detail': 'No schedule configured for this class. Add schedule slots before generating sessions.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        sessions_created = 0
+        skipped = 0
+
+        with transaction.atomic():
+            last_junction = (
+                ClassSessionEnrollment.objects
+                .select_for_update()
+                .filter(class_obj=cls)
+                .order_by('session_num')
+                .last()
+            )
+            next_session_num = (last_junction.session_num + 1) if last_junction else 1
+            max_sessions = cls.session_count  # cap
+
+            current_date = start_date
+            while current_date <= end_date:
+                matching_slots = [
+                    s for s in schedules
+                    if s.day_of_week == current_date.weekday()
+                ]
+
+                for slot in matching_slots:
+                    if max_sessions and next_session_num > max_sessions:
+                        skipped += 1
+                        continue  # stop creating, count as skipped
+
+                    exists = ClassSession.objects.filter(
+                        session_date=current_date,
+                        session_time=slot.start_time
+                    ).exists()
+
+                    if exists:
+                        skipped += 1
+                    else:
+                        session = ClassSession.objects.create(
+                            session_date=current_date,
+                            session_time=slot.start_time,
+                            notes=''
+                        )
+                        ClassSessionEnrollment.objects.create(
+                            session=session,
+                            class_obj=cls,
+                            session_num=next_session_num,
+                        )
+                        next_session_num += 1
+                        sessions_created += 1
+
+                current_date += timedelta(days=1)
+
+        return Response(
+            {'sessions_created': sessions_created, 'skipped': skipped},
+            status=status.HTTP_200_OK
+        )
