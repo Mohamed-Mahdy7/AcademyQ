@@ -1,4 +1,4 @@
-export default function SessionControls({ selectedDate, notes, onDateChange, onNotesChange }) {
+export default function SessionControls({ selectedDate, notes, sessionTime, onDateChange, onNotesChange, onTimeChange }) {
   return (
     <div className="card-body mb-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -9,6 +9,15 @@ export default function SessionControls({ selectedDate, notes, onDateChange, onN
             className="form-input"
             value={selectedDate}
             onChange={(e) => onDateChange(e.target.value)}
+          />
+        </div>
+        <div className="form-field">
+          <label className="form-label">Session Time</label>
+          <input
+              type="time"
+              className="form-input"
+              value={sessionTime}
+              onChange={(e) => onTimeChange(e.target.value)}
           />
         </div>
         <div className="form-field md:col-span-2">

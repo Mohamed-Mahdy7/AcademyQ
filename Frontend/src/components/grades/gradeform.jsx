@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useGrades } from "../../context/gradecontext";
 
-export default function GradeForm({ enrollments = [], sessions = [], subjectName = "" }) {
+export default function GradeForm({ enrollments = [], sessions = [], subjectName = "", onSuccess }) {
   const { addGrade } = useGrades();
 
   const [form, setForm] = useState({
@@ -37,6 +37,7 @@ export default function GradeForm({ enrollments = [], sessions = [], subjectName
       assigned_at: form.assigned_at,
     };
 
+
     try {
       await addGrade(payload);
       setSuccess(true);
@@ -48,6 +49,7 @@ export default function GradeForm({ enrollments = [], sessions = [], subjectName
         max_score: "",
         assigned_at: "",
       });
+      if (onSuccess) onSuccess();
     } catch (error) {
       setError(error.response?.data?.detail || "Error adding grade.");
     }
@@ -100,14 +102,13 @@ console.log("SESSIONS:", safeSessions);
       </div>
 
       <div className="form-field">
-        <label className="form-label">Subject Name <span className="form-required">*</span></label>
+        <label className="form-label">Subject</label>
         <input
-          type="text"
-          name="subject_name"
-          value={form.subject_name}
-          onChange={handleChange}
-          className="form-input"
-        />
+            type="text"
+            value={subjectName}
+            disabled
+            className="form-input-disabled"
+          />
       </div>
 
       <div className="grid grid-cols-2 gap-4">

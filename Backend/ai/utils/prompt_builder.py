@@ -7,6 +7,21 @@ Rules:
 - Only receive dictionaries and return strings.
 """
 
+def format_similar_students(context):
+    students = context.get("similar_students", [])
+    
+    if not students:
+        return "None"
+    
+    lines = []
+    
+    for student in students:
+        lines.append(
+            f"- {student["student_name"]} ({student["educational_level"]})"
+        )
+    
+    return "\n".join(lines)
+
 
 def build_report_prompt(context: dict) -> str:
 
@@ -23,6 +38,8 @@ Student Information:
 - Payment Status: {context.get("payment_status", "Unknown")}
 - Teacher Notes:
 {context.get("teacher_notes", "No teacher notes available")}
+- Similar Students:
+{format_similar_students(context)}
 
 Requirements:
 1. Start with a short summary.
@@ -49,9 +66,10 @@ Student Information:
 - Missed Classes: {context.get("missed_classes", 0)}
 - Payment Status: {context.get("payment_status", "Unknown")}
 - Risk Score: {context.get("risk_score", 0)}
-
-Teacher Notes:
+-Teacher Notes:
 {context.get("teacher_notes", "No notes available")}
+- Similar Students:
+{format_similar_students(context)}
 
 Generate:
 

@@ -1,9 +1,11 @@
+# records/urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     ClassSessionViewSet,
     StudentAttendanceViewSet,
     ClassAttendanceViewSet,
+    GenerateSessionsView,
 )
 
 router = DefaultRouter()
@@ -22,7 +24,6 @@ urlpatterns = [
         StudentAttendanceViewSet.as_view({'get': 'history'}),
         name='student-attendance-history'
     ),
-
     path(
         'classes/<uuid:class_id>/attendance/summary/',
         ClassAttendanceViewSet.as_view({'get': 'summary'}),
@@ -30,7 +31,7 @@ urlpatterns = [
     ),
     path(
         'classes/<uuid:class_id>/generate-sessions/',
-        ClassSessionViewSet.as_view({'post': 'generate_sessions'}),
+        GenerateSessionsView.as_view(),
         name='generate-sessions'
     ),
 ]

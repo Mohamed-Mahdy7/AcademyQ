@@ -6,5 +6,5 @@ docker-compose.yml
 Backend/*/migrations/*
 Backend/API_Docs.md
 cookies*
-AcademiQ_MVP_DB_Models.md
+academiq_db_schema.md
 AcademiQ_AI_Sprint.md

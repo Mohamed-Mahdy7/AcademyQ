@@ -15,9 +15,10 @@ class GradeViewSet(viewsets.ModelViewSet):
         queryset = Grade.objects.filter(
             enrollment__class_id__academy_id=self.request.user.academy_id
         )
-        enrollment_id = self.request.query_params.get("enrollment_id")
-        if enrollment_id:
-            queryset = queryset.filter(enrollment_id=enrollment_id)
+        enrollment_ids = self.request.query_params.get("enrollment_ids")
+        if enrollment_ids:
+            ids = enrollment_ids.split(",")
+            queryset = queryset.filter(enrollment_id__in=ids)
         return queryset.order_by("assigned_at")
 
     @action(detail=False, methods=["get"])
@@ -52,13 +53,12 @@ class GradeViewSet(viewsets.ModelViewSet):
         latest_score_pct = round(percentages[-1], 2)
 
         trend = None
-        if assessment_count >= 6:
-            last_three_avg = sum(percentages[-3:]) / 3
-            previous_three = percentages[-6:-3]
-            previous_three_avg = sum(previous_three) / 3
-            if last_three_avg > previous_three_avg:
+        if assessment_count >= 2:
+            latest = percentages[-1]
+            previous_avg = sum(percentages[:-1]) / (assessment_count - 1)
+            if latest > previous_avg:
                 trend = "improving"
-            elif last_three_avg < previous_three_avg:
+            elif latest < previous_avg:
                 trend = "declining"
             else:
                 trend = "stable"
@@ -98,15 +98,15 @@ class GradeViewSet(viewsets.ModelViewSet):
 
             count = len(percentages)
             average = round(sum(percentages) / count, 2) if count else 0
+            latest_score_pct = round(percentages[-1], 2) if percentages else None
 
             trend = None
-            if count >= 6:
-                last_three_avg = sum(percentages[-3:]) / 3
-                previous_three = percentages[-6:-3]
-                previous_three_avg = sum(previous_three) / 3
-                if last_three_avg > previous_three_avg:
+            if count >= 2:
+                latest = percentages[-1]
+                previous_avg = sum(percentages[:-1]) / (count - 1)
+                if latest > previous_avg:
                     trend = "improving"
-                elif last_three_avg < previous_three_avg:
+                elif latest < previous_avg:
                     trend = "declining"
                 else:
                     trend = "stable"
@@ -116,6 +116,7 @@ class GradeViewSet(viewsets.ModelViewSet):
                 "student_id": str(first_grade.enrollment.student_id.id),
                 "student_name": first_grade.enrollment.student_id.full_name,
                 "average": average,
+                "latest_score_pct": latest_score_pct,
                 "assessments": count,
                 "trend": trend,
             })

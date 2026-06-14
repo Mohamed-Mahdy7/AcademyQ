@@ -14,3 +14,6 @@ export const submitAttendance = (sessionId, records) =>
 
 export const createSession = (classId, sessionDate, notes) =>
   api.post(`/api/sessions/`, { class_id: classId, session_date: sessionDate, notes });
+
+export const generateSessions = (classId, startDate, endDate) =>
+  api.post(`/api/sessions/generate-sessions/`, { class_id: classId, start_date: startDate, end_date: endDate});
