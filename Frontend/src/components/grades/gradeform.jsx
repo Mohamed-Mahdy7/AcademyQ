@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
 import { useGrades } from "../../context/gradecontext";
-import api from "../../api";
 
-export default function GradeForm({ enrollments = [], sessions = [], onSuccess }) {
+export default function GradeForm({ enrollments = [], sessions = [], subjectName = "", onSuccess }) {
   const { addGrade } = useGrades();
 
   const [form, setForm] = useState({
     enrollment: "",
     session: "",
-    subject_name: "",
+    subject_name: subjectName,
     score: "",
     max_score: "",
     assigned_at: "",
@@ -16,13 +15,6 @@ export default function GradeForm({ enrollments = [], sessions = [], onSuccess }
 
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-  const [subjects, setSubjects] = useState([]);
-
-  useEffect(() => {
-        api.get('/api/subjects/')
-            .then(res => setSubjects(res.data.results ?? res.data))
-            .catch(() => {});
-    }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -52,7 +44,7 @@ export default function GradeForm({ enrollments = [], sessions = [], onSuccess }
       setForm({
         enrollment: "",
         session: "",
-        subject_name: "",
+        subject_name: subjectName,
         score: "",
         max_score: "",
         assigned_at: "",
@@ -105,20 +97,13 @@ export default function GradeForm({ enrollments = [], sessions = [], onSuccess }
       </div>
 
       <div className="form-field">
-          <label className="form-label">Subject <span className="form-required">*</span></label>
-          <select
-              name="subject_name"
-              value={form.subject_name}
-              onChange={handleChange}
-              className="form-select"
-          >
-              <option value="">Select Subject</option>
-              {subjects.map((s) => (
-                  <option key={s.id} value={s.name}>
-                      {s.name}
-                  </option>
-              ))}
-          </select>
+        <label className="form-label">Subject</label>
+        <input
+            type="text"
+            value={subjectName}
+            disabled
+            className="form-input-disabled"
+          />
       </div>
 
       <div className="grid grid-cols-2 gap-4">

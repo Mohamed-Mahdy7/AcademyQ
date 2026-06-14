@@ -148,21 +148,13 @@ setEnrollments(enrollmentsRes.data.results ?? enrollmentsRes.data);
                     {activeTab === "Sessions" && (
                         <SessionsTab sessions={sessions} classId={id} />
                     )}
-                    {/* {activeTab === "Grades" && (
-                        <GradeProvider>
-                            <GradeForm
-                                enrollments={enrollments}
-                                sessions={sessions}
-                                classId={id}
-                            />
-                        </GradeProvider>
-                    )} */}
                     {activeTab === "Grades" && (
                         <GradeProvider>
                             <GradesTabContent
                                 classId={id}
                                 enrollments={enrollments}
                                 sessions={sessions}
+                                subjectName={classData.subject_name}
                             />
                         </GradeProvider>
                     )}
