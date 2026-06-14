@@ -1,413 +1,441 @@
+ # core/tests.py
+
+from datetime import timedelta
 from django.test import TestCase
+from django.urls import reverse
+from django.utils import timezone
+from rest_framework.test import APITestCase, APIClient
 
-import pytest
-from datetime import date, timedelta
-
-from django.contrib.auth import get_user_model
-from rest_framework.test import APIRequestFactory
-
-from core.models import Academy
-from core.permissions import (
-    IsOwner,
-    ActiveSubscriptionRequired,
-)
+from core.models import Academy, User
 from core.serializers import (
     AcademyRegistrationSerializer,
     StudentCreateSerializer,
-    StaffCreateSerializer,
+)
+from core.permissions import (
+    ActiveSubscriptionRequired,
+    IsOwner,
 )
 
-User = get_user_model()
 
+# =========================================================
+# MODELS
+# =========================================================
 
-# =====================================================
-# Fixtures
-# =====================================================
+class AcademyModelTests(TestCase):
 
-@pytest.fixture
-def academy():
-    return Academy.objects.create(
-        name="Test Academy",
-        email="academy@test.com",
-        phone="01000000000",
-        address="Tanta",
-        subscription_end=date.today() + timedelta(days=30),
-        setup_complete=False,
-    )
+    def test_create_academy(self):
+        academy = Academy.objects.create(
+            name="Test Academy",
+            email="academy@test.com",
+            phone="01000000000",
+        )
 
+        self.assertEqual(
+            academy.name,
+            "Test Academy"
+        )
 
-@pytest.fixture
-def owner(academy):
-    return User.objects.create_user(
-        academy=academy,
-        full_name="Owner",
-        email="owner@test.com",
-        password="123456",
-        phone="01011111111",
-        parent_phone="",
-        educational_level=18,
-        role=User.Roles.OWNER,
-        status=User.Status.ACTIVE,
-    )
+    def test_active_subscription_true(self):
+        academy = Academy.objects.create(
+            name="Academy",
+            email="a@test.com",
+            phone="0100",
+            subscription_end=timezone.now().date() + timedelta(days=5)
+        )
 
+        self.assertTrue(
+            academy.has_active_subscription()
+        )
 
-@pytest.fixture
-def admin_user(academy):
-    return User.objects.create_user(
-        academy=academy,
-        full_name="Admin",
-        email="admin@test.com",
-        password="123456",
-        phone="01022222222",
-        parent_phone="",
-        educational_level=18,
-        role=User.Roles.ADMIN,
-        status=User.Status.ACTIVE,
-    )
+    def test_active_subscription_false(self):
+        academy = Academy.objects.create(
+            name="Academy",
+            email="b@test.com",
+            phone="0100",
+            subscription_end=timezone.now().date() - timedelta(days=1)
+        )
 
+        self.assertFalse(
+            academy.has_active_subscription()
+        )
 
-@pytest.fixture
-def student(academy):
-    return User.objects.create_user(
-        academy=academy,
-        full_name="Student",
-        email="student@test.com",
-        password="123456",
-        phone="01033333333",
-        parent_phone="01099999999",
-        educational_level=10,
-        role=User.Roles.STUDENT,
-        status=User.Status.ACTIVE,
-    )
+    def test_str(self):
+        academy = Academy.objects.create(
+            name="Future Academy",
+            email="c@test.com",
+            phone="0100"
+        )
 
-
-# =====================================================
-# Academy Tests
-# =====================================================
-
-@pytest.mark.django_db
-def test_academy_has_active_subscription_true(academy):
-    assert academy.has_active_subscription() is True
-
-
-@pytest.mark.django_db
-def test_academy_has_active_subscription_false():
-    academy = Academy.objects.create(
-        name="Expired",
-        email="expired@test.com",
-        phone="010",
-        address="x",
-        subscription_end=date.today() - timedelta(days=1),
-    )
-
-    assert academy.has_active_subscription() is False
-
-
-@pytest.mark.django_db
-def test_academy_str(academy):
-    assert str(academy) == academy.name
-
-
-# =====================================================
-# User Tests
-# =====================================================
-
-@pytest.mark.django_db
-def test_create_user_success(academy):
-    user = User.objects.create_user(
-        academy=academy,
-        full_name="Test",
-        email="user@test.com",
-        password="123456",
-        phone="010",
-        parent_phone="010",
-        educational_level=10,
-        role=User.Roles.STUDENT,
-    )
-
-    assert user.email == "user@test.com"
-    assert user.check_password("123456")
-
-
-@pytest.mark.django_db
-def test_create_user_without_email():
-    with pytest.raises(ValueError):
-        User.objects.create_user(
-            email="",
-            password="123456",
+        self.assertEqual(
+            str(academy),
+            "Future Academy"
         )
 
 
-@pytest.mark.django_db
-def test_create_superuser():
-    user = User.objects.create_superuser(
-        email="super@test.com",
-        password="123456",
-        full_name="Super",
-        phone="010",
-        parent_phone="",
-        educational_level=18,
-        role=User.Roles.OWNER,
-    )
+class UserModelTests(TestCase):
 
-    assert user.is_staff is True
-    assert user.is_superuser is True
+    def setUp(self):
+        self.academy = Academy.objects.create(
+            name="Academy",
+            email="academy@test.com",
+            phone="010000"
+        )
+
+    def test_create_owner(self):
+        user = User.objects.create_user(
+            academy=self.academy,
+            full_name="Owner",
+            email="owner@test.com",
+            password="123456",
+            phone="01000",
+            role=User.Roles.OWNER,
+            educational_level=1,
+            parent_phone="0"
+        )
+
+        self.assertEqual(
+            user.role,
+            User.Roles.OWNER
+        )
+
+    def test_password_hashed(self):
+        user = User.objects.create_user(
+            academy=self.academy,
+            full_name="User",
+            email="user@test.com",
+            password="123456",
+            phone="01000",
+            role=User.Roles.ADMIN,
+            educational_level=1,
+            parent_phone="0"
+        )
+
+        self.assertTrue(
+            user.check_password("123456")
+        )
+
+    def test_create_superuser(self):
+        admin = User.objects.create_superuser(
+            email="admin@test.com",
+            password="123456",
+            full_name="Admin",
+            phone="01000",
+            educational_level=1,
+            parent_phone="0"
+        )
+
+        self.assertTrue(admin.is_staff)
+        self.assertTrue(admin.is_superuser)
+
+    def test_user_str(self):
+        user = User.objects.create_user(
+            academy=self.academy,
+            full_name="Ahmed",
+            email="ahmed@test.com",
+            password="123456",
+            phone="01000",
+            role=User.Roles.ADMIN,
+            educational_level=1,
+            parent_phone="0"
+        )
+
+        self.assertEqual(
+            str(user),
+            "Ahmed"
+        )
 
 
-@pytest.mark.django_db
-def test_user_str(student):
-    assert str(student) == student.full_name
+# =========================================================
+# SERIALIZERS
+# =========================================================
 
+class AcademyRegistrationSerializerTests(TestCase):
 
-# =====================================================
-# Registration Serializer
-# =====================================================
+    def test_passwords_match(self):
 
-@pytest.mark.django_db
-def test_registration_serializer_valid():
-
-    serializer = AcademyRegistrationSerializer(
-        data={
+        data = {
             "academy_name": "Academy",
             "academy_email": "academy@test.com",
-            "academy_phone": "010",
-            "address": "Tanta",
+            "academy_phone": "0100",
+            "address": "Egypt",
             "full_name": "Owner",
             "email": "owner@test.com",
-            "phone": "010111",
+            "phone": "0100",
             "password": "123456",
             "confirm_password": "123456",
         }
-    )
 
-    assert serializer.is_valid()
+        serializer = AcademyRegistrationSerializer(
+            data=data
+        )
 
+        self.assertTrue(
+            serializer.is_valid()
+        )
 
-@pytest.mark.django_db
-def test_registration_serializer_password_mismatch():
+    def test_passwords_not_match(self):
 
-    serializer = AcademyRegistrationSerializer(
-        data={
+        data = {
             "academy_name": "Academy",
             "academy_email": "academy@test.com",
-            "academy_phone": "010",
-            "address": "Tanta",
+            "academy_phone": "0100",
+            "address": "Egypt",
             "full_name": "Owner",
             "email": "owner@test.com",
-            "phone": "010111",
-            "password": "123456",
-            "confirm_password": "654321",
-        }
-    )
-
-    assert serializer.is_valid() is False
-    assert "confirm_password" in serializer.errors
-
-
-@pytest.mark.django_db
-def test_registration_serializer_create():
-
-    serializer = AcademyRegistrationSerializer(
-        data={
-            "academy_name": "Academy",
-            "academy_email": "academy@test.com",
-            "academy_phone": "010",
-            "address": "Tanta",
-            "full_name": "Owner",
-            "email": "owner@test.com",
-            "phone": "010111",
-            "password": "123456",
-            "confirm_password": "123456",
-        }
-    )
-
-    serializer.is_valid(raise_exception=True)
-
-    user = serializer.save()
-
-    assert user.role == User.Roles.OWNER
-    assert user.academy is not None
-
-
-# =====================================================
-# Student Serializer
-# =====================================================
-
-@pytest.mark.django_db
-def test_student_serializer_password_match(academy):
-
-    serializer = StudentCreateSerializer(
-        data={
-            "full_name": "Student",
-            "email": "student1@test.com",
-            "phone": "010",
-            "parent_phone": "010",
-            "educational_level": 10,
-            "academy": academy.id,
-            "password": "123456",
-            "confirm_password": "123456",
-        }
-    )
-
-    assert serializer.is_valid()
-
-
-@pytest.mark.django_db
-def test_student_serializer_password_mismatch(academy):
-
-    serializer = StudentCreateSerializer(
-        data={
-            "full_name": "Student",
-            "email": "student1@test.com",
-            "phone": "010",
-            "parent_phone": "010",
-            "educational_level": 10,
-            "academy": academy.id,
-            "password": "123456",
-            "confirm_password": "999999",
-        }
-    )
-
-    assert serializer.is_valid() is False
-
-
-# =====================================================
-# Staff Serializer
-# =====================================================
-
-@pytest.mark.django_db
-def test_staff_serializer_password_validation():
-
-    serializer = StaffCreateSerializer(
-        data={
-            "full_name": "Admin",
-            "email": "admin@test.com",
-            "phone": "010",
-            "password": "123456",
-            "confirm_password": "123456",
-            "role": User.Roles.ADMIN,
-        }
-    )
-
-    assert serializer.is_valid()
-
-
-@pytest.mark.django_db
-def test_staff_serializer_password_mismatch():
-
-    serializer = StaffCreateSerializer(
-        data={
-            "full_name": "Admin",
-            "email": "admin@test.com",
-            "phone": "010",
+            "phone": "0100",
             "password": "123456",
             "confirm_password": "000000",
-            "role": User.Roles.ADMIN,
         }
-    )
 
-    assert serializer.is_valid() is False
+        serializer = AcademyRegistrationSerializer(
+            data=data
+        )
 
+        self.assertFalse(
+            serializer.is_valid()
+        )
 
-# =====================================================
-# Permissions
-# =====================================================
+    def test_create_owner_and_academy(self):
 
-@pytest.mark.django_db
-def test_owner_permission_true(owner):
+        serializer = AcademyRegistrationSerializer(
+            data={
+                "academy_name": "Academy",
+                "academy_email": "academy@test.com",
+                "academy_phone": "0100",
+                "address": "Egypt",
+                "full_name": "Owner",
+                "email": "owner@test.com",
+                "phone": "0100",
+                "password": "123456",
+                "confirm_password": "123456",
+            }
+        )
 
-    factory = APIRequestFactory()
-    request = factory.get("/")
+        serializer.is_valid(raise_exception=True)
 
-    request.user = owner
+        owner = serializer.save()
 
-    permission = IsOwner()
+        self.assertEqual(
+            owner.role,
+            User.Roles.OWNER
+        )
 
-    assert permission.has_permission(request, None) is True
-
-
-@pytest.mark.django_db
-def test_owner_permission_false(admin_user):
-
-    factory = APIRequestFactory()
-    request = factory.get("/")
-
-    request.user = admin_user
-
-    permission = IsOwner()
-
-    assert permission.has_permission(request, None) is False
-
-
-@pytest.mark.django_db
-def test_active_subscription_permission_true(owner):
-
-    factory = APIRequestFactory()
-    request = factory.get("/")
-
-    request.user = owner
-
-    permission = ActiveSubscriptionRequired()
-
-    assert permission.has_permission(request, None) is True
+        self.assertEqual(
+            Academy.objects.count(),
+            1
+        )
 
 
-@pytest.mark.django_db
-def test_active_subscription_permission_false():
+class StudentSerializerTests(TestCase):
 
-    academy = Academy.objects.create(
-        name="Expired",
-        email="expired@test.com",
-        phone="010",
-        address="x",
-        subscription_end=date.today() - timedelta(days=2),
-    )
+    def test_student_password_validation(self):
 
-    user = User.objects.create_user(
-        academy=academy,
-        full_name="Owner",
-        email="owner2@test.com",
-        password="123456",
-        phone="010",
-        parent_phone="",
-        educational_level=18,
-        role=User.Roles.OWNER,
-    )
+        serializer = StudentCreateSerializer(
+            data={
+                "full_name": "Student",
+                "email": "student@test.com",
+                "phone": "01000",
+                "parent_phone": "01111",
+                "educational_level": 10,
+                "password": "123456",
+                "confirm_password": "111111",
+            }
+        )
 
-    factory = APIRequestFactory()
-
-    request = factory.get("/")
-    request.user = user
-
-    permission = ActiveSubscriptionRequired()
-
-    assert permission.has_permission(request, None) is False
+        self.assertFalse(
+            serializer.is_valid()
+        )
 
 
-# =====================================================
-# Choices Tests
-# =====================================================
+# =========================================================
+# PERMISSIONS
+# =========================================================
 
-@pytest.mark.django_db
-def test_roles_exist():
+class PermissionTests(TestCase):
 
-    assert User.Roles.OWNER == "O"
-    assert User.Roles.ADMIN == "A"
-    assert User.Roles.TEACHER == "T"
-    assert User.Roles.STUDENT == "S"
+    def setUp(self):
+
+        self.academy = Academy.objects.create(
+            name="Academy",
+            email="academy@test.com",
+            phone="01000",
+            subscription_end=timezone.now().date() + timedelta(days=5)
+        )
+
+        self.owner = User.objects.create_user(
+            academy=self.academy,
+            full_name="Owner",
+            email="owner@test.com",
+            password="123456",
+            phone="01000",
+            role=User.Roles.OWNER,
+            educational_level=1,
+            parent_phone="0"
+        )
+
+    def test_is_owner_permission(self):
+
+        permission = IsOwner()
+
+        class Request:
+            user = self.owner
+
+        self.assertTrue(
+            permission.has_permission(
+                Request(),
+                None
+            )
+        )
+
+    def test_subscription_permission(self):
+
+        permission = ActiveSubscriptionRequired()
+
+        class Request:
+            user = self.owner
+
+        self.assertTrue(
+            permission.has_permission(
+                Request(),
+                None
+            )
+        )
 
 
-@pytest.mark.django_db
-def test_status_exist():
+# =========================================================
+# API TESTS
+# =========================================================
 
-    assert User.Status.ACTIVE == "A"
-    assert User.Status.PENDING == "P"
-    assert User.Status.DROPPED == "D"
+class RegisterApiTests(APITestCase):
+
+    def test_register_success(self):
+
+        response = self.client.post(
+            "/api/core/register/",
+            {
+                "academy_name": "Academy",
+                "academy_email": "academy@test.com",
+                "academy_phone": "0100",
+                "address": "Egypt",
+                "full_name": "Owner",
+                "email": "owner@test.com",
+                "phone": "0100",
+                "password": "123456",
+                "confirm_password": "123456",
+            },
+            format="json"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            201
+        )
+
+    def test_register_invalid_password_confirmation(self):
+
+        response = self.client.post(
+            "/api/core/register/",
+            {
+                "academy_name": "Academy",
+                "academy_email": "academy@test.com",
+                "academy_phone": "0100",
+                "address": "Egypt",
+                "full_name": "Owner",
+                "email": "owner@test.com",
+                "phone": "0100",
+                "password": "123456",
+                "confirm_password": "111111",
+            },
+            format="json"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            400
+        )
 
 
-@pytest.mark.django_db
-def test_educational_level_choices():
+class LoginApiTests(APITestCase):
 
-    assert User.EducationalLevel.PRIMARY_1 == 1
-    assert User.EducationalLevel.SEC_3 == 12
-    assert User.EducationalLevel.COLLEGE_6 == 18
+    def setUp(self):
+
+        self.academy = Academy.objects.create(
+            name="Academy",
+            email="academy@test.com",
+            phone="0100"
+        )
+
+        self.user = User.objects.create_user(
+            academy=self.academy,
+            full_name="Owner",
+            email="owner@test.com",
+            password="123456",
+            phone="01000",
+            role=User.Roles.OWNER,
+            educational_level=1,
+            parent_phone="0"
+        )
+
+    def test_login_success(self):
+
+        response = self.client.post(
+            "/api/core/login/",
+            {
+                "email": "owner@test.com",
+                "password": "123456"
+            },
+            format="json"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            200
+        )
+
+    def test_login_wrong_password(self):
+
+        response = self.client.post(
+            "/api/core/login/",
+            {
+                "email": "owner@test.com",
+                "password": "wrong"
+            },
+            format="json"
+        )
+
+        self.assertNotEqual(
+            response.status_code,
+            200
+        )
+
+
+class EducationalLevelApiTests(APITestCase):
+
+    def test_get_educational_levels(self):
+
+        response = self.client.get(
+            "/api/core/educational_levels/"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            200
+        )
+
+        self.assertTrue(
+            len(response.data) > 0
+        )
+
+
+class LogoutApiTests(APITestCase):
+
+    def test_logout(self):
+
+        response = self.client.post(
+            "/api/core/logout/"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            200
+        )

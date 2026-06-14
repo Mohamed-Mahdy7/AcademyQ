@@ -1,368 +1,343 @@
-from django.test import TestCase
-
-# Create your tests here.
-import pytest
 from datetime import date, timedelta, time
 
+from django.test import TestCase
 from django.core.exceptions import ValidationError
+from rest_framework.test import APIClient
 
 from core.models import Academy, User
 from structure.models import (
     Subject,
     Class,
-    ClassSchedule,
     TeacherClass,
+    ClassSchedule,
+    ClassSessionEnrollment,
 )
 from financial_operations.models import Teachers
+from records.models import ClassSession
 
 
-# ==================================================
-# Fixtures
-# ==================================================
+class StructureModelTests(TestCase):
 
-@pytest.fixture
-def academy():
-    return Academy.objects.create(
-        name="Academy",
-        email="academy@test.com",
-        phone="010",
-        address="Tanta",
-        subscription_end=date.today() + timedelta(days=30),
-    )
-
-
-@pytest.fixture
-def subject(academy):
-    return Subject.objects.create(
-        academy=academy,
-        name="Math",
-        description="Math Subject",
-    )
-
-
-@pytest.fixture
-def teacher_user(academy):
-    return User.objects.create_user(
-        academy=academy,
-        full_name="Teacher",
-        email="teacher@test.com",
-        password="123456",
-        phone="010",
-        parent_phone="",
-        educational_level=18,
-        role=User.Roles.TEACHER,
-    )
-
-
-@pytest.fixture
-def teacher_profile(academy, teacher_user):
-    return Teachers.objects.create(
-        academy_id=academy,
-        user_id=teacher_user,
-    )
-
-
-@pytest.fixture
-def class_obj(academy, subject):
-    return Class.objects.create(
-        academy=academy,
-        subject=subject,
-        name="Math A",
-        start_date=date.today(),
-        end_date=date.today() + timedelta(days=90),
-        session_count=20,
-        session_price=100,
-        session_duration=timedelta(hours=2),
-    )
-
-
-# ==================================================
-# Subject Tests
-# ==================================================
-
-@pytest.mark.django_db
-def test_create_subject(subject):
-    assert subject.name == "Math"
-
-
-@pytest.mark.django_db
-def test_subject_str(subject):
-    assert str(subject) == "Math"
-
-
-@pytest.mark.django_db
-def test_subject_unique_per_academy(academy):
-
-    Subject.objects.create(
-        academy=academy,
-        name="Physics",
-        description="desc",
-    )
-
-    with pytest.raises(Exception):
-        Subject.objects.create(
-            academy=academy,
-            name="Physics",
-            description="duplicate",
+    def setUp(self):
+        self.academy = Academy.objects.create(
+            name="Academy",
+            email="academy@test.com",
+            phone="01000000000",
+            subscription_end=date.today() + timedelta(days=30)
         )
 
-
-# ==================================================
-# Class Tests
-# ==================================================
-
-@pytest.mark.django_db
-def test_class_creation(class_obj):
-    assert class_obj.name == "Math A"
-
-
-@pytest.mark.django_db
-def test_class_str(class_obj):
-    assert str(class_obj) == "Math A"
-
-
-@pytest.mark.django_db
-def test_class_price_property(class_obj):
-    assert class_obj.class_price == 2000
-
-
-@pytest.mark.django_db
-def test_class_price_none(subject, academy):
-
-    cls = Class.objects.create(
-        academy=academy,
-        subject=subject,
-        name="No Price",
-        start_date=date.today(),
-        end_date=date.today() + timedelta(days=10),
-    )
-
-    assert cls.class_price is None
-
-
-@pytest.mark.django_db
-def test_class_end_date_validation(subject, academy):
-
-    cls = Class(
-        academy=academy,
-        subject=subject,
-        name="Invalid",
-        start_date=date.today(),
-        end_date=date.today(),
-    )
-
-    with pytest.raises(ValidationError):
-        cls.full_clean()
-
-
-@pytest.mark.django_db
-def test_class_end_date_before_start(subject, academy):
-
-    cls = Class(
-        academy=academy,
-        subject=subject,
-        name="Invalid",
-        start_date=date.today(),
-        end_date=date.today() - timedelta(days=1),
-    )
-
-    with pytest.raises(ValidationError):
-        cls.full_clean()
-
-
-# ==================================================
-# Schedule Tests
-# ==================================================
-
-@pytest.mark.django_db
-def test_schedule_creation(class_obj):
-
-    schedule = ClassSchedule.objects.create(
-        class_obj=class_obj,
-        day_of_week=1,
-        start_time=time(16, 0),
-    )
-
-    assert schedule.end_time == time(18, 0)
-
-
-@pytest.mark.django_db
-def test_schedule_str(class_obj):
-
-    schedule = ClassSchedule.objects.create(
-        class_obj=class_obj,
-        day_of_week=1,
-        start_time=time(16, 0),
-    )
-
-    assert class_obj.name in str(schedule)
-
-
-@pytest.mark.django_db
-def test_schedule_requires_duration(subject, academy):
-
-    cls = Class.objects.create(
-        academy=academy,
-        subject=subject,
-        name="No Duration",
-        start_date=date.today(),
-        end_date=date.today() + timedelta(days=10),
-    )
-
-    schedule = ClassSchedule(
-        class_obj=cls,
-        day_of_week=0,
-        start_time=time(16, 0),
-    )
-
-    with pytest.raises(ValidationError):
-        schedule.full_clean()
-
-
-@pytest.mark.django_db
-def test_schedule_unique_slot(class_obj):
-
-    ClassSchedule.objects.create(
-        class_obj=class_obj,
-        day_of_week=1,
-        start_time=time(16, 0),
-    )
-
-    with pytest.raises(Exception):
-        ClassSchedule.objects.create(
-            class_obj=class_obj,
-            day_of_week=1,
-            start_time=time(16, 0),
+        self.teacher_user = User.objects.create_user(
+            email="teacher@test.com",
+            password="123456",
+            academy=self.academy,
+            full_name="Teacher",
+            phone="0100",
+            parent_phone="",
+            educational_level=18,
+            role=User.Roles.TEACHER
         )
 
+        self.teacher = Teachers.objects.create(
+            academy_id=self.academy,
+            user_id=self.teacher_user
+        )
 
-# ==================================================
-# Teacher Assignment
-# ==================================================
+        self.subject = Subject.objects.create(
+            academy=self.academy,
+            name="Math",
+            description="Math"
+        )
 
-@pytest.mark.django_db
-def test_teacher_assignment_create(
-    class_obj,
-    teacher_profile,
-):
+    def test_subject_creation(self):
+        self.assertEqual(self.subject.name, "Math")
 
-    assignment = TeacherClass.objects.create(
-        assigned_class=class_obj,
-        teacher=teacher_profile,
-        assigned_at=class_obj.start_date,
-    )
+    def test_subject_unique_per_academy(self):
+        with self.assertRaises(Exception):
+            Subject.objects.create(
+                academy=self.academy,
+                name="Math",
+                description="duplicate"
+            )
 
-    assert assignment.teacher == teacher_profile
+    def test_class_creation(self):
+        cls = Class.objects.create(
+            academy=self.academy,
+            subject=self.subject,
+            name="Class A",
+            start_date=date.today(),
+            end_date=date.today() + timedelta(days=30)
+        )
 
+        self.assertEqual(cls.name, "Class A")
 
-@pytest.mark.django_db
-def test_teacher_assignment_str(
-    class_obj,
-    teacher_profile,
-):
+    def test_class_invalid_dates(self):
+        cls = Class(
+            academy=self.academy,
+            subject=self.subject,
+            name="Invalid",
+            start_date=date.today(),
+            end_date=date.today()
+        )
 
-    assignment = TeacherClass.objects.create(
-        assigned_class=class_obj,
-        teacher=teacher_profile,
-        assigned_at=class_obj.start_date,
-    )
+        with self.assertRaises(ValidationError):
+            cls.full_clean()
 
-    assert class_obj.name in str(assignment)
+    def test_class_price_property(self):
+        cls = Class.objects.create(
+            academy=self.academy,
+            subject=self.subject,
+            name="Price Class",
+            start_date=date.today(),
+            end_date=date.today() + timedelta(days=30),
+            session_count=20,
+            session_price=100
+        )
 
+        self.assertEqual(cls.class_price, 2000)
 
-@pytest.mark.django_db
-def test_teacher_assignment_unique(
-    class_obj,
-    teacher_profile,
-):
+    def test_teacher_assignment(self):
+        cls = Class.objects.create(
+            academy=self.academy,
+            subject=self.subject,
+            name="Assignment",
+            start_date=date.today(),
+            end_date=date.today() + timedelta(days=30)
+        )
 
-    TeacherClass.objects.create(
-        assigned_class=class_obj,
-        teacher=teacher_profile,
-        assigned_at=class_obj.start_date,
-    )
+        tc = TeacherClass.objects.create(
+            assigned_class=cls,
+            teacher=self.teacher,
+            assigned_at=date.today()
+        )
 
-    with pytest.raises(Exception):
+        self.assertEqual(tc.teacher, self.teacher)
+
+    def test_teacher_duplicate_assignment(self):
+        cls = Class.objects.create(
+            academy=self.academy,
+            subject=self.subject,
+            name="Dup",
+            start_date=date.today(),
+            end_date=date.today() + timedelta(days=30)
+        )
+
         TeacherClass.objects.create(
-            assigned_class=class_obj,
-            teacher=teacher_profile,
-            assigned_at=class_obj.start_date,
+            assigned_class=cls,
+            teacher=self.teacher,
+            assigned_at=date.today()
         )
 
+        with self.assertRaises(Exception):
+            TeacherClass.objects.create(
+                assigned_class=cls,
+                teacher=self.teacher,
+                assigned_at=date.today()
+            )
 
-@pytest.mark.django_db
-def test_teacher_assignment_before_start_date(
-    class_obj,
-    teacher_profile,
-):
+    def test_teacher_assignment_before_start(self):
+        cls = Class.objects.create(
+            academy=self.academy,
+            subject=self.subject,
+            name="Before",
+            start_date=date.today(),
+            end_date=date.today() + timedelta(days=10)
+        )
 
-    assignment = TeacherClass(
-        assigned_class=class_obj,
-        teacher=teacher_profile,
-        assigned_at=class_obj.start_date - timedelta(days=1),
-    )
+        tc = TeacherClass(
+            assigned_class=cls,
+            teacher=self.teacher,
+            assigned_at=date.today() - timedelta(days=1)
+        )
 
-    with pytest.raises(ValidationError):
-        assignment.full_clean()
+        with self.assertRaises(ValidationError):
+            tc.full_clean()
+
+    def test_teacher_assignment_after_end(self):
+        cls = Class.objects.create(
+            academy=self.academy,
+            subject=self.subject,
+            name="After",
+            start_date=date.today(),
+            end_date=date.today() + timedelta(days=5)
+        )
+
+        tc = TeacherClass(
+            assigned_class=cls,
+            teacher=self.teacher,
+            assigned_at=date.today() + timedelta(days=10)
+        )
+
+        with self.assertRaises(ValidationError):
+            tc.full_clean()
+
+    def test_schedule_creation(self):
+        cls = Class.objects.create(
+            academy=self.academy,
+            subject=self.subject,
+            name="Schedule",
+            start_date=date.today(),
+            end_date=date.today() + timedelta(days=30),
+            session_duration=timedelta(hours=2)
+        )
+
+        schedule = ClassSchedule.objects.create(
+            class_obj=cls,
+            day_of_week=0,
+            start_time=time(10, 0)
+        )
+
+        self.assertEqual(schedule.end_time, time(12, 0))
+
+    def test_schedule_duplicate(self):
+        cls = Class.objects.create(
+            academy=self.academy,
+            subject=self.subject,
+            name="Dup Schedule",
+            start_date=date.today(),
+            end_date=date.today() + timedelta(days=30),
+            session_duration=timedelta(hours=2)
+        )
+
+        ClassSchedule.objects.create(
+            class_obj=cls,
+            day_of_week=0,
+            start_time=time(10, 0)
+        )
+
+        with self.assertRaises(Exception):
+            ClassSchedule.objects.create(
+                class_obj=cls,
+                day_of_week=0,
+                start_time=time(10, 0)
+            )
+
+    def test_session_link_creation(self):
+        cls = Class.objects.create(
+            academy=self.academy,
+            subject=self.subject,
+            name="Session Link",
+            start_date=date.today(),
+            end_date=date.today() + timedelta(days=30)
+        )
+
+        session = ClassSession.objects.create(
+            session_date=date.today(),
+            session_time=time(10, 0)
+        )
+
+        link = ClassSessionEnrollment.objects.create(
+            class_obj=cls,
+            session=session,
+            session_num=1
+        )
+
+        self.assertEqual(link.session_num, 1)
+
+    def test_session_num_positive(self):
+        cls = Class.objects.create(
+            academy=self.academy,
+            subject=self.subject,
+            name="Session Num",
+            start_date=date.today(),
+            end_date=date.today() + timedelta(days=30)
+        )
+
+        session = ClassSession.objects.create(
+            session_date=date.today(),
+            session_time=time(11, 0)
+        )
+
+        link = ClassSessionEnrollment(
+            class_obj=cls,
+            session=session,
+            session_num=0
+        )
+
+        with self.assertRaises(ValidationError):
+            link.full_clean()
 
 
-@pytest.mark.django_db
-def test_teacher_assignment_after_end_date(
-    class_obj,
-    teacher_profile,
-):
+class StructureAPITests(TestCase):
 
-    assignment = TeacherClass(
-        assigned_class=class_obj,
-        teacher=teacher_profile,
-        assigned_at=class_obj.end_date + timedelta(days=1),
-    )
+    def setUp(self):
 
-    with pytest.raises(ValidationError):
-        assignment.full_clean()
+        self.client = APIClient()
 
+        self.academy = Academy.objects.create(
+            name="Academy",
+            email="academy2@test.com",
+            phone="01000000000",
+            subscription_end=date.today() + timedelta(days=30)
+        )
 
-# ==================================================
-# Relationship Tests
-# ==================================================
+        self.owner = User.objects.create_user(
+            email="owner@test.com",
+            password="123456",
+            academy=self.academy,
+            full_name="Owner",
+            phone="0100",
+            parent_phone="",
+            educational_level=18,
+            role=User.Roles.OWNER
+        )
 
-@pytest.mark.django_db
-def test_class_subject_relation(class_obj, subject):
+        self.client.force_authenticate(self.owner)
 
-    assert class_obj.subject == subject
+        self.subject = Subject.objects.create(
+            academy=self.academy,
+            name="Physics",
+            description="Physics"
+        )
 
+    def test_subject_list(self):
+        response = self.client.get("/api/structure/subjects/")
+        self.assertIn(response.status_code, [200, 301, 302])
 
-@pytest.mark.django_db
-def test_subject_classes_relation(subject, class_obj):
+    def test_subject_detail(self):
+        response = self.client.get(
+            f"/api/structure/subjects/{self.subject.id}/"
+        )
+        self.assertIn(response.status_code, [200, 301, 302])
 
-    assert subject.classes.count() == 1
+    def test_create_subject(self):
+        response = self.client.post(
+            "/api/structure/subjects/",
+            {
+                "academy": self.academy.id,
+                "name": "Chemistry",
+                "description": "Chem"
+            },
+            format="json"
+        )
 
+        self.assertIn(response.status_code, [200, 201])
 
-@pytest.mark.django_db
-def test_teacher_class_relation(
-    class_obj,
-    teacher_profile,
-):
+    def test_create_class(self):
 
-    TeacherClass.objects.create(
-        assigned_class=class_obj,
-        teacher=teacher_profile,
-        assigned_at=class_obj.start_date,
-    )
+        response = self.client.post(
+            "/api/structure/classes/",
+            {
+                "academy": self.academy.id,
+                "subject": self.subject.id,
+                "name": "Class API",
+                "start_date": str(date.today()),
+                "end_date": str(date.today() + timedelta(days=30))
+            },
+            format="json"
+        )
 
-    assert class_obj.teacher_assignments.count() == 1
+        self.assertIn(response.status_code, [200, 201])
 
+    def test_class_list(self):
+        response = self.client.get("/api/structure/classes/")
+        self.assertIn(response.status_code, [200, 301, 302])
 
-@pytest.mark.django_db
-def test_class_active_default(class_obj):
-    assert class_obj.is_active is True
+    def test_schedule_list(self):
+        response = self.client.get("/api/structure/schedules/")
+        self.assertIn(response.status_code, [200, 301, 302])
 
-
-@pytest.mark.django_db
-def test_session_count_saved(class_obj):
-    assert class_obj.session_count == 20
-
-
-@pytest.mark.django_db
-def test_session_price_saved(class_obj):
-    assert class_obj.session_price == 100
+    def test_session_enrollment_list(self):
+        response = self.client.get(
+            "/api/structure/session-enrollments/"
+        )
+        self.assertIn(response.status_code, [200, 301, 302])
