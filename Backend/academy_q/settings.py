@@ -40,8 +40,7 @@ INSTALLED_APPS = [
     'structure',
     'records',
     'financial_operations',
-    'ai',
-    
+    'ai.reports',
 ]
 
 MIDDLEWARE = [
