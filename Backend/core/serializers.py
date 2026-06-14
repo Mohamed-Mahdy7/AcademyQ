@@ -224,12 +224,21 @@ class StudentCreateSerializer(serializers.ModelSerializer):
         )
 
 
+class EnrollmentSimpleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Enrollment
+        fields = ["id"]
+
+
 class StudentProfileUpdateSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(
         source="get_status_display",
         read_only=True
     )
-    enrollments = serializers.SerializerMethodField()
+    enrollments = EnrollmentSimpleSerializer(
+        many=True,
+        read_only=True
+    )
     attendance_percentage = serializers.SerializerMethodField()
     total_paid = serializers.SerializerMethodField()
 
@@ -240,9 +249,6 @@ class StudentProfileUpdateSerializer(serializers.ModelSerializer):
             "educational_level", "enrolled_at", "status", "status_display", 
             "enrollments", "attendance_percentage", "total_paid", "created_at", "updated_at"
         ]
-    
-    def get_enrollments(self, obj):
-        return obj.enrollments.count()
 
     def get_attendance_percentage(self, obj):
         total = Attendance.objects.filter(
