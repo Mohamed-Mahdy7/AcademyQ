@@ -2,7 +2,7 @@ import { useState } from "react";
 import ClassGradeSummaryTab from "./ClassGradeSummaryTab";
 import GradeForm from "./gradeform";
 
-export default function GradesTabContent({ classId, enrollments, sessions }) {
+export default function GradesTabContent({ classId, enrollments, sessions, subjectName }) {
   const [view, setView] = useState("summary"); // "summary" | "form"
 
   return (
@@ -23,11 +23,12 @@ export default function GradesTabContent({ classId, enrollments, sessions }) {
       </div>
 
       {view === "summary" ? (
-        <ClassGradeSummaryTab classId={classId} enrollments={enrollments} />
+    <ClassGradeSummaryTab classId={classId} enrollments={enrollments} />
       ) : (
         <GradeForm
           enrollments={enrollments}
           sessions={sessions}
+          subjectName={subjectName}
           onSuccess={() => setView("summary")}
         />
       )}
