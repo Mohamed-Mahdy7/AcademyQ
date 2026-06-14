@@ -4,6 +4,7 @@ __pycache__
 Dockerfile
 docker-compose.yml
 Backend/*/migrations/*
+Backend/*/*/migrations/*
 Backend/API_Docs.md
 cookies*
 AcademiQ_MVP_DB_Models.md
