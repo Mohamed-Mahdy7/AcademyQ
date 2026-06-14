@@ -1,5 +1,6 @@
 from rest_framework.routers import DefaultRouter
 from core.views import UserViewSet
+from ai.reports.views import AIReportCardViewSet
 from financial_operations.views import (
     EnrollmentViewSet,
     TeachersViewSet,
@@ -28,5 +29,6 @@ router.register(
     ClassSessionEnrollmentViewSet,
     basename="class-session-enrollment",
 )
+router.register("reports", AIReportCardViewSet, basename="ai-report")
 
 urlpatterns = router.urls
