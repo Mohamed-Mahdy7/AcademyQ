@@ -3,11 +3,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
     getClass,
     getClassSessions,
+    getClassEnrollments,
 } from "../../services/classService";
 import ScheduleSection from "../../components/classes/ScheduleSection";
 import SessionsTab from "../../components/attendance/SessionsTab";
 import TeachersTab from "../../components/classes/TeachersTab";
 import EnrollmentTab from "../../components/enrollments/EnrollmentTab";
+import { GradeProvider } from "../../context/gradecontext";
+import GradesTabContent from "../../components/grades/GradesTabContent";
 
 const TABS = ["Students", "Sessions", "Grades", "Teachers"];
 
@@ -18,16 +21,19 @@ function ClassDetailPage() {
     const [sessions, setSessions] = useState([]);
     const [activeTab, setActiveTab] = useState("Students");
     const [loading, setLoading] = useState(true);
+    const [enrollments, setEnrollments] = useState([]);
 
     useEffect(() => {
         const fetchAll = async () => {
             try {
-                const [classRes, sessionsRes] = await Promise.all([
-                    getClass(id),
-                    getClassSessions(id),
-                ]);
-                setClassData(classRes.data);
-                setSessions(sessionsRes.data);
+                const [classRes, sessionsRes, enrollmentsRes] = await Promise.all([
+    getClass(id),
+    getClassSessions(id),
+    getClassEnrollments(id),
+]);
+setClassData(classRes.data);
+setSessions(sessionsRes.data.results ?? sessionsRes.data);
+setEnrollments(enrollmentsRes.data.results ?? enrollmentsRes.data);
             } catch (error) {
                 console.error("Error loading class detail:", error);
             } finally {
@@ -143,12 +149,14 @@ function ClassDetailPage() {
                         <SessionsTab sessions={sessions} classId={id} />
                     )}
                     {activeTab === "Grades" && (
-                        <div className="empty-state">
-                            <p className="empty-state-title">Grades coming soon</p>
-                            <p className="empty-state-desc">
-                                Grade tracking will be available here.
-                            </p>
-                        </div>
+                        <GradeProvider>
+                            <GradesTabContent
+                                classId={id}
+                                enrollments={enrollments}
+                                sessions={sessions}
+                                subjectName={classData.subject_name}
+                            />
+                        </GradeProvider>
                     )}
                     {activeTab === "Teachers" && (
                         <TeachersTab

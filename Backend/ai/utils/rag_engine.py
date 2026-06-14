@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from financial_operations.models import Enrollment, Payment
 from records.models import Attendance
+from .retrieval import get_similar_student_context
 
 
 User = get_user_model()
@@ -47,7 +48,6 @@ def get_teacher_notes(student):
     """
     Placeholder for future teacher notes.
     """
-
     return "This is where the teacher notes will appear"
 
 
@@ -62,6 +62,7 @@ def get_student_context(student_id):
     missed_classes = calculate_missed_classes(student)
     payment_status = get_payment_status(student)
     teacher_notes = get_teacher_notes(student)
+    similar_students = get_similar_student_context(student)
 
     enrollments = Enrollment.objects.filter(
         student_id=student
@@ -80,5 +81,6 @@ def get_student_context(student_id):
         "enrollment_count": enrollments.count(),
         "parent_phone": student.parent_phone,
         "status": student.get_status_display(),
+        "similar_students": similar_students,
         "academy_id": str(student.academy_id) if student.academy_id else None,
     }

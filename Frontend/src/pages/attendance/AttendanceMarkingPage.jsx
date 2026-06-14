@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import api from "../../api";
 import AttendanceToast from "../../components/attendance/AttendanceToast";
 import SessionControls from "../../components/attendance/SessionControls";
@@ -15,9 +15,14 @@ export default function AttendanceMarkingPage() {
   const [enrollments, setEnrollments] = useState([]);
   const [attendance, setAttendance] = useState({});
   const [sessionId, setSessionId] = useState(null);
+  const [sessionTime, setSessionTime] = useState('00:00:00');
   const [isEditMode, setIsEditMode] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState(null);
+  const [classData, setClassData] = useState(null);
+  const [currentSessionNum, setCurrentSessionNum] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     api.get(`/api/enrollments/?class_id=${classId}`)
@@ -41,6 +46,7 @@ export default function AttendanceMarkingPage() {
           setSessionId(existing.id);
           setIsEditMode(true);
           setNotes(existing.notes || "");
+          setCurrentSessionNum(existing.session_num);
           return api.get(`/api/sessions/${existing.id}/attendance/`);
         } else {
           setSessionId(null);
@@ -58,6 +64,12 @@ export default function AttendanceMarkingPage() {
       })
       .catch(() => showToast("danger", "Failed to check session."));
   }, [classId, selectedDate]);
+
+  useEffect(() => {
+      api.get(`/api/classes/${classId}/`)
+          .then(res => setClassData(res.data))
+          .catch(() => {});
+  }, [classId]);
 
   const showToast = (type, message) => {
     setToast({ type, message });
@@ -79,12 +91,15 @@ export default function AttendanceMarkingPage() {
       let activeSessionId = sessionId;
       if (!activeSessionId) {
         const sessionRes = await api.post(`/api/sessions/`, {
-          class_obj: classId,
+          class_ids: [classId],
           session_date: selectedDate,
+          session_time: sessionTime,
           notes,
         });
+        console.log("session response:", sessionRes.data);
         activeSessionId = sessionRes.data.id;
         setSessionId(activeSessionId);
+        setCurrentSessionNum(sessionRes.data.session_num);
       }
       await api.post(`/api/sessions/${activeSessionId}/attendance/`, { records });
       showToast("success", isEditMode ? "Attendance updated." : "Attendance saved.");
@@ -99,21 +114,40 @@ export default function AttendanceMarkingPage() {
     <div className="page-body">
       <AttendanceToast toast={toast} />
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-start gap-3 mb-6">
+          <button
+              className="btn-icon mt-1"
+              onClick={() => {
+                  console.log("navigating to:", `/classes/${classId}`);
+                  navigate(`/classes/${classId}`);
+              }}
+          >
+              ←
+          </button>
         <div>
-          <h1 className="heading-1">Attendance Marking</h1>
-          <p className="subheading">Class ID: {classId}</p>
+            <h1 className="heading-1">
+                {classData?.name ?? 'Attendance'}
+            </h1>
+            <div className="flex items-center gap-3 mt-1">
+                {currentSessionNum && (
+                    <span className="text-caption">
+                        Session {currentSessionNum}
+                    </span>
+                )}
+                {isEditMode && (
+                    <span className="badge-warning">Edit Mode</span>
+                )}
+            </div>
         </div>
-        {isEditMode && (
-          <span className="badge-warning">Edit Mode</span>
-        )}
-      </div>
+    </div>
 
       <SessionControls
         selectedDate={selectedDate}
         notes={notes}
+        sessionTime={sessionTime}
         onDateChange={setSelectedDate}
         onNotesChange={setNotes}
+        onTimeChange={setSessionTime}
       />
 
       <StudentAttendanceGrid
