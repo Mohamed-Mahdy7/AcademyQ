@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'records',
     'financial_operations',
     'ai',
-    
+    'ai.reports',
 ]
 
 MIDDLEWARE = [
