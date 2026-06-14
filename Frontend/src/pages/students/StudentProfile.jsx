@@ -63,7 +63,7 @@ const StudentProfile = () => {
                 </div>
                 <div className="flex flex-col gap-3">
                     {student.status === 'A' ?
-                        <span className="badge-success h-6">
+                        <span className="badge-success h-6 text-center block">
                             {student.status_display}
                         </span>
                         : student.status === 'P' ?
@@ -146,9 +146,7 @@ const StudentProfile = () => {
                         <StudentEnrollmentTab studentId={student.id} />
                     )}
                     {activeTab === "Grades" && (
-                        <GradeHistoryTab 
-                        enrollmentId={student.enrollments.map(e => e.id)}
-                        />
+                        <GradeHistoryTab studentId={student.id} />
                     )}
                     {activeTab === "Payments" && (
                         <StudentPaymentTab studentId={student.id} />
