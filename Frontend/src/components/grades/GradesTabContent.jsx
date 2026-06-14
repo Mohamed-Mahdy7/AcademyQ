@@ -1,6 +1,6 @@
 import { useState } from "react";
 import ClassGradeSummaryTab from "./ClassGradeSummaryTab";
-import GradeForm from "./GradeForm";
+import GradeForm from "./gradeform";
 
 export default function GradesTabContent({ classId, enrollments, sessions }) {
   const [view, setView] = useState("summary"); // "summary" | "form"
