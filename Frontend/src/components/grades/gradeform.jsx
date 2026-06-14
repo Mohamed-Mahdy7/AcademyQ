@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useGrades } from "../../context/gradecontext";
+import api from "../../api";
 
-export default function GradeForm({ enrollments = [], sessions = [], subjectName = "" }) {
+export default function GradeForm({ enrollments = [], sessions = [], onSuccess }) {
   const { addGrade } = useGrades();
 
   const [form, setForm] = useState({
     enrollment: "",
     session: "",
-    subject_name: subjectName,
+    subject_name: "",
     score: "",
     max_score: "",
     assigned_at: "",
@@ -15,6 +16,13 @@ export default function GradeForm({ enrollments = [], sessions = [], subjectName
 
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [subjects, setSubjects] = useState([]);
+
+  useEffect(() => {
+        api.get('/api/subjects/')
+            .then(res => setSubjects(res.data.results ?? res.data))
+            .catch(() => {});
+    }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -37,17 +45,19 @@ export default function GradeForm({ enrollments = [], sessions = [], subjectName
       assigned_at: form.assigned_at,
     };
 
+
     try {
       await addGrade(payload);
       setSuccess(true);
       setForm({
         enrollment: "",
         session: "",
-        subject_name: subjectName,
+        subject_name: "",
         score: "",
         max_score: "",
         assigned_at: "",
       });
+      if (onSuccess) onSuccess();
     } catch (error) {
       setError(error.response?.data?.detail || "Error adding grade.");
     }
@@ -95,14 +105,20 @@ export default function GradeForm({ enrollments = [], sessions = [], subjectName
       </div>
 
       <div className="form-field">
-        <label className="form-label">Subject Name <span className="form-required">*</span></label>
-        <input
-          type="text"
-          name="subject_name"
-          value={form.subject_name}
-          onChange={handleChange}
-          className="form-input"
-        />
+          <label className="form-label">Subject <span className="form-required">*</span></label>
+          <select
+              name="subject_name"
+              value={form.subject_name}
+              onChange={handleChange}
+              className="form-select"
+          >
+              <option value="">Select Subject</option>
+              {subjects.map((s) => (
+                  <option key={s.id} value={s.name}>
+                      {s.name}
+                  </option>
+              ))}
+          </select>
       </div>
 
       <div className="grid grid-cols-2 gap-4">

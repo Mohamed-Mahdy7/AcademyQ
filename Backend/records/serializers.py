@@ -23,31 +23,34 @@ class ClassSessionSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        class_obj_id = self.context['request'].data.get('class_id')
-        if not class_obj_id:
-            raise serializers.ValidationError({'class_id': 'This field is required.'})
+        class_ids = self.context['request'].data.get('class_ids', [])
+        if not class_ids:
+            raise serializers.ValidationError({'class_ids': 'This field is required and must be a non-empty list.'})
 
         from structure.models import ClassSessionEnrollment, Class
-        try:
-            cls = Class.objects.get(id=class_obj_id)
-        except Class.DoesNotExist:
-            raise serializers.ValidationError({'class_id': 'Class not found.'})
+        classes = Class.objects.filter(id__in=class_ids, academy_id=self.context['request'].user.academy_id)
+        if not classes.exists():
+            raise serializers.ValidationError({'class_ids': 'No valid classes found.'})
 
         with transaction.atomic():
-            last = (
-                ClassSessionEnrollment.objects
-                .select_for_update()
-                .filter(class_obj=cls)
-                .order_by('session_num')
-                .last()
-            )
-            next_num = (last.session_num + 1) if last else 1
             session = ClassSession.objects.create(**validated_data)
-            ClassSessionEnrollment.objects.create(
-                session=session,
-                class_obj=cls,
-                session_num=next_num,
-            )
+            last_junction = None
+            for cls in classes:
+                last = (
+                    ClassSessionEnrollment.objects
+                    .select_for_update()
+                    .filter(class_obj=cls)
+                    .order_by('session_num')
+                    .last()
+                )
+                next_num = (last.session_num + 1) if last else 1
+                last_junction = ClassSessionEnrollment.objects.create(
+                    session=session,
+                    class_obj=cls,
+                    session_num=next_num,
+                )
+        if last_junction:
+            session.session_num = last_junction.session_num
         return session
 
 
