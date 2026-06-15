@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'records',
     'financial_operations',
     'ai',
-    
+    'ai.notifications',
+    'ai.reports',
 ]
 
 MIDDLEWARE = [
@@ -191,3 +192,42 @@ EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 EMAIL_PORT = os.getenv("EMAIL_PORT")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+INFOBIP_API_KEY = os.getenv("INFOBIP_API_KEY")
+INFOBIP_BASE_URL = os.getenv("INFOBIP_BASE_URL")
+INFOBIP_SENDER = os.getenv("INFOBIP_SENDER")
+
+# celery
+CELERY_RESULT_BACKEND = os.getenv("REDIS_URL")
+CELERY_BROKER_URL= os.getenv("REDIS_URL")
+
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+
+CELERY_BEAT_SCHEDULE = {
+    "test-every-30-sec": {
+        "task": "ai.tasks.send_email",
+        "schedule": 30.0,
+    }
+}
+
+# from celery.schedules import crontab
+# CELERY_BEAT_SCHEDULE = {
+#     "weekly-student-scan": {
+#         "task": "ai.agent.tasks.weekly_student_scan",
+#         "schedule": crontab(
+#             minute=0,
+#             hour=8,
+#             day_of_week=1,
+#         ),
+#     },
+
+#     "daily-payment-reminders": {
+#         "task": "ai.notifications.reminder_tasks.send_payment_reminders",
+#         "schedule": crontab(
+#             minute=0,
+#             hour=9,
+#         ),
+#     },
+# }
