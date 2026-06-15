@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'records',
     'financial_operations',
     'ai',
+    'ai.notifications',
     'ai.reports',
 ]
 
@@ -191,3 +192,7 @@ EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 EMAIL_PORT = os.getenv("EMAIL_PORT")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+INFOBIP_API_KEY = os.getenv("INFOBIP_API_KEY")
+INFOBIP_BASE_URL = os.getenv("INFOBIP_BASE_URL")
+INFOBIP_SENDER = os.getenv("INFOBIP_SENDER")
