@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'records',
     'financial_operations',
     'ai',
+    'ai.notifications',
     'ai.reports',
 ]
 
