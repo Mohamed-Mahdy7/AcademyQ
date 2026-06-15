@@ -1,8 +1,8 @@
 *env
 __pycache__
 .dockerignore
-Dockerfile
-docker-compose.yml
+# Dockerfile
+# docker-compose.yml
 Backend/*/migrations/*
 Backend/*/*/migrations/*
 Backend/API_Docs.md

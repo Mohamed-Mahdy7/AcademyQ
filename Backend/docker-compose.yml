@@ -1,0 +1,54 @@
+services:
+  web:
+    container_name: backend
+    build: .
+    env_file:
+      - .env
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    depends_on:
+      - postgres
+      - redis
+    
+    
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: academy_q
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 257322
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  
+  redis:
+    image: redis:latest
+    container_name: redis
+  
+  celery:
+    container_name: celery
+    build: .
+    env_file:
+      - .env
+    command: celery -A academy_q worker -l INFO
+    restart: always
+    depends_on:
+      - postgres
+      - redis
+  
+  celery-beat:
+    build: .
+    container_name: celery-beat
+    command: celery -A academy_q beat -l INFO
+    depends_on: 
+      - redis
+      - postgres
+
+volumes:
+  postgres_data:
