@@ -199,3 +199,30 @@ CELERY_BROKER_URL= os.getenv("REDIS_URL")
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
+
+CELERY_BEAT_SCHEDULE = {
+    "test-every-30-sec": {
+        "task": "ai.tasks.send_email",
+        "schedule": 30.0,
+    }
+}
+
+# from celery.schedules import crontab
+# CELERY_BEAT_SCHEDULE = {
+#     "weekly-student-scan": {
+#         "task": "ai.agent.tasks.weekly_student_scan",
+#         "schedule": crontab(
+#             minute=0,
+#             hour=8,
+#             day_of_week=1,
+#         ),
+#     },
+
+#     "daily-payment-reminders": {
+#         "task": "ai.notifications.reminder_tasks.send_payment_reminders",
+#         "schedule": crontab(
+#             minute=0,
+#             hour=9,
+#         ),
+#     },
+# }
