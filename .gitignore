@@ -3,7 +3,8 @@ __pycache__
 .dockerignore
 Dockerfile
 docker-compose.yml
-**/migrations/
+Backend/*/migrations/*
+Backend/*/*/migrations/*
 Backend/API_Docs.md
 cookies*
 academiq_db_schema.md
