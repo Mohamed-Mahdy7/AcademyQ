@@ -1,160 +1,170 @@
 import logging
-from datetime import date, timedelta
+from datetime import date
 from django.utils import timezone
+from ai.utils.gemini_client import generate_text
+from ai.utils.prompt_builder import build_payment_reminder_prompt
+from ai.utils.rag_engine import get_student_context
+from financial_operations.models import Payment
+from .models import Notification
+from .services.infobip_sms import send_sms_infobip
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
 
-def send_sms(to_number: str, body: str) -> bool:
+def send_payment_reminder(payment_id: str) -> dict:
     """
-    Sends SMS via Twilio.
-    If Twilio keys are not set yet, just logs to console (safe for dev).
+    Sends a payment reminder for a single overdue payment.
+    Called by the Celery task or manually.
+    Returns a result dict with success/failure info.
     """
-    if not settings.TWILIO_ACCOUNT_SID:
-        logger.info("[MOCK_SMS] To: %s | Body: %s", to_number, body)
-        return True
-
     try:
-        from twilio.rest import Client
-        client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-        client.messages.create(
-            body=body,
-            from_=settings.TWILIO_FROM_NUMBER,
-            to=to_number,
+        payment = Payment.objects.select_related(
+            'enrollment_id__student_id',
+            'enrollment_id__class_id',
+        ).get(id=payment_id)
+
+        student = payment.enrollment_id.student_id
+        enrollment = payment.enrollment_id
+        class_obj = enrollment.class_id
+
+        # Get student context from RAG engine
+        student_context = get_student_context(str(student.id))
+
+        # Build the reminder prompt
+        prompt = build_payment_reminder_prompt({
+            "student_name": student.full_name,
+            "parent_name": "Parent",
+            "outstanding_balance": f"{class_obj.session_count * class_obj.session_price} EGP"
+                if class_obj.session_count and class_obj.session_price else "Unknown",
+            "due_date": str(payment.due_date) if payment.due_date else "Not specified",
+        })
+
+        # Generate message using Gemini
+        message = generate_text(prompt)
+
+        # Create notification record
+        notification = Notification.objects.create(
+            student=student,
+            enrollment=enrollment,
+            channel='sms',
+            notification_type='payment_reminder',
+            message=message,
+            status='pending',
         )
-        return True
+
+        # Send via Twilio or mock
+        delivery_status = _send_sms(
+            phone=student.parent_phone or student.phone,
+            message=message,
+        )
+
+        # Update status based on delivery result
+        notification.status = delivery_status
+        notification.sent_at = timezone.now()
+        notification.save()
+
+        logger.info(
+            "Payment reminder sent | student=%s | payment=%s | status=%s",
+            student.full_name, payment_id, delivery_status
+        )
+
+        return {
+            "success": True,
+            "notification_id": str(notification.id),
+            "status": delivery_status,
+            "student": student.full_name,
+        }
+
+    except Payment.DoesNotExist:
+        logger.error("Payment not found | payment_id=%s", payment_id)
+        return {"success": False, "error": "Payment not found"}
+
     except Exception as exc:
-        logger.error("Twilio send failed | to=%s | error=%s", to_number, str(exc))
-        return False
+        logger.error(
+            "Payment reminder failed | payment_id=%s | error=%s",
+            payment_id, str(exc)
+        )
+        return {"success": False, "error": str(exc)}
 
 
-def build_reminder_message(student_name: str, amount: str, due_date: str, days_overdue: int) -> str:
+def send_overdue_reminders(academy_id: str) -> dict:
     """
-    Builds the payment reminder message text.
-    TODO: replace with generate_text(build_payment_reminder_prompt(context))
-          once Mahdy ships ai/utils/ at end of Sprint 7 Week 1.
+    Finds all overdue payments for an academy and sends reminders.
+    Called by Celery beat on a schedule.
     """
-    return (
-        f"Dear Parent of {student_name}, "
-        f"this is a friendly reminder that a payment of {amount} EGP "
-        f"was due on {due_date} ({days_overdue} days ago). "
-        f"Please contact us at your earliest convenience. "
-        f"Thank you for your cooperation."
-    )
-
-
-def send_payment_reminders():
-    """
-    Core logic — finds all overdue payments and sends reminders
-    on day 0, day 3, and day 7 after the due date.
-
-    How to test right now (no Celery needed):
-        python manage.py shell
-        from ai.notifications.reminder_tasks import send_payment_reminders
-        send_payment_reminders()
-    """
-    from financial_operations.models import Payment
-    from ai.notifications.models import Notification
-
     today = date.today()
+    results = {"sent": 0, "failed": 0, "skipped": 0}
 
-    # We send reminders exactly on day 0, day 3, and day 7
-    reminder_days = [0, 3, 7]
-    target_dates = [today - timedelta(days=d) for d in reminder_days]
-
-    # Get all pending payments whose due date matches one of our target dates
+    # Find all pending payments past their due date
     overdue_payments = Payment.objects.filter(
-        status="pending",
-        due_date__in=target_dates,
+        enrollment_id__class_id__academy_id=academy_id,
+        status='pending',
+        due_date__lt=today,
     ).select_related(
-        "enrollment_id__student_id",
-        "enrollment_id",
+        'enrollment_id__student_id',
+        'enrollment_id__class_id',
     )
 
-    logger.info(
-        "Payment reminder task started | found %s overdue payments",
-        overdue_payments.count()
-    )
-
-    sent_count = 0
-    failed_count = 0
+    if not overdue_payments.exists():
+        logger.info("No overdue payments found | academy=%s", academy_id)
+        return results
 
     for payment in overdue_payments:
         student = payment.enrollment_id.student_id
-        parent_phone = student.parent_phone
 
-        # Skip if student has no parent phone
-        if not parent_phone:
+        # Skip if no phone number
+        phone = student.parent_phone or student.phone
+        if not phone:
             logger.warning(
-                "No parent phone for student %s — skipping",
-                student.id
+                "Skipping reminder — no phone | student=%s", student.full_name
             )
+            results["skipped"] += 1
             continue
 
-        days_overdue = (today - payment.due_date).days
-
-        # Build the message
-        message = build_reminder_message(
-            student_name=student.full_name,
-            amount=str(payment.amount),
-            due_date=str(payment.due_date),
-            days_overdue=days_overdue,
-        )
-
-        # Avoid sending duplicate reminders on the same day
+        # Skip if reminder already sent today
         already_sent = Notification.objects.filter(
-            student=student,
             enrollment=payment.enrollment_id,
-            notification_type="payment_reminder",
-            created_at__date=today,
+            notification_type='payment_reminder',
+            sent_at__date=today,
         ).exists()
 
         if already_sent:
             logger.info(
-                "Reminder already sent today for student %s — skipping",
-                student.id
+                "Reminder already sent today | student=%s", student.full_name
             )
+            results["skipped"] += 1
             continue
 
-        # Send the SMS
-        success = send_sms(to_number=parent_phone, body=message)
-
-        # Save a record in the Notification table no matter what
-        Notification.objects.create(
-            student=student,
-            enrollment=payment.enrollment_id,
-            notification_type="payment_reminder",
-            channel="sms",
-            status="sent" if success else "failed",
-            message=message,
-            recipient_phone=parent_phone,
-            sent_at=timezone.now() if success else None,
-        )
-
-        if success:
-            sent_count += 1
+        result = send_payment_reminder(str(payment.id))
+        if result["success"]:
+            results["sent"] += 1
         else:
-            failed_count += 1
+            results["failed"] += 1
 
     logger.info(
-        "Payment reminder task finished | sent=%s | failed=%s",
-        sent_count,
-        failed_count,
+        "Overdue reminders complete | academy=%s | %s",
+        academy_id, results
     )
+    return results
 
 
-# ── Celery task wrapper ────────────────────────────────────────────────────
-# Mahdy owns the Celery setup — once he ships it (end of Sprint 7 Week 1),
-# this decorator activates and the task runs automatically every day.
-# Until then, call send_payment_reminders() directly from the shell to test.
+def _send_sms(phone: str, message: str) -> str:
 
-try:
-    from celery import shared_task
+    try:
+        result = send_sms_infobip(phone, message)
 
-    @shared_task(name="ai.notifications.send_payment_reminders")
-    def send_payment_reminders_task():
-        send_payment_reminders()
+        print("[INFOBIP_SMS_SENT]", result)
 
-except ImportError:
-    logger.warning("Celery not installed yet — task runs as plain function only")
+        return result
+
+    except Exception as e:
+        print("[INFOBIP_SMS_ERROR]", str(e))
+        return None
+
+def normalize_eg_phone(phone):
+    if phone.startswith("0"):
+        return "2" + phone
+    if phone.startswith("+"):
+        return phone[1:]
+    return phone
