@@ -7,7 +7,7 @@ from structure.models import Subject, Class
 from financial_operations.models import Enrollment
 from grades.models import Grade
 
-from ai.agent.grade_signal import get_avg_score_last_2
+from ai.agent.helpers.grade_signal import get_avg_score_last_2
 
 
 class GetAvgScoreLast2Tests(TestCase):
