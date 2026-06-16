@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'ai',
     'ai.notifications',
     'ai.reports',
+    'ai.agent',
 ]
 
 MIDDLEWARE = [
