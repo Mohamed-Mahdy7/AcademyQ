@@ -5,6 +5,7 @@ import {
     getStudentsRequest,
     getStudentRequest
 } from "../services/studentService";
+import { Outlet } from "react-router-dom";
 
 export const StudentContext = createContext();
 
@@ -90,13 +91,12 @@ export const StudentProvider = ({children}) => {
             value={{
                 student,
                 students,
-                getStudents,
                 getStudent,
                 createStudent,
                 updateStudent,
             }}
         >
-            {children}
+            <Outlet/>
         </StudentContext.Provider>
     );
 

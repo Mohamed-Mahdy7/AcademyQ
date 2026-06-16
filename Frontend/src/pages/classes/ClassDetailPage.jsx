@@ -9,7 +9,7 @@ import ScheduleSection from "../../components/classes/ScheduleSection";
 import SessionsTab from "../../components/attendance/SessionsTab";
 import TeachersTab from "../../components/classes/TeachersTab";
 import EnrollmentTab from "../../components/enrollments/EnrollmentTab";
-import { GradeProvider } from "../../context/gradecontext";
+// import { GradeProvider } from "../../context/gradecontext";
 import GradesTabContent from "../../components/grades/GradesTabContent";
 
 const TABS = ["Students", "Sessions", "Grades", "Teachers"];
@@ -27,13 +27,13 @@ function ClassDetailPage() {
         const fetchAll = async () => {
             try {
                 const [classRes, sessionsRes, enrollmentsRes] = await Promise.all([
-    getClass(id),
-    getClassSessions(id),
-    getClassEnrollments(id),
-]);
-setClassData(classRes.data);
-setSessions(sessionsRes.data.results ?? sessionsRes.data);
-setEnrollments(enrollmentsRes.data.results ?? enrollmentsRes.data);
+                    getClass(id),
+                    getClassSessions(id),
+                    getClassEnrollments(id),
+                ]);
+                setClassData(classRes.data);
+                setSessions(sessionsRes.data.results ?? sessionsRes.data);
+                setEnrollments(enrollmentsRes.data.results ?? enrollmentsRes.data);
             } catch (error) {
                 console.error("Error loading class detail:", error);
             } finally {
@@ -72,14 +72,14 @@ setEnrollments(enrollmentsRes.data.results ?? enrollmentsRes.data);
                         <h1 className="heading-1">{classData.name}</h1>
                         <div className="flex items-center gap-3 mt-1 flex-wrap">
                             <span className="text-caption flex items-center gap-1">
-                                 {classData.subject_name}
+                                {classData.subject_name}
                             </span>
                             <span className="text-caption flex items-center gap-1">
-                                 {classData.start_date} - {classData.end_date}
+                                {classData.start_date} - {classData.end_date}
                             </span>
                             {classData.class_price && (
                                 <span className="text-caption flex items-center gap-1">
-                                     {classData.class_price} EGP
+                                    {classData.class_price} EGP
                                 </span>
                             )}
                         </div>
@@ -149,14 +149,12 @@ setEnrollments(enrollmentsRes.data.results ?? enrollmentsRes.data);
                         <SessionsTab sessions={sessions} classId={id} />
                     )}
                     {activeTab === "Grades" && (
-                        <GradeProvider>
                             <GradesTabContent
                                 classId={id}
                                 enrollments={enrollments}
                                 sessions={sessions}
                                 subjectName={classData.subject_name}
                             />
-                        </GradeProvider>
                     )}
                     {activeTab === "Teachers" && (
                         <TeachersTab
