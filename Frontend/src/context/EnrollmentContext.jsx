@@ -1,5 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import {getEnrollments, createEnrollment, updateEnrollment, deleteEnrollment,} from "../services/enrollmentService";
+import { Outlet } from "react-router-dom";
 
 export const EnrollmentContext = createContext();
 
@@ -7,7 +8,7 @@ export function EnrollmentProvider({ children }) {
   const [enrollments, setEnrollments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
+  
   async function listEnrollments(filters = {}) {
     setLoading(true);
     setError("");
@@ -65,7 +66,7 @@ export function EnrollmentProvider({ children }) {
         removeEnrollment,
       }}
     >
-      {children}
+      <Outlet/>
     </EnrollmentContext.Provider>
   );
 }

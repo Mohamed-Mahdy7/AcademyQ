@@ -5,6 +5,7 @@ import {
   getGradeSummary,
   getClassSummary,
 } from "../services/gradesService";
+import { Outlet } from "react-router-dom";
 
 const GradeContext = createContext();
 
@@ -57,7 +58,7 @@ export const GradeProvider = ({ children }) => {
         addGrade,
       }}
     >
-      {children}
+      <Outlet/>
     </GradeContext.Provider>
   );
 };
