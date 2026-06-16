@@ -13,6 +13,7 @@ from structure.views import (
     ClassScheduleViewSet,
     ClassSessionEnrollmentViewSet,
 )
+from ai.agent.views import AlertViewSet
 
 router = DefaultRouter()
 
@@ -30,5 +31,6 @@ router.register(
     basename="class-session-enrollment",
 )
 router.register("reports", AIReportCardViewSet, basename="ai-report")
+router.register("alerts", AlertViewSet, basename="alert"),
 
 urlpatterns = router.urls

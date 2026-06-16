@@ -5,6 +5,7 @@ import { GradeProvider } from "../context/gradecontext.jsx";
 import { UsersProvider } from "../context/UsersContext.jsx";
 import { StudentProvider } from "../context/StudentsContext.jsx";
 import { EnrollmentProvider } from "../context/EnrollmentContext.jsx";
+//import { AlertProvider } from "../context/AlertContext.jsx";
 import ProtectedRoute from "../components/ProtectedRoute";
 import MainLayout from "../components/DashboardLayout";
 import Dashboard from "../pages/Dashboard.jsx";
@@ -33,6 +34,7 @@ import EditStudentProfile from "../pages/students/EditStudentProfile.jsx";
 import EditUserProfile from "../pages/users/EditUserProfile.jsx";
 import ReportHistoryPage from "../pages/reports/ReportHistoryPage";
 import ReportCardPage from "../pages/reports/ReportCardPage";
+//import AlertInboxPage from "../pages/ai/AlertInboxPage.jsx";
 
 
 const MainRouter = () => {
