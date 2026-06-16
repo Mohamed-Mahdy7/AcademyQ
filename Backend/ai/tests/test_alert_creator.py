@@ -64,30 +64,30 @@ class AlertCreatorTests(TestCase):
         }
 
     def test_no_existing_alert_creates_new(self):
-        alert = create_alert_if_needed(self.enrollment.id, self.medium_result)
+        alert, action = create_alert_if_needed(self.enrollment.id, self.medium_result)
         self.assertIsNotNone(alert)
         self.assertEqual(Alert.objects.count(), 1)
         self.assertEqual(alert.risk_level, "medium")
         self.assertEqual(alert.risk_score, 40)
+        self.assertEqual(action, "created")
 
     def test_unreviewed_lower_severity_gets_overridden(self):
-        # existing unreviewed low alert → new medium scan → override
         create_alert_if_needed(self.enrollment.id, self.low_result)
-        alert = create_alert_if_needed(self.enrollment.id, self.medium_result)
+        alert, action = create_alert_if_needed(self.enrollment.id, self.medium_result)
         self.assertEqual(Alert.objects.count(), 1)
         self.assertEqual(alert.risk_level, "medium")
         self.assertEqual(alert.risk_score, 40)
+        self.assertEqual(action, "updated")
 
     def test_unreviewed_higher_severity_not_downgraded(self):
-        # existing unreviewed high alert → new low scan → no change
         create_alert_if_needed(self.enrollment.id, self.high_result)
-        alert = create_alert_if_needed(self.enrollment.id, self.low_result)
+        alert, action = create_alert_if_needed(self.enrollment.id, self.low_result)
         self.assertEqual(Alert.objects.count(), 1)
         self.assertEqual(alert.risk_level, "high")
         self.assertEqual(alert.risk_score, 75)
+        self.assertEqual(action, "skipped")
 
     def test_unreviewed_same_severity_updates_fields(self):
-        # existing unreviewed medium → new medium with different score → updates
         create_alert_if_needed(self.enrollment.id, self.medium_result)
         updated_medium = {
             "risk_level": "medium",
@@ -95,23 +95,25 @@ class AlertCreatorTests(TestCase):
             "primary_reason": "Updated reason.",
             "recommended_action": "Updated action.",
         }
-        alert = create_alert_if_needed(self.enrollment.id, updated_medium)
+        alert, action = create_alert_if_needed(self.enrollment.id, updated_medium)
         self.assertEqual(Alert.objects.count(), 1)
         self.assertEqual(alert.risk_score, 65)
         self.assertEqual(alert.primary_reason, "Updated reason.")
+        self.assertEqual(action, "updated")
 
     def test_reviewed_alert_allows_new_alert(self):
-        # existing reviewed alert → new scan creates fresh alert
-        existing = create_alert_if_needed(self.enrollment.id, self.low_result)
+        existing, _ = create_alert_if_needed(self.enrollment.id, self.low_result)
         existing.reviewed_at = timezone.now()
         existing.save()
 
-        new_alert = create_alert_if_needed(self.enrollment.id, self.medium_result)
+        new_alert, new_action = create_alert_if_needed(self.enrollment.id, self.medium_result)
         self.assertEqual(Alert.objects.count(), 2)
         self.assertEqual(new_alert.risk_level, "medium")
+        self.assertEqual(new_action, "created")
 
     def test_returned_alert_matches_db(self):
-        alert = create_alert_if_needed(self.enrollment.id, self.high_result)
+        alert, action = create_alert_if_needed(self.enrollment.id, self.high_result)
         db_alert = Alert.objects.get(id=alert.id)
         self.assertEqual(db_alert.risk_level, alert.risk_level)
         self.assertEqual(db_alert.risk_score, alert.risk_score)
+        self.assertEqual(action, "created")
