@@ -32,6 +32,8 @@ import GradeSummaryTab from "../components/grades/ClassGradeSummaryTab";
 import StudentProfile from "../pages/students/StudentProfile.jsx";
 import EditStudentProfile from "../pages/students/EditStudentProfile.jsx";
 import EditUserProfile from "../pages/users/EditUserProfile.jsx";
+import ReportHistoryPage from "../pages/reports/ReportHistoryPage";
+import ReportCardPage from "../pages/reports/ReportCardPage";
 
 
 const MainRouter = () => {
@@ -166,6 +168,16 @@ const MainRouter = () => {
                         <UsersProvider>
                             <EditUserProfile />
                         </UsersProvider>
+                    </ProtectedRoute>
+                } />
+                <Route path="/reports" element={
+                    <ProtectedRoute>
+                        <ReportHistoryPage />
+                    </ProtectedRoute>
+                } />
+                <Route path="/reports/:reportId" element={
+                    <ProtectedRoute>
+                        <ReportCardPage />
                     </ProtectedRoute>
                 } />
             </Route>

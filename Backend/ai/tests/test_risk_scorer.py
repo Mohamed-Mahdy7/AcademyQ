@@ -3,7 +3,7 @@ Unit tests for risk_scorer — pure function, fixture dicts only, no DB.
 """
 
 import unittest
-from ..agent.risk_scorer import (
+from ..agent.helpers.risk_scorer import (
     risk_scorer,
     ATTENDANCE_PENALTY,
     OVERDUE_PENALTY,
