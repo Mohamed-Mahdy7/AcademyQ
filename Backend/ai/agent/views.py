@@ -9,6 +9,7 @@ from rest_framework.decorators import action
 from ai.utils.prompt_builder import build_risk_alert_prompt
 from ai.utils.gemini_client import generate_text
 from ai.utils.rag_engine import get_student_context
+from ai.agent.tasks import run_risk_scan
 
 MANUAL_SCAN_DAILY_LIMIT = 3
 
@@ -113,8 +114,17 @@ class RunScanView(APIView):
             status=ScanLog.STATUS_RUNNING,
         )
 
-        # TODO: execute scan logic here once Celery is configured.
-        # Will call: run_risk_scan(academy_id, scan_log)
+        try:
+            run_risk_scan(academy_id, scan_log)
+        except Exception as e:
+            scan_log.status = ScanLog.STATUS_FAILED
+            scan_log.error_log = str(e)
+            scan_log.completed_at = timezone.now()
+            scan_log.save()
+            return Response(
+                {"detail": "Scan failed.", "error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
         scan_log.status = ScanLog.STATUS_COMPLETE
         scan_log.completed_at = timezone.now()
