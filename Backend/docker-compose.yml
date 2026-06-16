@@ -12,43 +12,48 @@ services:
     depends_on:
       - postgres
       - redis
-    
-    
+    restart: always
+
   postgres:
     image: pgvector/pgvector:pg16
     container_name: postgres
-    restart: always
+    env_file:
+      - .env
     environment:
-      POSTGRES_DB: academy_q
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 257322
-    ports:
-      - "5433:5432"
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
     volumes:
       - postgres_data:/var/lib/postgresql/data
-  
+    restart: always
+
   redis:
-    image: redis:latest
+    image: redis:7-alpine
     container_name: redis
-  
+    restart: always
+
   celery:
     container_name: celery
     build: .
     env_file:
       - .env
     command: celery -A academy_q worker -l INFO
-    restart: always
     depends_on:
       - postgres
       - redis
-  
+    restart: always
+
   celery-beat:
-    build: .
     container_name: celery-beat
+    build: .
+    env_file:
+      - .env
     command: celery -A academy_q beat -l INFO
-    depends_on: 
-      - redis
+    depends_on:
       - postgres
+      - redis
+    restart: always
 
 volumes:
   postgres_data:
