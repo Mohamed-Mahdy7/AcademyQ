@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from pgvector.django import VectorField
 from core.models import Academy
 import uuid
+from ai.agent.models import Alert
 
 
 User = get_user_model()

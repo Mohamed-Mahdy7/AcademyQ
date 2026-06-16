@@ -1,6 +1,5 @@
 *env
 __pycache__
-# .dockerignore
 # Dockerfile
 # docker-compose.yml
 Backend/*/migrations/*
