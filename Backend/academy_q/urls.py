@@ -6,7 +6,6 @@ urlpatterns = [
     path('api/', include('api.urls')),
     path('api/auth/', include('core.urls')),
     path('api/', include('records.urls')),
-    path('api/notifications/', include('ai.notifications.urls')),
     path('api/', include('ai.urls')),
     path("api/", include("ai.agent.urls")),
 ]
