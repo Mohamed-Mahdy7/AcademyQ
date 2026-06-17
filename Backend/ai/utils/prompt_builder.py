@@ -17,7 +17,7 @@ def format_similar_students(context):
     
     for student in students:
         lines.append(
-            f"- {student["student_name"]} ({student["educational_level"]})"
+            f"- {student['student_name']} ({student['educational_level']})"
         )
     
     return "\n".join(lines)
@@ -78,6 +78,12 @@ Generate:
 3. Recommended Intervention
 4. Parent Message Draft
 
+Requirements:
+- Friendly tone
+- Encourage communication
+- Suggest contacting the academy
+- Maximum 150 words
+
 Return plain text only.
 """
 
@@ -110,31 +116,31 @@ Return only the reminder text.
 """
 
 
-def build_attendance_alert_prompt(context: dict) -> str:
-    """
-    Optional notification template.
-    """
+# def build_attendance_alert_prompt(context: dict) -> str:
+#     """
+#     Optional notification template.
+#     """
 
-    return f"""
-Write a message to inform a parent about low attendance.
+#     return f"""
+# Write a message to inform a parent about low attendance.
 
-Student Name:
-{context.get("student_name", "Unknown")}
+# Student Name:
+# {context.get("student_name", "Unknown")}
 
-Attendance Rate:
-{context.get("attendance_rate", 0)}%
+# Attendance Rate:
+# {context.get("attendance_rate", 0)}%
 
-Missed Classes:
-{context.get("missed_classes", 0)}
+# Missed Classes:
+# {context.get("missed_classes", 0)}
 
-Requirements:
-- Friendly tone
-- Encourage communication
-- Suggest contacting the academy
-- Maximum 120 words
+# Requirements:
+# - Friendly tone
+# - Encourage communication
+# - Suggest contacting the academy
+# - Maximum 120 words
 
-Return only the message.
-"""
+# Return only the message.
+# """
 
 
 def build_management_summary_prompt(context: dict) -> str:

@@ -6,13 +6,18 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 student = User.objects.filter(
-    role=User.Roles.STUDENT
+    role=User.Roles.STUDENT,
 ).first()
-
+print(student)
 context = get_student_context(student.id)
 
 prompt = build_report_prompt(context)
 
 response = generate_text(prompt)
 
+print("CONTEXT\n")
+print(context)
+
+print("\n\n")
+print("RESPONSE\n")
 print(response)
