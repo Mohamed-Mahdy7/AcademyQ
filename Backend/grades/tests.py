@@ -1,3 +1,5 @@
+from django.db.utils import IntegrityError
+
 from django.test import TestCase
 
 # Create your tests here.
@@ -96,7 +98,7 @@ class GradeModelTests(TestCase):
             assigned_at=date.today()
         )
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(IntegrityError):
             Grade.objects.create(
                 enrollment=self.enrollment,
                 session=self.session,
@@ -227,7 +229,11 @@ class GradeViewTests(TestCase):
             format="json"
         )
 
-        self.assertIn(response.status_code, [200, 201])
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(
+        Grade.objects.count(),
+            1
+        )
 
     def test_grade_retrieve(self):
 
@@ -244,7 +250,7 @@ class GradeViewTests(TestCase):
             f"/api/grades/{grade.id}/"
         )
 
-        self.assertIn(response.status_code, [200, 301, 302])
+        self.assertEqual(response.status_code, 200)
 
     def test_grade_update(self):
 
@@ -263,7 +269,9 @@ class GradeViewTests(TestCase):
             format="json"
         )
 
-        self.assertIn(response.status_code, [200, 202])
+        self.assertEqual(response.status_code, 200)
+        grade.refresh_from_db()
+        self.assertEqual(grade.score, 85)
 
     def test_grade_delete(self):
 
@@ -280,7 +288,10 @@ class GradeViewTests(TestCase):
             f"/api/grades/{grade.id}/"
         )
 
-        self.assertIn(response.status_code, [200, 204])
+        self.assertEqual(response.status_code, 204)
+        self.assertFalse(
+            Grade.objects.filter(id=grade.id).exists()
+            )
 
     def test_filter_by_enrollment(self):
 
@@ -288,7 +299,7 @@ class GradeViewTests(TestCase):
             f"/api/grades/?enrollment_id={self.enrollment.id}"
         )
 
-        self.assertIn(response.status_code, [200, 301, 302])
+        self.assertEqual(response.status_code, 200)
 
     def test_summary_requires_enrollment(self):
 

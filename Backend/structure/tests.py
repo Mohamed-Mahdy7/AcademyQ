@@ -291,13 +291,13 @@ class StructureAPITests(TestCase):
 
     def test_subject_list(self):
         response = self.client.get("/api/subjects/")
-        self.assertIn(response.status_code, [200, 301, 302])
+        self.assertEqual(response.status_code, 200)
 
     def test_subject_detail(self):
         response = self.client.get(
             f"/api/subjects/{self.subject.id}/"
         )
-        self.assertIn(response.status_code, [200, 301, 302])
+        self.assertEqual(response.status_code, 200)
 
     def test_create_subject(self):
         response = self.client.post(
@@ -310,7 +310,7 @@ class StructureAPITests(TestCase):
             format="json"
         )
 
-        self.assertIn(response.status_code, [200, 201])
+        self.assertEqual(response.status_code, 201)
 
     def test_create_class(self):
 
@@ -326,18 +326,18 @@ class StructureAPITests(TestCase):
             format="json"
         )
 
-        self.assertIn(response.status_code, [200, 201])
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Class.objects.count(), 1)
 
     def test_class_list(self):
         response = self.client.get("/api/classes/")
-        self.assertIn(response.status_code, [200, 301, 302])
+        self.assertEqual(response.status_code, 200)
 
     def test_schedule_list(self):
         response = self.client.get("/api/class-schedule/")
-        self.assertIn(response.status_code, [200, 301, 302])
-
+        self.assertEqual(response.status_code, 200)
     def test_session_enrollment_list(self):
         response = self.client.get(
             "/api/class-session-enrollments/"
         )
-        self.assertIn(response.status_code, [200, 301, 302])
+        self.assertEqual(response.status_code, 200)

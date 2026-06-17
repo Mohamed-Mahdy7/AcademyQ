@@ -2,7 +2,7 @@ from django.test import TestCase
 
 # Create your tests here.
 from datetime import date, timedelta
-
+from django.db import IntegrityError
 from django.test import TestCase
 from rest_framework.test import APIClient
 
@@ -97,7 +97,7 @@ class FinancialModelsTests(TestCase):
             student_id=self.student
         )
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(IntegrityError):
             Enrollment.objects.create(
                 class_id=self.class_obj,
                 student_id=self.student
@@ -222,7 +222,7 @@ class FinancialAPITests(TestCase):
         response = self.client.get(
             "/api/teachers/"
         )
-        self.assertIn(response.status_code, [200, 301, 302])
+        self.assertEqual(response.status_code, 200)
 
     def test_create_enrollment(self):
 
@@ -236,14 +236,14 @@ class FinancialAPITests(TestCase):
             format="json"
         )
 
-        self.assertIn(response.status_code, [200, 201])
+        self.assertEqual(response.status_code, 201)
 
     def test_enrollment_list(self):
         response = self.client.get(
             "/api/enrollments/"
         )
 
-        self.assertIn(response.status_code, [200, 301, 302])
+        self.assertEqual(response.status_code, 200)
 
     def test_filter_enrollment_by_student(self):
 
@@ -251,7 +251,7 @@ class FinancialAPITests(TestCase):
             f"/api/enrollments/?student_id={self.student.id}"
         )
 
-        self.assertIn(response.status_code, [200, 301, 302])
+        self.assertEqual(response.status_code, 200)
 
     def test_filter_enrollment_by_status(self):
 
@@ -259,7 +259,7 @@ class FinancialAPITests(TestCase):
             "/api/enrollments/?status=active"
         )
 
-        self.assertIn(response.status_code, [200, 301, 302])
+        self.assertEqual(response.status_code, 200)
 
     def test_payment_list(self):
 
@@ -267,7 +267,7 @@ class FinancialAPITests(TestCase):
             "/api/payments/"
         )
 
-        self.assertIn(response.status_code, [200, 301, 302])
+        self.assertEqual(response.status_code, 200)
 
     def test_payment_summary(self):
 
@@ -275,7 +275,7 @@ class FinancialAPITests(TestCase):
             "/api/payments/summary/"
         )
 
-        self.assertIn(response.status_code, [200, 301, 302])
+        self.assertEqual(response.status_code, 200)
 
     def test_payment_summary_month_filter(self):
 
@@ -285,7 +285,7 @@ class FinancialAPITests(TestCase):
             f"/api/payments/summary/?month={month}"
         )
 
-        self.assertIn(response.status_code, [200, 301, 302])
+        self.assertEqual(response.status_code, 200)
 
     def test_filter_payments_by_status(self):
 
@@ -293,7 +293,7 @@ class FinancialAPITests(TestCase):
             "/api/payments/?status=pending"
         )
 
-        self.assertIn(response.status_code, [200, 301, 302])
+        self.assertEqual(response.status_code, 200)
 
     def test_filter_payments_by_month(self):
 
@@ -303,7 +303,7 @@ class FinancialAPITests(TestCase):
             f"/api/payments/?month={month}"
         )
 
-        self.assertIn(response.status_code, [200, 301, 302])
+        self.assertEqual(response.status_code, 200)
 
     def test_soft_delete_payment(self):
 
@@ -321,8 +321,7 @@ class FinancialAPITests(TestCase):
             f"/api/payments/{payment.id}/"
         )
 
-        self.assertIn(response.status_code, [200, 204])
-
+        self.assertEqual(response.status_code, 200)
     def test_soft_delete_enrollment(self):
 
         enrollment = Enrollment.objects.create(
@@ -334,7 +333,7 @@ class FinancialAPITests(TestCase):
             f"/api/enrollments/{enrollment.id}/"
         )
 
-        self.assertIn(response.status_code, [200, 204])
+        self.assertEqual(response.status_code, 200)
 
     def test_teacher_soft_delete(self):
 
@@ -342,7 +341,7 @@ class FinancialAPITests(TestCase):
             f"/api/teachers/{self.teacher.id}/"
         )
 
-        self.assertIn(response.status_code, [200, 204])
+        self.assertEqual(response.status_code, 200)
 
     def test_auto_payment_created_after_enrollment(self):
 

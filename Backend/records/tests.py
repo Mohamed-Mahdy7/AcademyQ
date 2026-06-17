@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.db import IntegrityError
 
 # Create your tests here.
 from datetime import date, timedelta, time
@@ -39,7 +40,7 @@ class RecordsModelTests(TestCase):
 
     def test_unique_session_datetime(self):
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(IntegrityError):
             ClassSession.objects.create(
                 session_date=self.session.session_date,
                 session_time=self.session.session_time
@@ -110,7 +111,7 @@ class AttendanceModelTests(TestCase):
             present=True
         )
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(IntegrityError):
             Attendance.objects.create(
                 session=self.session,
                 enrollment=self.enrollment,
@@ -195,7 +196,7 @@ class RecordsAPITests(TestCase):
             "/api/sessions/"
         )
 
-        self.assertIn(response.status_code, [200, 301, 302])
+        self.assertEqual(response.status_code, 200)
 
     def test_session_retrieve(self):
 
@@ -203,7 +204,7 @@ class RecordsAPITests(TestCase):
             f"/api/sessions/{self.session.id}/"
         )
 
-        self.assertIn(response.status_code, [200, 301, 302])
+        self.assertEqual(response.status_code, 200)
 
     def test_create_session(self):
 
@@ -218,7 +219,11 @@ class RecordsAPITests(TestCase):
             format="json"
         )
 
-        self.assertIn(response.status_code, [200, 201])
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(
+            ClassSession.objects.count(),
+            1
+        )
 
     def test_filter_sessions_by_class(self):
 
