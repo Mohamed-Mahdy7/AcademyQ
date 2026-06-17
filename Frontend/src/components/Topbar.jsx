@@ -70,7 +70,7 @@ function Topbar() {
                 {/* Bell + Dropdown */}
                 <div className="relative" ref={dropdownRef}>
                     <button
-                        className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-sky-pale transition-colors"
+                        className="relative w-9 h-9 flex items-center justify-center rounded-full bg-white shadow-xs drop-shadow-xs drop-shadow-gray-700 hover:bg-gray-100 transition-colors"
                         onClick={() => setOpen((prev) => !prev)}
                     >
                         <svg
