@@ -9,6 +9,7 @@ class AlertSerializer(serializers.ModelSerializer):
     class_name = serializers.CharField(
         source="enrollment.class_id.name", read_only=True
     )
+    is_dismissed = serializers.SerializerMethodField()
 
     class Meta:
         model = Alert
@@ -22,6 +23,8 @@ class AlertSerializer(serializers.ModelSerializer):
             "primary_reason",
             "recommended_action",
             "message",
+            "is_dismissed",
+            "is_sent",
             "created_at",
             "last_scanned_at",
             "reviewed_at",
@@ -40,6 +43,9 @@ class AlertSerializer(serializers.ModelSerializer):
             "created_at",
             "last_scanned_at",
         ]
+
+    def get_is_dismissed(self, obj):
+        return obj.reviewed_at is not None
 
 from .models import Alert, ScanLog
 

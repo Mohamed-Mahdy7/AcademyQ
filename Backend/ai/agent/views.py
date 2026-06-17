@@ -24,36 +24,75 @@ class AlertViewSet(viewsets.ModelViewSet):
         ).select_related(
             "enrollment__student_id",
             "enrollment__class_id",
-        )
+        ).order_by("-risk_score")
 
         risk_level = self.request.query_params.get("risk_level")
         if risk_level:
             qs = qs.filter(risk_level=risk_level)
 
-        reviewed = self.request.query_params.get("reviewed")
-        if reviewed == "false":
+        is_dismissed = self.request.query_params.get("is_dismissed")
+        if is_dismissed == "false":
             qs = qs.filter(reviewed_at__isnull=True)
-        elif reviewed == "true":
+        elif is_dismissed == "true":
             qs = qs.filter(reviewed_at__isnull=False)
 
         return qs
 
     def partial_update(self, request, *args, **kwargs):
         alert = self.get_object()
-        reviewed = request.data.get("reviewed")
+
+        is_dismissed = request.data.get("is_dismissed")
+        is_sent = request.data.get("is_sent")
         notes = request.data.get("notes")
 
-        if reviewed is True or reviewed == "true":
+        if is_dismissed is True or is_dismissed == "true":
             alert.reviewed_at = timezone.now()
-        elif reviewed is False or reviewed == "false":
+        elif is_dismissed is False or is_dismissed == "false":
             alert.reviewed_at = None
+
+        if is_sent is not None:
+            alert.is_sent = is_sent in [True, "true"]
 
         if notes is not None:
             alert.notes = notes
 
         alert.save()
         return Response(AlertSerializer(alert).data)
-    
+
+    @action(detail=False, methods=["get"], url_path="stats")
+    def stats(self, request):
+        from datetime import timedelta
+        from django.utils import timezone
+
+        academy_id = request.user.academy_id
+        now = timezone.now()
+        week_ago = now - timedelta(days=7)
+
+        base_qs = Alert.objects.filter(
+            enrollment__class_id__academy_id=academy_id
+        )
+
+        total_open = base_qs.filter(reviewed_at__isnull=True).count()
+        high_risk_count = base_qs.filter(
+            reviewed_at__isnull=True,
+            risk_level="high"
+        ).count()
+        medium_risk_count = base_qs.filter(
+            reviewed_at__isnull=True,
+            risk_level="medium"
+        ).count()
+        sent_this_week = base_qs.filter(
+            is_sent=True,
+            created_at__gte=week_ago
+        ).count()
+
+        return Response({
+            "total_open": total_open,
+            "high_risk_count": high_risk_count,
+            "medium_risk_count": medium_risk_count,
+            "sent_this_week": sent_this_week,
+        })
+
     @action(detail=True, methods=["post"], url_path="generate-message")
     def generate_message(self, request, pk=None):
         alert = self.get_object()
