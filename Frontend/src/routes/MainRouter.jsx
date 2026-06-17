@@ -44,7 +44,13 @@ const MainRouter = () => {
         <Routes>
             <Route path="register" element={<Register />} />
             <Route path="login" element={<Login />} />
-            <Route element={<MainLayout />}>
+            <Route element={ 
+                    <AlertProvider>
+                        <NotificationsProvider>
+                            <MainLayout />
+                        </NotificationsProvider>
+                    </AlertProvider>
+            }>
                 <Route path="/" element={<Dashboard />} />
                 <Route element={<ProtectedRoute></ProtectedRoute>}>
                     <Route path="/settings" element={
@@ -127,16 +133,10 @@ const MainRouter = () => {
                         <ReportCardPage />
                     } />
                     <Route path="/alerts" element={
-                        <AlertProvider>
-                            <AlertInboxPage />
-                        </AlertProvider>
+                        <AlertInboxPage />
                     } />
-                    <Route
-                        path="/notifications"
-                        element={
-                            <NotificationsProvider>
-                                <NotificationHistoryPage />
-                            </NotificationsProvider>
+                    <Route path="/notifications" element={
+                        <NotificationHistoryPage />
                     } />
                 </Route>
             </Route>

@@ -1,33 +1,8 @@
 import { useContext, useState, useRef, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-
-const MOCK_ALERTS = [
-    {
-        id: "1",
-        studentName: "Ahmed Mohamed",
-        reason: "low_attendance",
-        riskLevel: "high",
-        classInfo: "Math G7 Mon/Wed",
-        createdAt: "Today, 9:00 AM",
-    },
-    {
-        id: "2",
-        studentName: "Sara Khalid",
-        reason: "overdue_fee",
-        riskLevel: "high",
-        classInfo: "English B2 Wed/Fri",
-        createdAt: "Today, 9:00 AM",
-    },
-    {
-        id: "3",
-        studentName: "Omar Tarek",
-        reason: "combined",
-        riskLevel: "medium",
-        classInfo: "Physics G9 Sun/Tue",
-        createdAt: "Yesterday, 9:00 AM",
-    },
-];
+import { useAlerts } from "../context/AlertContext";
+import RiskBadge from "./ai/RiskBadge";
 
 const reasonLabels = {
     low_attendance: "Low Attendance",
@@ -39,9 +14,11 @@ const reasonLabels = {
 function Topbar() {
     const { user } = useContext(AuthContext);
     const location = useLocation();
+    const navigate = useNavigate();
     const [open, setOpen] = useState(false);
-    const [alerts, setAlerts] = useState(MOCK_ALERTS);
     const dropdownRef = useRef(null);
+
+    const { alerts, loading, dismissAlert, fetchAlerts } = useAlerts();
 
     const pageTitles = {
         "/": "Dashboard",
@@ -53,6 +30,8 @@ function Topbar() {
         "/users": "Staff Users",
         "/settings": "Settings",
         "/grade": "Grades",
+        "/alerts": "Alert Inbox",
+        "/notifications": "Notification History",
     };
 
     const title = pageTitles[location.pathname] || "AcademiQ";
@@ -65,6 +44,10 @@ function Topbar() {
     });
 
     useEffect(() => {
+        fetchAlerts({ riskLevel: "all", reviewed: "false" });
+    }, []);
+
+    useEffect(() => {
         const handleClickOutside = (e) => {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
                 setOpen(false);
@@ -74,13 +57,7 @@ function Topbar() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const handleSend = (id) => {
-        setAlerts((prev) => prev.filter((a) => a.id !== id));
-    };
-
-    const handleDismiss = (id) => {
-        setAlerts((prev) => prev.filter((a) => a.id !== id));
-    };
+    const pendingAlerts = alerts.filter((a) => !a.is_reviewed).slice(0, 5);
 
     return (
         <header className="topbar">
@@ -93,7 +70,7 @@ function Topbar() {
                 {/* Bell + Dropdown */}
                 <div className="relative" ref={dropdownRef}>
                     <button
-                        className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+                        className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-sky-pale transition-colors"
                         onClick={() => setOpen((prev) => !prev)}
                     >
                         <svg
@@ -109,87 +86,105 @@ function Topbar() {
                             <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                         </svg>
 
-                        {alerts.length > 0 && (
+                        {pendingAlerts.length > 0 && (
                             <span className="absolute -top-1 -right-1 w-4 h-4 bg-danger rounded-full text-white text-[10px] font-bold flex items-center justify-center">
-                                {alerts.length > 9 ? "9+" : alerts.length}
+                                {pendingAlerts.length > 9 ? "9+" : pendingAlerts.length}
                             </span>
                         )}
                     </button>
 
                     {open && (
-                        <div className="absolute right-0 top-12 z-50 w-80 bg-white border border-gray-200 shadow-xl rounded-xl overflow-hidden">
+                        <div className="absolute right-0 top-12 z-50 w-80 bg-white border border-border shadow-dropdown rounded-xl overflow-hidden">
 
                             {/* Header */}
-                            <div className="card-body rounded-b-none bg-card flex items-center justify-between py-3">
+                            <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card">
                                 <div>
-                                    <h2 className="heading-2">Alerts</h2>
-                                    <p className="subheading">{today}</p>
+                                    <h2 className="heading-3">Retention Alerts</h2>
+                                    <p className="text-caption">{today}</p>
                                 </div>
-                                {alerts.length > 0
-                                    ? <span className="badge-danger-dark">{alerts.length} Pending</span>
-                                    : <span className="badge-warning">All Clear</span>
+                                {pendingAlerts.length > 0
+                                    ? <span className="badge-danger-dark">{pendingAlerts.length} open</span>
+                                    : <span className="badge-success">All Clear</span>
                                 }
                             </div>
 
                             {/* Alert list */}
-                            <div className="max-h-96 overflow-y-auto">
-                                {alerts.length === 0 ? (
+                            <div className="max-h-96 overflow-y-auto divide-y divide-border">
+                                {loading ? (
+                                    <div className="p-4 space-y-3">
+                                        {[1, 2, 3].map((i) => (
+                                            <div key={i} className="flex items-center gap-3">
+                                                <div className="skeleton skeleton-avatar w-8 h-8 rounded-full" />
+                                                <div className="flex-1 space-y-1.5">
+                                                    <div className="skeleton skeleton-text w-32" />
+                                                    <div className="skeleton skeleton-text-sm w-20" />
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : pendingAlerts.length === 0 ? (
                                     <div className="p-6 text-center">
-                                        <p className="text-body text-gray-400 text-sm">
-                                            No pending alerts 🎉
-                                        </p>
+                                        <p className="text-sm text-blue">No pending alerts 🎉</p>
                                     </div>
                                 ) : (
-                                    alerts.map((alert) => (
+                                    pendingAlerts.map((alert) => (
                                         <div
                                             key={alert.id}
-                                            className="card-danger my-0 rounded-none border-0 border-b border-gray-100 last:border-0"
+                                            className="flex items-start gap-3 px-4 py-3 hover:bg-sky-pale transition-colors"
                                         >
-                                            <div className="flex items-start w-full">
-                                                <section className="stat-icon-wrap-danger shrink-0">
-                                                    <svg
-                                                        className="w-6 h-6 text-danger fill-current"
-                                                        viewBox="0 0 56 56"
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                    >
-                                                        <path d="M 27.9999 51.9063 C 41.0546 51.9063 51.9063 41.0781 51.9063 28 C 51.9063 14.9453 41.0312 4.0937 27.9765 4.0937 C 14.8983 4.0937 4.0937 14.9453 4.0937 28 C 4.0937 41.0781 14.9218 51.9063 27.9999 51.9063 Z M 27.9999 47.9219 C 16.9374 47.9219 8.1014 39.0625 8.1014 28 C 8.1014 16.9609 16.9140 8.0781 27.9765 8.0781 C 39.0155 8.0781 47.8983 16.9609 47.9219 28 C 47.9454 39.0625 39.0390 47.9219 27.9999 47.9219 Z M 27.9765 32.2422 C 29.1014 32.2422 29.7343 31.6094 29.7577 30.3906 L 30.1093 18.0156 C 30.1327 16.8203 29.1952 15.9297 27.9530 15.9297 C 26.6874 15.9297 25.7968 16.7968 25.8202 17.9922 L 26.1249 30.3906 C 26.1483 31.5859 26.8046 32.2422 27.9765 32.2422 Z M 27.9765 39.8594 C 29.3124 39.8594 30.5077 38.7812 30.5077 37.4219 C 30.5077 36.0390 29.3358 34.9844 27.9765 34.9844 C 26.5936 34.9844 25.4452 36.0625 25.4452 37.4219 C 25.4452 38.7578 26.6171 39.8594 27.9765 39.8594 Z" />
-                                                    </svg>
-                                                </section>
-
-                                                <section className="flex-1 min-w-0">
-                                                    <div className="flex justify-between items-start gap-2">
-                                                        <p className="heading-3 mt-1 truncate">{alert.studentName}</p>
-                                                        {alert.riskLevel === "high"
-                                                            ? <span className="badge-danger-dark shrink-0">High</span>
-                                                            : <span className="badge-warning shrink-0">Medium</span>
-                                                        }
-                                                    </div>
-                                                    <span className="badge-warning">{reasonLabels[alert.reason]}</span>
-                                                    <p className="subheading">{alert.classInfo}</p>
-                                                    <p className="text-xs text-gray-400 mt-1">{alert.createdAt}</p>
-
-                                                    {/* Actions */}
-                                                    <div className="flex gap-2 mt-3">
-                                                        <button
-                                                            className="btn-primary text-xs py-1 px-3"
-                                                            onClick={() => handleSend(alert.id)}
-                                                        >
-                                                            Send
-                                                        </button>
-                                                        <button
-                                                            className="btn-secondary text-xs py-1 px-3"
-                                                            onClick={() => handleDismiss(alert.id)}
-                                                        >
-                                                            Dismiss
-                                                        </button>
-                                                    </div>
-                                                </section>
+                                            {/* Avatar */}
+                                            <div className="avatar avatar-sm flex-shrink-0">
+                                                {(alert.student_name || "")
+                                                    .split(" ")
+                                                    .slice(0, 2)
+                                                    .map((w) => w[0])
+                                                    .join("")
+                                                    .toUpperCase()}
                                             </div>
+
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <p className="text-sm font-semibold text-navy truncate">
+                                                        {alert.student_name}
+                                                    </p>
+                                                    <RiskBadge riskLevel={alert.risk_level} />
+                                                </div>
+                                                <p className="text-caption truncate">
+                                                    {reasonLabels[alert.primary_reason] || alert.primary_reason}
+                                                </p>
+                                                <p className="text-caption truncate">{alert.class_name}</p>
+                                            </div>
+
+                                            {/* Dismiss X */}
+                                            <button
+                                                className="text-blue hover:text-danger transition-colors flex-shrink-0 mt-0.5"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    dismissAlert(alert.id);
+                                                }}
+                                            >
+                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
                                         </div>
                                     ))
                                 )}
                             </div>
 
+                            {/* Footer — View all alerts */}
+                            <button
+                                className="w-full flex items-center justify-between px-4 py-3 border-t border-border text-sm font-medium text-navy-mid hover:bg-sky-pale transition-colors"
+                                onClick={() => {
+                                    setOpen(false);
+                                    navigate("/alerts");
+                                }}
+                            >
+                                <span>View all alerts</span>
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
                         </div>
                     )}
                 </div>
@@ -204,7 +199,6 @@ function Topbar() {
                         {user?.full_name?.[0]?.toUpperCase() || "U"}
                     </div>
                 </div>
-
             </div>
         </header>
     );
