@@ -3,7 +3,6 @@ from rest_framework.routers import DefaultRouter
 from .views import AlertViewSet, RunScanView, ScanLogListView
 
 router = DefaultRouter()
-router.register(r"alerts", AlertViewSet, basename="alert")
 
 urlpatterns = router.urls + [
     path("agent/run-scan/", RunScanView.as_view(), name="run-scan"),

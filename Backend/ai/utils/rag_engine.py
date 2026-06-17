@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.contrib.auth import get_user_model
 from financial_operations.models import Enrollment, Payment
 from records.models import Attendance
@@ -32,17 +33,16 @@ def calculate_missed_classes(student):
 
 def get_payment_status(student):
 
-    pending = Payment.objects.filter(
+    payment = Payment.objects.filter(
         enrollment_id__student_id=student,
         status="pending"
-    ).exists()
+    ).order_by("due_date").first()
     
 
-    if pending:
-        return "Pending"
-    
-    return "Completed"
-
+    return {
+        "status": "Pending" if payment else "Complete",
+        "due_date": payment.due_date if payment else None
+    }
 
 def get_teacher_notes(student):
     """
@@ -60,13 +60,17 @@ def get_student_context(student_id):
 
     attendance_rate = calculate_attendance_rate(student)
     missed_classes = calculate_missed_classes(student)
-    payment_status = get_payment_status(student)
+    payment = get_payment_status(student)
     teacher_notes = get_teacher_notes(student)
     similar_students = get_similar_student_context(student)
-
     enrollments = Enrollment.objects.filter(
         student_id=student
     )
+
+    overdue_days = 0
+    if payment["due_date"]:
+        overdue_days = (timezone.now().date() - payment["due_date"]).days
+        overdue_days = max(overdue_days, 0)
 
     return {
         "student_id": str(student.id),
@@ -76,8 +80,9 @@ def get_student_context(student_id):
         "educational_level": student.get_educational_level_display(),
         "attendance_rate": attendance_rate,
         "missed_classes": missed_classes,
-        "payment_status": payment_status,
         "teacher_notes": teacher_notes,
+        "payment_status": payment["status"],
+        "overdue_days": overdue_days,
         "enrollment_count": enrollments.count(),
         "parent_phone": student.parent_phone,
         "status": student.get_status_display(),
