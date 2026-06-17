@@ -192,7 +192,7 @@ class RecordsAPITests(TestCase):
     def test_session_list(self):
 
         response = self.client.get(
-            "/api/records/sessions/"
+            "/api/sessions/"
         )
 
         self.assertIn(response.status_code, [200, 301, 302])
@@ -200,7 +200,7 @@ class RecordsAPITests(TestCase):
     def test_session_retrieve(self):
 
         response = self.client.get(
-            f"/api/records/sessions/{self.session.id}/"
+            f"/api/sessions/{self.session.id}/"
         )
 
         self.assertIn(response.status_code, [200, 301, 302])
@@ -208,7 +208,7 @@ class RecordsAPITests(TestCase):
     def test_create_session(self):
 
         response = self.client.post(
-            "/api/records/sessions/",
+            "/api/sessions/",
             {
                 "class_id": str(self.class_obj.id),
                 "session_date": str(date.today()),
@@ -223,7 +223,7 @@ class RecordsAPITests(TestCase):
     def test_filter_sessions_by_class(self):
 
         response = self.client.get(
-            f"/api/records/sessions/?class_id={self.class_obj.id}"
+            f"/api/sessions/?class_id={self.class_obj.id}"
         )
 
         self.assertEqual(response.status_code, 200)
@@ -235,7 +235,7 @@ class RecordsAPITests(TestCase):
     def test_attendance_list_empty(self):
 
         response = self.client.get(
-            f"/api/records/sessions/{self.session.id}/attendance/"
+            f"/api/sessions/{self.session.id}/attendance/"
         )
 
         self.assertEqual(response.status_code, 200)
@@ -249,7 +249,7 @@ class RecordsAPITests(TestCase):
         )
 
         response = self.client.get(
-            f"/api/records/sessions/{self.session.id}/attendance/"
+            f"/api/sessions/{self.session.id}/attendance/"
         )
 
         self.assertEqual(response.status_code, 200)
@@ -261,7 +261,7 @@ class RecordsAPITests(TestCase):
     def test_bulk_attendance_create(self):
 
         response = self.client.post(
-            f"/api/records/sessions/{self.session.id}/attendance/",
+            f"/api/sessions/{self.session.id}/attendance/",
             {
                 "records": [
                     {
@@ -278,7 +278,7 @@ class RecordsAPITests(TestCase):
     def test_bulk_attendance_invalid(self):
 
         response = self.client.post(
-            f"/api/records/sessions/{self.session.id}/attendance/",
+            f"/api/sessions/{self.session.id}/attendance/",
             {
                 "records": []
             },
@@ -296,7 +296,7 @@ class RecordsAPITests(TestCase):
         )
 
         response = self.client.post(
-            f"/api/records/sessions/{self.session.id}/attendance/",
+            f"/api/sessions/{self.session.id}/attendance/",
             {
                 "records": [
                     {
@@ -319,7 +319,7 @@ class RecordsAPITests(TestCase):
         Payment.objects.all().delete()
 
         response = self.client.post(
-            f"/api/records/sessions/{self.session.id}/attendance/",
+            f"/api/sessions/{self.session.id}/attendance/",
             {
                 "records": [
                     {
@@ -342,7 +342,7 @@ class RecordsAPITests(TestCase):
         )
 
         self.client.post(
-            f"/api/records/sessions/{self.session.id}/attendance/",
+            f"/api/sessions/{self.session.id}/attendance/",
             {
                 "records": [
                     {
@@ -369,7 +369,7 @@ class RecordsAPITests(TestCase):
     def test_student_stats_requires_class(self):
 
         response = self.client.get(
-            f"/api/records/students/{self.student.id}/attendance/stats/"
+            f"/api/students/{self.student.id}/attendance/stats/"
         )
 
         self.assertEqual(response.status_code, 400)
@@ -383,7 +383,7 @@ class RecordsAPITests(TestCase):
         )
 
         response = self.client.get(
-            f"/api/records/students/{self.student.id}/attendance/stats/?class_id={self.class_obj.id}"
+            f"/api/students/{self.student.id}/attendance/stats/?class_id={self.class_obj.id}"
         )
 
         self.assertEqual(response.status_code, 200)
@@ -402,7 +402,7 @@ class RecordsAPITests(TestCase):
         )
 
         response = self.client.get(
-            f"/api/records/students/{self.student.id}/attendance/stats/?class_id={self.class_obj.id}"
+            f"/api/students/{self.student.id}/attendance/stats/?class_id={self.class_obj.id}"
         )
 
         self.assertEqual(response.status_code, 200)
@@ -414,7 +414,7 @@ class RecordsAPITests(TestCase):
     def test_student_history_requires_class(self):
 
         response = self.client.get(
-            f"/api/records/students/{self.student.id}/attendance/history/"
+            f"/api/students/{self.student.id}/attendance/history/"
         )
 
         self.assertEqual(response.status_code, 400)
@@ -428,7 +428,7 @@ class RecordsAPITests(TestCase):
         )
 
         response = self.client.get(
-            f"/api/records/students/{self.student.id}/attendance/history/?class_id={self.class_obj.id}"
+            f"/api/students/{self.student.id}/attendance/history/?class_id={self.class_obj.id}"
         )
 
         self.assertEqual(response.status_code, 200)
@@ -442,7 +442,7 @@ class RecordsAPITests(TestCase):
         )
 
         response = self.client.get(
-            f"/api/records/students/{self.student.id}/attendance/history/?class_id={self.class_obj.id}"
+            f"/api/students/{self.student.id}/attendance/history/?class_id={self.class_obj.id}"
         )
 
         self.assertEqual(response.data[0]["session_num"], 1)
@@ -460,7 +460,7 @@ class RecordsAPITests(TestCase):
         )
 
         response = self.client.get(
-            f"/api/records/classes/{self.class_obj.id}/attendance/summary/"
+            f"/api/classes/{self.class_obj.id}/attendance/summary/"
         )
 
         self.assertEqual(response.status_code, 200)
@@ -474,7 +474,7 @@ class RecordsAPITests(TestCase):
         )
 
         response = self.client.get(
-            f"/api/records/classes/{self.class_obj.id}/attendance/summary/"
+            f"/api/classes/{self.class_obj.id}/attendance/summary/"
         )
 
         self.assertEqual(response.status_code, 200)
@@ -482,7 +482,7 @@ class RecordsAPITests(TestCase):
     def test_class_summary_empty(self):
 
         response = self.client.get(
-            f"/api/records/classes/{self.class_obj.id}/attendance/summary/"
+            f"/api/classes/{self.class_obj.id}/attendance/summary/"
         )
 
         self.assertEqual(response.status_code, 200)

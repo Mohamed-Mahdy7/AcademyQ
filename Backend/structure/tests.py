@@ -290,18 +290,18 @@ class StructureAPITests(TestCase):
         )
 
     def test_subject_list(self):
-        response = self.client.get("/api/structure/subjects/")
+        response = self.client.get("/api/subjects/")
         self.assertIn(response.status_code, [200, 301, 302])
 
     def test_subject_detail(self):
         response = self.client.get(
-            f"/api/structure/subjects/{self.subject.id}/"
+            f"/api/subjects/{self.subject.id}/"
         )
         self.assertIn(response.status_code, [200, 301, 302])
 
     def test_create_subject(self):
         response = self.client.post(
-            "/api/structure/subjects/",
+            "/api/subjects/",
             {
                 "academy": self.academy.id,
                 "name": "Chemistry",
@@ -315,7 +315,7 @@ class StructureAPITests(TestCase):
     def test_create_class(self):
 
         response = self.client.post(
-            "/api/structure/classes/",
+            "/api/classes/",
             {
                 "academy": self.academy.id,
                 "subject": self.subject.id,
@@ -329,15 +329,15 @@ class StructureAPITests(TestCase):
         self.assertIn(response.status_code, [200, 201])
 
     def test_class_list(self):
-        response = self.client.get("/api/structure/classes/")
+        response = self.client.get("/api/classes/")
         self.assertIn(response.status_code, [200, 301, 302])
 
     def test_schedule_list(self):
-        response = self.client.get("/api/structure/schedules/")
+        response = self.client.get("/api/class-schedule/")
         self.assertIn(response.status_code, [200, 301, 302])
 
     def test_session_enrollment_list(self):
         response = self.client.get(
-            "/api/structure/session-enrollments/"
+            "/api/class-session-enrollments/"
         )
         self.assertIn(response.status_code, [200, 301, 302])

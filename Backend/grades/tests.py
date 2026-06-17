@@ -195,7 +195,7 @@ class GradeViewTests(TestCase):
         return Grade.objects.create(
             enrollment=self.enrollment,
             session=ClassSession.objects.create(
-                session_date=date.today() + timedelta(days=score),
+                session_date=date.today() + timedelta( days=ClassSession.objects.count() + 1),
                 session_time=time(10, 0)
             ),
             subject_name="Physics",
@@ -207,7 +207,7 @@ class GradeViewTests(TestCase):
     def test_grade_list(self):
 
         response = self.client.get(
-            "/api/grades/grades/"
+            "/api/grades/"
         )
 
         self.assertIn(response.status_code, [200, 301, 302])
@@ -215,7 +215,7 @@ class GradeViewTests(TestCase):
     def test_grade_create(self):
 
         response = self.client.post(
-            "/api/grades/grades/",
+            "/api/grades/",
             {
                 "enrollment": self.enrollment.id,
                 "session": self.session.id,
@@ -241,7 +241,7 @@ class GradeViewTests(TestCase):
         )
 
         response = self.client.get(
-            f"/api/grades/grades/{grade.id}/"
+            f"/api/grades/{grade.id}/"
         )
 
         self.assertIn(response.status_code, [200, 301, 302])
@@ -258,7 +258,7 @@ class GradeViewTests(TestCase):
         )
 
         response = self.client.patch(
-            f"/api/grades/grades/{grade.id}/",
+            f"/api/grades/{grade.id}/",
             {"score": 85},
             format="json"
         )
@@ -277,7 +277,7 @@ class GradeViewTests(TestCase):
         )
 
         response = self.client.delete(
-            f"/api/grades/grades/{grade.id}/"
+            f"/api/grades/{grade.id}/"
         )
 
         self.assertIn(response.status_code, [200, 204])
@@ -285,7 +285,7 @@ class GradeViewTests(TestCase):
     def test_filter_by_enrollment(self):
 
         response = self.client.get(
-            f"/api/grades/grades/?enrollment_id={self.enrollment.id}"
+            f"/api/grades/?enrollment_id={self.enrollment.id}"
         )
 
         self.assertIn(response.status_code, [200, 301, 302])
@@ -293,7 +293,7 @@ class GradeViewTests(TestCase):
     def test_summary_requires_enrollment(self):
 
         response = self.client.get(
-            "/api/grades/grades/summary/"
+            "/api/grades/summary/"
         )
 
         self.assertEqual(response.status_code, 400)
@@ -301,7 +301,7 @@ class GradeViewTests(TestCase):
     def test_summary_empty(self):
 
         response = self.client.get(
-            f"/api/grades/grades/summary/?enrollment_id={self.enrollment.id}"
+            f"/api/grades/summary/?enrollment_id={self.enrollment.id}"
         )
 
         self.assertEqual(response.status_code, 200)
@@ -313,7 +313,7 @@ class GradeViewTests(TestCase):
         self.create_grade(100)
 
         response = self.client.get(
-            f"/api/grades/grades/summary/?enrollment_id={self.enrollment.id}"
+            f"/api/grades/summary/?enrollment_id={self.enrollment.id}"
         )
 
         self.assertEqual(response.status_code, 200)
@@ -329,7 +329,7 @@ class GradeViewTests(TestCase):
             self.create_grade(score)
 
         response = self.client.get(
-            f"/api/grades/grades/summary/?enrollment_id={self.enrollment.id}"
+            f"/api/grades/summary/?enrollment_id={self.enrollment.id}"
         )
 
         self.assertEqual(
@@ -338,12 +338,11 @@ class GradeViewTests(TestCase):
         )
 
     def test_summary_declining(self):
-
-        for score in [90, 90, 90, 60, 50, 40]:
+        for score in [90,90, 80, 70, 60, 55, 50]:
             self.create_grade(score)
 
         response = self.client.get(
-            f"/api/grades/grades/summary/?enrollment_id={self.enrollment.id}"
+            f"/api/grades/summary/?enrollment_id={self.enrollment.id}"
         )
 
         self.assertEqual(
@@ -354,7 +353,7 @@ class GradeViewTests(TestCase):
     def test_class_summary_requires_class_id(self):
 
         response = self.client.get(
-            "/api/grades/grades/class-summary/"
+            "/api/grades/class-summary/"
         )
 
         self.assertEqual(response.status_code, 400)
@@ -366,7 +365,7 @@ class GradeViewTests(TestCase):
         self.create_grade(90)
 
         response = self.client.get(
-            f"/api/grades/grades/class-summary/?class_id={self.class_obj.id}"
+            f"/api/grades/class-summary/?class_id={self.class_obj.id}"
         )
 
         self.assertEqual(response.status_code, 200)

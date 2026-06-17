@@ -311,7 +311,7 @@ class RegisterApiTests(APITestCase):
     def test_register_success(self):
 
         response = self.client.post(
-            "/api/core/register/",
+            "/api/auth/register/",
             {
                 "academy_name": "Academy",
                 "academy_email": "academy@test.com",
@@ -334,7 +334,7 @@ class RegisterApiTests(APITestCase):
     def test_register_invalid_password_confirmation(self):
 
         response = self.client.post(
-            "/api/core/register/",
+            "/api/auth/register/",
             {
                 "academy_name": "Academy",
                 "academy_email": "academy@test.com",
@@ -379,7 +379,7 @@ class LoginApiTests(APITestCase):
     def test_login_success(self):
 
         response = self.client.post(
-            "/api/core/login/",
+            "/api/auth/login/",
             {
                 "email": "owner@test.com",
                 "password": "123456"
@@ -395,7 +395,7 @@ class LoginApiTests(APITestCase):
     def test_login_wrong_password(self):
 
         response = self.client.post(
-            "/api/core/login/",
+            "/api/auth/login/",
             {
                 "email": "owner@test.com",
                 "password": "wrong"
@@ -414,7 +414,7 @@ class EducationalLevelApiTests(APITestCase):
     def test_get_educational_levels(self):
 
         response = self.client.get(
-            "/api/core/educational_levels/"
+            "/api/auth/educational_levels/"
         )
 
         self.assertEqual(
@@ -432,7 +432,7 @@ class LogoutApiTests(APITestCase):
     def test_logout(self):
 
         response = self.client.post(
-            "/api/core/logout/"
+            "/api/auth/logout/"
         )
 
         self.assertEqual(

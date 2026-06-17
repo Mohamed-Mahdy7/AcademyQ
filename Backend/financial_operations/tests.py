@@ -220,14 +220,14 @@ class FinancialAPITests(TestCase):
 
     def test_teachers_list(self):
         response = self.client.get(
-            "/api/financial/teachers/"
+            "/api/teachers/"
         )
         self.assertIn(response.status_code, [200, 301, 302])
 
     def test_create_enrollment(self):
 
         response = self.client.post(
-            "/api/financial/enrollments/",
+            "/api/enrollments/",
             {
                 "class_id": self.class_obj.id,
                 "student_id": self.student.id,
@@ -240,7 +240,7 @@ class FinancialAPITests(TestCase):
 
     def test_enrollment_list(self):
         response = self.client.get(
-            "/api/financial/enrollments/"
+            "/api/enrollments/"
         )
 
         self.assertIn(response.status_code, [200, 301, 302])
@@ -248,7 +248,7 @@ class FinancialAPITests(TestCase):
     def test_filter_enrollment_by_student(self):
 
         response = self.client.get(
-            f"/api/financial/enrollments/?student_id={self.student.id}"
+            f"/api/enrollments/?student_id={self.student.id}"
         )
 
         self.assertIn(response.status_code, [200, 301, 302])
@@ -256,7 +256,7 @@ class FinancialAPITests(TestCase):
     def test_filter_enrollment_by_status(self):
 
         response = self.client.get(
-            "/api/financial/enrollments/?status=active"
+            "/api/enrollments/?status=active"
         )
 
         self.assertIn(response.status_code, [200, 301, 302])
@@ -264,7 +264,7 @@ class FinancialAPITests(TestCase):
     def test_payment_list(self):
 
         response = self.client.get(
-            "/api/financial/payments/"
+            "/api/payments/"
         )
 
         self.assertIn(response.status_code, [200, 301, 302])
@@ -272,7 +272,7 @@ class FinancialAPITests(TestCase):
     def test_payment_summary(self):
 
         response = self.client.get(
-            "/api/financial/payments/summary/"
+            "/api/payments/summary/"
         )
 
         self.assertIn(response.status_code, [200, 301, 302])
@@ -282,7 +282,7 @@ class FinancialAPITests(TestCase):
         month = date.today().strftime("%Y-%m")
 
         response = self.client.get(
-            f"/api/financial/payments/summary/?month={month}"
+            f"/api/payments/summary/?month={month}"
         )
 
         self.assertIn(response.status_code, [200, 301, 302])
@@ -290,7 +290,7 @@ class FinancialAPITests(TestCase):
     def test_filter_payments_by_status(self):
 
         response = self.client.get(
-            "/api/financial/payments/?status=pending"
+            "/api/payments/?status=pending"
         )
 
         self.assertIn(response.status_code, [200, 301, 302])
@@ -300,7 +300,7 @@ class FinancialAPITests(TestCase):
         month = date.today().strftime("%Y-%m")
 
         response = self.client.get(
-            f"/api/financial/payments/?month={month}"
+            f"/api/payments/?month={month}"
         )
 
         self.assertIn(response.status_code, [200, 301, 302])
@@ -318,7 +318,7 @@ class FinancialAPITests(TestCase):
         )
 
         response = self.client.delete(
-            f"/api/financial/payments/{payment.id}/"
+            f"/api/payments/{payment.id}/"
         )
 
         self.assertIn(response.status_code, [200, 204])
@@ -328,10 +328,10 @@ class FinancialAPITests(TestCase):
         enrollment = Enrollment.objects.create(
             class_id=self.class_obj,
             student_id=self.student
-        )
+        )   
 
         response = self.client.delete(
-            f"/api/financial/enrollments/{enrollment.id}/"
+            f"/api/enrollments/{enrollment.id}/"
         )
 
         self.assertIn(response.status_code, [200, 204])
@@ -339,7 +339,7 @@ class FinancialAPITests(TestCase):
     def test_teacher_soft_delete(self):
 
         response = self.client.delete(
-            f"/api/financial/teachers/{self.teacher.id}/"
+            f"/api/teachers/{self.teacher.id}/"
         )
 
         self.assertIn(response.status_code, [200, 204])
