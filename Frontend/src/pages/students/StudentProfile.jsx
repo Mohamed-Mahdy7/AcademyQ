@@ -7,8 +7,9 @@ import StudentEnrollmentTab from "../../components/enrollments/StudentEnrollment
 import StudentPaymentTab from "../../components/payments/StudentPaymentTab"
 import AttendanceTab from "../../components/attendance/AttendanceTab"
 import GradeHistoryTab from "../../components/grades/GradeHistoryTab"
+import StudentReportsTab from "../../components/reports/StudentReportsTab"
 
-const tabs = ["Enrollments", "Grades", "Payments", "Attendance"];
+const tabs = ["Enrollments", "Grades", "Payments", "Attendance", "Reports"];
 
 
 const StudentProfile = () => {
@@ -153,6 +154,9 @@ const StudentProfile = () => {
                     )}
                     {activeTab === "Attendance" && (
                         <AttendanceTab studentId={student.id} />
+                    )}
+                    {activeTab === "Reports" && (
+                        <StudentReportsTab studentId={student.id} />
                     )}
                 </div>
             </div>
