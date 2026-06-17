@@ -6,6 +6,7 @@ import { UsersProvider } from "../context/UsersContext.jsx";
 import { StudentProvider } from "../context/StudentsContext.jsx";
 import { EnrollmentProvider } from "../context/EnrollmentContext.jsx";
 import { AlertProvider } from "../context/AlertContext.jsx";
+import { NotificationsProvider } from "../context/NotificationsContext.jsx";
 import ProtectedRoute from "../components/ProtectedRoute";
 import MainLayout from "../components/DashboardLayout";
 import Dashboard from "../pages/Dashboard.jsx";
@@ -35,6 +36,7 @@ import EditUserProfile from "../pages/users/EditUserProfile.jsx";
 import ReportHistoryPage from "../pages/reports/ReportHistoryPage";
 import ReportCardPage from "../pages/reports/ReportCardPage";
 import AlertInboxPage from "../pages/ai/AlertInboxPage.jsx";
+import NotificationHistoryPage from "../pages/ai/NotificationHistoryPage.jsx";
 
 
 const MainRouter = () => {
@@ -128,6 +130,13 @@ const MainRouter = () => {
                         <AlertProvider>
                             <AlertInboxPage />
                         </AlertProvider>
+                    } />
+                    <Route
+                        path="/notifications"
+                        element={
+                            <NotificationsProvider>
+                                <NotificationHistoryPage />
+                            </NotificationsProvider>
                     } />
                 </Route>
             </Route>
