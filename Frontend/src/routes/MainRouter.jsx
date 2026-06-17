@@ -6,6 +6,7 @@ import { UsersProvider } from "../context/UsersContext.jsx";
 import { StudentProvider } from "../context/StudentsContext.jsx";
 import { EnrollmentProvider } from "../context/EnrollmentContext.jsx";
 import { AlertProvider } from "../context/AlertContext.jsx";
+import { NotificationsProvider } from "../context/NotificationsContext.jsx";
 import ProtectedRoute from "../components/ProtectedRoute";
 import MainLayout from "../components/DashboardLayout";
 import Dashboard from "../pages/Dashboard.jsx";
@@ -35,6 +36,7 @@ import EditUserProfile from "../pages/users/EditUserProfile.jsx";
 import ReportHistoryPage from "../pages/reports/ReportHistoryPage";
 import ReportCardPage from "../pages/reports/ReportCardPage";
 import AlertInboxPage from "../pages/ai/AlertInboxPage.jsx";
+import NotificationHistoryPage from "../pages/ai/NotificationHistoryPage.jsx";
 
 
 const MainRouter = () => {
@@ -42,7 +44,13 @@ const MainRouter = () => {
         <Routes>
             <Route path="register" element={<Register />} />
             <Route path="login" element={<Login />} />
-            <Route element={<MainLayout />}>
+            <Route element={ 
+                    <AlertProvider>
+                        <NotificationsProvider>
+                            <MainLayout />
+                        </NotificationsProvider>
+                    </AlertProvider>
+            }>
                 <Route path="/" element={<Dashboard />} />
                 <Route element={<ProtectedRoute></ProtectedRoute>}>
                     <Route path="/settings" element={
@@ -125,9 +133,10 @@ const MainRouter = () => {
                         <ReportCardPage />
                     } />
                     <Route path="/alerts" element={
-                        <AlertProvider>
-                            <AlertInboxPage />
-                        </AlertProvider>
+                        <AlertInboxPage />
+                    } />
+                    <Route path="/notifications" element={
+                        <NotificationHistoryPage />
                     } />
                 </Route>
             </Route>

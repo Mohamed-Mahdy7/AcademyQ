@@ -33,7 +33,6 @@ router.register(
 )
 router.register("reports", AIReportCardViewSet, basename="ai-report")
 router.register("alerts", AlertViewSet, basename="alert"),
-router.register('notifications', NotificationViewSet, basename='notifications')
-
+router.register("notifications", NotificationViewSet, basename="notification"),
 
 urlpatterns = router.urls
