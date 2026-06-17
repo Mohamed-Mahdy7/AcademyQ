@@ -4,14 +4,14 @@ import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
-
+import {PaymentProvider} from './context/PaymentContext.jsx'
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
+  <BrowserRouter>
+    <AuthProvider>
+      <PaymentProvider>
         <App />
-      </AuthProvider>
-    </BrowserRouter>
-  </StrictMode>,
+      </PaymentProvider>
+    </AuthProvider>
+  </BrowserRouter>
 )

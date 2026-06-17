@@ -3,7 +3,7 @@ import { useGrades } from "../../context/gradecontext";
 
 export default function GradeForm({ enrollments = [], sessions = [], subjectName = "", onSuccess }) {
   const { addGrade } = useGrades();
-
+  console.log("rendering")
   const [form, setForm] = useState({
     enrollment: "",
     session: "",
@@ -104,11 +104,11 @@ console.log("SESSIONS:", safeSessions);
       <div className="form-field">
         <label className="form-label">Subject</label>
         <input
-            type="text"
-            value={subjectName}
-            disabled
-            className="form-input-disabled"
-          />
+          type="text"
+          value={subjectName}
+          disabled
+          className="form-input-disabled"
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-4">

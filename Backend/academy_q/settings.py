@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'ai',
     'ai.notifications',
     'ai.reports',
+    'ai.agent',
 ]
 
 MIDDLEWARE = [
@@ -212,16 +213,18 @@ CELERY_BEAT_SCHEDULE = {
     }
 }
 
-# from celery.schedules import crontab
-# CELERY_BEAT_SCHEDULE = {
-#     "weekly-student-scan": {
-#         "task": "ai.agent.tasks.weekly_student_scan",
-#         "schedule": crontab(
-#             minute=0,
-#             hour=8,
-#             day_of_week=1,
-#         ),
-#     },
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    "weekly-student-scan": {
+        "task": "ai.agent.tasks.weekly_student_scan",
+        "schedule": crontab(
+            minute=0,
+            hour=4,        # 04:00 UTC = 07:00 Cairo (UTC+3, no DST)
+            day_of_week=0, # Sunday
+        ),
+    },
+}
 
 #     "daily-payment-reminders": {
 #         "task": "ai.notifications.reminder_tasks.send_payment_reminders",

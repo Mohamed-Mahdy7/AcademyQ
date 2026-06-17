@@ -4,8 +4,8 @@ import { TeacherProvider } from "../context/TeachersContext.jsx";
 import { GradeProvider } from "../context/gradecontext.jsx";
 import { UsersProvider } from "../context/UsersContext.jsx";
 import { StudentProvider } from "../context/StudentsContext.jsx";
-import { PaymentProvider } from "../context/PaymentContext.jsx";
 import { EnrollmentProvider } from "../context/EnrollmentContext.jsx";
+import { AlertProvider } from "../context/AlertContext.jsx";
 import ProtectedRoute from "../components/ProtectedRoute";
 import MainLayout from "../components/DashboardLayout";
 import Dashboard from "../pages/Dashboard.jsx";
@@ -32,6 +32,9 @@ import GradeSummaryTab from "../components/grades/ClassGradeSummaryTab";
 import StudentProfile from "../pages/students/StudentProfile.jsx";
 import EditStudentProfile from "../pages/students/EditStudentProfile.jsx";
 import EditUserProfile from "../pages/users/EditUserProfile.jsx";
+import ReportHistoryPage from "../pages/reports/ReportHistoryPage";
+import ReportCardPage from "../pages/reports/ReportCardPage";
+import AlertInboxPage from "../pages/ai/AlertInboxPage.jsx";
 
 
 const MainRouter = () => {
@@ -41,133 +44,92 @@ const MainRouter = () => {
             <Route path="login" element={<Login />} />
             <Route element={<MainLayout />}>
                 <Route path="/" element={<Dashboard />} />
-                <Route path="/settings" element={
-                    <ProtectedRoute>
+                <Route element={<ProtectedRoute></ProtectedRoute>}>
+                    <Route path="/settings" element={
                         <AcademyProvider>
                             <AcademyProfile />
                         </AcademyProvider>
-                    </ProtectedRoute>
-                } />
-                <Route path="teacher" element={
-                    <ProtectedRoute>
+                    } />
+                    <Route path="teacher" element={
                         <TeacherProvider>
                             <TeachersPage />
                         </TeacherProvider>
-                    </ProtectedRoute>
-                } />
-                <Route path="classes/:classId/attendance" element={
-                    <ProtectedRoute>
+                    } />
+                    <Route path="classes/:classId/attendance" element={
                         <AttendanceMarkingPage />
-                    </ProtectedRoute>
-                } />
-                <Route path="/subjects" element={
-                    <ProtectedRoute>
+                    } />
+                    <Route path="/subjects" element={
                         <SubjectsPage />
-                    </ProtectedRoute>
-                } />
-                <Route path="/subjects/add" element={
-                    <ProtectedRoute>
+                    } />
+                    <Route path="/subjects/add" element={
                         <AddSubjectPage />
-                    </ProtectedRoute>
-                } />
-                <Route path="/subjects/:id/edit" element={
-                    <ProtectedRoute>
+                    } />
+                    <Route path="/subjects/:id/edit" element={
                         <EditSubjectPage />
-                    </ProtectedRoute>
-                } />
-                <Route path="/classes" element={
-                    <ProtectedRoute>
+                    } />
+                    <Route path="/classes" element={
                         <ClassesPage />
-                    </ProtectedRoute>
-                } />
-                <Route path="/classes/add" element={
-                    <ProtectedRoute>
+                    } />
+                    <Route path="/classes/add" element={
                         <AddClassPage />
-                    </ProtectedRoute>}
-                />
-                <Route path="/classes/:id" element={
-                    <ProtectedRoute>
-                        <EnrollmentProvider>
-                            <ClassDetailPage />
-                        </EnrollmentProvider>
-                    </ProtectedRoute>
-                } />
-                <Route path="/classes/:id/edit" element={
-                    <ProtectedRoute>
+                    } />
+                    <Route path="/classes/:id/edit" element={
                         <EditClassPage />
-                    </ProtectedRoute>
-                } />
-                <Route path="/grade" element={
-                    <ProtectedRoute>
-                        <GradeProvider>
-                            <GradeForm />
-                        </GradeProvider>
-                    </ProtectedRoute>
-                } />
-                <Route path="/grade/history/:id" element={
-                    <ProtectedRoute>
-                        <GradeProvider>
-                            <GradeHistoryTab />
-                        </GradeProvider>
-                    </ProtectedRoute>
-                } />
-                <Route path="/grade/summary/:id" element={
-                    <ProtectedRoute>
-                        <GradeProvider>
-                            <GradeSummaryTab />
-                        </GradeProvider>
-                    </ProtectedRoute>
-                } />
-                <Route path="/payments" element={
-                    <ProtectedRoute>
-                        <PaymentProvider>
-                            <PaymentsPage />
-                        </PaymentProvider>
-                    </ProtectedRoute>
-                } />
-                <Route path="/users" element={
-                    <ProtectedRoute>
+                    } />
+                    <Route path="/payments" element={
+                        <PaymentsPage />
+                    } />
+                    <Route path="/users" element={
                         <UsersProvider>
                             <UserManagement />
                         </UsersProvider>
-                    </ProtectedRoute>
-                } />
-                <Route path="/students" element={
-                    <ProtectedRoute>
-                        <UsersProvider>
-                            <StudentProvider>
+                    } />
+                    <Route element={<StudentProvider></StudentProvider>}>
+                        <Route element={<GradeProvider></GradeProvider>}>
+                            <Route element={<EnrollmentProvider></EnrollmentProvider>}>
+                                <Route path="/classes/:id" element={
+                                    <ClassDetailPage />
+                                } />
+                                <Route path="/student/:id" element={
+                                    <StudentProfile />
+                                } />
+                            </Route>
+                            <Route path="/grade" element={
+                                <GradeForm />
+                            } />
+                            <Route path="/grade/history/:id" element={
+                                <GradeHistoryTab />
+                            } />
+                            <Route path="/grade/summary/:id" element={
+                                <GradeSummaryTab />
+                            } />
+                        </Route>
+                        <Route path="/students" element={
+                            <UsersProvider>
                                 <StudentManagement />
-                            </StudentProvider>
-                        </UsersProvider>
-                    </ProtectedRoute>
-                } />
-                <Route path="/student/:id" element={
-                    <ProtectedRoute>
-                        <StudentProvider>
-                            <EnrollmentProvider>
-                                <PaymentProvider>
-                                    <GradeProvider>
-                                        <StudentProfile />
-                                    </GradeProvider>
-                                </PaymentProvider>
-                            </EnrollmentProvider>
-                        </StudentProvider>
-                    </ProtectedRoute>
-                } />
-                <Route path="/student/update/:id" element={
-                    <ProtectedRoute>
-                            <StudentProvider>
-                                <EditStudentProfile />
-                            </StudentProvider>
-                    </ProtectedRoute>
-                } />
-                <Route path="/user/update/:id" element={
-                    <ProtectedRoute>
+                            </UsersProvider>
+                        } />
+                        <Route path="/student/update/:id" element={
+                            <EditStudentProfile />
+                        } />
+                    </Route>
+                    <Route path="/user/update/:id" element={
                         <UsersProvider>
                             <EditUserProfile />
                         </UsersProvider>
-                    </ProtectedRoute>
-                } />
+                    } />
+                    <Route path="/reports" element={
+                        <ReportHistoryPage />
+                    } />
+                    <Route path="/reports/:reportId" element={
+                        <ReportCardPage />
+                    } />
+                    <Route path="/alerts" element={
+                        <AlertProvider>
+                            <AlertInboxPage />
+                        </AlertProvider>
+                    } />
+                </Route>
             </Route>
         </Routes>
     )
