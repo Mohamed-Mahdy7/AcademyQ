@@ -1,115 +1,103 @@
-import logging
+from django.core.mail import send_mail
+from django.utils import timezone
+from django.conf import settings
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.utils import timezone
+from rest_framework.permissions import IsAuthenticated
+
 from .models import Notification
-from .serializers import NotificationSerializer
-from .reminder_tasks import send_payment_reminder, send_overdue_reminders
-
-logger = logging.getLogger(__name__)
+from .serializers import NotificationSerializer, SendNotificationSerializer
+from ai.agent.models import Alert
 
 
-class NotificationViewSet(viewsets.ModelViewSet):
-    serializer_class = NotificationSerializer
+class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
-    http_method_names = ['get', 'patch', 'delete']
+    serializer_class = NotificationSerializer
 
     def get_queryset(self):
-        queryset = Notification.objects.filter(
-            student__academy=self.request.user.academy
-        )
-        # Filter by status
-        status_filter = self.request.query_params.get('status')
-        if status_filter:
-            queryset = queryset.filter(status=status_filter)
+        qs = Notification.objects.filter(academy=self.request.user.academy)
 
-        # Filter by channel
-        channel = self.request.query_params.get('channel')
+        channel = self.request.query_params.get("channel")
         if channel:
-            queryset = queryset.filter(channel=channel)
+            qs = qs.filter(channel=channel)
 
-        # Filter by type
-        notification_type = self.request.query_params.get('type')
-        if notification_type:
-            queryset = queryset.filter(notification_type=notification_type)
+        status_filter = self.request.query_params.get("status")
+        if status_filter:
+            qs = qs.filter(status=status_filter)
 
-        return queryset
+        return qs
 
-    @action(detail=False, methods=['post'], url_path='send-reminders')
-    def send_reminders(self, request):
-        """
-        Manually trigger payment reminders for the academy.
-        POST /api/notifications/send-reminders/
-        """
-        academy_id = str(request.user.academy.id)
-        results = send_overdue_reminders(academy_id)
+    @action(detail=False, methods=["post"], url_path="send")
+    def send_notification(self, request):
+        serializer = SendNotificationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
 
-        return Response({
-            'message': 'Payment reminders processed',
-            'results': results,
-        }, status=status.HTTP_200_OK)
+        alert = None
+        if data.get("alert_id"):
+            try:
+                alert = Alert.objects.get(
+                    id=data["alert_id"], academy=request.user.academy
+                )
+            except Alert.DoesNotExist:
+                return Response(
+                    {"detail": "Alert not found."},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
 
-    @action(detail=True, methods=['post'], url_path='resend')
-    def resend(self, request, pk=None):
-        """
-        Resend a failed notification.
-        POST /api/notifications/{id}/resend/
-        """
-        notification = self.get_object()
+        notification = Notification.objects.create(
+            academy=request.user.academy,
+            alert=alert,
+            recipient_name=data["recipient_name"],
+            recipient_email=data["recipient_email"],
+            channel="email",
+            message=data["message"],
+            status="pending",
+        )
 
-        if notification.status == 'sent':
-            return Response(
-                {'detail': 'Notification already sent.'},
-                status=status.HTTP_400_BAD_REQUEST
+        try:
+            send_mail(
+                subject=f"AcademiQ — Message regarding {data['recipient_name']}",
+                message=data["message"],
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[data["recipient_email"]],
+                fail_silently=False,
             )
+            notification.status = "sent"
+            notification.sent_at = timezone.now()
+        except Exception:
+            notification.status = "failed"
 
-        result = send_payment_reminder(
-            str(notification.enrollment.payments.first().id)
+        notification.save()
+        return Response(
+            NotificationSerializer(notification).data,
+            status=status.HTTP_201_CREATED,
         )
 
-        return Response(result, status=status.HTTP_200_OK)
-
-    @action(detail=False, methods=['get'], url_path='stats')
+    @action(detail=False, methods=["get"], url_path="stats")
     def stats(self, request):
-        """
-        Notification statistics.
-        GET /api/notifications/stats/
-        """
-        from django.utils import timezone
-        from datetime import timedelta
+        now = timezone.now()
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        week_start = today_start - timezone.timedelta(days=now.weekday())
 
-        today = timezone.now().date()
-        week_start = today - timedelta(days=7)
+        qs = Notification.objects.filter(academy=request.user.academy)
 
-        academy_notifications = Notification.objects.filter(
-            student__academy=request.user.academy
+        sent_today = qs.filter(status="sent", sent_at__gte=today_start).count()
+        this_week = qs.filter(status="sent", sent_at__gte=week_start).count()
+        failed = qs.filter(status="failed").count()
+
+        total_attempted = qs.exclude(status="pending").count()
+        total_sent = qs.filter(status="sent").count()
+        delivery_rate = round(
+            (total_sent / total_attempted * 100) if total_attempted else 0
         )
 
-        sent_today = academy_notifications.filter(
-            sent_at__date=today,
-            status='sent'
-        ).count()
-
-        sent_this_week = academy_notifications.filter(
-            sent_at__date__gte=week_start,
-            status='sent'
-        ).count()
-
-        failed_this_week = academy_notifications.filter(
-            sent_at__date__gte=week_start,
-            status='failed'
-        ).count()
-
-        total_this_week = sent_this_week + failed_this_week
-        delivery_rate = round(
-            (sent_this_week / total_this_week * 100), 1
-        ) if total_this_week > 0 else 0
-
-        return Response({
-            'sent_today': sent_today,
-            'sent_this_week': sent_this_week,
-            'failed_this_week': failed_this_week,
-            'delivery_rate_pct': delivery_rate,
-        })
+        return Response(
+            {
+                "sent_today": sent_today,
+                "this_week": this_week,
+                "failed": failed,
+                "delivery_rate": delivery_rate,
+            }
+        )

@@ -1,18 +1,56 @@
-from ai.utils.rag_engine import get_student_context
-from ai.utils.prompt_builder import build_report_prompt
+from django.test import TestCase
+from unittest.mock import patch, MagicMock
+
 from ai.utils.gemini_client import generate_text
-from django.contrib.auth import get_user_model
+from ai.models import AIUsageLog
+from core.models import Academy
 
-User = get_user_model()
 
-student = User.objects.filter(
-    role=User.Roles.STUDENT
-).first()
+class GenerateTextTest(TestCase):
 
-context = get_student_context(student.id)
+    def setUp(self):
+        self.academy = Academy.objects.create(
+            name="Test Academy",
+            email="test@academy.com",
+        )
 
-prompt = build_report_prompt(context)
+    @patch("ai.utils.gemini_client.GeminiClient.generate")
+    def test_generate_text_creates_usage_log_and_returns_response(self, mock_generate):
+        """
+        Test that:
+        - Gemini is called
+        - AIUsageLog is created
+        - response is returned correctly
+        """
 
-response = generate_text(prompt)
+        # Arrange
+        mock_generate.return_value = "Hello AI response"
 
-print(response)
+        prompt = "Write a short report"
+        feature = "report_card"
+
+        # Act
+        result = generate_text(
+            prompt=prompt,
+            feature=feature,
+            academy=self.academy,
+        )
+
+        # Assert response returned
+        self.assertEqual(result, "Hello AI response")
+
+        # Assert Gemini was called once
+        mock_generate.assert_called_once_with(prompt)
+
+        # Assert usage log created
+        log = AIUsageLog.objects.first()
+        self.assertIsNotNone(log)
+
+        self.assertEqual(log.academy, self.academy)
+        self.assertEqual(log.feature, feature)
+        self.assertEqual(log.model, "gemini-2.5-flash" if hasattr(log, "model") else log.model)
+
+        # token sanity checks (simple heuristic)
+        self.assertGreater(log.prompt_token, 0)
+        self.assertGreater(log.completion_token, 0)
+        self.assertGreater(log.total_cost_usd, 0)

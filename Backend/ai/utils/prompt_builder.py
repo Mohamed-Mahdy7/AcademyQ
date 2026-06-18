@@ -17,7 +17,7 @@ def format_similar_students(context):
     
     for student in students:
         lines.append(
-            f"- {student["student_name"]} ({student["educational_level"]})"
+            f"- {student['student_name']} ({student['educational_level']})"
         )
     
     return "\n".join(lines)
@@ -33,11 +33,11 @@ Generate a detailed student performance report.
 Student Information:
 - Name: {context.get("student_name", "Unknown")}
 - Educational Level: {context.get("educational_level", "Unknown")}
-- Attendance Rate: {context.get("attendance_rate", 0)}%
-- Missed Classes: {context.get("missed_classes", 0)}
+- Attendance Rate: {context.get("attendance_rate") or 0}%
+- Missed Classes: {context.get("missed_classes") or 0}
 - Payment Status: {context.get("payment_status", "Unknown")}
 - Teacher Notes:
-{context.get("teacher_notes", "No teacher notes available")}
+{str(context.get("teacher_notes", "No teacher notes available"))}
 - Similar Students:
 {format_similar_students(context)}
 
@@ -62,12 +62,12 @@ Analyze the following student and explain why they may be at risk.
 
 Student Information:
 - Name: {context.get("student_name", "Unknown")}
-- Attendance Rate: {context.get("attendance_rate", 0)}%
-- Missed Classes: {context.get("missed_classes", 0)}
+- Attendance Rate: {context.get("attendance_rate") or 0}%
+- Missed Classes: {context.get("missed_classes") or 0}
 - Payment Status: {context.get("payment_status", "Unknown")}
 - Risk Score: {context.get("risk_score", 0)}
 -Teacher Notes:
-{context.get("teacher_notes", "No notes available")}
+{str(context.get("teacher_notes", "No teacher notes available"))}
 - Similar Students:
 {format_similar_students(context)}
 
@@ -77,6 +77,12 @@ Generate:
 2. Main Risk Factors
 3. Recommended Intervention
 4. Parent Message Draft
+
+Requirements:
+- Friendly tone
+- Encourage communication
+- Suggest contacting the academy
+- Maximum 150 words
 
 Return plain text only.
 """
@@ -110,31 +116,31 @@ Return only the reminder text.
 """
 
 
-def build_attendance_alert_prompt(context: dict) -> str:
-    """
-    Optional notification template.
-    """
+# def build_attendance_alert_prompt(context: dict) -> str:
+#     """
+#     Optional notification template.
+#     """
 
-    return f"""
-Write a message to inform a parent about low attendance.
+#     return f"""
+# Write a message to inform a parent about low attendance.
 
-Student Name:
-{context.get("student_name", "Unknown")}
+# Student Name:
+# {context.get("student_name", "Unknown")}
 
-Attendance Rate:
-{context.get("attendance_rate", 0)}%
+# Attendance Rate:
+# {context.get("attendance_rate", 0)}%
 
-Missed Classes:
-{context.get("missed_classes", 0)}
+# Missed Classes:
+# {context.get("missed_classes", 0)}
 
-Requirements:
-- Friendly tone
-- Encourage communication
-- Suggest contacting the academy
-- Maximum 120 words
+# Requirements:
+# - Friendly tone
+# - Encourage communication
+# - Suggest contacting the academy
+# - Maximum 120 words
 
-Return only the message.
-"""
+# Return only the message.
+# """
 
 
 def build_management_summary_prompt(context: dict) -> str:

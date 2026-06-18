@@ -3,26 +3,24 @@ from .models import Notification
 
 
 class NotificationSerializer(serializers.ModelSerializer):
-    student_name = serializers.CharField(
-        source='student.full_name', read_only=True
-    )
-    student_phone = serializers.CharField(
-        source='student.phone', read_only=True
-    )
-
     class Meta:
         model = Notification
         fields = [
-            'id',
-            'student',
-            'student_name',
-            'student_phone',
-            'enrollment',
-            'channel',
-            'notification_type',
-            'message',
-            'status',
-            'sent_at',
-            'created_at',
+            "id",
+            "alert",
+            "recipient_name",
+            "recipient_email",
+            "channel",
+            "message",
+            "status",
+            "sent_at",
+            "created_at",
         ]
-        read_only_fields = ['id', 'created_at', 'sent_at']
+        read_only_fields = ["id", "status", "sent_at", "created_at"]
+
+
+class SendNotificationSerializer(serializers.Serializer):
+    alert_id = serializers.IntegerField(required=False, allow_null=True)
+    recipient_name = serializers.CharField(max_length=255)
+    recipient_email = serializers.EmailField()
+    message = serializers.CharField()

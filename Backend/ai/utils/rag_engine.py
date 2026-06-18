@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.contrib.auth import get_user_model
 from financial_operations.models import Enrollment, Payment
 from records.models import Attendance
@@ -30,19 +31,29 @@ def calculate_missed_classes(student):
     ).count()
 
 
-def get_payment_status(student):
+def get_payment_status(enrollments):
 
-    pending = Payment.objects.filter(
-        enrollment_id__student_id=student,
-        status="pending"
-    ).exists()
-    
+    result = []
+    for enrollment in enrollments:
+        payment = Payment.objects.filter(
+            enrollment_id=enrollment.id,
+            status="pending"
+        ).order_by("due_date").first()
+        
 
-    if pending:
-        return "Pending"
-    
-    return "Completed"
+        overdue_days = 0
+        if payment and payment.due_date:
+            overdue_days = (timezone.now().date() - payment.due_date).days
+            overdue_days = max(overdue_days, 0)
 
+        result.append({
+            "enrollment_id": str(enrollment.id),
+            "status": "Pending" if payment else "Complete",
+            "due_date": payment.due_date if payment else None,
+            "overdue_days": overdue_days,
+        })
+        
+    return result
 
 def get_teacher_notes(student):
     """
@@ -60,13 +71,14 @@ def get_student_context(student_id):
 
     attendance_rate = calculate_attendance_rate(student)
     missed_classes = calculate_missed_classes(student)
-    payment_status = get_payment_status(student)
     teacher_notes = get_teacher_notes(student)
     similar_students = get_similar_student_context(student)
-
     enrollments = Enrollment.objects.filter(
         student_id=student
     )
+    payments = get_payment_status(enrollments)
+
+    
 
     return {
         "student_id": str(student.id),
@@ -76,8 +88,8 @@ def get_student_context(student_id):
         "educational_level": student.get_educational_level_display(),
         "attendance_rate": attendance_rate,
         "missed_classes": missed_classes,
-        "payment_status": payment_status,
         "teacher_notes": teacher_notes,
+        "payments": payments,
         "enrollment_count": enrollments.count(),
         "parent_phone": student.parent_phone,
         "status": student.get_status_display(),
