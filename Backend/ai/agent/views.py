@@ -1,3 +1,5 @@
+import traceback
+
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -16,7 +18,7 @@ MANUAL_SCAN_DAILY_LIMIT = 3
 class AlertViewSet(viewsets.ModelViewSet):
     serializer_class = AlertSerializer
     permission_classes = [IsOwner, ActiveSubscriptionRequired]
-    http_method_names = ["get", "patch", "head", "options"]
+    http_method_names = ["get", "post", "patch", "head", "options"]
 
     def get_queryset(self):
         qs = Alert.objects.filter(
@@ -95,10 +97,16 @@ class AlertViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="generate-message")
     def generate_message(self, request, pk=None):
+        from ai.utils.prompt_builder import build_risk_alert_prompt, build_payment_reminder_prompt
+        from ai.utils.gemini_client import generate_text
+        from ai.utils.rag_engine import get_student_context
+        from ai.agent.helpers.context_builder import build_risk_context
+
         alert = self.get_object()
+        enrollment = alert.enrollment
 
         try:
-            context = get_student_context(alert.enrollment.student_id)
+            context = get_student_context(enrollment.student_id.id)
         except Exception as e:
             return Response(
                 {"detail": f"Failed to retrieve student context: {str(e)}"},
@@ -109,7 +117,27 @@ class AlertViewSet(viewsets.ModelViewSet):
 
         try:
             prompt = build_risk_alert_prompt(context)
-            message = generate_text(prompt)
+
+            # append payment reminder if overdue_days is active
+            risk_context = build_risk_context(enrollment.id)
+            overdue_days = risk_context.get("overdue_days")
+
+            if overdue_days is not None:
+                payment_context = {
+                    "student_name": context.get("student_name", "Unknown"),
+                    "parent_name": "Parent",  # parent_name not in User model — using generic
+                    "outstanding_balance": enrollment.class_id.session_price or 0,
+                    "due_date": overdue_days,
+                }
+                payment_prompt = build_payment_reminder_prompt(payment_context)
+                prompt = prompt + "\n\n" + payment_prompt
+
+            message = generate_text(
+                prompt,
+                feature="risk_alert",
+                academy=enrollment.class_id.academy,
+            )
+
         except Exception as e:
             return Response(
                 {"detail": f"LLM call failed: {str(e)}"},
