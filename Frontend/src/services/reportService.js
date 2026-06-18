@@ -13,3 +13,12 @@ export const generateReport = (enrollmentId, month) =>
         enrollment_id: enrollmentId,
         month,
     });
+
+export const generateBulkReports = (classId, month) =>
+    api.post("/api/reports/generate_bulk/", {
+        class_id: classId,
+        month,
+    });
+
+export const deleteReport = (reportId) =>
+    api.delete(`/api/reports/${reportId}/`);

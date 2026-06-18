@@ -11,8 +11,9 @@ import TeachersTab from "../../components/classes/TeachersTab";
 import EnrollmentTab from "../../components/enrollments/EnrollmentTab";
 // import { GradeProvider } from "../../context/gradecontext";
 import GradesTabContent from "../../components/grades/GradesTabContent";
+import ClassReportsTab from "../../components/reports/ClassReportsTab";
 
-const TABS = ["Students", "Sessions", "Grades", "Teachers"];
+const TABS = ["Students", "Sessions", "Grades", "Teachers", "AI Reports"];
 
 function ClassDetailPage() {
     const { id } = useParams();
@@ -164,6 +165,9 @@ function ClassDetailPage() {
                                 getClass(id).then(res => setClassData(res.data));
                             }}
                         />
+                    )}
+                    {activeTab === "AI Reports" && (
+                        <ClassReportsTab classId={id} enrollments={enrollments} />
                     )}
                 </div>
             </div>

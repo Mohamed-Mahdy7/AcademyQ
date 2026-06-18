@@ -83,29 +83,29 @@ class AIReportCardViewSetTest(APITestCase):
     # ── List / Retrieve ─────────────────────────────────────
 
     def test_list_reports(self):
-        response = self.client.get("/api/ai/reports/")
+        response = self.client.get("/api/reports/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
 
     def test_list_unauthenticated(self):
         self.client.force_authenticate(user=None)
-        response = self.client.get("/api/ai/reports/")
+        response = self.client.get("/api/reports/")
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_retrieve_report(self):
-        response = self.client.get(f"/api/ai/reports/{self.report.id}/")
+        response = self.client.get(f"/api/reports/{self.report.id}/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["summary_text"], "Existing summary")
         self.assertEqual(response.data["student_name"], "Ahmed Mohamed")
         self.assertEqual(response.data["class_name"], "Math G7")
 
     def test_filter_by_student_id(self):
-        response = self.client.get(f"/api/ai/reports/?student_id={self.student.id}")
+        response = self.client.get(f"/api/reports/?student_id={self.student.id}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
 
     def test_filter_by_month_no_match(self):
-        response = self.client.get("/api/ai/reports/?month=2026-02")
+        response = self.client.get("/api/reports/?month=2026-02")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
 
@@ -145,7 +145,7 @@ class AIReportCardViewSetTest(APITestCase):
             risk_score=10,
         )
 
-        response = self.client.get("/api/ai/reports/")
+        response = self.client.get("/api/reports/")
         self.assertEqual(len(response.data), 1)  # only own academy's report
 
     # ── Generate Action ──────────────────────────────────────
@@ -155,7 +155,7 @@ class AIReportCardViewSetTest(APITestCase):
         mock_generate.return_value = "New summary"
 
         response = self.client.post(
-            "/api/ai/reports/generate/",
+            "/api/reports/generate/",
             {"enrollment_id": str(self.enrollment.id), "month": "2026-02"},
             format="json",
         )
@@ -168,7 +168,7 @@ class AIReportCardViewSetTest(APITestCase):
         mock_generate.return_value = "Updated summary"
 
         response = self.client.post(
-            "/api/ai/reports/generate/",
+            "/api/reports/generate/",
             {"enrollment_id": str(self.enrollment.id), "month": "2026-01"},
             format="json",
         )
@@ -180,7 +180,7 @@ class AIReportCardViewSetTest(APITestCase):
     def test_generate_report_as_teacher_forbidden(self):
         self.client.force_authenticate(user=self.teacher_user)
         response = self.client.post(
-            "/api/ai/reports/generate/",
+            "/api/reports/generate/",
             {"enrollment_id": str(self.enrollment.id), "month": "2026-02"},
             format="json",
         )
@@ -188,7 +188,7 @@ class AIReportCardViewSetTest(APITestCase):
 
     def test_generate_report_invalid_month_format(self):
         response = self.client.post(
-            "/api/ai/reports/generate/",
+            "/api/reports/generate/",
             {"enrollment_id": str(self.enrollment.id), "month": "2026-13"},
             format="json",
         )
@@ -197,7 +197,7 @@ class AIReportCardViewSetTest(APITestCase):
     def test_generate_report_enrollment_not_found(self):
         import uuid
         response = self.client.post(
-            "/api/ai/reports/generate/",
+            "/api/reports/generate/",
             {"enrollment_id": str(uuid.uuid4()), "month": "2026-02"},
             format="json",
         )
@@ -206,8 +206,19 @@ class AIReportCardViewSetTest(APITestCase):
     def test_generate_report_unauthenticated(self):
         self.client.force_authenticate(user=None)
         response = self.client.post(
-            "/api/ai/reports/generate/",
+            "/api/reports/generate/",
             {"enrollment_id": str(self.enrollment.id), "month": "2026-02"},
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_delete_report_as_owner(self):
+        response = self.client.delete(f"/api/reports/{self.report.id}/")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(AIReportCard.objects.filter(id=self.report.id).exists())
+
+    def test_delete_report_as_teacher_forbidden(self):
+        self.client.force_authenticate(user=self.teacher_user)
+        response = self.client.delete(f"/api/reports/{self.report.id}/")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(AIReportCard.objects.filter(id=self.report.id).exists())
