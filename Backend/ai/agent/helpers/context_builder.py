@@ -4,6 +4,8 @@ Assembles the context dict that risk_scorer() expects, for a single enrollment.
 
 from ai.agent.helpers.grade_signal import get_avg_score_last_2
 from records.helpers.attendance_signals import get_attendance_pct_28d
+from ai.utils.rag_engine import get_student_context
+from financial_operations.models import Enrollment
 
 def build_risk_context(enrollment_id) -> dict:
     """
@@ -34,20 +36,17 @@ def build_risk_context(enrollment_id) -> dict:
         pass
 
     try:
-        from ai.utils.rag_engine import get_student_context
-        from financial_operations.models import Enrollment
 
         enrollment = Enrollment.objects.select_related('student_id').get(id=enrollment_id)
         student_context = get_student_context(enrollment.student_id.id)
 
-        payments = student_context.get("payments", [])
-        enrollment_payment = next(
-            (p for p in payments if p["enrollment_id"] == str(enrollment_id)),
+        enrollments_ctx = student_context.get("enrollments", [])
+        enrollment_ctx = next(
+            (e for e in enrollments_ctx if e["enrollment_id"] == str(enrollment_id)),
             None
         )
-
-        if enrollment_payment:
-            overdue = enrollment_payment["overdue_days"]
+        if enrollment_ctx:
+            overdue = enrollment_ctx["payments"]["overdue_days"]
             context["overdue_days"] = overdue if overdue > 0 else None
 
     except Exception:
