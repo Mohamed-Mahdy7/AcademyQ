@@ -28,6 +28,7 @@ class Alert(models.Model):
     reviewed_at = models.DateTimeField(null=True, blank=True)
     notes = models.TextField(blank=True, default="")
     last_scanned_at = models.DateTimeField(auto_now=True)
+    is_sent = models.BooleanField(default=False)
 
     class Meta:
         db_table = "alerts"
