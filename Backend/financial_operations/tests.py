@@ -321,7 +321,7 @@ class FinancialAPITests(TestCase):
             f"/api/payments/{payment.id}/"
         )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 204)
     def test_soft_delete_enrollment(self):
 
         enrollment = Enrollment.objects.create(
@@ -333,7 +333,7 @@ class FinancialAPITests(TestCase):
             f"/api/enrollments/{enrollment.id}/"
         )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 204)
 
     def test_teacher_soft_delete(self):
 
@@ -341,7 +341,7 @@ class FinancialAPITests(TestCase):
             f"/api/teachers/{self.teacher.id}/"
         )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 204)
 
     def test_auto_payment_created_after_enrollment(self):
 
