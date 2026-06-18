@@ -5,10 +5,10 @@ from django.conf import settings
 from google import genai
 from google.genai import errors
 from ai.models import AIUsageLog
+from .constants import RETRYABLE_STATUS_CODES
 
 logger = logging.getLogger(__name__)
 
-RETRYABLE_STATUS_CODES = {408, 429, 500, 502, 503, 504}
 
 # USD price per 1,000,000 tokens. Thinking tokens are billed at the
 # output rate -- they are folded into "completion" cost, not a
@@ -70,15 +70,17 @@ def _extract_token_counts(response):
     if usage is None:
         return 0, 0
 
-    prompt_tokens = usage.prompt_token_count or 0
-    completion_tokens = (usage.candidates_token_count or 0) + (usage.thoughts_token_count or 0)
+    prompt_tokens = getattr(usage, "prompt_token_count", None) or 0
+    completion_tokens = (
+        (getattr(usage, "candidates_token_count", None) or 0) +
+        (getattr(usage, "thoughts_token_count", None) or 0)
+    )
     return prompt_tokens, completion_tokens
-
 
 def generate_text(
     prompt: str,
     feature: str,
-    academy,
+    academy,           # required -- pass request.user.academy or the academy FK directly
     retries: int = 3,
     retry_delay: int = 2,
 ):

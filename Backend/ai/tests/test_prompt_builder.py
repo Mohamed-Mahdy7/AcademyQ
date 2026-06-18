@@ -31,10 +31,10 @@ class FormatPaymentStatusTest(SimpleTestCase):
 
     def test_no_enrollments(self):
         self.assertEqual(format_payment_status({}), "No active enrollments")
-        self.assertEqual(format_payment_status({"payment_status": []}), "No active enrollments")
+        self.assertEqual(format_payment_status({"payments": []}), "No active enrollments")
 
     def test_mixed_statuses_across_enrollments(self):
-        context = {"payment_status": [
+        context = {"payments": [
             {"status": "Complete", "due_date": None, "overdue_days": 0},
             {"status": "Pending", "due_date": "2026-06-01", "overdue_days": 12},
             {"status": "Pending", "due_date": "2026-07-01", "overdue_days": 0},
@@ -52,7 +52,7 @@ class BuildReportPromptTest(SimpleTestCase):
             "student_name": "Ahmed",
             "attendance_rate": 65,
             "missed_classes": 4,
-            "payment_status": [{"status": "Pending", "due_date": "2026-06-01", "overdue_days": 12}],
+            "payments": [{"status": "Pending", "due_date": "2026-06-01", "overdue_days": 12}],
             "teacher_notes": None,
         }
         prompt = build_report_prompt(context)
@@ -64,7 +64,7 @@ class BuildReportPromptTest(SimpleTestCase):
 class BuildRiskAlertPromptTest(SimpleTestCase):
 
     def test_includes_risk_score(self):
-        prompt = build_risk_alert_prompt({"student_name": "Sara", "risk_score": 75, "payment_status": []})
+        prompt = build_risk_alert_prompt({"student_name": "Sara", "risk_score": 75, "payments": []})
         self.assertIn("Sara", prompt)
         self.assertIn("75", prompt)
 
