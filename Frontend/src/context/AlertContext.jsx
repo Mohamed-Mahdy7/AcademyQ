@@ -7,7 +7,7 @@ export function AlertProvider({ children }) {
     const [alerts, setAlerts]         = useState([]);
     const [loading, setLoading]       = useState(true);
     const [error, setError]           = useState(null);
-    const [filter, setFilter]         = useState({ risk_level: "all", reviewed: "false" });
+    const [filter, setFilter] = useState({ risk_level: "all", is_dismissed: "false" });
     const [expandedId, setExpandedId] = useState(null);
     const [generatingId, setGeneratingId] = useState(null);
 
