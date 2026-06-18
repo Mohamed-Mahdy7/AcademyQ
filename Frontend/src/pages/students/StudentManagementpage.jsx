@@ -94,7 +94,7 @@ const StudentManagement = () => {
                                     {student.full_name}
                                 </td>
                                 <td className="table-cell">
-                                    {student.parent_phone}
+                                    {student.parent_email}
                                 </td>
                                 <td className="table-cell">
                                     {student.educational_level}
