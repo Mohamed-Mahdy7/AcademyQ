@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getEnrollments } from "../../services/enrollmentService";
-import { getReports } from "../../services/reportService";
+import { getReports, deleteReport } from "../../services/reportService";
 import GenerateReportForm from "./GenerateReportForm";
 
 const RISK_BADGE = {
@@ -15,6 +15,8 @@ function StudentReportsTab({ studentId }) {
     const [enrollments, setEnrollments] = useState([]);
     const [selectedEnrollmentId, setSelectedEnrollmentId] = useState("");
     const [loading, setLoading] = useState(true);
+    const [feedback, setFeedback] = useState(null);
+    const [deleteTargetId, setDeleteTargetId] = useState(null);
     const navigate = useNavigate();
 
     const loadData = async () => {
@@ -42,12 +44,35 @@ function StudentReportsTab({ studentId }) {
 
     const handleGenerated = (newReport) => {
         setReports((prev) => {
-            const exists = prev.find((r) => r.id === newReport.id);
-            if (exists) {
+            const existing = prev.find((r) => r.id === newReport.id);
+            if (existing) {
+                setFeedback({
+                    type: "info",
+                    message: `Report for ${newReport.month} already existed and was regenerated with new data.`,
+                });
                 return prev.map((r) => (r.id === newReport.id ? newReport : r));
             }
+            setFeedback({
+                type: "success",
+                message: `New report generated for ${newReport.month}.`,
+            });
             return [newReport, ...prev];
         });
+    };
+
+    const handleDeleteConfirm = async () => {
+        try {
+            await deleteReport(deleteTargetId);
+            setReports((prev) => prev.filter((r) => r.id !== deleteTargetId));
+            setFeedback({ type: "success", message: "Report deleted." });
+        } catch (err) {
+            setFeedback({
+                type: "error",
+                message: err.response?.data?.detail || "Failed to delete report.",
+            });
+        } finally {
+            setDeleteTargetId(null);
+        }
     };
 
     if (loading) return <p className="text-sm text-blue">Loading reports...</p>;
@@ -81,6 +106,20 @@ function StudentReportsTab({ studentId }) {
                     </p>
                 )}
             </div>
+
+            {feedback && (
+                <div
+                    className={
+                        feedback.type === "error"
+                            ? "alert-danger mb-4"
+                            : feedback.type === "info"
+                            ? "alert-warning mb-4"
+                            : "alert-success mb-4"
+                    }
+                >
+                    <p className="alert-desc">{feedback.message}</p>
+                </div>
+            )}
 
             <table className="table">
                 <thead className="table-thead">
@@ -123,12 +162,18 @@ function StudentReportsTab({ studentId }) {
                                 <td className="table-cell-muted">
                                     {new Date(report.generated_at).toLocaleDateString()}
                                 </td>
-                                <td className="table-actions">
+                                <td className="table-actions flex items-center gap-2">
                                     <button
                                         className="btn-secondary"
                                         onClick={() => navigate(`/reports/${report.id}`)}
                                     >
                                         View
+                                    </button>
+                                    <button
+                                        className="btn-danger-outline"
+                                        onClick={() => setDeleteTargetId(report.id)}
+                                    >
+                                        Delete
                                     </button>
                                 </td>
                             </tr>
@@ -136,6 +181,32 @@ function StudentReportsTab({ studentId }) {
                     )}
                 </tbody>
             </table>
+
+            {deleteTargetId && (
+                <div className="modal-backdrop">
+                    <div className="modal-sm">
+                        <div className="modal-header">
+                            <h3 className="modal-title">Delete Report</h3>
+                        </div>
+                        <div className="modal-body">
+                            <p className="text-body">
+                                Are you sure you want to delete this report? This cannot be undone.
+                            </p>
+                        </div>
+                        <div className="modal-footer">
+                            <button
+                                className="btn-muted"
+                                onClick={() => setDeleteTargetId(null)}
+                            >
+                                Cancel
+                            </button>
+                            <button className="btn-danger" onClick={handleDeleteConfirm}>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

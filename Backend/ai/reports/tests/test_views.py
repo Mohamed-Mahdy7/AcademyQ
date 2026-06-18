@@ -211,3 +211,14 @@ class AIReportCardViewSetTest(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_delete_report_as_owner(self):
+        response = self.client.delete(f"/api/ai/reports/{self.report.id}/")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(AIReportCard.objects.filter(id=self.report.id).exists())
+
+    def test_delete_report_as_teacher_forbidden(self):
+        self.client.force_authenticate(user=self.teacher_user)
+        response = self.client.delete(f"/api/ai/reports/{self.report.id}/")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(AIReportCard.objects.filter(id=self.report.id).exists())
