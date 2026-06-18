@@ -33,11 +33,11 @@ Generate a detailed student performance report.
 Student Information:
 - Name: {context.get("student_name", "Unknown")}
 - Educational Level: {context.get("educational_level", "Unknown")}
-- Attendance Rate: {context.get("attendance_rate", 0)}%
-- Missed Classes: {context.get("missed_classes", 0)}
+- Attendance Rate: {context.get("attendance_rate") or 0}%
+- Missed Classes: {context.get("missed_classes") or 0}
 - Payment Status: {context.get("payment_status", "Unknown")}
 - Teacher Notes:
-{context.get("teacher_notes", "No teacher notes available")}
+{str(context.get("teacher_notes", "No teacher notes available"))}
 - Similar Students:
 {format_similar_students(context)}
 
@@ -62,12 +62,12 @@ Analyze the following student and explain why they may be at risk.
 
 Student Information:
 - Name: {context.get("student_name", "Unknown")}
-- Attendance Rate: {context.get("attendance_rate", 0)}%
-- Missed Classes: {context.get("missed_classes", 0)}
+- Attendance Rate: {context.get("attendance_rate") or 0}%
+- Missed Classes: {context.get("missed_classes") or 0}
 - Payment Status: {context.get("payment_status", "Unknown")}
 - Risk Score: {context.get("risk_score", 0)}
 -Teacher Notes:
-{context.get("teacher_notes", "No notes available")}
+{str(context.get("teacher_notes", "No teacher notes available"))}
 - Similar Students:
 {format_similar_students(context)}
 
