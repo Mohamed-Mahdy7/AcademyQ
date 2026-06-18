@@ -1,5 +1,4 @@
 from django.db import models
-from core.models import Academy
 from ai.agent.models import Alert
 import uuid  
 
@@ -10,17 +9,33 @@ class Notification(models.Model):
         ("sent", "Sent"),
         ("failed", "Failed"),
     ]
+    TYPE_CHOICES = [
+        ('payment_reminder', 'Payment Reminder'),
+        ('retention_alert', 'Retention Alert'),
+        ('attendance_alert', 'Attendance Alert'),
+    ]
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=True)
-    academy = models.ForeignKey(Academy, on_delete=models.CASCADE, related_name="notifications", null=True)
+    student = models.ForeignKey(
+        'core.User',
+        on_delete=models.CASCADE,
+        related_name='notifications',
+        limit_choices_to={'role': 'S'},
+    )
+    enrollment = models.ForeignKey(
+        'financial_operations.Enrollment',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='notifications',
+    )
     alert = models.ForeignKey(
         Alert,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="notifications",
+        related_name='notifications',
     )
-    recipient_name = models.CharField(max_length=255)
-    recipient_email = models.EmailField()
+    notification_type = models.CharField(max_length=30, choices=TYPE_CHOICES)
     channel = models.CharField(max_length=20, choices=CHANNEL_CHOICES, default="email")
     message = models.TextField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
@@ -28,7 +43,8 @@ class Notification(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        db_table = 'notifications'
         ordering = ["-created_at"]
 
     def __str__(self):
-        return f"{self.recipient_name} — {self.channel} — {self.status}"
+        return f"{self.notification_type} → {self.student} via {self.channel} [{self.status}]"
