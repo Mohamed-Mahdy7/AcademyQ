@@ -8,7 +8,7 @@ function StudentRegister({ onClose }) {
     const [full_name, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
-    const [parent_phone, setParentPhone] = useState("");
+    const [parent_email, setParentEmail] = useState("");
     const [educational_level, setEducationalLevel] = useState("");
     const [academy, setAcademy] = useState("");
     const [password, setPassword] = useState("");
@@ -53,7 +53,7 @@ function StudentRegister({ onClose }) {
             full_name,
             email,
             phone,
-            parent_phone,
+            parent_email,
             academy,
             password,
             confirm_password,
@@ -122,14 +122,14 @@ function StudentRegister({ onClose }) {
                     />
                 </div>
                 <div>
-                    <label htmlFor="parentPhone" className="form-label">Parent phone</label>
+                    <label htmlFor="parentEmail" className="form-label">Parent email</label>
                     <input 
-                        type="text" 
-                        name="parentPhone" 
-                        id="parentPhone"
-                        placeholder="parentPhone"
-                        value={parent_phone}
-                        onChange={(e) => setParentPhone(e.target.value)}
+                        type="email" 
+                        name="parentEmail" 
+                        id="parentEmail"
+                        placeholder="parentEmail"
+                        value={parent_email}
+                        onChange={(e) => setParentEmail(e.target.value)}
                         className="form-input"
                         required
                     />

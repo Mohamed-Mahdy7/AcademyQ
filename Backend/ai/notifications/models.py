@@ -1,6 +1,7 @@
 from django.db import models
 from core.models import Academy
-from ai.agent.models import Alert  
+from ai.agent.models import Alert
+import uuid  
 
 class Notification(models.Model):
     CHANNEL_CHOICES = [("email", "Email")]
@@ -9,7 +10,7 @@ class Notification(models.Model):
         ("sent", "Sent"),
         ("failed", "Failed"),
     ]
-
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=True)
     academy = models.ForeignKey(Academy, on_delete=models.CASCADE, related_name="notifications", null=True)
     alert = models.ForeignKey(
         Alert,

@@ -95,7 +95,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email=models.EmailField(unique=True)
     phone=models.CharField(max_length=20)
     role=models.CharField(max_length=10, choices=Roles.choices, null=False)
-    parent_phone = models.CharField(max_length=15)
+    parent_email = models.EmailField(blank=True, default="")
     educational_level = models.IntegerField(
         choices=EducationalLevel.choices,
         null=True
