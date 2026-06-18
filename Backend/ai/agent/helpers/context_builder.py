@@ -33,14 +33,24 @@ def build_risk_context(enrollment_id) -> dict:
     except Exception:
         pass
 
-    # --- overdue_days (financial_operations / Mahdy) ---
-    # TODO: wire once Mahdy adds overdue_days to get_student_context,
-    # or query Payment directly here if that's the agreed approach.
-    #
-    # try:
-    #     from financial_operations.signals import get_overdue_days
-    #     context["overdue_days"] = get_overdue_days(enrollment_id)
-    # except Exception:
-    #     pass
+    try:
+        from ai.utils.rag_engine import get_student_context
+        from financial_operations.models import Enrollment
+
+        enrollment = Enrollment.objects.select_related('student_id').get(id=enrollment_id)
+        student_context = get_student_context(enrollment.student_id.id)
+
+        payments = student_context.get("payments", [])
+        enrollment_payment = next(
+            (p for p in payments if p["enrollment_id"] == str(enrollment_id)),
+            None
+        )
+
+        if enrollment_payment:
+            overdue = enrollment_payment["overdue_days"]
+            context["overdue_days"] = overdue if overdue > 0 else None
+
+    except Exception:
+        pass
 
     return context
