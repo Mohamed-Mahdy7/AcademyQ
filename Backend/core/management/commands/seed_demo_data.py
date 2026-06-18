@@ -27,7 +27,11 @@ class Command(BaseCommand):
             # 0. ACADEMY
             # =========================
             academy = Academy.objects.get(
+<<<<<<< HEAD
                 id="b49d40d5-a15f-4427-8a39-6323e2269f07"
+=======
+                id="f8293a89-69e5-4ff3-bacd-625174ae23d0"
+>>>>>>> 91e13c284ca850568927bdff321bd6a0e386a9ad
             )
 
             self.stdout.write("Academy loaded")
@@ -52,7 +56,6 @@ class Command(BaseCommand):
                     role="T",
                     status="A",
                     phone=f"01000000{i}",
-                    parent_phone="000",
                     is_active=True,
                 )
 
@@ -167,7 +170,7 @@ class Command(BaseCommand):
 
             for i in range(1, 21):
 
-                level = random.choice([7,8,9,10,11,12])
+                level = random.choice([7, 8, 9, 10, 11, 12])
 
                 status = "A" if i <= 16 else "D"
 
@@ -180,7 +183,7 @@ class Command(BaseCommand):
                     status=status,
                     educational_level=level,
                     phone=f"0110000{i:04}",
-                    parent_phone=f"0120000{i:04}",
+                    parent_email=f"parent{i:02}@gmail.com",
                     enrolled_at=timezone.now()
                 )
 
@@ -197,24 +200,36 @@ class Command(BaseCommand):
                 if student.status == "D":
                     continue
 
-                selected_classes = random.sample(classes, k=random.randint(2, 4))
+                selected_classes = random.sample(
+                    classes,
+                    k=random.randint(2, 4)
+                )
 
                 for cls in selected_classes:
+
                     enrollment = Enrollment.objects.create(
                         student_id=student,
                         class_id=cls,
                         start_date=date.today(),
                         status="active"
                     )
+
                     enrollments.append(enrollment)
 
-                    # PAYMENT
+                    payment_status = random.choice(
+                        ["completed", "pending", "cancelled"]
+                    )
+
                     Payment.objects.create(
                         enrollment_id=enrollment,
                         amount=cls.session_price * cls.session_count,
-                        status=random.choice(["completed", "pending", "cancelled"]),
+                        status=payment_status,
                         due_date=date.today() + timedelta(days=30),
-                        paid_on=date.today() if random.random() > 0.3 else None
+                        paid_on=(
+                            date.today()
+                            if payment_status == "completed"
+                            else None
+                        )
                     )
 
             self.stdout.write("Enrollments + Payments created")

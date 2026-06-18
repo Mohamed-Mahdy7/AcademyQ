@@ -12,7 +12,7 @@ const EditStudentProfile = ({ onClose }) => {
     const [full_name, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
-    const [parent_phone, setParentPhone] = useState("");
+    const [parent_email, setParentEmail] = useState("");
     const [educational_level, setEducationalLevel] = useState("");
     const [educational_levels, setEducationalLevels] = useState([]);
     const { id } = useParams();
@@ -41,7 +41,7 @@ const EditStudentProfile = ({ onClose }) => {
         setFullName(student.full_name || "");
         setEmail(student.email || "");
         setPhone(student.phone || "");
-        setParentPhone(student.parent_phone || "");
+        setParentEmail(student.parent_email || "");
         setEducationalLevel(student.educational_level || "");
     }, [student]);
 
@@ -56,7 +56,7 @@ const EditStudentProfile = ({ onClose }) => {
             educational_level,
             email,
             full_name,
-            parent_phone,
+            parent_email,
             phone,
         }
         try{
@@ -122,14 +122,14 @@ const EditStudentProfile = ({ onClose }) => {
                     />
                 </div>
                 <div>
-                    <label htmlFor="parentPhone" className="form-label">Parent phone</label>
+                    <label htmlFor="parentEmail" className="form-label">Parent email</label>
                     <input 
                         type="text" 
-                        name="parentPhone" 
-                        id="parentPhone"
-                        placeholder="parentPhone"
-                        value={parent_phone}
-                        onChange={(e) => setParentPhone(e.target.value)}
+                        name="parentEmail" 
+                        id="parentEmail"
+                        placeholder="parentEmail"
+                        value={parent_email}
+                        onChange={(e) => setParentEmail(e.target.value)}
                         className="form-input"
                         required
                     />

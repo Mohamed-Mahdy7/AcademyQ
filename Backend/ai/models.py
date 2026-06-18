@@ -3,7 +3,6 @@ from django.contrib.auth import get_user_model
 from pgvector.django import VectorField
 from core.models import Academy
 import uuid
-from ai.agent.models import Alert
 
 
 User = get_user_model()
@@ -33,6 +32,7 @@ class AIUsageLog(models.Model):
         RISK_SCORE = "risk_score", "Risk Score"
         PAYMENT_REMINDER = "payment_reminder", "Payment Reminder"
         MANAGEMENT_REPORT = "management_report", "Management Report"
+        EMBEDDING = "embedding", "Embedding"
     
     id = models.UUIDField(
         primary_key=True,
@@ -42,13 +42,16 @@ class AIUsageLog(models.Model):
     academy = models.ForeignKey(
         Academy,
         on_delete=models.CASCADE,
-        related_name="academy"
+        related_name="ai_usage_logs"
     )
     feature = models.CharField(max_length=100, choices=Feature.choices)
     model = models.CharField(max_length=100)
     prompt_token = models.IntegerField(default=0)
     completion_token = models.IntegerField(default=0)
-    total_cost_usd = models.BigIntegerField()
+    total_cost_usd = models.DecimalField(
+        max_digits=10, decimal_places=6
+    )
+    succeeded = models.BooleanField(default=True)
     called_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

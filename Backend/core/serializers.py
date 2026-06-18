@@ -201,7 +201,7 @@ class StudentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            "id", "full_name", "email", "phone", 'parent_phone', 'enrolled_at','educational_level', 
+            "id", "full_name", "email", "phone", 'parent_email', 'enrolled_at','educational_level', 
             "academy", "password", "confirm_password", "status", "status_display", "enrollments"
         ]
     
@@ -245,7 +245,7 @@ class StudentProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            "id", "full_name", "email", "phone", "parent_phone", 
+            "id", "full_name", "email", "phone", "parent_email", 
             "educational_level", "enrolled_at", "status", "status_display", 
             "enrollments", "attendance_percentage", "total_paid", "created_at", "updated_at"
         ]

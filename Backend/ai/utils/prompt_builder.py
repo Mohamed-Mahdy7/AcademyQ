@@ -7,6 +7,25 @@ Rules:
 - Only receive dictionaries and return strings.
 """
 
+def format_payment_status(context):
+    payments = context.get("payments") or []
+    if not payments:
+        return "No active enrollments"
+
+    lines = []
+    for i, payment in enumerate(payments, start=1):
+        if payment.get("status") == "Complete":
+            lines.append(f"  Enrollment {i}: Complete — no pending payment")
+        else:
+            overdue_days = payment.get("overdue_days") or 0
+            if overdue_days > 0:
+                lines.append(f"  Enrollment {i}: Pending — {overdue_days} day(s) overdue")
+            else:
+                lines.append(f"  Enrollment {i}: Pending — due {payment.get('due_date') or 'soon'}")
+
+    return "\n" + "\n".join(lines)
+
+
 def format_similar_students(context):
     students = context.get("similar_students", [])
     
@@ -35,7 +54,7 @@ Student Information:
 - Educational Level: {context.get("educational_level", "Unknown")}
 - Attendance Rate: {context.get("attendance_rate") or 0}%
 - Missed Classes: {context.get("missed_classes") or 0}
-- Payment Status: {context.get("payment_status", "Unknown")}
+- Payment Status: {format_payment_status(context)}
 - Teacher Notes:
 {str(context.get("teacher_notes", "No teacher notes available"))}
 - Similar Students:
@@ -64,7 +83,7 @@ Student Information:
 - Name: {context.get("student_name", "Unknown")}
 - Attendance Rate: {context.get("attendance_rate") or 0}%
 - Missed Classes: {context.get("missed_classes") or 0}
-- Payment Status: {context.get("payment_status", "Unknown")}
+- Payment Status: {format_payment_status(context)}
 - Risk Score: {context.get("risk_score", 0)}
 -Teacher Notes:
 {str(context.get("teacher_notes", "No teacher notes available"))}
@@ -114,33 +133,6 @@ Requirements:
 
 Return only the reminder text.
 """
-
-
-# def build_attendance_alert_prompt(context: dict) -> str:
-#     """
-#     Optional notification template.
-#     """
-
-#     return f"""
-# Write a message to inform a parent about low attendance.
-
-# Student Name:
-# {context.get("student_name", "Unknown")}
-
-# Attendance Rate:
-# {context.get("attendance_rate", 0)}%
-
-# Missed Classes:
-# {context.get("missed_classes", 0)}
-
-# Requirements:
-# - Friendly tone
-# - Encourage communication
-# - Suggest contacting the academy
-# - Maximum 120 words
-
-# Return only the message.
-# """
 
 
 def build_management_summary_prompt(context: dict) -> str:
