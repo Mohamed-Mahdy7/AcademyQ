@@ -31,18 +31,29 @@ def calculate_missed_classes(student):
     ).count()
 
 
-def get_payment_status(student):
+def get_payment_status(enrollments):
 
-    payment = Payment.objects.filter(
-        enrollment_id__student_id=student,
-        status="pending"
-    ).order_by("due_date").first()
-    
+    result = []
+    for enrollment in enrollments:
+        payment = Payment.objects.filter(
+            enrollment_id=enrollment.id,
+            status="pending"
+        ).order_by("due_date").first()
+        
 
-    return {
-        "status": "Pending" if payment else "Complete",
-        "due_date": payment.due_date if payment else None
-    }
+        overdue_days = 0
+        if payment and payment.due_date:
+            overdue_days = (timezone.now().date() - payment.due_date).days
+            overdue_days = max(overdue_days, 0)
+
+        result.append({
+            "enrollment_id": str(enrollment.id),
+            "status": "Pending" if payment else "Complete",
+            "due_date": payment.due_date if payment else None,
+            "overdue_days": overdue_days,
+        })
+        
+    return result
 
 def get_teacher_notes(student):
     """
@@ -60,17 +71,14 @@ def get_student_context(student_id):
 
     attendance_rate = calculate_attendance_rate(student)
     missed_classes = calculate_missed_classes(student)
-    payment = get_payment_status(student)
     teacher_notes = get_teacher_notes(student)
     similar_students = get_similar_student_context(student)
     enrollments = Enrollment.objects.filter(
         student_id=student
     )
+    payments = get_payment_status(enrollments)
 
-    overdue_days = 0
-    if payment["due_date"]:
-        overdue_days = (timezone.now().date() - payment["due_date"]).days
-        overdue_days = max(overdue_days, 0)
+    
 
     return {
         "student_id": str(student.id),
@@ -81,8 +89,7 @@ def get_student_context(student_id):
         "attendance_rate": attendance_rate,
         "missed_classes": missed_classes,
         "teacher_notes": teacher_notes,
-        "payment_status": payment["status"],
-        "overdue_days": overdue_days,
+        "payments": payments,
         "enrollment_count": enrollments.count(),
         "parent_phone": student.parent_phone,
         "status": student.get_status_display(),

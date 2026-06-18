@@ -2,6 +2,9 @@ import logging
 import time
 from google import genai
 from django.conf import settings
+from ai.models import AIUsageLog
+from decimal import Decimal
+
 logger = logging.getLogger(__name__)
 
 
@@ -31,6 +34,8 @@ gemini_client = GeminiClient()
 
 def generate_text(
     prompt: str,
+    feature: str,
+    academy=None,
     retries: int = 3,
     retry_delay: int = 2,
 ):
@@ -40,13 +45,27 @@ def generate_text(
     Everybody imports this function instead of talking
     directly to Gemini.
     """
-
+    
     last_error = None
 
     for attempt in range(retries):
         try:
             start_time = time.time()
             response = gemini_client.generate(prompt)
+            prompt_tokens = len(prompt.split())
+            completion_tokens = len(response.split())
+            prompt_cost = prompt_tokens * 15
+            completion_cost = completion_tokens * 60
+            estimated_cost = (prompt_cost + completion_cost) 
+            
+            AIUsageLog.objects.create(
+                academy=academy,
+                feature=feature,
+                model=settings.GEMINI_MODEL,
+                prompt_token=prompt_tokens,
+                completion_token=completion_tokens,
+                total_cost_usd=estimated_cost,
+            )
             duration = round(time.time() - start_time, 2)
 
             logger.info(
