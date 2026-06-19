@@ -8,4 +8,5 @@ urlpatterns = [
     path('api/', include('records.urls')),
     path('api/', include('ai.urls')),
     path("api/", include("ai.agent.urls")),
+    path("api/ai/", include("ai.urls")),
 ]
