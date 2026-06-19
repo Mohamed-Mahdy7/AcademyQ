@@ -225,6 +225,12 @@ CELERY_BEAT_SCHEDULE = {
             day_of_week=0, # Sunday
         ),
     },
+    
+    "weekly-management-report": {
+    "task": "ai.tasks.send_weekly_management_report",
+    "schedule": crontab(hour=7, minute=0, day_of_week="sunday"),
+    "options": {"timezone": "Africa/Cairo"},
+    },
 }
 
 #     "daily-payment-reminders": {

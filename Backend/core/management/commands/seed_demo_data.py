@@ -27,7 +27,7 @@ class Command(BaseCommand):
             # 0. ACADEMY
             # =========================
             academy = Academy.objects.get(
-                id="f8293a89-69e5-4ff3-bacd-625174ae23d0"
+                id="4d59bdc9-652d-42b2-96ce-0ee84c995b3d"
             )
 
             self.stdout.write("Academy loaded")
