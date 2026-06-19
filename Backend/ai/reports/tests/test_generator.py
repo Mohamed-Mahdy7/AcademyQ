@@ -177,5 +177,5 @@ class GenerateReportCardTest(TestCase):
         report = generate_report_card(self.enrollment, "2026-01")
 
         called_prompt = mock_generate.call_args[0][0]
-        self.assertIn("unknown", called_prompt)
+        self.assertIn("No active enrollments", called_prompt)
         self.assertEqual(report.risk_level, "medium")
