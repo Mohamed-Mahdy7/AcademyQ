@@ -2,7 +2,8 @@ import { createContext, useState } from "react";
 import {
     getNotificationsRequest,
     getNotificationRequest,
-    sendNotificationRequest,
+    sendAlertNotificationRequest,
+    sendRemindersRequest,
     getNotificationStatsRequest,
 } from "../services/notificationsService";
 
@@ -10,8 +11,9 @@ export const NotificationsContext = createContext();
 
 export const NotificationsProvider = ({ children }) => {
     const [notifications, setNotifications] = useState([]);
-    const [notification, setNotification] = useState(null);
-    const [stats, setStats] = useState(null);
+    const [notification, setNotification]   = useState(null);
+    const [stats, setStats]                 = useState(null);
+    const [sending, setSending]             = useState(false);
 
     async function getNotifications(params = {}) {
         try {
@@ -37,10 +39,24 @@ export const NotificationsProvider = ({ children }) => {
         }
     }
 
-    async function sendNotification(data) {
+    async function sendAlertNotification(alert_id, message = null) {
+        setSending(true);
         try {
-            const response = await sendNotificationRequest(data);
+            const response = await sendAlertNotificationRequest(alert_id, message);
+            // Refresh notification list so history updates immediately
             await getNotifications();
+            return { success: response.data.success, data: response.data };
+        } catch (error) {
+            console.error(error.response?.data);
+            return { success: false, error };
+        } finally {
+            setSending(false);
+        }
+    }
+
+    async function sendReminders() {
+        try {
+            const response = await sendRemindersRequest();
             return { success: true, data: response.data };
         } catch (error) {
             console.error(error.response?.data);
@@ -66,9 +82,11 @@ export const NotificationsProvider = ({ children }) => {
                 notifications,
                 notification,
                 stats,
+                sending,
                 getNotifications,
                 getNotification,
-                sendNotification,
+                sendAlertNotification,
+                sendReminders,
                 getStats,
             }}
         >

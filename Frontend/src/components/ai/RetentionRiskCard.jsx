@@ -2,17 +2,18 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api";
 
-export default function RetentionRiskCard() {
+export default function RetentionRiskCard({ refreshTrigger }) {
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     api.get("/api/alerts/stats/")
       .then(res => setStats(res.data))
       .catch(() => setStats(null))
       .finally(() => setLoading(false));
-  }, []);
+  }, [refreshTrigger]);
 
   return (
     <div className="kpi-card">

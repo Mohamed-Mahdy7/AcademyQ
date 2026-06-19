@@ -18,6 +18,7 @@ from .tasks import generate_class_reports_task
 class AIReportCardViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
     serializer_class = AIReportCardSerializer
@@ -40,6 +41,13 @@ class AIReportCardViewSet(
         if month:
             qs = qs.filter(month=month)
         return qs
+
+    def perform_destroy(self, instance):
+        if self.request.user.role not in ("O", "A"):
+            from rest_framework.exceptions import PermissionDenied
+
+            raise PermissionDenied("Only owners or admins can delete reports.")
+        instance.delete()
 
     @action(detail=False, methods=["post"], url_path="generate")
     def generate(self, request):

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../../api";
 
-export default function RetentionScanCard() {
+export default function RetentionScanCard({ onScanComplete }) {
   const [lastScan, setLastScan] = useState(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState(null);
@@ -21,6 +21,7 @@ export default function RetentionScanCard() {
     try {
       const res = await api.post("/api/agent/run-scan/");
       setLastScan(res.data);
+      if (onScanComplete) onScanComplete();
     } catch (err) {
       if (err.response?.status === 429) {
         setError("Daily scan limit reached (3/day). Try again tomorrow.");

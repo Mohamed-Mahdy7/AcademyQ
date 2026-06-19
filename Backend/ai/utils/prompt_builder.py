@@ -7,6 +7,18 @@ Rules:
 - Only receive dictionaries and return strings.
 """
 
+
+def format_similar_students(context):
+    students = context.get("similar_students") or []
+    if not students:
+        return "None"
+    lines = [
+        f"- {s['student_name']} ({s['educational_level']})"
+        for s in students
+    ]
+    return "\n".join(lines)
+
+
 def format_payment_status(context):
     payments = context.get("payments") or []
     if not payments:
@@ -26,24 +38,7 @@ def format_payment_status(context):
     return "\n" + "\n".join(lines)
 
 
-def format_similar_students(context):
-    students = context.get("similar_students", [])
-    
-    if not students:
-        return "None"
-    
-    lines = []
-    
-    for student in students:
-        lines.append(
-            f"- {student['student_name']} ({student['educational_level']})"
-        )
-    
-    return "\n".join(lines)
-
-
 def build_report_prompt(context: dict) -> str:
-
     return f"""
 You are an experienced educational performance analyst.
 
@@ -56,7 +51,7 @@ Student Information:
 - Missed Classes: {context.get("missed_classes") or 0}
 - Payment Status: {format_payment_status(context)}
 - Teacher Notes:
-{str(context.get("teacher_notes", "No teacher notes available"))}
+{context.get("teacher_notes") or "No teacher notes available"}
 - Similar Students:
 {format_similar_students(context)}
 
@@ -73,7 +68,6 @@ Return plain text only.
 
 
 def build_risk_alert_prompt(context: dict) -> str:
-
     return f"""
 You are a student retention specialist.
 
@@ -85,8 +79,8 @@ Student Information:
 - Missed Classes: {context.get("missed_classes") or 0}
 - Payment Status: {format_payment_status(context)}
 - Risk Score: {context.get("risk_score", 0)}
--Teacher Notes:
-{str(context.get("teacher_notes", "No teacher notes available"))}
+- Teacher Notes:
+{context.get("teacher_notes") or "No teacher notes available"}
 - Similar Students:
 {format_similar_students(context)}
 
@@ -108,7 +102,6 @@ Return plain text only.
 
 
 def build_payment_reminder_prompt(context: dict) -> str:
-
     return f"""
 Write a professional payment reminder.
 
@@ -136,7 +129,6 @@ Return only the reminder text.
 
 
 def build_management_summary_prompt(context: dict) -> str:
-
     return f"""
 Generate a weekly academy AI operations summary.
 
@@ -167,20 +159,8 @@ Return plain text only.
 """
 
 
-def build_custom_prompt(
-    system_role: str,
-    instructions: str,
-    context: dict,
-) -> str:
-    """
-    Generic prompt builder for future features.
-    """
-
-    context_text = "\n".join(
-        f"{key}: {value}"
-        for key, value in context.items()
-    )
-
+def build_custom_prompt(system_role: str, instructions: str, context: dict) -> str:
+    context_text = "\n".join(f"{key}: {value}" for key, value in context.items())
     return f"""
 Role:
 {system_role}

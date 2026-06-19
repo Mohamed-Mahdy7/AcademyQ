@@ -17,23 +17,12 @@ class StudentContextError(Exception):
     """
     pass
 
-def _get_enrollment(student_id, enrollment_id):
-    try:
-        return (
-            Enrollment.objects
-            .select_related("student")
-            .get(id=enrollment_id, student_id=student_id)
-        )
-    except Enrollment.DoesNotExist as e:
-        raise StudentContextError(
-            f"No enrollment {enrollment_id} found for student {student_id}"
-        ) from e
 
 def _attendance_rate(total, present):
         return round((present / total) * 100, 2) if total else 0
 
 
-def get_teacher_notes(enrollment):
+def get_teacher_notes():
     """
     Placeholder -- no teacher-notes model exists yet. Returning None
     lets prompt_builder's own "No teacher notes available" fallback
