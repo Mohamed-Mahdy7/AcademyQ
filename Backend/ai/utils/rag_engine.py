@@ -22,7 +22,7 @@ def _attendance_rate(total, present):
         return round((present / total) * 100, 2) if total else 0
 
 
-def get_teacher_notes(enrollment):
+def get_teacher_notes():
     """
     Placeholder -- no teacher-notes model exists yet. Returning None
     lets prompt_builder's own "No teacher notes available" fallback
