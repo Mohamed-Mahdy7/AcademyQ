@@ -56,7 +56,7 @@ context = get_student_context(target_student.id)
 print("\n--- CONTEXT ---")
 print("Name:", context["student_name"])
 print("Attendance:", context["attendance_rate"])
-print("Payment:", context["payment_status"])
+print("Payment:", context["payments"])
 print("\n--- SIMILAR STUDENTS (CONTEXT) ---")
 for s in context["similar_students"]:
     print(f"Student Name: {s['student_name']} | Level: {s['educational_level']}")

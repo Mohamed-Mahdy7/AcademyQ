@@ -84,7 +84,7 @@ def generate_report_card(enrollment: Enrollment, month: str) -> AIReportCard:
         "educational_level": student.get_educational_level_display(),
         "attendance_rate": attendance_rate,
         "missed_classes": missed_classes,
-        "payment_status": payment_status,
+        "payments": payment_status,
         "teacher_notes": teacher_notes,
     }
 
