@@ -58,7 +58,7 @@ class AIUsageView(APIView):
             failed_calls=Count("id", filter=Q(succeeded=False)),
             total_cost=Sum("total_cost_usd"),
             # Cache hits: succeeded but cost=$0 — real calls always cost something
-            cache_hits=Count("id", filter=Q(succeeded=True, total_cost_usd=0)),
+            cache_hits=Count("id", filter=Q(cache_hit=True)),
         )
 
         total_calls = summary["total_calls"] or 0

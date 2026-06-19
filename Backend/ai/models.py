@@ -52,6 +52,7 @@ class AIUsageLog(models.Model):
         max_digits=10, decimal_places=6
     )
     succeeded = models.BooleanField(default=True)
+    cache_hit = models.BooleanField(default=False)
     called_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

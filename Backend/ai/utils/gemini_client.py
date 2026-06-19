@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.cache import cache
 from decimal import Decimal
 from google import genai
-from google.genai import errors
+from google.genai import errors, types
 from ai.models import AIUsageLog
 from .constants import RETRYABLE_STATUS_CODES
 
@@ -47,15 +47,22 @@ class GeminiClient:
         """
         Returns the raw response object (not just .text) so callers
         can read usage_metadata for accurate token/cost tracking.
+
+        thinking_budget=0 disables Gemini's internal reasoning step --
+        these are short, templated generation tasks (report cards,
+        risk messages, reminders), not multi-step reasoning problems.
         """
         return self.client.models.generate_content(
             model=settings.GEMINI_MODEL,
             contents=prompt,
+            config=types.GenerateContentConfig(
+                thinking_config=types.ThinkingConfig(thinking_budget=0),
+            ),
         )
 
 gemini_client = GeminiClient()
 
-def _log_usage(*, academy, feature, model, prompt_tokens, completion_tokens, cost, succeeded):
+def _log_usage(*, academy, feature, model, prompt_tokens, completion_tokens, cost, succeeded, cache_hit=False):
     AIUsageLog.objects.create(
         academy=academy,
         feature=feature,
@@ -64,6 +71,7 @@ def _log_usage(*, academy, feature, model, prompt_tokens, completion_tokens, cos
         completion_token=completion_tokens,
         total_cost_usd=cost,
         succeeded=succeeded,
+        cache_hit=cache_hit,
     )
 
 def _extract_token_counts(response):
@@ -106,6 +114,7 @@ def generate_text(
             completion_tokens=0,
             cost=Decimal("0"),
             succeeded=True,
+            cache_hit=True,
         )
         logger.info("Cache hit | feature=%s", feature)
         return cached
