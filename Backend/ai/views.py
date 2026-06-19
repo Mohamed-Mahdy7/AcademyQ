@@ -1,7 +1,16 @@
 from django.http import JsonResponse
 from django.conf import settings
+from django.db.models import Count, Q, Sum
+from django.utils import timezone
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from decimal import Decimal
 from celery import current_app
 from redis import Redis
+
+from ai.models import AIUsageLog
+from core.permissions import IsOwner
 
 
 def celery_health(request):
@@ -29,3 +38,56 @@ def celery_health(request):
             "status": "error",
             "message": str(e),
         }, status=503)
+
+
+class AIUsageView(APIView):
+    permission_classes = [IsAuthenticated, IsOwner]
+
+    def get(self, request):
+        now = timezone.now()
+        month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+        logs = AIUsageLog.objects.filter(
+            academy=request.user.academy,
+            called_at__gte=month_start,
+        )
+
+        summary = logs.aggregate(
+            total_calls=Count("id"),
+            successful_calls=Count("id", filter=Q(succeeded=True)),
+            failed_calls=Count("id", filter=Q(succeeded=False)),
+            total_cost=Sum("total_cost_usd"),
+            # Cache hits: succeeded but cost=$0 — real calls always cost something
+            cache_hits=Count("id", filter=Q(cache_hit=True)),
+        )
+
+        total_calls = summary["total_calls"] or 0
+        successful_calls = summary["successful_calls"] or 0
+        cache_hits = summary["cache_hits"] or 0
+
+        by_feature = []
+        for feature_value, feature_label in AIUsageLog.Feature.choices:
+            agg = logs.filter(feature=feature_value).aggregate(
+                calls=Count("id"),
+                cost=Sum("total_cost_usd"),
+            )
+            if agg["calls"]:
+                by_feature.append({
+                    "feature": feature_value,
+                    "label": feature_label,
+                    "calls": agg["calls"],
+                    "cost_usd": agg["cost"] or Decimal("0"),
+                })
+
+        return Response({
+            "month": now.strftime("%Y-%m"),
+            "total_calls": total_calls,
+            "successful_calls": successful_calls,
+            "failed_calls": summary["failed_calls"] or 0,
+            "cache_hits": cache_hits,
+            "cache_hit_rate_pct": (
+                round(cache_hits / successful_calls * 100, 2) if successful_calls else 0
+            ),
+            "total_cost_usd": summary["total_cost"] or Decimal("0"),
+            "by_feature": by_feature,
+        })

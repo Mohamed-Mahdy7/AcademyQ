@@ -1,14 +1,15 @@
 import logging
 import time
-from decimal import Decimal
+import hashlib
 from django.conf import settings
+from django.core.cache import cache
+from decimal import Decimal
 from google import genai
-from google.genai import errors
+from google.genai import errors, types
 from ai.models import AIUsageLog
 from .constants import RETRYABLE_STATUS_CODES
 
 logger = logging.getLogger(__name__)
-
 
 # USD price per 1,000,000 tokens. Thinking tokens are billed at the
 # output rate -- they are folded into "completion" cost, not a
@@ -18,6 +19,10 @@ PRICING_PER_MILLION_TOKENS = {
     "gemini-2.5-flash-lite": {"input": Decimal("0.10"), "output": Decimal("0.40")},
 }
 
+AI_CACHE_TTL = getattr(settings, "AI_CACHE_TTL", 60 * 60 * 24 * 7)
+
+def _cache_key(prompt: str) -> str:
+    return f"ai:{hashlib.sha256(prompt.encode()).hexdigest()}"
 
 def estimate_cost(model: str, prompt_tokens: int, completion_tokens: int) -> Decimal:
     pricing = PRICING_PER_MILLION_TOKENS.get(model)
@@ -28,7 +33,6 @@ def estimate_cost(model: str, prompt_tokens: int, completion_tokens: int) -> Dec
     prompt_cost = (Decimal(prompt_tokens) * pricing["input"]) / Decimal(1_000_000)
     completion_cost = (Decimal(completion_tokens) * pricing["output"]) / Decimal(1_000_000)
     return prompt_cost + completion_cost
-
 
 class GeminiClient:
     _instance = None
@@ -43,17 +47,22 @@ class GeminiClient:
         """
         Returns the raw response object (not just .text) so callers
         can read usage_metadata for accurate token/cost tracking.
+
+        thinking_budget=0 disables Gemini's internal reasoning step --
+        these are short, templated generation tasks (report cards,
+        risk messages, reminders), not multi-step reasoning problems.
         """
         return self.client.models.generate_content(
             model=settings.GEMINI_MODEL,
             contents=prompt,
+            config=types.GenerateContentConfig(
+                thinking_config=types.ThinkingConfig(thinking_budget=0),
+            ),
         )
-
 
 gemini_client = GeminiClient()
 
-
-def _log_usage(*, academy, feature, model, prompt_tokens, completion_tokens, cost, succeeded):
+def _log_usage(*, academy, feature, model, prompt_tokens, completion_tokens, cost, succeeded, cache_hit=False):
     AIUsageLog.objects.create(
         academy=academy,
         feature=feature,
@@ -62,8 +71,8 @@ def _log_usage(*, academy, feature, model, prompt_tokens, completion_tokens, cos
         completion_token=completion_tokens,
         total_cost_usd=cost,
         succeeded=succeeded,
+        cache_hit=cache_hit,
     )
-
 
 def _extract_token_counts(response):
     usage = getattr(response, "usage_metadata", None)
@@ -93,6 +102,23 @@ def generate_text(
     auth error just burns retries * delay seconds for nothing.
     """
 
+    key = _cache_key(prompt)
+    cached = cache.get(key)
+    
+    if cached is not None:
+        _log_usage(
+            academy=academy,
+            feature=feature,
+            model=settings.GEMINI_MODEL,
+            prompt_tokens=0,
+            completion_tokens=0,
+            cost=Decimal("0"),
+            succeeded=True,
+            cache_hit=True,
+        )
+        logger.info("Cache hit | feature=%s", feature)
+        return cached
+
     last_error = None
 
     for attempt in range(retries):
@@ -113,6 +139,8 @@ def generate_text(
                 succeeded=True,
             )
 
+            cache.set(key, response.text, AI_CACHE_TTL)
+            
             duration = round(time.time() - start_time, 2)
             logger.info(
                 "Gemini request succeeded | attempt=%s | duration=%ss | tokens=%s/%s | cost=$%s",

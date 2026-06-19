@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import celery_health
+from .views import *
 
 urlpatterns = [
     path("health/celery/", celery_health, name="celery-health"),
+    path("usage/", AIUsageView.as_view(), name="ai-usage"),
 ]

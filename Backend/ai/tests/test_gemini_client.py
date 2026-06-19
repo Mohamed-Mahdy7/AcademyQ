@@ -1,6 +1,7 @@
+from django.test import TestCase
+from django.core.cache import cache
 from decimal import Decimal
 from unittest.mock import MagicMock, patch
-from django.test import TestCase
 from google.genai import errors
 from ai.utils.gemini_client import generate_text, estimate_cost
 from ai.models import AIUsageLog
@@ -35,6 +36,7 @@ class GenerateTextTest(TestCase):
 
     def setUp(self):
         self.academy = Academy.objects.create(name="Test Academy", email="test@academy.com")
+        cache.clear()
 
     @patch("ai.utils.gemini_client.GeminiClient.generate")
     def test_success_logs_real_tokens_including_thinking(self, mock_generate):
@@ -194,3 +196,90 @@ class AIUsageLogCostTest(TestCase):
         self.assertEqual(log.completion_token, 0)
         self.assertEqual(log.total_cost_usd, Decimal("0"))
         self.assertTrue(log.succeeded)   # response came back, just no metadata
+
+class RedisCacheTest(TestCase):
+
+    def setUp(self):
+        self.academy = Academy.objects.create(name="Cache Academy", email="cache@test.com")
+        cache.clear()
+
+    def tearDown(self):
+        cache.clear()
+
+    @patch("ai.utils.gemini_client.GeminiClient.generate")
+    def test_second_call_hits_cache_not_api(self, mock_generate):
+        mock_generate.return_value = FakeGeminiResponse(
+            "cached response", prompt_tokens=50, candidates_tokens=20,
+        )
+        prompt = "Write a report for Ahmed."
+
+        first = generate_text(prompt=prompt, feature="report_card", academy=self.academy)
+        second = generate_text(prompt=prompt, feature="report_card", academy=self.academy)
+
+        self.assertEqual(first, second)
+        mock_generate.assert_called_once()
+
+        miss_log, hit_log = AIUsageLog.objects.order_by("called_at")
+        self.assertFalse(miss_log.cache_hit)
+        self.assertTrue(hit_log.cache_hit)
+
+    @patch("ai.utils.gemini_client.GeminiClient.generate")
+    def test_cache_hit_logs_zero_cost_and_cache_hit_true(self, mock_generate):
+        mock_generate.return_value = FakeGeminiResponse(
+            "response", prompt_tokens=50, candidates_tokens=20,
+        )
+        prompt = "Same prompt."
+
+        generate_text(prompt=prompt, feature="report_card", academy=self.academy)
+        generate_text(prompt=prompt, feature="report_card", academy=self.academy)
+
+        cache_hit_log = AIUsageLog.objects.first()  # newest, ordering = ["-called_at"]
+        self.assertEqual(cache_hit_log.total_cost_usd, Decimal("0"))
+        self.assertTrue(cache_hit_log.cache_hit)
+
+    @patch("ai.utils.gemini_client.GeminiClient.generate")
+    def test_different_prompts_miss_cache(self, mock_generate):
+        mock_generate.return_value = FakeGeminiResponse(
+            "response", prompt_tokens=10, candidates_tokens=5,
+        )
+        generate_text(prompt="Prompt A", feature="report_card", academy=self.academy)
+        generate_text(prompt="Prompt B", feature="report_card", academy=self.academy)
+
+        self.assertEqual(mock_generate.call_count, 2)
+        self.assertEqual(AIUsageLog.objects.filter(cache_hit=True).count(), 0)
+
+    @patch("ai.utils.gemini_client.GeminiClient.generate")
+    def test_unpriced_model_not_confused_with_cache_hit(self, mock_generate):
+        """
+        Regression test for the exact bug we caught: a real API call on a
+        model with no pricing entry also logs cost=0. That must not be
+        mistaken for a cache hit.
+        """
+        from django.test import override_settings
+
+        mock_generate.return_value = FakeGeminiResponse(
+            "response", prompt_tokens=100, candidates_tokens=50,
+        )
+        with override_settings(GEMINI_MODEL="some-future-model"):
+            generate_text(prompt="Unpriced model call", feature="report_card", academy=self.academy)
+
+        log = AIUsageLog.objects.get()
+        self.assertEqual(log.total_cost_usd, Decimal("0"))
+        self.assertTrue(log.succeeded)
+        self.assertFalse(log.cache_hit)
+
+class ThinkingDisabledTest(TestCase):
+
+    def setUp(self):
+        self.academy = Academy.objects.create(name="Thinking Test Academy", email="thinking@test.com")
+
+    @patch("ai.utils.gemini_client.gemini_client.client.models.generate_content")
+    def test_thinking_budget_is_zero(self, mock_generate_content):
+        mock_generate_content.return_value = FakeGeminiResponse(
+            "response", prompt_tokens=10, candidates_tokens=5,
+        )
+
+        generate_text(prompt="test", feature="report_card", academy=self.academy)
+
+        _, kwargs = mock_generate_content.call_args
+        self.assertEqual(kwargs["config"].thinking_config.thinking_budget, 0)
