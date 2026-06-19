@@ -1,4 +1,4 @@
-import { useState , useContext } from "react"
+import { useState, useContext } from "react"
 import { useAlerts } from "../../context/AlertContext"
 import { NotificationsContext } from "../../context/NotificationsContext"
 
@@ -34,7 +34,7 @@ const AlertRow = ({ alert }) => {
     const [localMessage, setLocalMessage] = useState(alert.message || "")
     const [isSending, setIsSending]       = useState(false)
     const [sentSuccess, setSentSuccess]   = useState(false)
-    const { sendAlertNotification } = useContext(NotificationsContext);
+    const { sendNotification } = useContext(NotificationsContext);
 
     const handleGenerateMessage = async () => {
         const msg = await generateMessage(alert.id)
@@ -45,7 +45,12 @@ const AlertRow = ({ alert }) => {
         if (!alert.message) return;
         setIsSending(true);
         try {
-            const result = await sendAlertNotification(alert.id, localMessage);
+            const result = await sendNotification({
+                alert_id: alert.id,
+                recipient_name: alert.student_name,
+                recipient_email: alert.parent_email,   // use whatever API returns
+                message: localMessage,
+            });
 
             if (result.success) {
                 setSentSuccess(true);
