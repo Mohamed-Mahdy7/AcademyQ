@@ -55,7 +55,9 @@ class AcademyRegistrationSerializer(serializers.Serializer):
 class AcademySerializer(serializers.ModelSerializer):
     class Meta:
         model = Academy
-        fields = ["id", "name", "email", "phone", "address", "subscription_end"]
+        fields = ["id", "name", "email", "phone", "address", 
+                "subscription_end", "weekly_report_enabled"
+        ]
 
 
 class UserSerializer(serializers.ModelSerializer):
