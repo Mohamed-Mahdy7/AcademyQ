@@ -3,7 +3,7 @@ from datetime import date, time
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 
-from core.models import Academy, User
+from core.models import Academy, User, Students
 from structure.models import Subject, Class
 from financial_operations.models import Enrollment, Payment
 from records.models import ClassSession, Attendance
@@ -40,14 +40,20 @@ class AIReportCardViewSetTest(APITestCase):
             phone="01000000003",
             academy=self.academy,
         )
-        self.student = User.objects.create_user(
+        self.student_user = User.objects.create_user(
             email="student@test.com",
             password="testpass123",
             full_name="Ahmed Mohamed",
             role="S",
-            educational_level=7,
             phone="01000000001",
             academy=self.academy,
+        )
+        self.student = Students.objects.create(
+            user=self.student_user,
+            academy=self.academy,
+            parent_email="parent@test.com",
+            educational_level=7,
+            status="A",
         )
 
         self.subject = Subject.objects.create(
@@ -110,14 +116,20 @@ class AIReportCardViewSetTest(APITestCase):
         self.assertEqual(len(response.data), 0)
 
     def test_does_not_return_other_academy_reports(self):
-        other_student = User.objects.create_user(
+        other_student_user = User.objects.create_user(
             email="other_student@test.com",
             password="testpass123",
             full_name="Other Student",
             role="S",
-            educational_level=7,
             phone="01000000010",
             academy=self.other_academy,
+        )
+        other_student = Students.objects.create(
+            user=other_student_user,
+            academy=self.other_academy,
+            parent_email="other_parent@test.com",
+            educational_level=7,
+            status="A",
         )
         other_subject = Subject.objects.create(
             academy=self.other_academy, name="Science", description="desc"

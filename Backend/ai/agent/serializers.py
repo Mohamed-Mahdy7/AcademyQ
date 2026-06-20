@@ -4,7 +4,7 @@ from .models import Alert, ScanLog
 
 class AlertSerializer(serializers.ModelSerializer):
     student_name = serializers.CharField(
-        source="enrollment.student_id.full_name", read_only=True
+        source="enrollment.student_id.user.full_name", read_only=True
     )
     class_name = serializers.CharField(
         source="enrollment.class_id.name", read_only=True

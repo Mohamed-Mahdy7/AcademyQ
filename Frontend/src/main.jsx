@@ -5,13 +5,16 @@ import './index.css'
 import App from './App.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
 import {PaymentProvider} from './context/PaymentContext.jsx'
+import { EnrollmentProvider } from './context/EnrollmentContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
     <AuthProvider>
-      <PaymentProvider>
-        <App />
-      </PaymentProvider>
-    </AuthProvider>
+      <EnrollmentProvider>
+        <PaymentProvider>
+          <App />
+        </PaymentProvider>
+      </EnrollmentProvider>
+    </AuthProvider> 
   </BrowserRouter>
 )

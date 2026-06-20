@@ -91,7 +91,7 @@ def generate_report_card(enrollment: Enrollment, month: str) -> AIReportCard:
     teacher_notes = _get_teacher_notes(records)
 
     context = {
-        "student_name": student.full_name,
+        "student_name": student.user.full_name,
         "educational_level": student.get_educational_level_display(),
         "attendance_rate": attendance_rate,
         "missed_classes": missed_classes,

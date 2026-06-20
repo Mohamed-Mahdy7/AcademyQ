@@ -9,7 +9,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.decorators import action
-from .models import Academy
+from .models import Academy, Students
 from .serializers import (AcademySerializer, CustomeTokenObtainPairSerializer,
     AcademyRegistrationSerializer, StaffCreateSerializer, StudentCreateSerializer, 
     StudentProfileUpdateSerializer, UserSerializer)
@@ -60,7 +60,72 @@ class RegisterView(generics.CreateAPIView):
         )
         return response
 
+class LoginView(TokenObtainPairView):
+    permission_classes = [AllowAny]
+    serializer_class = CustomeTokenObtainPairSerializer
+    
+    def post(self, request, *args, **kwargs):
+        base_response = super().post(request, *args, **kwargs)
+        if base_response.status_code != 200:
+            return base_response
+        
+        data = base_response.data
+        refresh = data.get("refresh")
+        access = data.get("access")
+        
+        user_data = {k: v for k, v in data.items()
+                if k not in ["refresh", "access"]}
+        
+        response = Response(user_data)
+        if access:
+            response.set_cookie(
+                key='access_token',
+                value=access,
+                httponly=True,
+                secure=False,
+                samesite='lax'
+            )
+        if refresh:
+            response.set_cookie(
+                key='refresh_token',
+                value=refresh,
+                httponly=True,
+                secure=False,
+                samesite='lax'
+            )
+        return response
 
+class RefreshTokenView(APIView):
+    def post(self, request):
+        print("REFRESHING THE TOKEN")
+        refresh_token = request.COOKIES.get("refresh_token")
+        
+        if not refresh_token:
+            return Response({"error": "No refresh token"},
+                            status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            refresh = RefreshToken(refresh_token)
+            new_access = str(refresh.access_token)
+            response = Response({"access": new_access})
+            response.set_cookie(
+                key="access_token",
+                value=new_access,
+                httponly=True,
+                secure=False,  
+                samesite="lax"
+                )
+            return response
+        except Exception:
+            return Response({"error": "Invalid refresh token"},
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+class LogoutView(APIView):
+
+    def post(self, request):
+        response = Response({"message": "Logged out"})
+        response.delete_cookie("access_token")
+        response.delete_cookie("refresh_token")
+        return response
 class AcademyView(generics.RetrieveUpdateAPIView):
     serializer_class = AcademySerializer
     
@@ -108,42 +173,6 @@ class ComopleteSetupView(APIView):
             "access": str(refresh.access_token)
         }, status=status.HTTP_200_OK)
 
-class LoginView(TokenObtainPairView):
-    permission_classes = [AllowAny]
-    serializer_class = CustomeTokenObtainPairSerializer
-    
-    def post(self, request, *args, **kwargs):
-        base_response = super().post(request, *args, **kwargs)
-        if base_response.status_code != 200:
-            return base_response
-        
-        data = base_response.data
-        refresh = data.get("refresh")
-        access = data.get("access")
-        
-        user_data = {k: v for k, v in data.items()
-                if k not in ["refresh", "access"]}
-        
-        response = Response(user_data)
-        if access:
-            response.set_cookie(
-                key='access_token',
-                value=access,
-                httponly=True,
-                secure=False,
-                samesite='lax'
-            )
-        if refresh:
-            response.set_cookie(
-                key='refresh_token',
-                value=refresh,
-                httponly=True,
-                secure=False,
-                samesite='lax'
-            )
-        return response
-
-
 class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOwner]
     
@@ -174,11 +203,8 @@ class UserViewSet(viewsets.ModelViewSet):
     def students(self, request):
         students = self.get_queryset().filter(
             role=User.Roles.STUDENT
-        )
-        serializer = StudentCreateSerializer(
-            students,
-            many=True
-        )
+        ).select_related("students")
+        serializer = StudentCreateSerializer(students, many=True)
         return Response(serializer.data)
 
 class RolesListView(APIView):
@@ -188,11 +214,6 @@ class RolesListView(APIView):
             "label": label,
         }for value, label in User.Roles.choises])
 
-class StudentRegistrationView(generics.CreateAPIView):
-    permission_classes = [AllowAny]
-    serializer_class = StudentCreateSerializer
-
-
 class EducationalLevelListView(APIView):
     def get(self, request):
         return Response ([
@@ -200,8 +221,12 @@ class EducationalLevelListView(APIView):
                 "value": value,
                 "label": label,
             }
-            for value, label in User.EducationalLevel.choices
+            for value, label in Students.EducationalLevel.choices
         ])
+
+class StudentRegistrationView(generics.CreateAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = StudentCreateSerializer
 
 class StudentProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = StudentProfileUpdateSerializer
@@ -211,7 +236,7 @@ class StudentProfileView(generics.RetrieveUpdateAPIView):
         
         if user.role in [User.Roles.OWNER, User.Roles.ADMIN]:
             student = get_object_or_404(
-                User,
+                User.objects.select_related("students"),
                 pk=self.kwargs["pk"],
                 role=User.Roles.STUDENT
             )
@@ -226,34 +251,3 @@ class StudentProfileView(generics.RetrieveUpdateAPIView):
 
         if user.role == User.Roles.STUDENT:
             return user
-
-class RefreshTokenView(APIView):
-    def post(self, request):
-        print("REFRESHING THE TOKEN")
-        refresh_token = request.COOKIES.get("refresh_token")
-        
-        if not refresh_token:
-            return Response({"error": "No refresh token"},
-                            status=status.HTTP_401_UNAUTHORIZED)
-        try:
-            refresh = RefreshToken(refresh_token)
-            new_access = str(refresh.access_token)
-            response = Response({"access": new_access})
-            response.set_cookie(
-                key="access_token",
-                value=new_access,
-                httponly=True,
-                secure=False,  
-                samesite="lax"
-                )
-            return response
-        except Exception:
-            return Response({"error": "Invalid refresh token"},
-                            status=status.HTTP_401_UNAUTHORIZED)
-
-class LogoutView(APIView):
-    def post(self, request):
-        response = Response({"message": "Logged out"})
-        response.delete_cookie("access_token")
-        response.delete_cookie("refresh_token")
-        return response

@@ -16,10 +16,9 @@ class Notification(models.Model):
     ]
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=True)
     student = models.ForeignKey(
-        'core.User',
+        'core.Students',
         on_delete=models.CASCADE,
         related_name='notifications',
-        limit_choices_to={'role': 'S'},
     )
     enrollment = models.ForeignKey(
         'financial_operations.Enrollment',
