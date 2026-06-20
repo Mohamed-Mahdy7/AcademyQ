@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from pgvector.django import VectorField
-from core.models import Academy
+from core.models import Academy, Students
 import uuid
 
 
@@ -14,7 +14,7 @@ class StudentEmbedding(models.Model):
         editable=False
         )
     student = models.ForeignKey(
-        User,
+        Students,
         on_delete=models.CASCADE,
         related_name="embeddings"
     )
@@ -23,7 +23,7 @@ class StudentEmbedding(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return f"Embedding({self.student.full_name})"
+        return f"Embedding({self.student.user.full_name})"
 
 
 class AIUsageLog(models.Model):

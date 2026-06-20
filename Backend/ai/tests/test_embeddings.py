@@ -6,7 +6,7 @@ from google.genai import errors
 
 from ai.models import AIUsageLog, StudentEmbedding
 from ai.utils.embeddings import build_embedding_text, generate_embedding, upsert_student_embedding
-from core.models import Academy, User
+from core.models import Academy, Students, User
 
 FAKE_VECTOR = [0.1] * 3072
 
@@ -102,14 +102,19 @@ class UpsertStudentEmbeddingTest(TestCase):
             name="Test Academy",
             email="academy@test.com",
         )
-        self.student = User.objects.create(
+        self.user = User.objects.create(
             email="student@test.com",
             full_name="Test Student",
             role=User.Roles.STUDENT,
-            educational_level=User.EducationalLevel.SEC_1,
-            status=User.Status.ACTIVE,
             academy=self.academy,
             phone="01000000000",
+        )
+        self.student = Students.objects.create(
+            user=self.user,
+            academy=self.academy,
+            parent_email="parent@test.com",
+            educational_level=Students.EducationalLevel.SEC_1,
+            status=Students.Status.ACTIVE,
         )
 
     @patch("ai.utils.embeddings.generate_embedding")

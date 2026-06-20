@@ -48,7 +48,7 @@ def send_payment_reminder(payment_id: str) -> dict:
         )
 
         prompt = build_payment_reminder_prompt({
-            "student_name": student.full_name,
+            "student_name": student.user.full_name,
             "parent_name": "Parent",
             "outstanding_balance": outstanding,
             "due_date": str(payment.due_date) if payment.due_date else "Not specified",
@@ -66,10 +66,10 @@ def send_payment_reminder(payment_id: str) -> dict:
             status="pending",
         )
 
-        recipient = getattr(student, "parent_email", None) or student.email
+        recipient = getattr(student, "parent_email", None) or student.user.email
         result = send_email(
             to_email=recipient,
-            subject=f"AcademiQ — Payment reminder for {student.full_name}",
+            subject=f"AcademiQ — Payment reminder for {student.user.full_name}",
             message=message,
         )
 
@@ -126,7 +126,7 @@ def send_overdue_reminders(academy_id: str) -> dict:
 
     for payment in overdue_payments:
         student = payment.enrollment_id.student_id
-        recipient = getattr(student, "parent_email", None) or student.email
+        recipient = getattr(student, "parent_email", None) or student.user.email
 
         if not recipient:
             logger.warning(

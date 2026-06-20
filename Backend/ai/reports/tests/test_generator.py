@@ -2,7 +2,7 @@ from unittest.mock import patch
 from datetime import date, time
 from django.test import TestCase
 
-from core.models import Academy, User
+from core.models import Academy, User, Students
 from structure.models import Subject, Class
 from financial_operations.models import Enrollment, Payment
 from records.models import ClassSession, Attendance
@@ -16,14 +16,20 @@ class GenerateReportCardTest(TestCase):
         self.academy = Academy.objects.create(
             name="Test Academy", email="test@academy.com", phone="01000000000"
         )
-        self.student = User.objects.create_user(
+        self.student_user = User.objects.create_user(
             email="student@test.com",
             password="testpass123",
             full_name="Ahmed Mohamed",
             role="S",
-            educational_level=7,
             phone="01000000001",
             academy=self.academy,
+        )
+        self.student = Students.objects.create(
+            user=self.student_user,
+            academy=self.academy,
+            parent_email="parent@test.com",
+            educational_level=7,
+            status="A",
         )
         self.subject = Subject.objects.create(
             academy=self.academy, name="Mathematics", description="Core math"

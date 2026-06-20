@@ -6,7 +6,7 @@ from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer 
 from rest_framework import serializers
-from .models import Academy, User
+from .models import Academy, Students
 from records.models import Attendance
 from financial_operations.models import Enrollment, Payment
 
@@ -61,22 +61,10 @@ class AcademySerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    academy_name = serializers.CharField(
-        source="academy.name", 
-        read_only=True
-    )
-    academy_id = serializers.CharField(
-        source="academy.id", 
-        read_only=True
-    )
-    role_display = serializers.CharField(
-        source="get_role_display",
-        read_only=True
-    )
-    status_display = serializers.CharField(
-        source="get_status_display",
-        read_only=True
-    )
+    academy_name = serializers.CharField(source="academy.name", read_only=True)
+    academy_id = serializers.CharField(source="academy.id", read_only=True)
+    role_display = serializers.CharField(source="get_role_display", read_only=True)
+    status_display = serializers.CharField(source="get_status_display", read_only=True)
 
     class Meta:
         model = User
@@ -87,8 +75,6 @@ class UserSerializer(serializers.ModelSerializer):
             "phone",
             "role",
             "role_display",
-            "status",
-            "status_display",
             "academy_id",
             "academy_name",
             "created_at"
@@ -194,10 +180,12 @@ class StudentCreateSerializer(serializers.ModelSerializer):
         write_only=True,
         style={'input_type': 'password'}
         )
-    status_display = serializers.CharField(
-        source="get_status_display",
-        read_only=True
+    parent_email = serializers.EmailField(required=False, allow_blank=True)
+    educational_level = serializers.ChoiceField(
+        choices=Students.EducationalLevel.choices, required=False, allow_null=True
     )
+    status = serializers.CharField(source="students.status", read_only=True)
+    status_display = serializers.CharField(source="get_status_display", read_only=True)
     enrollments = serializers.SerializerMethodField()
 
     class Meta:
@@ -219,14 +207,20 @@ class StudentCreateSerializer(serializers.ModelSerializer):
                 })
         return attrs
     
+    @transaction.atomic
     def create(self, validated_data):
         validated_data.pop("confirm_password")
+        parent_email = validated_data.pop("parent_email", "")
+        educational_level = validated_data.pop("educational_level", None)
         
-        return User.objects.create_user(
-            **validated_data,
-            role=User.Roles.STUDENT,
-            status=User.Status.PENDING,
+        user = User.objects.create_user(**validated_data,role=User.Roles.STUDENT)
+        Students.objects.create(
+            user=user,
+            parent_email=parent_email,
+            educational_level=educational_level,
+            status=Students.Status.PENDING
         )
+        return user
 
 
 class EnrollmentSimpleSerializer(serializers.ModelSerializer):
@@ -236,46 +230,46 @@ class EnrollmentSimpleSerializer(serializers.ModelSerializer):
 
 
 class StudentProfileUpdateSerializer(serializers.ModelSerializer):
-    status_display = serializers.CharField(
-        source="get_status_display",
-        read_only=True
+    parent_email = serializers.EmailField(
+        source="students.parent_email", required=True, allow_blank=False
     )
-    enrollments = EnrollmentSimpleSerializer(
-        many=True,
-        read_only=True
+    educational_level = serializers.ChoiceField(
+        source="students.educational_level",
+        choices=Students.EducationalLevel.choices, required=True, allow_null=False,
     )
+    enrolled_at = serializers.DateField(source="students.enrolled_at", required=False, allow_null=True)
+    status = serializers.CharField(source="students.status", read_only=True)
+    status_display = serializers.CharField(source="get_status_display", read_only=True)
+    enrollments = EnrollmentSimpleSerializer(many=True,read_only=True)
     attendance_percentage = serializers.SerializerMethodField()
     total_paid = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = [
-            "id", "full_name", "email", "phone", "parent_email", 
-            "educational_level", "enrolled_at", "status", "status_display", 
-            "enrollments", "attendance_percentage", "total_paid", "created_at", "updated_at"
+            "id", "full_name", "email", "phone", "parent_email", "educational_level", 
+            "enrolled_at", "status", "status_display", "enrollments", 
+            "attendance_percentage", "total_paid", "created_at", "updated_at"
         ]
 
     def get_attendance_percentage(self, obj):
-        total = Attendance.objects.filter(
-            enrollment__student_id=obj
-        ).count()
-
-        present = Attendance.objects.filter(
-            enrollment__student_id=obj,
-            present=True
-        ).count()
-
-        if total == 0:
-            return 0
-
-        return round((present / total) * 100, 2)
+        total = Attendance.objects.filter(enrollment__student_id__user=obj).count()
+        present = Attendance.objects.filter(enrollment__student_id__user=obj, present=True).count()
+        return round((present / total) * 100, 2) if total else 0
         
     def get_total_paid(self, obj):
         total_payment = Payment.objects.filter(
-            enrollment_id__student_id=obj,
+            enrollment_id__student_id__user=obj,
             status="completed"
         ).aggregate(
             total_payment=Sum("amount")
         )["total_payment"]
 
         return total_payment or 0
+    
+    def update(self, instance, validated_data):
+        profile_data = validated_data.pop("students", {})
+        instance = super().update(instance, validated_data)
+        if profile_data:
+            Students.objects.filter(user=instance).update(**profile_data)
+        return instance

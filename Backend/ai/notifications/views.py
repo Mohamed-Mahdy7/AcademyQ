@@ -81,7 +81,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
 
         try:
             alert = Alert.objects.select_related(
-                "enrollment__student_id",
+                "enrollment__student_id__user",
                 "enrollment__class_id__academy",
             ).get(
                 id=alert_id,
@@ -108,11 +108,11 @@ class NotificationViewSet(viewsets.ModelViewSet):
 
         student = alert.enrollment.student_id
         # Always prefer parent_email; fall back to the student's own email
-        recipient = getattr(student, "parent_email", None) or student.email
+        recipient = getattr(student, "parent_email", None) or student.user.email
 
         result = send_email(
             to_email=recipient,
-            subject=f"AcademiQ — Important notice about {student.full_name}",
+            subject=f"AcademiQ — Important notice about {student.user.full_name}",
             message=message,
         )
 

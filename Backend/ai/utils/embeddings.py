@@ -6,6 +6,7 @@ from google.genai import errors
 from ai.models import AIUsageLog, StudentEmbedding
 from ai.utils.gemini_client import gemini_client
 from .constants import RETRYABLE_STATUS_CODES
+from core.models import Students
 
 
 logger = logging.getLogger(__name__)
@@ -55,8 +56,9 @@ def generate_embedding(text: str) -> list[float]:
     raise last_error
 
 
-def upsert_student_embedding(student, academy) -> StudentEmbedding:
-    text = build_embedding_text(student)
+def upsert_student_embedding(student_id, academy) -> StudentEmbedding:
+    student = Students.objects.select_related("user").get(pk=student_id)
+    text = build_embedding_text(student.user, student)
     vector = generate_embedding(text)
 
     token_estimate = len(text.split())

@@ -16,7 +16,7 @@ class TeachersSerializer(serializers.ModelSerializer):
 
 class PaymentSerializer(serializers.ModelSerializer):
     student_name = serializers.CharField(
-        source='enrollment_id.student_id.full_name', read_only=True
+        source='enrollment_id.student_id.user.full_name', read_only=True
     )
     class_name = serializers.CharField(
         source='enrollment_id.class_id.name', read_only=True
@@ -38,7 +38,7 @@ class PaymentSerializer(serializers.ModelSerializer):
 
 class EnrollmentSerializer(serializers.ModelSerializer):
     student_name = serializers.CharField(
-        source='student_id.full_name', read_only=True
+        source='student_id.user.full_name', read_only=True
     )
     class_name = serializers.CharField(source='class_id.name', read_only=True)
     payments = PaymentSerializer(many=True, read_only=True)

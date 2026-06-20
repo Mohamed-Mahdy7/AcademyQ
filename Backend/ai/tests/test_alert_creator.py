@@ -2,8 +2,7 @@ from datetime import date
 from django.test import TestCase
 from django.utils import timezone
 
-from core.models import User
-from core.models import Academy
+from core.models import User, Academy, Students
 from structure.models import Subject, Class
 from financial_operations.models import Enrollment
 from ai.agent.models import Alert
@@ -34,13 +33,18 @@ class AlertCreatorTests(TestCase):
             phone="01000000004",
             role="S",
             academy=self.academy,
+        )
+        self.student_obj = Students.objects.create(
+            user=self.student,
+            academy=self.academy,
+            parent_email="parent@test.com",
             educational_level=7,
             status="A",
             enrolled_at=date(2026, 1, 1),
         )
         self.enrollment = Enrollment.objects.create(
             class_id=self.cls,
-            student_id=self.student,
+            student_id=self.student_obj,
             start_date=date(2026, 1, 1),
             status="active",
         )

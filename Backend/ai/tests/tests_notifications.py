@@ -12,7 +12,7 @@ class PaymentReminderTest(TestCase):
 
     def setUp(self):
         """Set up test data — runs before each test."""
-        from core.models import Academy, User
+        from core.models import Academy, User, Students
         from structure.models import Class, Subject
 
         # Create academy
@@ -23,15 +23,20 @@ class PaymentReminderTest(TestCase):
         )
 
         # Create student user
-        self.student = User.objects.create_user(
+        self.student_user = User.objects.create_user(
             email="student@test.com",
             password="test1234",
             full_name="Ahmed Test",
             phone="01011111111",
-            parent_phone="01022222222",
             role=User.Roles.STUDENT,
             academy=self.academy,
+        )
+        self.student = Students.objects.create(
+            user=self.student_user,
+            academy=self.academy,
+            parent_email="parent@test.com",
             educational_level=1,
+            status="A",
         )
 
         # Create subject
