@@ -1,4 +1,5 @@
 import { useState, useContext } from "react"
+import { useNavigate } from "react-router-dom"
 import { useAlerts } from "../../context/AlertContext"
 import { NotificationsContext } from "../../context/NotificationsContext"
 
@@ -19,6 +20,7 @@ const RISK_BADGE = {
 }
 
 const AlertRow = ({ alert }) => {
+    const navigate = useNavigate()
     const {
         expandedId,
         toggleExpand,
@@ -34,7 +36,7 @@ const AlertRow = ({ alert }) => {
     const [localMessage, setLocalMessage] = useState(alert.message || "")
     const [isSending, setIsSending]       = useState(false)
     const [sentSuccess, setSentSuccess]   = useState(false)
-    const { sendNotification } = useContext(NotificationsContext);
+    const { sendAlertNotification } = useContext(NotificationsContext)
 
     const handleGenerateMessage = async () => {
         const msg = await generateMessage(alert.id)
@@ -42,24 +44,18 @@ const AlertRow = ({ alert }) => {
     }
 
     const handleSend = async () => {
-        if (!alert.message) return;
-        setIsSending(true);
+        if (!localMessage) return
+        setIsSending(true)
         try {
-            const result = await sendNotification({
-                alert_id: alert.id,
-                recipient_name: alert.student_name,
-                recipient_email: alert.parent_email,   // use whatever API returns
-                message: localMessage,
-            });
-
+            const result = await sendAlertNotification(alert.id, localMessage)
             if (result.success) {
-                setSentSuccess(true);
-                setTimeout(() => dismissAlert(alert.id), 1200);
+                setSentSuccess(true)
+                setTimeout(() => dismissAlert(alert.id), 1200)
             }
         } finally {
-            setIsSending(false);
+            setIsSending(false)
         }
-    };
+    }
 
     const reason = REASON_META[alert.primary_reason] ?? {
         label: alert.primary_reason,
@@ -80,7 +76,6 @@ const AlertRow = ({ alert }) => {
     return (
         <div className={`card mb-3 transition-all ${isExpanded ? "border-blue shadow-[0_4px_16px_0_rgb(73_136_196/0.18)]" : ""}`}>
 
-            {/* ── Collapsed row ── */}
             <div
                 className="flex items-center gap-4 p-4 cursor-pointer hover:bg-sky-pale rounded-xl transition-colors"
                 onClick={() => toggleExpand(alert.id)}
@@ -137,7 +132,6 @@ const AlertRow = ({ alert }) => {
                 </svg>
             </div>
 
-            {/* ── Expanded detail panel ── */}
             {isExpanded && (
                 <div className="border-t border-border px-5 py-4 space-y-4">
 
@@ -208,7 +202,7 @@ const AlertRow = ({ alert }) => {
 
                     <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-border">
                         <button
-                            className={`btn-primary flex items-center gap-2 ${(!alert.message || isSending || sentSuccess) ? "opacity-60 pointer-events-none" : ""}`}
+                            className={`btn-primary flex items-center gap-2 ${(!localMessage || isSending || sentSuccess) ? "opacity-60 pointer-events-none" : ""}`}
                             onClick={handleSend}
                         >
                             {isSending ? (
@@ -217,21 +211,23 @@ const AlertRow = ({ alert }) => {
                                 <>✅ Sent!</>
                             ) : (
                                 <>
-                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
-                                        <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.532 5.862L.054 23.02a.75.75 0 00.926.926l5.158-1.478A11.955 11.955 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.75 9.75 0 01-4.868-1.308l-.35-.207-3.623 1.038 1.038-3.623-.207-.35A9.75 9.75 0 0112 2.25c5.385 0 9.75 4.365 9.75 9.75S17.385 21.75 12 21.75z" />
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                     </svg>
                                     Send Via Email
                                 </>
                             )}
                         </button>
 
-                        <a href={`/students/${alert.enrollment}`} className="btn-secondary flex items-center gap-2">
+                        <button
+                            className="btn-secondary flex items-center gap-2"
+                            onClick={() => navigate(`/student/${alert.student_id}`)}
+                        >
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
                             View Student Profile
-                        </a>
+                        </button>
 
                         <button
                             className="btn-ghost ml-auto text-danger hover:bg-danger-bg"
