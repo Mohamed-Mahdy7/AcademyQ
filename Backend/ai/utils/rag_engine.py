@@ -3,6 +3,7 @@ from django.db.models import Count, Q
 from django.contrib.auth import get_user_model
 from financial_operations.models import Enrollment, Payment
 from records.models import Attendance
+from core.models import Students
 from .retrieval import get_similar_student_context
 
 
@@ -34,8 +35,8 @@ def get_teacher_notes():
 def get_student_context(student_id):
 
     try:
-        student = User.objects.get(id=student_id, role=User.Roles.STUDENT)
-    except User.DoesNotExist as exc:
+        student = Students.objects.select_related('user').get(id=student_id)
+    except Students.DoesNotExist as exc:
         raise StudentContextError(f"No student found for id={student_id}") from exc
 
     enrollments = list(Enrollment.objects.filter(student_id=student))
@@ -43,9 +44,9 @@ def get_student_context(student_id):
     if not enrollments:
         return {
             "student_id": str(student.id),
-            "student_name": student.full_name,
-            "email": student.email,
-            "phone": student.phone,
+            "student_name": student.user.full_name,
+            "email": student.user.email,
+            "phone": student.user.phone,
             "educational_level": student.get_educational_level_display(),
             "attendance_rate": 0,
             "missed_classes": 0,

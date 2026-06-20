@@ -3,7 +3,7 @@ from datetime import date, time
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 
-from core.models import Academy, User
+from core.models import Academy, User, Students
 from structure.models import Subject, Class
 from financial_operations.models import Enrollment
 from ai.reports.tasks import generate_report_card_task, generate_class_reports_task
@@ -64,14 +64,20 @@ class GenerateReportCardTaskTest(APITestCase):
 
     @patch("ai.reports.tasks.generate_report_card_task.delay")
     def test_bulk_task_dispatches_one_per_active_enrollment(self, mock_delay):
-        other_student = User.objects.create_user(
+        other_student_user = User.objects.create_user(
             email="student2@test.com",
             password="testpass123",
             full_name="Sara Khaled",
             role="S",
-            educational_level=7,
             phone="01000000002",
             academy=self.academy,
+        )
+        other_student = Students.objects.create(
+            user=other_student_user,
+            academy=self.academy,
+            parent_email="parent2@test.com",
+            educational_level=7,
+            status="A",
         )
         other_enrollment = Enrollment.objects.create(
             class_id=self.class_obj,
@@ -79,14 +85,20 @@ class GenerateReportCardTaskTest(APITestCase):
             start_date=date(2026, 1, 1),
             status="active",
         )
-        dropped_student = User.objects.create_user(
+        dropped_student_user = User.objects.create_user(
             email="student3@test.com",
             password="testpass123",
             full_name="Dropped Student",
             role="S",
-            educational_level=7,
             phone="01000000003",
             academy=self.academy,
+        )
+        dropped_student = Students.objects.create(
+            user=dropped_student_user,
+            academy=self.academy,
+            parent_email="parent3@test.com",
+            educational_level=7,
+            status="A",
         )
         Enrollment.objects.create(
             class_id=self.class_obj,
@@ -113,7 +125,6 @@ class GenerateBulkReportEndpointTest(APITestCase):
             password="testpass123",
             full_name="Owner",
             role="O",
-            educational_level=1,
             phone="01000000002",
             academy=self.academy,
         )
@@ -122,18 +133,23 @@ class GenerateBulkReportEndpointTest(APITestCase):
             password="testpass123",
             full_name="Teacher",
             role="T",
-            educational_level=1,
             phone="01000000003",
             academy=self.academy,
         )
-        self.student = User.objects.create_user(
+        self.student_user = User.objects.create_user(
             email="student@test.com",
             password="testpass123",
             full_name="Ahmed Mohamed",
             role="S",
-            educational_level=7,
             phone="01000000001",
             academy=self.academy,
+        )
+        self.student = Students.objects.create(
+            user=self.student_user,
+            academy=self.academy,
+            parent_email="parent@test.com",
+            educational_level=7,
+            status="A",
         )
         self.subject = Subject.objects.create(
             academy=self.academy, name="Mathematics", description="Core math"

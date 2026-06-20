@@ -3,7 +3,7 @@ from .models import AIReportCard
 
 
 class AIReportCardSerializer(serializers.ModelSerializer):
-    student_name = serializers.CharField(source="student.full_name", read_only=True)
+    student_name = serializers.CharField(source="student.user.full_name", read_only=True)
     class_name = serializers.CharField(
         source="enrollment.class_id.name", read_only=True
     )

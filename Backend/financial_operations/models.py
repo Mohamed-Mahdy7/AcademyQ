@@ -25,11 +25,10 @@ class Enrollment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     class_id = models.ForeignKey(Class, on_delete=models.PROTECT, db_column='class_id', related_name='enrollments')
     student_id = models.ForeignKey(
-        'core.User',
+        'core.Students',
         on_delete=models.PROTECT,
         db_column='student_id',
         related_name='enrollments',
-        limit_choices_to={'role': 'S'}
     )
     start_date = models.DateField(null=True, blank=True) 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')

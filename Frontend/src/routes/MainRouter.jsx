@@ -4,7 +4,6 @@ import { TeacherProvider } from "../context/TeachersContext.jsx";
 import { GradeProvider } from "../context/gradecontext.jsx";
 import { UsersProvider } from "../context/UsersContext.jsx";
 import { StudentProvider } from "../context/StudentsContext.jsx";
-import { EnrollmentProvider } from "../context/EnrollmentContext.jsx";
 import { AlertProvider } from "../context/AlertContext.jsx";
 import { NotificationsProvider } from "../context/NotificationsContext.jsx";
 import { PaymentContext } from "../context/PaymentContext.jsx";
@@ -48,9 +47,7 @@ const MainRouter = () => {
             <Route element={ 
                     <AlertProvider>
                         <NotificationsProvider>
-                            <EnrollmentProvider>
-                                <MainLayout />
-                            </EnrollmentProvider>
+                            <MainLayout />
                         </NotificationsProvider>
                     </AlertProvider>
             }>
@@ -97,14 +94,12 @@ const MainRouter = () => {
                     } />
                     <Route element={<StudentProvider></StudentProvider>}>
                         <Route element={<GradeProvider></GradeProvider>}>
-                            <Route element={<EnrollmentProvider></EnrollmentProvider>}>
-                                <Route path="/classes/:id" element={
-                                    <ClassDetailPage />
-                                } />
-                                <Route path="/student/:id" element={
-                                    <StudentProfile />
-                                } />
-                            </Route>
+                            <Route path="/classes/:id" element={
+                                <ClassDetailPage />
+                            } />
+                            <Route path="/student/:id" element={
+                                <StudentProfile />
+                            } />
                             <Route path="/grade" element={
                                 <GradeForm />
                             } />

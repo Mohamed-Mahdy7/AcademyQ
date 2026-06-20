@@ -59,6 +59,38 @@ class User(AbstractBaseUser, PermissionsMixin):
         TEACHER='T', "Teacher"
         STUDENT='S', "Student"
     
+    id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    academy=models.ForeignKey(
+        Academy,
+        on_delete=models.CASCADE, 
+        related_name="academy_user",
+        null=True,
+        blank=True,
+        )
+    full_name=models.CharField(max_length=100, null=False)
+    email=models.EmailField(unique=True)
+    phone=models.CharField(max_length=20)
+    role=models.CharField(max_length=10, choices=Roles.choices, null=False)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_active=models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+    created_at=models.DateTimeField(auto_now_add=True)
+    objects=UserManager()
+    
+    USERNAME_FIELD='email'
+    REQUIRED_FIELDS=[]
+    
+    class Meta:
+        db_table = 'users'
+        verbose_name = 'User'
+        ordering = ['full_name']
+    
+    def __str__(self):
+        return self.full_name
+
+
+class Students(models.Model):
     class Status(models.TextChoices):
         ACTIVE="A", "Active"
         PENDING="P", "Pending"
@@ -84,19 +116,21 @@ class User(AbstractBaseUser, PermissionsMixin):
         COLLEGE_5 = 17, "College 5"
         COLLEGE_6 = 18, "College 6"
     
-    id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        primary_key=True,
+        related_name="students",
+        limit_choices_to={"role": User.Roles.STUDENT},
+    )
     academy=models.ForeignKey(
         Academy,
         on_delete=models.CASCADE, 
-        related_name="academy_user",
+        related_name="academy_student",
         null=True,
         blank=True,
         )
-    full_name=models.CharField(max_length=100, null=False)
-    email=models.EmailField(unique=True)
-    phone=models.CharField(max_length=20)
-    role=models.CharField(max_length=10, choices=Roles.choices, null=False)
-    parent_email = models.EmailField(blank=True, default="")
+    parent_email = models.EmailField(null=False)
     educational_level = models.IntegerField(
         choices=EducationalLevel.choices,
         null=True
@@ -104,23 +138,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     status = models.CharField(
         max_length=10,
         choices=Status.choices,
-        default="P",
+        default=Status.PENDING,
         null=False)
     enrolled_at = models.DateField(null=True, blank=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    is_active=models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
-    is_superuser = models.BooleanField(default=False)
-    created_at=models.DateTimeField(auto_now_add=True)
-    objects=UserManager()
-    
-    USERNAME_FIELD='email'
-    REQUIRED_FIELDS=["educational_level"]
     
     class Meta:
-        db_table = 'users'
-        verbose_name = 'User'
-        ordering = ['full_name']
+        db_table = "students"
+        verbose_name = "Students"
     
     def __str__(self):
-        return self.full_name
+        return f"{self.user.full_name}"

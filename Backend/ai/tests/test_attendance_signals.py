@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 from django.test import TestCase
 
-from core.models import User
+from core.models import User, Academy, Students
 from structure.models import Subject, Class
 from financial_operations.models import Enrollment
 from records.models import ClassSession, Attendance
@@ -33,13 +33,18 @@ class GetAttendancePct28dTests(TestCase):
             phone="01000000002",
             role="S",
             academy=self.academy,
+        )
+        self.student_obj = Students.objects.create(
+            user=self.student,
+            academy=self.academy,
+            parent_email="parent@test.com",
             educational_level=7,
             status="A",
             enrolled_at=date(2026, 1, 1),
         )
         self.enrollment = Enrollment.objects.create(
             class_id=self.cls,
-            student_id=self.student,
+            student_id=self.student_obj,
             start_date=date(2026, 1, 1),
             status="active",
         )
@@ -106,13 +111,18 @@ class GetAttendancePct28dTests(TestCase):
             phone="01000000003",
             role="S",
             academy=self.academy,
+        )
+        other_student_obj = Students.objects.create(
+            user=other_student,
+            academy=self.academy,
+            parent_email="other_parent@test.com",
             educational_level=7,
             status="A",
             enrolled_at=date(2026, 1, 1),
         )
         other_enrollment = Enrollment.objects.create(
             class_id=self.cls,
-            student_id=other_student,
+            student_id=other_student_obj,
             start_date=date(2026, 1, 1),
             status="active",
         )

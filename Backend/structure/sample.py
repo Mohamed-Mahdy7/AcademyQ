@@ -1,7 +1,7 @@
 from datetime import date, timedelta, time
 from decimal import Decimal
 
-from core.models import Academy, User
+from core.models import Academy, Students, User
 from financial_operations.models import Teachers, Enrollment, Payment
 from structure.models import Subject, Class, TeacherClass
 from records.models import ClassSession, Attendance
@@ -53,7 +53,7 @@ student1 = User.objects.create_user(
     full_name="Mohamed Ali",
     phone="01033333333",
     parent_phone="01099999991",
-    educational_level=User.EducationalLevel.SEC_1,
+    educational_level=Students.EducationalLevel.SEC_1,
     role=User.Roles.STUDENT,
 )
 
@@ -64,7 +64,7 @@ student2 = User.objects.create_user(
     full_name="Sara Ahmed",
     phone="01044444444",
     parent_phone="01099999992",
-    educational_level=User.EducationalLevel.SEC_1,
+    educational_level=Students.EducationalLevel.SEC_1,
     role=User.Roles.STUDENT,
 )
 

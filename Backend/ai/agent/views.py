@@ -24,7 +24,7 @@ class AlertViewSet(viewsets.ModelViewSet):
         qs = Alert.objects.filter(
             enrollment__class_id__academy_id=self.request.user.academy_id
         ).select_related(
-            "enrollment__student_id",
+            "enrollment__student_id__user",
             "enrollment__class_id",
         ).order_by("-risk_score")
 
