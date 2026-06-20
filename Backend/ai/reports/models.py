@@ -34,4 +34,4 @@ class AIReportCard(models.Model):
         ordering = ['-generated_at']
 
     def __str__(self):
-        return f"{self.student.full_name} — {self.month} ({self.risk_level})"
+        return f"{self.student.user.full_name} — {self.month} ({self.risk_level})"
