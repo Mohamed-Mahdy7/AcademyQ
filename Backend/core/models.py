@@ -13,6 +13,7 @@ class Academy(models.Model):
     subscription_end=models.DateField(null=True)
     setup_complete=models.BooleanField(default=False)
     created_at=models.DateTimeField(auto_now_add=True)
+    weekly_report_enabled = models.BooleanField(default=True)
     
     class Meta:
         db_table = 'academy'
@@ -105,7 +106,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         choices=Status.choices,
         default="P",
         null=False)
-    enrolled_at = models.DateTimeField(null=True)
+    enrolled_at = models.DateField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active=models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

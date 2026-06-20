@@ -20,6 +20,7 @@ export function AcademyProvider({  children }) {
 
     async function updateAcademy(data) {
         try{
+            console.log("DATA:", data)
             const response = await updateAcademyRequest(data);
             setAcademy(response.data);
 

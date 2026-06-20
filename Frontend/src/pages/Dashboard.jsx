@@ -9,17 +9,20 @@ const Dashboard = () => {
     return (
         <>
             <div className="mb-6">
-            <h1 className="heading-1">Welcome!</h1>
-            <p className="subheading">Here's what's happenning at your academy today.</p>
+                <h1 className="heading-1">Welcome!</h1>
+                <p className="subheading">Here's what's happenning at your academy today.</p>
             </div>
+
             <KpiCardsSection />
 
-            <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
                 <AtRiskCard />
                 <ActivityCard />
             </section>
 
-            <PaymentInfoCard />
+            <div className="mb-6">
+                <PaymentInfoCard />
+            </div>
 
             <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <RetentionRiskCard />

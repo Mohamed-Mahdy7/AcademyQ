@@ -55,7 +55,9 @@ class AcademyRegistrationSerializer(serializers.Serializer):
 class AcademySerializer(serializers.ModelSerializer):
     class Meta:
         model = Academy
-        fields = ["id", "name", "email", "phone", "address", "subscription_end"]
+        fields = ["id", "name", "email", "phone", "address", 
+                "subscription_end", "weekly_report_enabled"
+        ]
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -201,9 +203,11 @@ class StudentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            "id", "full_name", "email", "phone", 'parent_email', 'enrolled_at','educational_level', 
+            "id", "full_name", "email", "phone", 'parent_email','educational_level', 
             "academy", "password", "confirm_password", "status", "status_display", "enrollments"
         ]
+        
+        read_only_fields = ["status"]
     
     def get_enrollments(self, obj):
         return obj.enrollments.count()
@@ -221,6 +225,7 @@ class StudentCreateSerializer(serializers.ModelSerializer):
         return User.objects.create_user(
             **validated_data,
             role=User.Roles.STUDENT,
+            status=User.Status.PENDING,
         )
 
 

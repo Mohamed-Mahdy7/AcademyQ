@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body { font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+            h1 { color: #1a56db; border-bottom: 2px solid #1a56db; padding-bottom: 8px; }
+            h2 { color: #374151; margin-top: 24px; }
+            .metric-row { display: flex; gap: 16px; margin: 16px 0; }
+            .metric { background: #f3f4f6; border-radius: 8px; padding: 16px; flex: 1; text-align: center; }
+            .metric-value { font-size: 28px; font-weight: bold; color: #1a56db; }
+            .metric-label { font-size: 13px; color: #6b7280; margin-top: 4px; }
+            .summary-box { background: #eff6ff; border-left: 4px solid #1a56db; padding: 16px; border-radius: 4px; margin: 16px 0; }
+            .footer { font-size: 12px; color: #9ca3af; margin-top: 32px; border-top: 1px solid #e5e7eb; padding-top: 16px; }
+        </style>
+    </head>
+    <body>
+        <h1>Academy — Weekly Report</h1>
+        <p style="color:#6b7280;">2026-06-12 → 2026-06-19</p>
+
+        <div class="metric-row">
+            <div class="metric">
+            <div class="metric-value">1</div>
+            <div class="metric-label">Reports Generated</div>
+            </div>
+            <div class="metric">
+            <div class="metric-value">45</div>
+            <div class="metric-label">Risk Alerts</div>
+            </div>
+            <div class="metric">
+            <div class="metric-value">0</div>
+            <div class="metric-label">Notifications Sent</div>
+            </div>
+            <div class="metric">
+            <div class="metric-value">$0.007487</div>
+            <div class="metric-label">AI Cost This Week</div>
+            </div>
+        </div>
+
+        <h2>AI Summary</h2>
+        <div class="summary-box">
+            <p>Weekly Academy AI Operations Summary</p>
+
+<p>1. Executive Summary<br>This past week saw a minimal number of reports generated but a significant volume of risk alerts, indicating a proactive detection of potential issues within the AI systems. Notifications remained at zero, suggesting that the identified risks either did not require immediate user action or were handled internally. Estimated AI operational cost for the week was exceptionally low.</p>
+
+<p>2. Key Trends<br>The most prominent trend is the high ratio of risk alerts to reports generated. While only one report was produced, 45 distinct risk alerts were triggered. This suggests the AI systems are actively monitoring for anomalies and potential problems, even if standard reporting output is low. The absence of notifications indicates that these alerts did not escalate to user-facing issues, implying either false positives or effective internal mitigation.</p>
+
+<p>3. Potential Risks<br>The primary potential risk is the sheer volume of risk alerts without corresponding notifications. While it’s positive that risks are being identified, a consistently high number of alerts could indicate:<br>    * Overly sensitive alert thresholds, leading to &quot;alert fatigue&quot; if many are false positives.<br>    * Latent issues that are repeatedly triggering alerts but not yet manifesting as critical problems.<br>    * A disconnect between alert generation and the subsequent resolution or notification process.</p>
+
+<p>4. Recommendations For Management<br>* Investigate the nature of the 45 risk alerts. Categorize them by type, severity, and recurrence to understand their underlying causes.<br>* Review current alert thresholds and tuning. Determine if some alerts are consistently false positives and can be refined to reduce noise while maintaining effective detection.<br>* Assess the workflow for risk alert resolution. Ensure there&#x27;s a clear process for investigating, mitigating, and documenting each alert, even if no user notification is required.<br>* Consider implementing a tracking mechanism for alert resolution times and outcomes to identify areas for process improvement.<br>* Monitor the trend of &quot;Notifications Sent&quot; in relation to &quot;Risk Alerts Generated.&quot; A sustained zero notification count with high alerts needs careful scrutiny to ensure risks are genuinely being managed and not just ignored.</p>
+        </div>
+
+        <div class="footer">
+            AcademiQ · You can disable these emails from Settings → Academy Profile.
+        </div>
+    </body>
+</html>

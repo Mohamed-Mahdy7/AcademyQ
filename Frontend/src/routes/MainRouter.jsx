@@ -7,6 +7,7 @@ import { StudentProvider } from "../context/StudentsContext.jsx";
 import { EnrollmentProvider } from "../context/EnrollmentContext.jsx";
 import { AlertProvider } from "../context/AlertContext.jsx";
 import { NotificationsProvider } from "../context/NotificationsContext.jsx";
+import { PaymentContext } from "../context/PaymentContext.jsx";
 import ProtectedRoute from "../components/ProtectedRoute";
 import MainLayout from "../components/DashboardLayout";
 import Dashboard from "../pages/Dashboard.jsx";
@@ -47,7 +48,9 @@ const MainRouter = () => {
             <Route element={ 
                     <AlertProvider>
                         <NotificationsProvider>
-                            <MainLayout />
+                            <EnrollmentProvider>
+                                <MainLayout />
+                            </EnrollmentProvider>
                         </NotificationsProvider>
                     </AlertProvider>
             }>
