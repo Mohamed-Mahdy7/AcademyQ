@@ -58,7 +58,12 @@ const StudentProfile = () => {
                         <div className="flex gap-2">
                             <span className="text-caption">{student.parent_email}</span>
                             <span className="text-caption">Grade {student.educational_level}</span>
-                            <span className="text-caption">Enrolled since {new Date(student.enrolled_at).toLocaleDateString()}</span>
+                            <span className="text-caption">
+                                {student.enrolled_at
+                                    ? `Enrolled since ${new Date(student.enrolled_at).toLocaleDateString()}`
+                                    : "Not yet enrolled"
+                                }
+                            </span>
                         </div>
                     </div>
                 </div>

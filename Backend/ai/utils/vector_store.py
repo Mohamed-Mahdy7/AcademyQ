@@ -9,7 +9,7 @@ def find_similar_students(student, limit=5):
 
     results = (
         StudentEmbedding.objects
-        .filter(student__academy_id=student.user.academy_id)
+        .filter(student__academy_id=student.academy_id)
         .exclude(student=student)
         .annotate(
             distance=CosineDistance("embedding", embedding_record.embedding)

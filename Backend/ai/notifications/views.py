@@ -81,7 +81,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
 
         try:
             alert = Alert.objects.select_related(
-                "enrollment__student_id__user",
+                "enrollment__student_id",
                 "enrollment__class_id__academy",
             ).get(
                 id=alert_id,

@@ -180,23 +180,18 @@ class StudentCreateSerializer(serializers.ModelSerializer):
         )
     parent_email = serializers.EmailField(required=False, allow_blank=True)
     educational_level = serializers.ChoiceField(
-        choices=Students.EducationalLevel.choices, required=False, allow_null=True
+        choices=Students.EducationalLevel.choices,
+        required=False, allow_null=True
     )
-    status = serializers.CharField(source="students.status", read_only=True)
-    status_display = serializers.CharField(source="get_status_display", read_only=True)
-    enrollments = serializers.SerializerMethodField()
-
+    
     class Meta:
         model = User
         fields = [
-            "id", "full_name", "email", "phone", 'parent_email','educational_level', 
-            "academy", "password", "confirm_password", "status", "status_display", "enrollments"
+            "id", "full_name", "email", "phone", 'parent_email',
+            'educational_level', "academy", "password", "confirm_password", 
         ]
         
         read_only_fields = ["status"]
-    
-    def get_enrollments(self, obj):
-        return obj.enrollments.count()
     
     def validate(self, attrs):
         if (attrs["password"] != attrs["confirm_password"]):
@@ -214,11 +209,50 @@ class StudentCreateSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(**validated_data,role=User.Roles.STUDENT)
         Students.objects.create(
             user=user,
+            academy=user.academy,
             parent_email=parent_email,
             educational_level=educational_level,
             status=Students.Status.PENDING
         )
         return user
+
+
+class StudentListSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(
+        source="students.id",
+        read_only=True
+    )
+    parent_email = serializers.EmailField(
+        source="students.parent_email",
+        read_only=True
+    )
+    educational_level = serializers.IntegerField(
+        source="students.educational_level",
+        read_only=True
+    )
+    educational_level_display = serializers.CharField(
+        source="students.get_educational_level_display",
+        read_only=True
+    )
+    status = serializers.CharField(
+        source="students.status",
+        read_only=True
+    )
+    status_display = serializers.CharField(
+        source="students.get_status_display",
+        read_only=True
+    )
+    enrollments = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = [
+            "id", "full_name", "email", "phone", "academy", "parent_email", "educational_level", 
+            "educational_level_display", "status", "status_display", "enrollments",
+        ]
+
+    def get_enrollments(self, obj):
+        return obj.students.enrollments.count()
 
 
 class EnrollmentSimpleSerializer(serializers.ModelSerializer):
@@ -237,8 +271,8 @@ class StudentProfileUpdateSerializer(serializers.ModelSerializer):
     )
     enrolled_at = serializers.DateField(source="students.enrolled_at", required=False, allow_null=True)
     status = serializers.CharField(source="students.status", read_only=True)
-    status_display = serializers.CharField(source="get_status_display", read_only=True)
-    enrollments = EnrollmentSimpleSerializer(many=True,read_only=True)
+    status_display = serializers.CharField(source="students.get_status_display", read_only=True)
+    enrollments = EnrollmentSimpleSerializer(source= "students.enrollments",many=True, read_only=True)
     attendance_percentage = serializers.SerializerMethodField()
     total_paid = serializers.SerializerMethodField()
 
@@ -251,13 +285,17 @@ class StudentProfileUpdateSerializer(serializers.ModelSerializer):
         ]
 
     def get_attendance_percentage(self, obj):
-        total = Attendance.objects.filter(enrollment__student_id__user=obj).count()
-        present = Attendance.objects.filter(enrollment__student_id__user=obj, present=True).count()
+        student = obj.students
+        
+        total = Attendance.objects.filter(enrollment__student_id=student).count()
+        present = Attendance.objects.filter(enrollment__student_id=student, present=True).count()
         return round((present / total) * 100, 2) if total else 0
         
     def get_total_paid(self, obj):
+        student = obj.students
+        
         total_payment = Payment.objects.filter(
-            enrollment_id__student_id__user=obj,
+            enrollment_id__student_id=student,
             status="completed"
         ).aggregate(
             total_payment=Sum("amount")
