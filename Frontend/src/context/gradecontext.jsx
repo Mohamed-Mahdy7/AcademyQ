@@ -2,10 +2,12 @@ import { createContext, useContext, useState } from "react";
 import {
   createGrade,
   getGrades,
+  updateGrade,
   getGradeSummary,
   getClassSummary,
 } from "../services/gradesService";
 import { Outlet } from "react-router-dom";
+
 
 const GradeContext = createContext();
 
@@ -37,11 +39,28 @@ export const GradeProvider = ({ children }) => {
     }
   };
 
+  const findExistingGrade = async (enrollmentId, sessionId, subjectName) => {
+    const res = await getGrades(enrollmentId);
+    const grades = res.data.results ?? res.data;
+    return grades.find(
+      (g) => g.session === sessionId && g.subject_name === subjectName
+        );
+    };
+
+    const editGrade = async (gradeId, payload) => {
+        const res = await updateGrade(gradeId, payload);
+        return res.data;
+    };
+
   const addGrade = async (payload) => {
     try {
       const res = await createGrade(payload);
-      return res.data;
+      return { data: res.data, isDuplicate: false };
     } catch (error) {
+      const isDuplicate = error.response?.data?.non_field_errors?.[0]?.includes("unique set");
+      if (isDuplicate) {
+        return { isDuplicate: true, payload };
+      }
       console.error("addGrade error:", error);
       throw error;
     }
@@ -56,6 +75,8 @@ export const GradeProvider = ({ children }) => {
         loadGrades,
         loadSummary,
         addGrade,
+        findExistingGrade,
+        editGrade,
       }}
     >
       <Outlet/>
