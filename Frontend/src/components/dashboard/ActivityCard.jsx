@@ -1,34 +1,139 @@
-import CardHeading from "../CardHeader"
-import ActivityCardInfo from "./ActivityCardInfo"
+import { useEffect, useState, useContext } from "react";
+import { PaymentContext } from "../../context/PaymentContext";
+import { EnrollmentContext } from "../../context/EnrollmentContext";
+import { NotificationsContext } from "../../context/NotificationsContext";
+import CardHeading from "../CardHeader";
+import ActivityCardInfo from "./ActivityCardInfo";
 
-const ActivityCard = () => {
-    return (
-        <>
-            <div>
-                <CardHeading 
-                    heading="Recent Activity"
-                    subheading="Latest updates across your academy"
-                />
-                <section className="card-body rounded-t-none h-4/5">
-                    <ActivityCardInfo 
-                        svg=""
-                        heading="Payment of 500 EGP records for Ahmed Mohamed"
-                        subheading="10/14/2025, 2:22:00 PM"
-                    />
-                    <ActivityCardInfo 
-                        svg=""
-                        heading="Sara Khaled enrolled in English B2 Wed/Fri"
-                        subheading="10/13/2025, 12:10:00 PM"
-                    />
-                    <ActivityCardInfo 
-                        svg=""
-                        heading="Session 10 marked for Math G7 Mon/Wed -- 15/18 attended"
-                        subheading="10/12/2025, 8:05:00 PM"
-                    />
-                </section>
-            </div>
-        </>
-    )
+const PaymentSvg = (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <line x1="12" y1="1" x2="12" y2="23"/>
+        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+    </svg>
+);
+
+const EnrollmentSvg = (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+);
+
+const NotificationSvg = (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+    </svg>
+);
+
+function formatDate(dateStr) {
+    if (!dateStr) return "—";
+    const d = new Date(dateStr);
+    return d.toLocaleString("en-US", {
+        month: "numeric",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+    });
 }
 
-export default ActivityCard
+export default function ActivityCard() {
+    const { payments, listPayments } = useContext(PaymentContext);
+    const { enrollments, listEnrollments } = useContext(EnrollmentContext);
+    const { notifications, getNotifications } = useContext(NotificationsContext);
+
+    const [activities, setActivities] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        Promise.all([
+            listPayments(),
+            listEnrollments(),
+            getNotifications(),
+        ]).finally(() => setLoading(false));
+    }, []);
+
+    useEffect(() => {
+        const items = [];
+
+        // Payments
+        payments.forEach((p) => {
+            if (p.status !== "completed") return;
+            items.push({
+                id: `payment-${p.id}`,
+                timestamp: p.paid_on || p.created_at,
+                svg: PaymentSvg,
+                heading: `Payment of ${parseFloat(p.amount || 0).toFixed(0)} EGP recorded for ${p.student_name || "a student"}`,
+            });
+        });
+
+        // Enrollments
+        enrollments.forEach((e) => {
+            items.push({
+                id: `enrollment-${e.id}`,
+                timestamp: e.created_at || e.start_date,
+                svg: EnrollmentSvg,
+                heading: `${e.student_name || "A student"} enrolled in ${e.class_name || "a class"}`,
+            });
+        });
+
+        // Notifications
+        notifications.forEach((n) => {
+            items.push({
+                id: `notification-${n.id}`,
+                timestamp: n.created_at,
+                svg: NotificationSvg,
+                heading: n.notification_type === "payment_reminder"
+                    ? `Payment reminder sent to ${n.student_name || "a parent"}`
+                    : `Retention alert sent to ${n.student_name || "a parent"}`,
+            });
+        });
+
+        // Sort newest first, take top 5
+        const sorted = items
+            .filter((i) => i.timestamp)
+            .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+            .slice(0, 5);
+
+        setActivities(sorted);
+    }, [payments, enrollments, notifications]);
+
+    return (
+        <div>
+            <CardHeading
+                heading="Recent Activity"
+                subheading="Latest updates across your academy"
+            />
+            <section className="card-body rounded-t-none h-4/5">
+                {loading ? (
+                    <div className="space-y-4">
+                        {[1, 2, 3].map((i) => (
+                            <div key={i} className="flex gap-3">
+                                <div className="skeleton skeleton-avatar w-9 h-9" />
+                                <div className="flex-1 space-y-2">
+                                    <div className="skeleton skeleton-text w-3/4" />
+                                    <div className="skeleton skeleton-text-sm w-1/3" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : activities.length === 0 ? (
+                    <p className="text-caption">No recent activity yet.</p>
+                ) : (
+                    activities.map((a) => (
+                        <ActivityCardInfo
+                            key={a.id}
+                            svg={a.svg}
+                            heading={a.heading}
+                            subheading={formatDate(a.timestamp)}
+                        />
+                    ))
+                )}
+            </section>
+        </div>
+    );
+}
