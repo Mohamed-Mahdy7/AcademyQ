@@ -10,11 +10,10 @@ const PaymentInfoCard = () => {
         fetchSummary();
     }, []);
 
-    // Don't render if no overdue payments
     if (!summaryLoading && summary && summary.overdue_count === 0) return null;
 
     return (
-        <div className="card overflow-hidden mt-9 mb-3">
+        <div className="card overflow-hidden">
             <div className="bg-warning-bg border-b border-warning/30 px-5 py-4">
                 <div className="flex items-center gap-2">
                     <div className="stat-icon-wrap-warn w-6! h-6! mb-0!">
