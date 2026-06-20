@@ -24,7 +24,7 @@ def run_risk_scan(academy_id, scan_log):
     enrollments = Enrollment.objects.filter(
         class_id__academy_id=academy_id,
         status="active",
-    ).select_related("class_id", "student_id__user")
+    ).select_related("class_id", "student_id")
 
     students_scanned = 0
     alerts_created_count = 0

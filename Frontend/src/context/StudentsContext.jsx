@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from "react";
-import { 
-    createStudentRequest, 
+import {
+    createStudentRequest,
     updateStudentRequest,
     getStudentsRequest,
     getStudentRequest
@@ -9,26 +9,28 @@ import { Outlet } from "react-router-dom";
 
 export const StudentContext = createContext();
 
-export const StudentProvider = ({children}) => {
+export const StudentProvider = ({ children }) => {
     const [students, setStudents] = useState([]);
     const [student, setStudent] = useState(null);
 
     async function getStudents() {
-            try{
-                const response = await getStudentsRequest();
-                setStudents(response.data);
-                return response.data;
-            } catch (error) {
-                console.error(error);
-                setStudents([]);
-                return null;
-            }
+        try {
+            const response = await getStudentsRequest();
+            setStudents(response.data);
+            return response.data;
+        } catch (error) {
+            console.error(error);
+            setStudents([]);
+            return null;
         }
+    }
 
-        async function getStudent(id) {
+    async function getStudent(id) {
+        console.log("STUDENT ID: ", id)
         try {
             const response = await getStudentRequest(id);
             setStudent(response.data);
+            console.log("STUDENT FROM CONTEXT: ", response.data)
 
             return {
                 success: true,
@@ -49,7 +51,7 @@ export const StudentProvider = ({children}) => {
             console.log(`DATA SENT: `, data);
             const response = await createStudentRequest(data);
             setStudent(response.data);
-
+            await getStudents();
             return {
                 success: true,
                 data: response.data,
@@ -64,7 +66,7 @@ export const StudentProvider = ({children}) => {
         }
     }
 
-    async function updateStudent(id, data=null) {
+    async function updateStudent(id, data = null) {
         try {
             const response = await updateStudentRequest(id, data);
             setStudent(response.data);
@@ -92,11 +94,12 @@ export const StudentProvider = ({children}) => {
                 student,
                 students,
                 getStudent,
+                getStudents,
                 createStudent,
                 updateStudent,
             }}
         >
-            <Outlet/>
+            <Outlet />
         </StudentContext.Provider>
     );
 
