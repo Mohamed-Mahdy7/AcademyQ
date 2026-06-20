@@ -1,64 +1,77 @@
-from django.test import TestCase
+ # financial_operations/tests.py
 
-# Create your tests here.
 from datetime import date, timedelta
+
 from django.db import IntegrityError
 from django.test import TestCase
+from django.utils import timezone
 from rest_framework.test import APIClient
 
-from core.models import Academy, User
+from core.models import Academy, User, Students
 from structure.models import Subject, Class
-from financial_operations.models import (
-    Teachers,
-    Enrollment,
-    Payment,
+from financial_operations.models import Teachers, Enrollment, Payment
+from financial_operations.serializers import (
+    TeachersSerializer,
+    EnrollmentSerializer,
+    PaymentSerializer,
 )
 
 
-class FinancialModelsTests(TestCase):
+def create_academy(**kwargs):
+    defaults = {
+        "name": "Academy",
+        "email": "academy@test.com",
+        "phone": "0100",
+        "subscription_end": timezone.now().date() + timedelta(days=30),
+    }
+    defaults.update(kwargs)
+    return Academy.objects.create(**defaults)
 
-    def setUp(self):
 
-        self.academy = Academy.objects.create(
-            name="Academy",
-            email="academy@test.com",
-            phone="0100",
-            subscription_end=date.today() + timedelta(days=30)
+def create_user(academy, role, email, **kwargs):
+    defaults = {
+        "full_name": "Test User",
+        "phone": "01000000000",
+        "password": "123456",
+    }
+    defaults.update(kwargs)
+    password = defaults.pop("password")
+    return User.objects.create_user(
+        academy=academy, email=email, role=role, password=password, **defaults
+    )
+
+
+def create_student_with_profile(academy, email="student@test.com", **kwargs):
+    user = create_user(academy, User.Roles.STUDENT, email, **kwargs)
+    student = Students.objects.create(
+        user=user,
+        parent_email="parent@test.com",
+        educational_level=Students.EducationalLevel.SEC_1,
+        status=Students.Status.ACTIVE,
+    )
+    return user, student
+
+
+def create_teacher_with_profile(academy, email="teacher@test.com", **kwargs):
+    user = create_user(academy, User.Roles.TEACHER, email, **kwargs)
+    teacher = Teachers.objects.create(academy_id=academy, user_id=user)
+    return user, teacher
+
+
+class FinancialTestSetupMixin:
+
+    def base_setup(self):
+        uid = id(self)
+        self.academy = create_academy(email=f"academy-{uid}@test.com")
+        self.teacher_user, self.teacher = create_teacher_with_profile(
+            self.academy, email=f"teacher-{uid}@test.com"
         )
-
-        self.teacher_user = User.objects.create_user(
-            email="teacher@test.com",
-            password="123456",
-            academy=self.academy,
-            full_name="Teacher",
-            phone="010",
-            parent_phone="",
-            educational_level=18,
-            role=User.Roles.TEACHER
+        self.student_user, self.student_profile = create_student_with_profile(
+            self.academy, email=f"student-{uid}@test.com"
         )
-
-        self.student = User.objects.create_user(
-            email="student@test.com",
-            password="123456",
-            academy=self.academy,
-            full_name="Student",
-            phone="011",
-            parent_phone="012",
-            educational_level=10,
-            role=User.Roles.STUDENT
-        )
-
-        self.teacher = Teachers.objects.create(
-            academy_id=self.academy,
-            user_id=self.teacher_user
-        )
-
         self.subject = Subject.objects.create(
-            academy=self.academy,
-            name="Math",
-            description="Math"
+            academy=self.academy, name="Math", description="Math"
         )
-
         self.class_obj = Class.objects.create(
             academy=self.academy,
             subject=self.subject,
@@ -66,290 +79,407 @@ class FinancialModelsTests(TestCase):
             start_date=date.today(),
             end_date=date.today() + timedelta(days=30),
             session_count=10,
-            session_price=100
+            session_price=100,
         )
 
-    def test_teacher_created(self):
-        self.assertEqual(
-            self.teacher.user_id.full_name,
-            "Teacher"
-        )
 
-    def test_teacher_str(self):
-        self.assertTrue(str(self.teacher))
+# =========================================================
+# MODELS
+# =========================================================
 
-    def test_enrollment_creation(self):
-
-        enrollment = Enrollment.objects.create(
-            class_id=self.class_obj,
-            student_id=self.student
-        )
-
-        self.assertEqual(
-            enrollment.status,
-            "active"
-        )
-
-    def test_unique_enrollment(self):
-
-        Enrollment.objects.create(
-            class_id=self.class_obj,
-            student_id=self.student
-        )
-
-        with self.assertRaises(IntegrityError):
-            Enrollment.objects.create(
-                class_id=self.class_obj,
-                student_id=self.student
-            )
-
-    def test_payment_creation(self):
-
-        enrollment = Enrollment.objects.create(
-            class_id=self.class_obj,
-            student_id=self.student
-        )
-
-        payment = Payment.objects.create(
-            enrollment_id=enrollment,
-            amount=1000
-        )
-
-        self.assertEqual(payment.amount, 1000)
-
-    def test_payment_default_status(self):
-
-        enrollment = Enrollment.objects.create(
-            class_id=self.class_obj,
-            student_id=self.student
-        )
-
-        payment = Payment.objects.create(
-            enrollment_id=enrollment,
-            amount=500
-        )
-
-        self.assertEqual(
-            payment.status,
-            "pending"
-        )
-
-    def test_payment_str(self):
-
-        enrollment = Enrollment.objects.create(
-            class_id=self.class_obj,
-            student_id=self.student
-        )
-
-        payment = Payment.objects.create(
-            enrollment_id=enrollment,
-            amount=500
-        )
-
-        self.assertTrue(str(payment))
-
-
-class FinancialAPITests(TestCase):
+class TeachersModelTests(FinancialTestSetupMixin, TestCase):
 
     def setUp(self):
+        self.base_setup()
 
-        self.client = APIClient()
+    def test_teacher_created(self):
+        self.assertEqual(self.teacher.user_id.full_name, "Test User")
 
-        self.academy = Academy.objects.create(
-            name="Academy",
-            email="academy2@test.com",
-            phone="0100",
-            subscription_end=date.today() + timedelta(days=30)
+    def test_teacher_str(self):
+        self.assertIn(str(self.teacher_user), str(self.teacher))
+
+    def test_teacher_one_user_one_profile(self):
+        with self.assertRaises(IntegrityError):
+            Teachers.objects.create(
+                academy_id=self.academy, user_id=self.teacher_user
+            )
+
+
+class EnrollmentModelTests(FinancialTestSetupMixin, TestCase):
+
+    def setUp(self):
+        self.base_setup()
+
+    def test_enrollment_creation_default_status_active(self):
+        enrollment = Enrollment.objects.create(
+            class_id=self.class_obj, student_id=self.student_profile
         )
+        self.assertEqual(enrollment.status, "active")
 
-        self.owner = User.objects.create_user(
-            email="owner@test.com",
-            password="123456",
-            academy=self.academy,
-            full_name="Owner",
-            phone="010",
-            parent_phone="",
-            educational_level=18,
-            role=User.Roles.OWNER
+    def test_enrollment_str(self):
+        enrollment = Enrollment.objects.create(
+            class_id=self.class_obj, student_id=self.student_profile
         )
+        self.assertIn(str(enrollment.id), str(enrollment))
 
-        self.client.force_authenticate(self.owner)
-
-        self.student = User.objects.create_user(
-            email="student@test.com",
-            password="123456",
-            academy=self.academy,
-            full_name="Student",
-            phone="011",
-            parent_phone="012",
-            educational_level=10,
-            role=User.Roles.STUDENT
+    def test_unique_enrollment_per_student_class(self):
+        Enrollment.objects.create(
+            class_id=self.class_obj, student_id=self.student_profile
         )
+        with self.assertRaises(IntegrityError):
+            Enrollment.objects.create(
+                class_id=self.class_obj, student_id=self.student_profile
+            )
 
-        self.teacher_user = User.objects.create_user(
-            email="teacher@test.com",
-            password="123456",
-            academy=self.academy,
-            full_name="Teacher",
-            phone="015",
-            parent_phone="",
-            educational_level=18,
-            role=User.Roles.TEACHER
+    def test_enrollment_protected_on_class_delete(self):
+        from django.db.models import ProtectedError
+        Enrollment.objects.create(
+            class_id=self.class_obj, student_id=self.student_profile
         )
+        with self.assertRaises(ProtectedError):
+            self.class_obj.delete()
 
-        self.teacher = Teachers.objects.create(
-            academy_id=self.academy,
-            user_id=self.teacher_user
+    def test_same_student_can_enroll_different_classes(self):
+        Enrollment.objects.create(
+            class_id=self.class_obj, student_id=self.student_profile
         )
-
-        self.subject = Subject.objects.create(
-            academy=self.academy,
-            name="Physics",
-            description="Physics"
-        )
-
-        self.class_obj = Class.objects.create(
+        second_class = Class.objects.create(
             academy=self.academy,
             subject=self.subject,
-            name="Physics A",
+            name="Class B",
             start_date=date.today(),
-            end_date=date.today() + timedelta(days=40),
-            session_count=20,
-            session_price=150
+            end_date=date.today() + timedelta(days=30),
         )
+        second_enrollment = Enrollment.objects.create(
+            class_id=second_class, student_id=self.student_profile
+        )
+        self.assertEqual(Enrollment.objects.count(), 2)
+        self.assertNotEqual(second_enrollment.id, None)
+
+
+class PaymentModelTests(FinancialTestSetupMixin, TestCase):
+
+    def setUp(self):
+        self.base_setup()
+        self.enrollment = Enrollment.objects.create(
+            class_id=self.class_obj, student_id=self.student_profile
+        )
+
+    def test_payment_creation(self):
+        payment = Payment.objects.create(
+            enrollment_id=self.enrollment, amount=1000
+        )
+        self.assertEqual(payment.amount, 1000)
+
+    def test_payment_default_status_pending(self):
+        payment = Payment.objects.create(
+            enrollment_id=self.enrollment, amount=500
+        )
+        self.assertEqual(payment.status, "pending")
+
+    def test_payment_str(self):
+        payment = Payment.objects.create(
+            enrollment_id=self.enrollment, amount=500
+        )
+        self.assertIn(str(payment.id), str(payment))
+
+    def test_payment_protected_on_enrollment_delete(self):
+        from django.db.models import ProtectedError
+        Payment.objects.create(enrollment_id=self.enrollment, amount=500)
+        with self.assertRaises(ProtectedError):
+            self.enrollment.delete()
+
+
+# =========================================================
+# SERIALIZERS
+# =========================================================
+
+class TeachersSerializerTests(FinancialTestSetupMixin, TestCase):
+
+    def setUp(self):
+        self.base_setup()
+
+    def test_serializer_exposes_user_fields(self):
+        data = TeachersSerializer(self.teacher).data
+        self.assertEqual(data["name"], self.teacher_user.full_name)
+        self.assertEqual(data["email"], self.teacher_user.email)
+        self.assertEqual(data["phone"], self.teacher_user.phone)
+
+
+class EnrollmentSerializerTests(FinancialTestSetupMixin, TestCase):
+
+    def setUp(self):
+        self.base_setup()
+        self.enrollment = Enrollment.objects.create(
+            class_id=self.class_obj, student_id=self.student_profile
+        )
+
+    def test_serializer_exposes_names(self):
+        data = EnrollmentSerializer(self.enrollment).data
+        self.assertEqual(data["class_name"], self.class_obj.name)
+        self.assertEqual(data["status"], "active")
+        self.assertEqual(data["payments"], [])
+
+    def test_serializer_includes_nested_payments(self):
+        Payment.objects.create(enrollment_id=self.enrollment, amount=300)
+        data = EnrollmentSerializer(self.enrollment).data
+        self.assertEqual(len(data["payments"]), 1)
+        self.assertEqual(data["payments"][0]["amount"], "300.00")
+
+
+class PaymentSerializerTests(FinancialTestSetupMixin, TestCase):
+
+    def setUp(self):
+        self.base_setup()
+        self.enrollment = Enrollment.objects.create(
+            class_id=self.class_obj, student_id=self.student_profile
+        )
+
+    def test_serializer_exposes_class_and_student_name(self):
+        payment = Payment.objects.create(
+            enrollment_id=self.enrollment, amount=500
+        )
+        data = PaymentSerializer(payment).data
+        self.assertEqual(data["class_name"], self.class_obj.name)
+        self.assertEqual(data["student_name"], self.student_user.full_name)
+
+
+# =========================================================
+# API / VIEWS
+# =========================================================
+
+class TeachersApiTests(FinancialTestSetupMixin, TestCase):
+
+    def setUp(self):
+        self.base_setup()
+        self.client = APIClient()
+        self.owner = create_user(
+            self.academy, User.Roles.OWNER, f"owner-{id(self)}@test.com"
+        )
+        self.client.force_authenticate(self.owner)
 
     def test_teachers_list(self):
-        response = self.client.get(
-            "/api/teachers/"
-        )
+        response = self.client.get("/api/teachers/")
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+
+    def test_teacher_soft_delete_deactivates_user(self):
+        response = self.client.delete(f"/api/teachers/{self.teacher.id}/")
+        self.assertEqual(response.status_code, 204)
+        self.teacher_user.refresh_from_db()
+        self.assertFalse(self.teacher_user.is_active)
+        # Teacher profile row remains (perform_destroy overridden, not actually deleted)
+        self.assertTrue(Teachers.objects.filter(id=self.teacher.id).exists())
+
+    def test_other_academy_teachers_not_visible(self):
+        other_academy = create_academy(email=f"otheracad-{id(self)}@test.com")
+        create_teacher_with_profile(other_academy, email=f"otherteacher-{id(self)}@test.com")
+        response = self.client.get("/api/teachers/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+
+
+class EnrollmentApiTests(FinancialTestSetupMixin, TestCase):
+
+    def setUp(self):
+        self.base_setup()
+        self.client = APIClient()
+        self.owner = create_user(
+            self.academy, User.Roles.OWNER, f"owner-{id(self)}@test.com"
+        )
+        self.client.force_authenticate(self.owner)
 
     def test_create_enrollment(self):
-
         response = self.client.post(
             "/api/enrollments/",
             {
                 "class_id": self.class_obj.id,
-                "student_id": self.student.id,
-                "start_date": str(date.today())
+                "student_id": self.student_profile.pk,
+                "start_date": str(date.today()),
             },
-            format="json"
+            format="json",
         )
-
         self.assertEqual(response.status_code, 201)
 
-    def test_enrollment_list(self):
-        response = self.client.get(
-            "/api/enrollments/"
+    def test_create_enrollment_creates_pending_payment(self):
+        self.client.post(
+            "/api/enrollments/",
+            {
+                "class_id": self.class_obj.id,
+                "student_id": self.student_profile.pk,
+                "start_date": str(date.today()),
+            },
+            format="json",
         )
+        self.assertTrue(
+            Payment.objects.filter(status="pending").exists()
+        )
+        payment = Payment.objects.first()
+        self.assertEqual(payment.amount, 1000)  # 10 sessions * 100
 
+    def test_create_enrollment_sets_student_active(self):
+        self.assertEqual(self.student_profile.status, Students.Status.ACTIVE)
+        new_student_user, new_student = create_student_with_profile(
+            self.academy, email=f"pendingstudent-{id(self)}@test.com"
+        )
+        new_student.status = Students.Status.PENDING
+        new_student.save()
+
+        self.client.post(
+            "/api/enrollments/",
+            {
+                "class_id": self.class_obj.id,
+                "student_id": new_student.pk,
+                "start_date": str(date.today()),
+            },
+            format="json",
+        )
+        new_student.refresh_from_db()
+        self.assertEqual(new_student.status, Students.Status.ACTIVE)
+
+    def test_duplicate_enrollment_rejected(self):
+        Enrollment.objects.create(
+            class_id=self.class_obj, student_id=self.student_profile
+        )
+        response = self.client.post(
+            "/api/enrollments/",
+            {
+                "class_id": self.class_obj.id,
+                "student_id": self.student_profile.pk,
+                "start_date": str(date.today()),
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_enrollment_list(self):
+        Enrollment.objects.create(
+            class_id=self.class_obj, student_id=self.student_profile
+        )
+        response = self.client.get("/api/enrollments/")
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
 
     def test_filter_enrollment_by_student(self):
-
-        response = self.client.get(
-            f"/api/enrollments/?student_id={self.student.id}"
+        Enrollment.objects.create(
+            class_id=self.class_obj, student_id=self.student_profile
         )
-
+        response = self.client.get(
+            f"/api/enrollments/?student_id={self.student_profile.pk}"
+        )
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
 
     def test_filter_enrollment_by_status(self):
-
-        response = self.client.get(
-            "/api/enrollments/?status=active"
+        Enrollment.objects.create(
+            class_id=self.class_obj, student_id=self.student_profile
         )
-
+        response = self.client.get("/api/enrollments/?status=active")
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+
+    def test_filter_enrollment_by_class(self):
+        Enrollment.objects.create(
+            class_id=self.class_obj, student_id=self.student_profile
+        )
+        response = self.client.get(
+            f"/api/enrollments/?class_id={self.class_obj.id}"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+
+    def test_soft_delete_enrollment_marks_dropped(self):
+        enrollment = Enrollment.objects.create(
+            class_id=self.class_obj, student_id=self.student_profile
+        )
+        response = self.client.delete(f"/api/enrollments/{enrollment.id}/")
+        self.assertEqual(response.status_code, 204)
+        enrollment.refresh_from_db()
+        self.assertEqual(enrollment.status, "dropped")
+
+
+class PaymentApiTests(FinancialTestSetupMixin, TestCase):
+
+    def setUp(self):
+        self.base_setup()
+        self.client = APIClient()
+        self.owner = create_user(
+            self.academy, User.Roles.OWNER, f"owner-{id(self)}@test.com"
+        )
+        self.client.force_authenticate(self.owner)
+        self.enrollment = Enrollment.objects.create(
+            class_id=self.class_obj, student_id=self.student_profile
+        )
 
     def test_payment_list(self):
-
-        response = self.client.get(
-            "/api/payments/"
-        )
-
+        Payment.objects.create(enrollment_id=self.enrollment, amount=500)
+        response = self.client.get("/api/payments/")
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
 
-    def test_payment_summary(self):
-
-        response = self.client.get(
-            "/api/payments/summary/"
+    def test_payment_list_excludes_deleted(self):
+        Payment.objects.create(
+            enrollment_id=self.enrollment, amount=500, status="deleted"
         )
-
+        response = self.client.get("/api/payments/")
         self.assertEqual(response.status_code, 200)
-
-    def test_payment_summary_month_filter(self):
-
-        month = date.today().strftime("%Y-%m")
-
-        response = self.client.get(
-            f"/api/payments/summary/?month={month}"
-        )
-
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 0)
 
     def test_filter_payments_by_status(self):
-
-        response = self.client.get(
-            "/api/payments/?status=pending"
+        Payment.objects.create(
+            enrollment_id=self.enrollment, amount=500, status="pending"
         )
-
+        Payment.objects.create(
+            enrollment_id=self.enrollment, amount=300, status="completed",
+            due_date=date.today(),
+        )
+        response = self.client.get("/api/payments/?status=pending")
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
 
     def test_filter_payments_by_month(self):
-
         month = date.today().strftime("%Y-%m")
-
-        response = self.client.get(
-            f"/api/payments/?month={month}"
+        Payment.objects.create(
+            enrollment_id=self.enrollment, amount=500, due_date=date.today()
         )
-
+        response = self.client.get(f"/api/payments/?month={month}")
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+
+    def test_filter_payments_by_enrollment(self):
+        Payment.objects.create(enrollment_id=self.enrollment, amount=500)
+        response = self.client.get(
+            f"/api/payments/?enrollment_id={self.enrollment.id}"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
 
     def test_soft_delete_payment(self):
-
-        enrollment = Enrollment.objects.create(
-            class_id=self.class_obj,
-            student_id=self.student
-        )
-
-        payment = Payment.objects.create(
-            enrollment_id=enrollment,
-            amount=500
-        )
-
-        response = self.client.delete(
-            f"/api/payments/{payment.id}/"
-        )
-
+        payment = Payment.objects.create(enrollment_id=self.enrollment, amount=500)
+        response = self.client.delete(f"/api/payments/{payment.id}/")
         self.assertEqual(response.status_code, 204)
-    def test_soft_delete_enrollment(self):
+        payment.refresh_from_db()
+        self.assertEqual(payment.status, "deleted")
 
-        enrollment = Enrollment.objects.create(
-            class_id=self.class_obj,
-            student_id=self.student
-        )   
+    def test_payment_summary_no_data(self):
+        response = self.client.get("/api/payments/summary/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("revenue_expected", response.data)
+        self.assertIn("collection_rate_pct", response.data)
 
-        response = self.client.delete(
-            f"/api/enrollments/{enrollment.id}/"
+    def test_payment_summary_month_filter(self):
+        month = date.today().strftime("%Y-%m")
+        response = self.client.get(f"/api/payments/summary/?month={month}")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["month"], month)
+
+    def test_payment_summary_collection_rate(self):
+        Payment.objects.create(
+            enrollment_id=self.enrollment,
+            amount=1000,
+            due_date=date.today(),
+            status="completed",
         )
-
-        self.assertEqual(response.status_code, 204)
-
-    def test_teacher_soft_delete(self):
-
-        response = self.client.delete(
-            f"/api/teachers/{self.teacher.id}/"
-        )
-
-        self.assertEqual(response.status_code, 204)
-
-    def test_auto_payment_created_after_enrollment(self):
-
-        Enrollment.objects.create(
-            class_id=self.class_obj,
-            student_id=self.student
-        )
-
-        self.assertTrue(
-            Payment.objects.count() >= 0
-        )
+        response = self.client.get("/api/payments/summary/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["collection_rate_pct"], 100.0)
