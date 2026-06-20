@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import { getStudentsRequest } from "../../services/studentService";
 import { getClasses } from "../../services/classService";
 import { PaymentContext } from "../../context/PaymentContext";
+import api from "../../api";
 import KpiCard from "../KpiCard";
 
 export default function KpiCardsSection() {
@@ -10,10 +11,11 @@ export default function KpiCardsSection() {
     const [activeClasses, setActiveClasses] = useState(null);
     const [loadingStudents, setLoadingStudents] = useState(true);
     const [loadingClasses, setLoadingClasses] = useState(true);
+    const [attendanceRate, setAttendanceRate] = useState(null);
+    const [loadingAttendance, setLoadingAttendance] = useState(true);
 
     const { summary, fetchSummary, summaryLoading } = useContext(PaymentContext);
 
-    // Fetch students
     useEffect(() => {
         getStudentsRequest()
             .then((res) => {
@@ -26,7 +28,6 @@ export default function KpiCardsSection() {
             .finally(() => setLoadingStudents(false));
     }, []);
 
-    // Fetch classes
     useEffect(() => {
         getClasses()
             .then((res) => {
@@ -38,15 +39,20 @@ export default function KpiCardsSection() {
             .finally(() => setLoadingClasses(false));
     }, []);
 
-    // Fetch payment summary for current month
     useEffect(() => {
         fetchSummary();
+    }, []);
+
+    useEffect(() => {
+        api.get("/api/dashboard/attendance-summary/")
+            .then((res) => setAttendanceRate(res.data.attendance_pct_28d))
+            .catch((err) => console.error("Failed to load attendance", err))
+            .finally(() => setLoadingAttendance(false));
     }, []);
 
     return (
         <div className="stat-grid mb-6">
 
-            {/* Card 1 — Active Students */}
             <KpiCard
                 title="ACTIVE STUDENTS"
                 svg={
@@ -61,7 +67,6 @@ export default function KpiCardsSection() {
                 caption={loadingStudents ? "" : `${totalEnrollments ?? 0} total students`}
             />
 
-            {/* Card 2 — Active Classes */}
             <KpiCard
                 title="ACTIVE CLASSES"
                 svg={
@@ -74,7 +79,6 @@ export default function KpiCardsSection() {
                 caption="Across all subjects"
             />
 
-            {/* Card 3 — Monthly Revenue */}
             <KpiCard
                 title="MONTHLY REVENUE"
                 svg={
@@ -97,7 +101,7 @@ export default function KpiCardsSection() {
                 }
             />
 
-            {/* Card 4 — Attendance Rate (static until endpoint exists) */}
+            {/* Card 4 — Attendance Rate (now live) */}
             <KpiCard
                 title="ATTENDANCE RATE"
                 svg={
@@ -105,8 +109,20 @@ export default function KpiCardsSection() {
                         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
                     </svg>
                 }
-                value="—"
-                caption="Coming soon"
+                value={
+                    loadingAttendance
+                        ? "..."
+                        : attendanceRate !== null
+                        ? `${attendanceRate}%`
+                        : "—"
+                }
+                caption={
+                    loadingAttendance
+                        ? ""
+                        : attendanceRate !== null
+                        ? "Last 28 days average"
+                        : "No data yet"
+                }
             />
 
         </div>
