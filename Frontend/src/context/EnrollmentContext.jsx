@@ -66,7 +66,7 @@ export function EnrollmentProvider({ children }) {
         removeEnrollment,
       }}
     >
-      <Outlet/>
+      {children}
     </EnrollmentContext.Provider>
   );
 }

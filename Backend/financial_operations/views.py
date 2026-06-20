@@ -11,6 +11,7 @@ from structure.models import Class
 from datetime import date, datetime
 from django.db import transaction
 from rest_framework.exceptions import ValidationError
+from core.models import User, Students
 
 class TeachersViewSet(viewsets.ModelViewSet):
     serializer_class = TeachersSerializer
@@ -58,6 +59,12 @@ class EnrollmentViewSet(viewsets.ModelViewSet):
             )
 
         enrollment = serializer.save()
+
+        student = enrollment.student_id
+        if student.status == Students.Status.PENDING:
+            student.status = Students.Status.ACTIVE
+            student.enrolled_at = timezone.now()
+            student.save(update_fields=["status", "enrolled_at"])
 
         # Auto-create pending payment with due_date = start_date + 3 days
         try:
