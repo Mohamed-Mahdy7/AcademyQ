@@ -126,7 +126,7 @@ class Students(models.Model):
     academy=models.ForeignKey(
         Academy,
         on_delete=models.CASCADE, 
-        related_name="academy_user",
+        related_name="academy_student",
         null=True,
         blank=True,
         )

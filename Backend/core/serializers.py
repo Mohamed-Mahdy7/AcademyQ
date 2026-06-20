@@ -46,7 +46,6 @@ class AcademyRegistrationSerializer(serializers.Serializer):
             full_name=validated_data["full_name"],
             email=validated_data["email"],
             phone=validated_data["phone"],
-            educational_level=0,
             password=validated_data["password"],
             role=User.Roles.OWNER
         )
@@ -64,7 +63,6 @@ class UserSerializer(serializers.ModelSerializer):
     academy_name = serializers.CharField(source="academy.name", read_only=True)
     academy_id = serializers.CharField(source="academy.id", read_only=True)
     role_display = serializers.CharField(source="get_role_display", read_only=True)
-    status_display = serializers.CharField(source="get_status_display", read_only=True)
 
     class Meta:
         model = User
