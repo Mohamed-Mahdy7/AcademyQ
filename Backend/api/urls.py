@@ -15,6 +15,7 @@ from structure.views import (
 )
 from ai.agent.views import AlertViewSet
 from ai.notifications.views import NotificationViewSet
+from ai.notifications.dashboard_views import AttendanceSummaryViewSet
 
 router = DefaultRouter()
 
@@ -34,5 +35,6 @@ router.register(
 router.register("reports", AIReportCardViewSet, basename="ai-report")
 router.register("alerts", AlertViewSet, basename="alert"),
 router.register("notifications", NotificationViewSet, basename="notification"),
+router.register("dashboard/attendance-summary", AttendanceSummaryViewSet, basename="attendance-summary"),
 
 urlpatterns = router.urls
