@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import api from "../../api";
+import { getClassSchedule } from "../../services/classService";
 import AttendanceToast from "../../components/attendance/AttendanceToast";
 import SessionControls from "../../components/attendance/SessionControls";
 import StudentAttendanceGrid from "../../components/attendance/StudentAttendanceGrid";
@@ -9,8 +10,9 @@ const todayStr = () => new Date().toISOString().split("T")[0];
 
 export default function AttendanceMarkingPage() {
   const { classId } = useParams();
-
-  const [selectedDate, setSelectedDate] = useState(todayStr());
+  const [searchParams] = useSearchParams();
+  const dateFromUrl = searchParams.get("date");
+  const [selectedDate, setSelectedDate] = useState(dateFromUrl || todayStr());
   const [notes, setNotes] = useState("");
   const [enrollments, setEnrollments] = useState([]);
   const [attendance, setAttendance] = useState({});
@@ -21,6 +23,7 @@ export default function AttendanceMarkingPage() {
   const [toast, setToast] = useState(null);
   const [classData, setClassData] = useState(null);
   const [currentSessionNum, setCurrentSessionNum] = useState(null);
+  const [schedules, setSchedules] = useState([]);
 
   const navigate = useNavigate();
 
@@ -47,11 +50,21 @@ export default function AttendanceMarkingPage() {
           setIsEditMode(true);
           setNotes(existing.notes || "");
           setCurrentSessionNum(existing.session_num);
+          setSessionTime(existing.session_time);
           return api.get(`/api/sessions/${existing.id}/attendance/`);
         } else {
           setSessionId(null);
           setIsEditMode(false);
           setNotes("");
+
+          const dateObj = new Date(selectedDate + "T00:00:00");
+          const jsDay = dateObj.getDay();
+          const pyDay = jsDay === 0 ? 6 : jsDay - 1;
+          console.log("selectedDate:", selectedDate, "jsDay:", jsDay, "pyDay:", pyDay, "schedules:", schedules);
+          const matchingSlot = schedules.find(s => s.day_of_week === pyDay);
+          console.log("matchingSlot:", matchingSlot);
+          setSessionTime(matchingSlot ? matchingSlot.start_time : '00:00:00');
+
           return null;
         }
       })
@@ -63,12 +76,21 @@ export default function AttendanceMarkingPage() {
         setAttendance(prev => ({ ...prev, ...prefilled }));
       })
       .catch(() => showToast("danger", "Failed to check session."));
-  }, [classId, selectedDate]);
+  }, [classId, selectedDate, schedules]);
 
   useEffect(() => {
       api.get(`/api/classes/${classId}/`)
           .then(res => setClassData(res.data))
           .catch(() => {});
+  }, [classId]);
+
+  useEffect(() => {
+    getClassSchedule(classId)
+      .then(res => {
+        console.log("schedules loaded:", res.data);
+        setSchedules(res.data);
+      })
+      .catch((err) => console.log("schedule fetch failed:", err));
   }, [classId]);
 
   const showToast = (type, message) => {

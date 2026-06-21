@@ -106,7 +106,7 @@ class AlertViewSet(viewsets.ModelViewSet):
         enrollment = alert.enrollment
 
         try:
-            context = get_student_context(enrollment.student_id.id)
+            context = get_student_context(enrollment.student_id.pk)
         except Exception as e:
             return Response(
                 {"detail": f"Failed to retrieve student context: {str(e)}"},
