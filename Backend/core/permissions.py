@@ -5,7 +5,7 @@ class ActiveSubscriptionRequired(BasePermission):
     message = "Subscription expired."
 
     def has_permission(self, request, view):
-        return request.user.academy.has_active_subscription()
+        return bool(request.user.academy) and request.user.academy.has_active_subscription()
 
 
 class IsOwner(BasePermission):
