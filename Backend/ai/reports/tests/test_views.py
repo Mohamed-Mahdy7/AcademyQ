@@ -27,7 +27,6 @@ class AIReportCardViewSetTest(APITestCase):
             password="testpass123",
             full_name="Academy Owner",
             role="O",
-            educational_level=1,
             phone="01000000002",
             academy=self.academy,
         )
@@ -36,7 +35,6 @@ class AIReportCardViewSetTest(APITestCase):
             password="testpass123",
             full_name="Teacher",
             role="T",
-            educational_level=1,
             phone="01000000003",
             academy=self.academy,
         )
