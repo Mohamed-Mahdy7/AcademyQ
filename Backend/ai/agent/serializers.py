@@ -1,10 +1,15 @@
 from rest_framework import serializers
 from .models import Alert, ScanLog
 
-
 class AlertSerializer(serializers.ModelSerializer):
+    student_id = serializers.UUIDField(
+        source="enrollment.student_id.user_id", read_only=True
+    )
     student_name = serializers.CharField(
         source="enrollment.student_id.user.full_name", read_only=True
+    )
+    parent_email = serializers.EmailField(
+        source="enrollment.student_id.parent_email", read_only=True
     )
     class_name = serializers.CharField(
         source="enrollment.class_id.name", read_only=True
@@ -16,8 +21,10 @@ class AlertSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "enrollment",
+            "student_id",
             "student_name",
             "class_name",
+            "parent_email",
             "risk_level",
             "risk_score",
             "primary_reason",
@@ -33,8 +40,10 @@ class AlertSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "enrollment",
+            "student_id",
             "student_name",
             "class_name",
+            "parent_email",
             "risk_level",
             "risk_score",
             "primary_reason",
@@ -46,8 +55,7 @@ class AlertSerializer(serializers.ModelSerializer):
 
     def get_is_dismissed(self, obj):
         return obj.reviewed_at is not None
-
-from .models import Alert, ScanLog
+        
 
 class ScanLogSerializer(serializers.ModelSerializer):
     class Meta:

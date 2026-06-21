@@ -113,8 +113,8 @@ class GradeViewSet(viewsets.ModelViewSet):
 
             first_grade = grades.first()
             students.append({
-                "student_id": str(first_grade.enrollment.student_id.id),
-                "student_name": first_grade.enrollment.student_id.full_name,
+                "student_id": str(first_grade.enrollment.student_id.user_id),
+                "student_name": first_grade.enrollment.student_id.user.full_name,
                 "average": average,
                 "latest_score_pct": latest_score_pct,
                 "assessments": count,
