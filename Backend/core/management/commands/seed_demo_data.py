@@ -1,19 +1,17 @@
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils import timezone
-from django.contrib.auth import get_user_model
 from decimal import Decimal
 from datetime import date, timedelta, time
 import random
 from faker import Faker
 
-from core.models import Academy
+from core.models import Academy, User, Students
 from structure.models import Class, ClassSchedule, ClassSessionEnrollment, TeacherClass, Subject
 from financial_operations.models import Teachers, Enrollment, Payment
 from records.models import Attendance, ClassSession
 from grades.models import Grade
 
-User = get_user_model()
 fake = Faker()
 
 
@@ -24,13 +22,26 @@ class Command(BaseCommand):
         with transaction.atomic():
 
             # =========================
-            # 0. ACADEMY
+            # 0. ACADEMY + OWNER
             # =========================
-            academy = Academy.objects.get(
-                id="4d59bdc9-652d-42b2-96ce-0ee84c995b3d"
+            academy = Academy.objects.create(
+                name="Demo Academy",
+                email="demo_academy@gmail.com",
+                phone="01000000000",
+                subscription_end=date.today() + timedelta(days=365),
             )
 
-            self.stdout.write("Academy loaded")
+            owner = User.objects.create_user(
+                email="owner@gmail.com",
+                password="Owner123!",
+                full_name="Demo Owner",
+                academy=academy,
+                role="O",
+                phone="01000000001",
+                is_active=True,
+            )
+
+            self.stdout.write("Academy + Owner created")
 
             # =========================
             # 1. TEACHERS
@@ -50,7 +61,6 @@ class Command(BaseCommand):
                     full_name=name,
                     academy=academy,
                     role="T",
-                    status="A",
                     phone=f"01000000{i}",
                     is_active=True,
                 )
@@ -162,7 +172,7 @@ class Command(BaseCommand):
             # =========================
             # 6. STUDENTS
             # =========================
-            students = []
+            students = []  # holds Students instances
 
             for i in range(1, 21):
 
@@ -170,17 +180,23 @@ class Command(BaseCommand):
 
                 status = "A" if i <= 16 else "D"
 
-                student = User.objects.create_user(
+                user = User.objects.create_user(
                     email=f"student{i:02}@gmail.com",
                     password="Student123!",
                     full_name=f"Student {i:02}",
                     academy=academy,
                     role="S",
-                    status=status,
-                    educational_level=level,
                     phone=f"0110000{i:04}",
+                    is_active=True,
+                )
+
+                student = Students.objects.create(
+                    user=user,
+                    academy=academy,
                     parent_email=f"parent{i:02}@gmail.com",
-                    enrolled_at=timezone.now()
+                    educational_level=level,
+                    status=status,
+                    enrolled_at=date.today(),
                 )
 
                 students.append(student)

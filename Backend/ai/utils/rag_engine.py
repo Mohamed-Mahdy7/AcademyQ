@@ -107,9 +107,9 @@ def get_student_context(student_id):
 
     return {
         "student_id": str(student.id),
-        "student_name": student.full_name,
-        "email": student.email,
-        "phone": student.phone,
+        "student_name": student.user.full_name,
+        "email": student.user.email,
+        "phone": student.user.phone,
         "educational_level": student.get_educational_level_display(),
         "attendance_rate": _attendance_rate(total_sessions, total_present),
         "missed_classes": total_sessions - total_present,

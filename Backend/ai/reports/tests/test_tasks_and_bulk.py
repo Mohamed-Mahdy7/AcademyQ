@@ -1,5 +1,5 @@
 from unittest.mock import patch
-from datetime import date, time
+from datetime import date
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 
@@ -16,14 +16,20 @@ class GenerateReportCardTaskTest(APITestCase):
         self.academy = Academy.objects.create(
             name="Test Academy", email="test@academy.com", phone="01000000000"
         )
-        self.student = User.objects.create_user(
+        self.student_user = User.objects.create_user(
             email="student@test.com",
             password="testpass123",
             full_name="Ahmed Mohamed",
             role="S",
-            educational_level=7,
             phone="01000000001",
             academy=self.academy,
+        )
+        self.student = Students.objects.create(
+            user=self.student_user,
+            academy=self.academy,
+            parent_email="parent@test.com",
+            educational_level=7,
+            status="A",
         )
         self.subject = Subject.objects.create(
             academy=self.academy, name="Mathematics", description="Core math"
@@ -98,7 +104,7 @@ class GenerateReportCardTaskTest(APITestCase):
             academy=self.academy,
             parent_email="parent3@test.com",
             educational_level=7,
-            status="A",
+            status="D",
         )
         Enrollment.objects.create(
             class_id=self.class_obj,

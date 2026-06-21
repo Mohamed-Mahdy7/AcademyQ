@@ -12,7 +12,7 @@ from django.utils import timezone
 from rest_framework.test import APIClient
 from rest_framework import status
 
-from core.models import Academy, User
+from core.models import Academy, User, Students
 from structure.models import Subject, Class
 from financial_operations.models import Enrollment, Payment
 from grades.models import Grade
@@ -49,18 +49,20 @@ class BaseAgentQATestCase(TestCase):
             phone="01000000010",
             role="O",
             academy=self.academy,
-            educational_level=1,
-            status="A",
-            enrolled_at=date(2026, 1, 1),
         )
 
-        self.student = User.objects.create_user(
+        student_user = User.objects.create_user(
             email="qa_student@test.com",
             password="test1234",
             full_name="QA Student",
             phone="01000000011",
             role="S",
             academy=self.academy,
+        )
+        self.student = Students.objects.create(
+            user=student_user,
+            academy=self.academy,
+            parent_email="qa_parent@test.com",
             educational_level=7,
             status="A",
             enrolled_at=date(2026, 1, 1),
@@ -91,7 +93,7 @@ class PermissionTests(BaseAgentQATestCase):
             recommended_action="test",
         )
         # non-owner: a student-role user
-        self.client.force_authenticate(user=self.student)
+        self.client.force_authenticate(user=self.student.user)
 
     def test_alert_list_forbidden_for_non_owner(self):
         res = self.client.get('/api/alerts/')
@@ -205,13 +207,18 @@ class ScanResilienceTests(BaseAgentQATestCase):
     def setUp(self):
         super().setUp()
         # second, healthy enrollment to prove the batch continues
-        self.student2 = User.objects.create_user(
+        student_user2 = User.objects.create_user(
             email="qa_student2@test.com",
             password="test1234",
             full_name="QA Student 2",
             phone="01000000012",
             role="S",
             academy=self.academy,
+        )
+        self.student2 = Students.objects.create(
+            user=student_user2,
+            academy=self.academy,
+            parent_email="qa_parent2@test.com",
             educational_level=7,
             status="A",
             enrolled_at=date(2026, 1, 1),

@@ -1,8 +1,3 @@
-"""
-Sample data script for Django shell.
-Run with: docker compose exec web python manage.py shell < sample.py
-"""
-
 import uuid
 from datetime import date, timedelta, time
 from django.utils import timezone
@@ -128,6 +123,7 @@ for i, u in enumerate(student_users):
         enrolled_at=date.today() - timedelta(days=90),
     )
     students.append(s)
+# Note: s.pk is now Students.id (own UUID), not the user's pk
 
 # ── Subjects ───────────────────────────────────────────────────────────────────
 print("📚 Creating Subjects...")
