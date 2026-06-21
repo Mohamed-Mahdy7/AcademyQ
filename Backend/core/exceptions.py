@@ -7,8 +7,20 @@ from django.http import Http404
 from rest_framework import exceptions as drf_exceptions
 from rest_framework.response import Response
 from rest_framework.views import exception_handler as drf_default_handler
+from rest_framework.exceptions import APIException
+
 
 logger = logging.getLogger(__name__)
+
+class UpstreamError(APIException):
+    status_code = 502
+    default_detail = "An upstream service failed. Please try again."
+    default_code = "upstream_error"
+
+class RateLimitedError(APIException):
+    status_code = 429
+    default_detail = "Too many requests. Try again later."
+    default_code = "rate_limited"
 
 def _shape(detail, code, fields=None):
     payload = {"detail": detail, "code": code}
@@ -51,7 +63,8 @@ def custom_exception_handler(exc, context):
         elif isinstance(exc, (
             drf_exceptions.PermissionDenied, 
             DjangoPermissionDenied, 
-            drf_exceptions.NotAuthenticated)):
+            drf_exceptions.NotAuthenticated,
+            drf_exceptions.AuthenticationFailed)):
             
             response.data = _shape(
                 str(response.data.get("detail", "You don't have permission to do this.")),
@@ -63,6 +76,12 @@ def custom_exception_handler(exc, context):
                 str(response.data.get("detail", "Too many requests. Try gain later.")),
                 "rate_limited",
             )
+        
+        elif isinstance(exc, UpstreamError):
+            response.data = _shape(str(response.data.get("detail")), "upstream_error")
+
+        elif isinstance(exc, RateLimitedError):
+            response.data = _shape(str(response.data.get("detail")), "rate_limited")
         
         else:
             # Any other DRF-recognized exception we haven't special-cased --

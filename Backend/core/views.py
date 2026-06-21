@@ -7,7 +7,7 @@ from rest_framework import status, generics
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import NotFound, PermissionDenied, AuthenticationFailed, ValidationError
 from rest_framework.decorators import action
 from .models import Academy, Students
 from .serializers import (AcademySerializer, CustomeTokenObtainPairSerializer,
@@ -97,27 +97,26 @@ class LoginView(TokenObtainPairView):
 
 class RefreshTokenView(APIView):
     def post(self, request):
-        print("REFRESHING THE TOKEN")
         refresh_token = request.COOKIES.get("refresh_token")
         
         if not refresh_token:
-            return Response({"error": "No refresh token"},
-                            status=status.HTTP_401_UNAUTHORIZED)
+            raise AuthenticationFailed("No refresh token provided.")
         try:
             refresh = RefreshToken(refresh_token)
             new_access = str(refresh.access_token)
-            response = Response({"access": new_access})
-            response.set_cookie(
-                key="access_token",
-                value=new_access,
-                httponly=True,
-                secure=False,  
-                samesite="lax"
-                )
-            return response
         except Exception:
-            return Response({"error": "Invalid refresh token"},
-                            status=status.HTTP_401_UNAUTHORIZED)
+            raise AuthenticationFailed("Invalid or expired refresh token. Please log in again.")
+        
+        response = Response({"access": new_access})
+        response.set_cookie(
+            key="access_token",
+            value=new_access,
+            httponly=True,
+            secure=False,  
+            samesite="lax"
+            )
+        return response
+
 
 class LogoutView(APIView):
 
@@ -130,7 +129,12 @@ class AcademyView(generics.RetrieveUpdateAPIView):
     serializer_class = AcademySerializer
     
     def get_object(self):
-        return self.request.user.academy
+        academy = self.request.user.academy
+        
+        if not academy: 
+            raise NotFound("No academy associated with this account.")
+        return academy
+
 
 class AcademyListView(generics.ListAPIView):
     queryset = Academy.objects.all()
@@ -146,21 +150,13 @@ class ComopleteSetupView(APIView):
             academy.address
         ]
         
-        if not all (required_fields):
-            return Response({
-                "error": "Academy profile is incomplete."
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
+        if not all(required_fields):
+            raise ValidationError({"academy": ["Academy profile is incomplete."]})
         if not academy.subjects.exists():
-            return Response({
-                "error": "At least one subject is required."
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
+            raise ValidationError({"subjects": ["At least one subject is required."]})
         if not academy.has_active_subscription():
-            return Response(
-                {"error": "Subscription is not configured."},
-                status=400
-            )
+            raise ValidationError({"subscription": ["Subscription is not configured."]})
+
         
         academy.setup_complete = True
         academy.save(update_fields=["setup_complete"])
