@@ -22,16 +22,16 @@ function Login() {
     };
 
     return (
-        <main className="min-h-screen bg-surface flex items-center justify-center p-6">
+        <main className="min-h-screen w-6/12 mx-auto flex flex-col items-center justify-center p-6">
             <form
                 onSubmit={handleSubmit}
-                className="w-full max-w-md bg-card p-8 rounded-2xl shodow-card border border-border space-y-5"
+                className="w-full bg-card form-card p-8 space-y-5"
             >
-                <h1 className="text-3xl font font-bold text-navy text-center">
+                <h1 className="text-3xl font font-bold text-navy">
                     Login
                 </h1>
-                <div className="space-y-2">
-                    <label htmlFor="email" className="form-label">
+                <div className="flex justify-between items-center space-y-2">
+                    <label htmlFor="email" className="form-label m-0">
                         Email
                     </label>
                     <input
@@ -41,12 +41,12 @@ function Login() {
                         placeholder="Enter your email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="form-input"
+                        className="form-input w-10/12"
                         required
                     />
                 </div>
-                <div className="space-y-2">
-                    <label htmlFor="password" className="form-label">
+                <div className="flex justify-between items-center space-y-2">
+                    <label htmlFor="password" className="form-label m-0">
                         Password
                     </label>
                     <input
@@ -56,7 +56,7 @@ function Login() {
                         placeholder="Password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="form-input"
+                        className="form-input w-10/12"
                         required
                     />
                 </div>
@@ -64,6 +64,15 @@ function Login() {
                     Login
                 </button>
             </form>
+            <div className="flex gap-3 mt-4 items-center justify-center-safe">
+                <p className="subheading">Don't have an account? </p>
+                <button 
+                    className="btn-muted"
+                    onClick={() => navigate("/register")}
+                >
+                    Register
+                </button>
+            </div>
         </main>
     )
 }
