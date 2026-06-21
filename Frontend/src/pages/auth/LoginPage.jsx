@@ -17,7 +17,6 @@ function Login() {
         );
 
         if (!success) {
-            alert("Invalid credentials");
         } else { navigate("/") }
     };
 
