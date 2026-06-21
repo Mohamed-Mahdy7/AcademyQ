@@ -6,15 +6,18 @@ import App from './App.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
 import {PaymentProvider} from './context/PaymentContext.jsx'
 import { EnrollmentProvider } from './context/EnrollmentContext.jsx'
+import { ToastProvider } from './context/ToastContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
-    <AuthProvider>
-      <EnrollmentProvider>
-        <PaymentProvider>
-          <App />
-        </PaymentProvider>
-      </EnrollmentProvider>
-    </AuthProvider> 
+    <ToastProvider>
+      <AuthProvider>
+        <EnrollmentProvider>
+          <PaymentProvider>
+            <App />
+          </PaymentProvider>
+        </EnrollmentProvider>
+      </AuthProvider> 
+    </ToastProvider>
   </BrowserRouter>
 )

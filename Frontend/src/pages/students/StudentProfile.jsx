@@ -16,16 +16,32 @@ const StudentProfile = () => {
     const { student, getStudent } = useContext(StudentContext);
     const [activeTab, setActiveTab] = useState("Enrollments");
     const [showProfile, setshowProfile] = useState(false);
+    const [loadError, setLoadError] = useState(null)
     const { id } = useParams();
     const navigate = useNavigate();
 
     useEffect(() => {
-        getStudent(id);
+        setLoadError(null);
+        getStudent(id).then((result) => {
+            if (result && result.success === false) {
+                setLoadError(result.error?.response?.data?.detail || "Couldn't load this student.")
+            }
+        });
     }, [id]);
     
-    console.log("STUDENT: " , student)
+    if (loadError) {
+        return (
+            <div className="alert-danger">
+                <div>
+                    <div className="alert-title">Couldn't load student</div>
+                    <div className="alert-desc">{loadError}</div>
+                </div>
+            </div>
+        );
+    }
+
     if (!student) {
-        return <div>Loading...</div>;
+        return <div className="skeleton skeleton-card" />;
     }
 
     const totalPaid = `${student.total_paid} EGP`
