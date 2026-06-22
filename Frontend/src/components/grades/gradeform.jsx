@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useGrades } from "../../context/gradecontext";
 
 export default function GradeForm({ enrollments = [], sessions = [], subjectName = "", onSuccess }) {
-  const { addGrade } = useGrades();
-  console.log("rendering")
+  const { addGrade, findExistingGrade, editGrade } = useGrades();
+
   const [form, setForm] = useState({
     enrollment: "",
     session: "",
@@ -37,9 +37,26 @@ export default function GradeForm({ enrollments = [], sessions = [], subjectName
       assigned_at: form.assigned_at,
     };
 
-
     try {
-      await addGrade(payload);
+      const result = await addGrade(payload);
+
+      if (result.isDuplicate) {
+        const confirmed = window.confirm(
+          "This student already has a grade for this session and subject. Do you want to update it?"
+        );
+        if (!confirmed) return;
+
+        const existing = await findExistingGrade(
+          payload.enrollment, payload.session, payload.subject_name
+        );
+        if (!existing) {
+          setError("Could not find the existing grade to update.");
+          return;
+        }
+
+        await editGrade(existing.id, payload);
+      }
+
       setSuccess(true);
       setForm({
         enrollment: "",
@@ -51,7 +68,7 @@ export default function GradeForm({ enrollments = [], sessions = [], subjectName
       });
       if (onSuccess) onSuccess();
     } catch (error) {
-      setError(error.response?.data?.detail || "Error adding grade.");
+      setError(error.response?.data?.detail || error.message || "Error adding grade.");
     }
   };
 

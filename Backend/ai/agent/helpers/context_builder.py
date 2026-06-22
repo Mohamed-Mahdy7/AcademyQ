@@ -37,7 +37,7 @@ def build_risk_context(enrollment_id) -> dict:
 
     try:
 
-        enrollment = Enrollment.objects.select_related('student_id__user').get(id=enrollment_id)
+        enrollment = Enrollment.objects.select_related('student_id').get(id=enrollment_id)
         student_context = get_student_context(enrollment.student_id.id)
 
         enrollments_ctx = student_context.get("enrollments", [])

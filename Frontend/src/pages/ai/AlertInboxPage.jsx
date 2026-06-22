@@ -11,7 +11,7 @@ const AlertInboxPage = () => {
         loading,
         error,
         filter,
-        setFilter,
+        applyFilter,
         fetchAlerts,
         highCount,
         mediumCount,
@@ -19,14 +19,18 @@ const AlertInboxPage = () => {
     } = useAlerts()
 
     const handleRiskFilter = (riskLevel) => {
-        const next = { ...filter, riskLevel }
-        setFilter(next)
-        fetchAlerts(next)
+        applyFilter({ ...filter, risk_level: riskLevel })
+    }
+
+    const handleToggleReviewed = () => {
+        applyFilter({
+            ...filter,
+            is_dismissed: filter.is_dismissed === "false" ? undefined : "false",
+        })
     }
 
     return (
         <>
-            {/* Page header */}
             <div className="flex items-start justify-between mb-6">
                 <div>
                     <h1 className="heading-1">Alert Inbox</h1>
@@ -45,7 +49,6 @@ const AlertInboxPage = () => {
                 </button>
             </div>
 
-            {/* Summary chips */}
             <div className="flex flex-wrap gap-3 mb-6">
                 <div className="card px-4 py-3 flex items-center gap-2">
                     <span className="badge badge-danger">{highCount}</span>
@@ -65,14 +68,13 @@ const AlertInboxPage = () => {
                 </div>
             </div>
 
-            {/* Filter tabs */}
             <div className="flex gap-2 mb-5 flex-wrap">
                 {RISK_FILTERS.map((f) => (
                     <button
                         key={f}
                         onClick={() => handleRiskFilter(f)}
                         className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-all ${
-                            filter.riskLevel === f
+                            filter.risk_level === f
                                 ? "bg-navy-mid text-white border-navy-mid"
                                 : "bg-white text-gray-500 border-border hover:border-blue"
                         }`}
@@ -81,27 +83,18 @@ const AlertInboxPage = () => {
                     </button>
                 ))}
 
-                {/* Toggle: show reviewed */}
                 <button
-                    onClick={() => {
-                        const next = {
-                            ...filter,
-                            reviewed: filter.reviewed === "false" ? undefined : "false",
-                        }
-                        setFilter(next)
-                        fetchAlerts(next)
-                    }}
+                    onClick={handleToggleReviewed}
                     className={`ml-auto px-4 py-1.5 rounded-full text-sm font-medium border transition-all ${
-                        filter.reviewed !== "false"
+                        filter.is_dismissed !== "false"
                             ? "bg-navy-mid text-white border-navy-mid"
                             : "bg-white text-gray-500 border-border hover:border-blue"
                     }`}
                 >
-                    {filter.reviewed === "false" ? "Show Reviewed" : "Hide Reviewed"}
+                    {filter.is_dismissed === "false" ? "Show Reviewed" : "Hide Reviewed"}
                 </button>
             </div>
 
-            {/* Error state */}
             {error && (
                 <div className="alert alert-danger mb-4">
                     <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -117,7 +110,6 @@ const AlertInboxPage = () => {
                 </div>
             )}
 
-            {/* Loading skeleton */}
             {loading && !error && (
                 <div className="space-y-3">
                     {[1, 2, 3].map((i) => (
@@ -135,7 +127,6 @@ const AlertInboxPage = () => {
                 </div>
             )}
 
-            {/* Alert list */}
             {!loading && !error && (
                 alerts.length === 0 ? (
                     <div className="empty-state">
@@ -146,8 +137,8 @@ const AlertInboxPage = () => {
                         </div>
                         <h3 className="empty-state-title">All clear!</h3>
                         <p className="empty-state-desc">
-                            {filter.riskLevel !== "all"
-                                ? `No ${filter.riskLevel}-risk alerts pending.`
+                            {filter.risk_level !== "all"
+                                ? `No ${filter.risk_level}-risk alerts pending.`
                                 : "No pending alerts. All students are on track 🎉"}
                         </p>
                     </div>

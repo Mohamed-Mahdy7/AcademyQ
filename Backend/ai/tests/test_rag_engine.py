@@ -1,6 +1,6 @@
 from django.test import TestCase
 from unittest.mock import patch, MagicMock
-
+from ai.tests.test_gemini_client import FakeGeminiResponse
 from ai.utils.gemini_client import generate_text
 from ai.models import AIUsageLog
 from core.models import Academy
@@ -24,7 +24,11 @@ class GenerateTextTest(TestCase):
         """
 
         # Arrange
-        mock_generate.return_value = "Hello AI response"
+        mock_generate.return_value = FakeGeminiResponse(
+            "Hello AI response",
+            prompt_tokens=10,
+            candidates_tokens=5,
+        )
 
         prompt = "Write a short report"
         feature = "report_card"

@@ -27,7 +27,7 @@ class AIReportCardViewSet(
     def get_queryset(self):
         qs = AIReportCard.objects.filter(
             enrollment__class_id__academy_id=self.request.user.academy_id
-        ).select_related("student__user", "enrollment__class_id")
+        ).select_related("student", "enrollment__class_id")
         student_id = self.request.query_params.get("student_id")
         enrollment_id = self.request.query_params.get("enrollment_id")
         class_id = self.request.query_params.get("class_id")

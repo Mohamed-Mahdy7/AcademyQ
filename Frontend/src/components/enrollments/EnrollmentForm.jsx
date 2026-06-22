@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getUsersRequest } from "../../services/usersService";
+import { getStudentsRequest } from "../../services/studentService";
 
 const EMPTY_FORM = {
   student_id: "",
@@ -22,10 +22,10 @@ export default function EnrollmentForm({
 
   useEffect(() => {
     setLoadingUsers(true);
-    getUsersRequest()
+    getStudentsRequest()
       .then((res) => {
         const allUsers = res.data.results ?? res.data;
-        setStudents(allUsers.filter((u) => u.role === "S"));
+        setStudents(allUsers);
       })
       .catch((err) => console.error("Failed to load users", err))
       .finally(() => setLoadingUsers(false));

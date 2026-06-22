@@ -7,12 +7,12 @@ from rest_framework import status, generics
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import NotFound, PermissionDenied, AuthenticationFailed, ValidationError
 from rest_framework.decorators import action
 from .models import Academy, Students
 from .serializers import (AcademySerializer, CustomeTokenObtainPairSerializer,
     AcademyRegistrationSerializer, StaffCreateSerializer, StudentCreateSerializer, 
-    StudentProfileUpdateSerializer, UserSerializer)
+    StudentListSerializer, StudentProfileUpdateSerializer, UserSerializer)
 from .permissions import ActiveSubscriptionRequired, IsOwner
 
 User = get_user_model()
@@ -97,27 +97,26 @@ class LoginView(TokenObtainPairView):
 
 class RefreshTokenView(APIView):
     def post(self, request):
-        print("REFRESHING THE TOKEN")
         refresh_token = request.COOKIES.get("refresh_token")
         
         if not refresh_token:
-            return Response({"error": "No refresh token"},
-                            status=status.HTTP_401_UNAUTHORIZED)
+            raise AuthenticationFailed("No refresh token provided.")
         try:
             refresh = RefreshToken(refresh_token)
             new_access = str(refresh.access_token)
-            response = Response({"access": new_access})
-            response.set_cookie(
-                key="access_token",
-                value=new_access,
-                httponly=True,
-                secure=False,  
-                samesite="lax"
-                )
-            return response
         except Exception:
-            return Response({"error": "Invalid refresh token"},
-                            status=status.HTTP_401_UNAUTHORIZED)
+            raise AuthenticationFailed("Invalid or expired refresh token. Please log in again.")
+        
+        response = Response({"access": new_access})
+        response.set_cookie(
+            key="access_token",
+            value=new_access,
+            httponly=True,
+            secure=False,  
+            samesite="lax"
+            )
+        return response
+
 
 class LogoutView(APIView):
 
@@ -130,7 +129,12 @@ class AcademyView(generics.RetrieveUpdateAPIView):
     serializer_class = AcademySerializer
     
     def get_object(self):
-        return self.request.user.academy
+        academy = self.request.user.academy
+        
+        if not academy: 
+            raise NotFound("No academy associated with this account.")
+        return academy
+
 
 class AcademyListView(generics.ListAPIView):
     queryset = Academy.objects.all()
@@ -146,21 +150,13 @@ class ComopleteSetupView(APIView):
             academy.address
         ]
         
-        if not all (required_fields):
-            return Response({
-                "error": "Academy profile is incomplete."
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
+        if not all(required_fields):
+            raise ValidationError({"academy": ["Academy profile is incomplete."]})
         if not academy.subjects.exists():
-            return Response({
-                "error": "At least one subject is required."
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
+            raise ValidationError({"subjects": ["At least one subject is required."]})
         if not academy.has_active_subscription():
-            return Response(
-                {"error": "Subscription is not configured."},
-                status=400
-            )
+            raise ValidationError({"subscription": ["Subscription is not configured."]})
+
         
         academy.setup_complete = True
         academy.save(update_fields=["setup_complete"])
@@ -184,16 +180,16 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'create':
             return StaffCreateSerializer
-        
+        if self.action == "students":
+            return StudentListSerializer
         return UserSerializer
     
-    @action(
-        detail=False, 
-        methods=["GET", "PUT"],
-        permission_classes = [IsAuthenticated]
-        )
+    @action(detail=False,  methods=["GET", "PUT"], permission_classes = [IsAuthenticated])
     def me(self, request):
-        serializer = UserSerializer(request.user)
+        if request.user.role == User.Roles.STUDENT:
+            serializer = StudentProfileUpdateSerializer(request.user)
+        else:
+            serializer = UserSerializer(request.user)
         return Response(serializer.data)
     
     def perform_create(self, serializer):
@@ -201,10 +197,11 @@ class UserViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=["GET"])
     def students(self, request):
-        students = self.get_queryset().filter(
+        students = User.objects.filter(
+            academy=self.request.user.academy,
             role=User.Roles.STUDENT
-        ).select_related("students")
-        serializer = StudentCreateSerializer(students, many=True)
+        ).select_related("academy", "students")
+        serializer = self.get_serializer(students, many=True)
         return Response(serializer.data)
 
 class RolesListView(APIView):
@@ -212,7 +209,7 @@ class RolesListView(APIView):
         return Response([{
             "value": value,
             "label": label,
-        }for value, label in User.Roles.choises])
+        }for value, label in User.Roles.choices])
 
 class EducationalLevelListView(APIView):
     def get(self, request):
@@ -232,22 +229,15 @@ class StudentProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = StudentProfileUpdateSerializer
 
     def get_object(self):
-        user = self.request.user
+        student_id = self.kwargs["pk"]
         
-        if user.role in [User.Roles.OWNER, User.Roles.ADMIN]:
-            student = get_object_or_404(
-                User.objects.select_related("students"),
-                pk=self.kwargs["pk"],
-                role=User.Roles.STUDENT
-            )
+        student = get_object_or_404(
+            Students.objects.select_related("user"),
+            pk=student_id,
+        )
+        user = student.user
 
-            print(
-                "FOUND STUDENT:",
-                student.id,
-                student.full_name,
-                student.email
-            )
-            return student
+        if user.academy != self.request.user.academy:
+            raise PermissionDenied()
 
-        if user.role == User.Roles.STUDENT:
-            return user
+        return user

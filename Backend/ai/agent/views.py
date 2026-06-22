@@ -24,7 +24,7 @@ class AlertViewSet(viewsets.ModelViewSet):
         qs = Alert.objects.filter(
             enrollment__class_id__academy_id=self.request.user.academy_id
         ).select_related(
-            "enrollment__student_id__user",
+            "enrollment__student_id",
             "enrollment__class_id",
         ).order_by("-risk_score")
 
@@ -106,7 +106,7 @@ class AlertViewSet(viewsets.ModelViewSet):
         enrollment = alert.enrollment
 
         try:
-            context = get_student_context(enrollment.student_id.id)
+            context = get_student_context(enrollment.student_id.pk)
         except Exception as e:
             return Response(
                 {"detail": f"Failed to retrieve student context: {str(e)}"},

@@ -4,7 +4,9 @@ __pycache__
 # docker-compose.yml
 Backend/*/migrations/*
 Backend/*/*/migrations/*
-Backend/API_Docs.md
+API_Docs.md
 cookies*
 academiq_db_schema.md
 AcademiQ_AI_Sprint.md
+Project_Structure.md
+AcademiQ_Sprint9_Error_Handling.md

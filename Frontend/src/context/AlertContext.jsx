@@ -28,7 +28,7 @@ export function AlertProvider({ children }) {
 
     async function dismissAlert(id) {
         try {
-            await patchAlertRequest(id, { reviewed: true });
+            await patchAlertRequest(id, { is_dismissed: true });   // was { reviewed: true }
             setAlerts((prev) => prev.filter((a) => a.id !== id));
             if (expandedId === id) setExpandedId(null);
         } catch (err) {

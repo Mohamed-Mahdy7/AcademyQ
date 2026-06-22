@@ -116,10 +116,10 @@ class Students(models.Model):
         COLLEGE_5 = 17, "College 5"
         COLLEGE_6 = 18, "College 6"
     
+    id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
-        primary_key=True,
         related_name="students",
         limit_choices_to={"role": User.Roles.STUDENT},
     )
@@ -130,7 +130,7 @@ class Students(models.Model):
         null=True,
         blank=True,
         )
-    parent_email = models.EmailField(null=False)
+    parent_email = models.EmailField(blank=True)
     educational_level = models.IntegerField(
         choices=EducationalLevel.choices,
         null=True

@@ -118,7 +118,10 @@ const StudentManagement = () => {
                                     }
                                 </td>
                                 <td className="table-cell">
-                                    {new Date(student.enrolled_at).toLocaleDateString()}
+                                    {student.enrolled_at
+                                        ? `Enrolled since ${new Date(student.enrolled_at).toLocaleDateString()}`
+                                        : "Not enrolled yet"
+                                    }
                                 </td>
                                 <td className="table-cell">
                                     <div className="flex justify-end">
