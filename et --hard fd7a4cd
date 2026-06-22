@@ -1,0 +1,77 @@
+[33mce2f259[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mtestbranch[m[33m, [m[1;31morigin/testbranch[m[33m)[m HEAD@{0}: pull origin main: Merge made by the 'ort' strategy.
+[33mfd7a4cd[m HEAD@{1}: commit: new tests upgraded
+[33mc4b623a[m HEAD@{2}: pull origin main: Merge made by the 'ort' strategy.
+[33mfcddc00[m HEAD@{3}: commit: fixing conflivt2
+[33m3a30465[m HEAD@{4}: commit (merge): fixing conflivt
+[33m35f4482[m HEAD@{5}: pull origin main: Merge made by the 'ort' strategy.
+[33m3245ebd[m HEAD@{6}: commit: fixing conflicts2
+[33m26488c2[m HEAD@{7}: commit (merge): fixing conflicts
+[33m91bd7eb[m HEAD@{8}: commit: improving tests quality2
+[33m3d4204a[m HEAD@{9}: commit: fixing conflicts
+[33mb69b070[m HEAD@{10}: commit (merge): fixing conflicts
+[33m2a269f5[m HEAD@{11}: commit: improving tests quality
+[33m15843ec[m HEAD@{12}: commit (merge): fixing conflicts after test
+[33m4fc4b6b[m HEAD@{13}: commit: fixing backend test
+[33m4ae2843[m HEAD@{14}: commit (merge): solving conflict
+[33m31aa421[m HEAD@{15}: commit: seeds done
+[33m8c1389f[m HEAD@{16}: pull origin main: Merge made by the 'ort' strategy.
+[33m0e4302a[m HEAD@{17}: commit: adding seeds and testing files
+[33m3995f41[m[33m ([m[1;32mgrades-system[m[33m)[m HEAD@{18}: checkout: moving from grades-system to testbranch
+[33m3995f41[m[33m ([m[1;32mgrades-system[m[33m)[m HEAD@{19}: pull origin main: Merge made by the 'ort' strategy.
+[33m3632ee5[m HEAD@{20}: commit: test`
+[33m407702b[m HEAD@{21}: pull origin main: Merge made by the 'ort' strategy.
+[33m2a12270[m HEAD@{22}: commit: i
+[33m181c413[m HEAD@{23}: commit (merge): fixing conflicts
+[33m51996f4[m HEAD@{24}: commit: fixing
+[33m8218441[m[33m ([m[1;31morigin/grades-system[m[33m)[m HEAD@{25}: pull origin main: Merge made by the 'ort' strategy.
+[33m8f84c78[m HEAD@{26}: commit: serching for solutions for react problems
+[33m1e5a24f[m HEAD@{27}: pull origin main: Merge made by the 'ort' strategy.
+[33m2146b6b[m HEAD@{28}: commit: fixing frontend problems (history page)
+[33m475756f[m HEAD@{29}: commit (merge): fixing conflicts3
+[33m53ca89b[m HEAD@{30}: commit: fixing conflicts2
+[33md1f73a9[m HEAD@{31}: pull origin main: updating HEAD
+[33md1f73a9[m HEAD@{32}: pull origin main: updating HEAD
+[33md1f73a9[m HEAD@{33}: reset: moving to HEAD
+[33md1f73a9[m HEAD@{34}: reset: moving to HEAD
+[33md1f73a9[m HEAD@{35}: reset: moving to HEAD
+[33md1f73a9[m HEAD@{36}: commit: fixing form,history,sammary errors
+[33me7a1cec[m HEAD@{37}: pull origin main: Merge made by the 'ort' strategy.
+[33m3e8dfb7[m HEAD@{38}: commit (merge): solving conflicts
+[33m73e5a7b[m HEAD@{39}: commit: adding grade history adn sammary
+[33mff07636[m HEAD@{40}: pull origin main: Fast-forward
+[33mfc989c8[m HEAD@{41}: pull: Merge made by the 'ort' strategy.
+[33m043d3c4[m HEAD@{42}: pull origin main: Merge made by the 'ort' strategy.
+[33m4b9025c[m HEAD@{43}: commit: admin grade
+[33m45d282f[m[33m ([m[1;32mmain[m[33m)[m HEAD@{44}: merge main: Fast-forward
+[33m283cfd5[m HEAD@{45}: checkout: moving from main to grades-system
+[33m45d282f[m[33m ([m[1;32mmain[m[33m)[m HEAD@{46}: pull origin main: Merge made by the 'ort' strategy.
+[33mffb000b[m HEAD@{47}: commit: Update grade form and grades service
+[33m3f31c9d[m HEAD@{48}: pull origin main: Merge made by the 'ort' strategy.
+[33m62453eb[m HEAD@{49}: pull origin main: Merge made by the 'ort' strategy.
+[33mbb7e388[m HEAD@{50}: commit: starting frontend
+[33m0d7a2c8[m HEAD@{51}: pull origin main: Merge made by the 'ort' strategy.
+[33m8fac0ac[m HEAD@{52}: pull origin main: Merge made by the 'ort' strategy.
+[33m283cfd5[m HEAD@{53}: merge grades-system: Fast-forward
+[33mf2f0cfa[m HEAD@{54}: checkout: moving from grades-system to main
+[33m283cfd5[m HEAD@{55}: pull origin main: Merge made by the 'ort' strategy.
+[33m12b2b1d[m HEAD@{56}: commit: fix
+[33mf2f0cfa[m HEAD@{57}: merge main: Fast-forward
+[33m6e15e5d[m HEAD@{58}: checkout: moving from main to grades-system
+[33mf2f0cfa[m HEAD@{59}: commit (merge): solving conflicts and add frontend
+[33m6e15e5d[m HEAD@{60}: merge grades-system: Fast-forward
+[33m4fff255[m HEAD@{61}: checkout: moving from grades-system to main
+[33m6e15e5d[m HEAD@{62}: commit: adding grades view and urls
+[33m8dc8aa4[m HEAD@{63}: pull origin main: Merge made by the 'ort' strategy.
+[33m5e54d3f[m HEAD@{64}: commit (merge): fixing conflicts
+[33m24994b6[m HEAD@{65}: commit (merge): third modification to the models
+[33mb9a3ec7[m HEAD@{66}: commit: changes
+[33m46b5444[m HEAD@{67}: commit: modifing model grade
+[33m4fff255[m HEAD@{68}: merge main: Fast-forward
+[33m7f69ede[m HEAD@{69}: checkout: moving from main to grades-system
+[33m4fff255[m HEAD@{70}: pull origin main: Merge made by the 'ort' strategy.
+[33m7f69ede[m HEAD@{71}: merge grades-system: Fast-forward
+[33m54ae444[m HEAD@{72}: checkout: moving from grades-system to main
+[33m7f69ede[m HEAD@{73}: commit: adding grades model&serializers
+[33m684f6b6[m HEAD@{74}: pull origin main: Fast-forward
+[33m54ae444[m HEAD@{75}: checkout: moving from main to grades-system
+[33m54ae444[m HEAD@{76}: clone: from github.com:Mohamed-Mahdy7/AcademyQ.git
