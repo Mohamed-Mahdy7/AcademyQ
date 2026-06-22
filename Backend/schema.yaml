@@ -1,0 +1,4469 @@
+openapi: 3.0.3
+info:
+  title: AcademiQ API
+  version: 1.0.0
+  description: Academy management SaaS — multi-tenant, AI-enhanced retention layer.
+paths:
+  /api/agent/run-scan/:
+    post:
+      operationId: agent_run_scan_create
+      tags:
+      - AI Agent
+      security:
+      - cookieAuth: []
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanLog'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanRateLimitResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanFailedResponse'
+          description: ''
+  /api/agent/scans/:
+    get:
+      operationId: agent_scans_list
+      tags:
+      - AI Agent
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ScanLog'
+          description: ''
+  /api/ai/usage/:
+    get:
+      operationId: ai_usage_retrieve
+      tags:
+      - AI Infra
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIUsageSummary'
+          description: ''
+  /api/alerts/:
+    get:
+      operationId: alerts_list
+      tags:
+      - alerts
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Alert'
+          description: ''
+    post:
+      operationId: alerts_create
+      tags:
+      - alerts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AlertRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AlertRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+          description: ''
+  /api/alerts/{id}/:
+    get:
+      operationId: alerts_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - alerts
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+          description: ''
+    patch:
+      operationId: alerts_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - alerts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAlertRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAlertRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAlertRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+          description: ''
+  /api/alerts/{id}/generate-message/:
+    post:
+      operationId: alerts_generate_message_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - alerts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AlertRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AlertRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+          description: ''
+  /api/alerts/stats/:
+    get:
+      operationId: alerts_stats_retrieve
+      tags:
+      - alerts
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+          description: ''
+  /api/auth/academies/:
+    get:
+      operationId: auth_academies_list
+      tags:
+      - Academy
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Academy'
+          description: ''
+  /api/auth/academy/:
+    get:
+      operationId: auth_academy_retrieve
+      tags:
+      - Academy
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Academy'
+          description: ''
+    put:
+      operationId: auth_academy_update
+      tags:
+      - Academy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcademyRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AcademyRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AcademyRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Academy'
+          description: ''
+    patch:
+      operationId: auth_academy_partial_update
+      tags:
+      - Academy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAcademyRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAcademyRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAcademyRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Academy'
+          description: ''
+  /api/auth/academy/complete-setup/:
+    post:
+      operationId: auth_academy_complete_setup_create
+      tags:
+      - Academy
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompleteSetupResponse'
+          description: ''
+  /api/auth/educational_levels/:
+    get:
+      operationId: auth_educational_levels_retrieve
+      tags:
+      - Students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomeTokenObtainPairRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CustomeTokenObtainPairRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomeTokenObtainPairRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/auth/logout/:
+    post:
+      operationId: auth_logout_create
+      tags:
+      - Auth
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutResponse'
+          description: ''
+  /api/auth/register/:
+    post:
+      operationId: auth_register_create
+      tags:
+      - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcademyRegistrationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AcademyRegistrationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AcademyRegistrationRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcademyRegistration'
+          description: ''
+  /api/auth/users/register/student/:
+    post:
+      operationId: auth_users_register_student_create
+      tags:
+      - Students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StudentCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StudentCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentCreate'
+          description: ''
+  /api/auth/users/students/profile/{id}/:
+    get:
+      operationId: auth_users_students_profile_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentProfileUpdate'
+          description: ''
+    put:
+      operationId: auth_users_students_profile_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentProfileUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StudentProfileUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StudentProfileUpdateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentProfileUpdate'
+          description: ''
+    patch:
+      operationId: auth_users_students_profile_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedStudentProfileUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedStudentProfileUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedStudentProfileUpdateRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentProfileUpdate'
+          description: ''
+  /api/class-schedule/:
+    get:
+      operationId: class_schedule_list
+      tags:
+      - class-schedule
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClassSchedule'
+          description: ''
+    post:
+      operationId: class_schedule_create
+      tags:
+      - class-schedule
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassScheduleRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ClassScheduleRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ClassScheduleRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassSchedule'
+          description: ''
+  /api/class-schedule/{id}/:
+    get:
+      operationId: class_schedule_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - class-schedule
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassSchedule'
+          description: ''
+    put:
+      operationId: class_schedule_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - class-schedule
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassScheduleRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ClassScheduleRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ClassScheduleRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassSchedule'
+          description: ''
+    patch:
+      operationId: class_schedule_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - class-schedule
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedClassScheduleRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedClassScheduleRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedClassScheduleRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassSchedule'
+          description: ''
+    delete:
+      operationId: class_schedule_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - class-schedule
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/class-session-enrollments/:
+    get:
+      operationId: class_session_enrollments_list
+      tags:
+      - class-session-enrollments
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClassSessionEnrollment'
+          description: ''
+  /api/class-session-enrollments/{id}/:
+    get:
+      operationId: class_session_enrollments_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - class-session-enrollments
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassSessionEnrollment'
+          description: ''
+  /api/classes/:
+    get:
+      operationId: classes_list
+      tags:
+      - classes
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClassList'
+          description: ''
+    post:
+      operationId: classes_create
+      tags:
+      - classes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ClassCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ClassCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassCreate'
+          description: ''
+  /api/classes/{class_id}/attendance/summary/:
+    get:
+      operationId: classes_attendance_summary_retrieve
+      parameters:
+      - in: path
+        name: class_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - classes
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassSession'
+          description: ''
+  /api/classes/{class_id}/generate-sessions/:
+    post:
+      operationId: classes_generate_sessions_create
+      parameters:
+      - in: path
+        name: class_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - classes
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/classes/{id}/:
+    get:
+      operationId: classes_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this Class.
+        required: true
+      tags:
+      - classes
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassDetail'
+          description: ''
+    put:
+      operationId: classes_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this Class.
+        required: true
+      tags:
+      - classes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ClassUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ClassUpdateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassUpdate'
+          description: ''
+    patch:
+      operationId: classes_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this Class.
+        required: true
+      tags:
+      - classes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedClassUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedClassUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedClassUpdateRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassUpdate'
+          description: ''
+    delete:
+      operationId: classes_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this Class.
+        required: true
+      tags:
+      - classes
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/classes/{id}/assign_teacher/:
+    post:
+      operationId: classes_assign_teacher_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this Class.
+        required: true
+      tags:
+      - classes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassListRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ClassListRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ClassListRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassList'
+          description: ''
+  /api/classes/{id}/remove_teacher/:
+    delete:
+      operationId: classes_remove_teacher_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this Class.
+        required: true
+      tags:
+      - classes
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/dashboard/attendance-summary/:
+    get:
+      operationId: dashboard_attendance_summary_retrieve
+      description: |-
+        GET /api/dashboard/attendance-summary/
+        Average attendance % across all active enrollments
+        in the owner's academy, over the last 28 days.
+      tags:
+      - dashboard
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/enrollments/:
+    get:
+      operationId: enrollments_list
+      tags:
+      - enrollments
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Enrollment'
+          description: ''
+    post:
+      operationId: enrollments_create
+      tags:
+      - enrollments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrollmentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EnrollmentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EnrollmentRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enrollment'
+          description: ''
+  /api/enrollments/{id}/:
+    get:
+      operationId: enrollments_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - enrollments
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enrollment'
+          description: ''
+    put:
+      operationId: enrollments_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - enrollments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrollmentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EnrollmentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EnrollmentRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enrollment'
+          description: ''
+    patch:
+      operationId: enrollments_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - enrollments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedEnrollmentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedEnrollmentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedEnrollmentRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enrollment'
+          description: ''
+    delete:
+      operationId: enrollments_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - enrollments
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/grades/:
+    get:
+      operationId: grades_list
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Grade'
+          description: ''
+    post:
+      operationId: grades_create
+      tags:
+      - grades
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GradeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GradeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GradeRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grade'
+          description: ''
+  /api/grades/{id}/:
+    get:
+      operationId: grades_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grade'
+          description: ''
+    patch:
+      operationId: grades_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - grades
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedGradeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedGradeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedGradeRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grade'
+          description: ''
+    delete:
+      operationId: grades_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/grades/class-summary/:
+    get:
+      operationId: grades_class_summary_retrieve
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grade'
+          description: ''
+  /api/grades/summary/:
+    get:
+      operationId: grades_summary_retrieve
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grade'
+          description: ''
+  /api/notifications/:
+    get:
+      operationId: notifications_list
+      tags:
+      - notifications
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+          description: ''
+    post:
+      operationId: notifications_create
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+  /api/notifications/{id}/:
+    get:
+      operationId: notifications_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+    patch:
+      operationId: notifications_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+    delete:
+      operationId: notifications_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/notifications/send-alert/:
+    post:
+      operationId: notifications_send_alert_create
+      description: |-
+        Send the AI-generated alert message to the parent via email.
+
+        Expects:
+            { "alert_id": "<uuid>" }
+
+        The message is read directly from alert.message (already generated
+        by POST /api/alerts/{id}/generate-message/ — Aly's endpoint).
+        The frontend lets the owner edit the draft before hitting send;
+        if the owner edited it, they must PATCH alert.message first,
+        or pass an optional "message" override in this request body.
+
+        On success:
+            - Creates a Notification row (type=retention_alert, channel=email)
+            - Marks alert.is_sent = True
+            - Returns the created Notification
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+  /api/notifications/send-reminders/:
+    post:
+      operationId: notifications_send_reminders_create
+      description: |-
+        Manually trigger payment reminders for all overdue payments
+        in the owner's academy.
+
+        POST /api/notifications/send-reminders/
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+  /api/notifications/stats/:
+    get:
+      operationId: notifications_stats_retrieve
+      description: |-
+        GET /api/notifications/stats/
+        Returns delivery stats for the owner's academy.
+      tags:
+      - notifications
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+  /api/payments/:
+    get:
+      operationId: payments_list
+      tags:
+      - payments
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Payment'
+          description: ''
+    post:
+      operationId: payments_create
+      tags:
+      - payments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: ''
+  /api/payments/{id}/:
+    get:
+      operationId: payments_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - payments
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: ''
+    put:
+      operationId: payments_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - payments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: ''
+    patch:
+      operationId: payments_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - payments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPaymentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPaymentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPaymentRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: ''
+    delete:
+      operationId: payments_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - payments
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/payments/summary/:
+    get:
+      operationId: payments_summary_retrieve
+      tags:
+      - payments
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: ''
+  /api/reports/:
+    get:
+      operationId: reports_list
+      tags:
+      - reports
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AIReportCard'
+          description: ''
+  /api/reports/{id}/:
+    get:
+      operationId: reports_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - reports
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIReportCard'
+          description: ''
+    delete:
+      operationId: reports_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - reports
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/reports/generate/:
+    post:
+      operationId: reports_generate_create
+      tags:
+      - reports
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIReportCard'
+          description: ''
+  /api/reports/generate_bulk/:
+    post:
+      operationId: reports_generate_bulk_create
+      tags:
+      - reports
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIReportCard'
+          description: ''
+  /api/sessions/:
+    get:
+      operationId: sessions_list
+      tags:
+      - sessions
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClassSession'
+          description: ''
+    post:
+      operationId: sessions_create
+      tags:
+      - sessions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassSessionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ClassSessionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ClassSessionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassSession'
+          description: ''
+  /api/sessions/{id}/:
+    get:
+      operationId: sessions_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - sessions
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassSession'
+          description: ''
+    delete:
+      operationId: sessions_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - sessions
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/sessions/{id}/attendance/:
+    get:
+      operationId: sessions_attendance_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - sessions
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassSession'
+          description: ''
+    post:
+      operationId: sessions_attendance_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - sessions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassSessionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ClassSessionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ClassSessionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassSession'
+          description: ''
+  /api/students/{student_id}/attendance/history/:
+    get:
+      operationId: students_attendance_history_retrieve
+      parameters:
+      - in: path
+        name: student_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attendance'
+          description: ''
+  /api/students/{student_id}/attendance/stats/:
+    get:
+      operationId: students_attendance_stats_retrieve
+      parameters:
+      - in: path
+        name: student_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attendance'
+          description: ''
+  /api/subjects/:
+    get:
+      operationId: subjects_list
+      tags:
+      - subjects
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubjectList'
+          description: ''
+    post:
+      operationId: subjects_create
+      tags:
+      - subjects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubjectCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SubjectCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SubjectCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubjectCreate'
+          description: ''
+  /api/subjects/{id}/:
+    get:
+      operationId: subjects_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this Subject.
+        required: true
+      tags:
+      - subjects
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubjectDetail'
+          description: ''
+    put:
+      operationId: subjects_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this Subject.
+        required: true
+      tags:
+      - subjects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubjectUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SubjectUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SubjectUpdateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubjectUpdate'
+          description: ''
+    patch:
+      operationId: subjects_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this Subject.
+        required: true
+      tags:
+      - subjects
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSubjectUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSubjectUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSubjectUpdateRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubjectUpdate'
+          description: ''
+    delete:
+      operationId: subjects_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this Subject.
+        required: true
+      tags:
+      - subjects
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/teachers/:
+    get:
+      operationId: teachers_list
+      tags:
+      - teachers
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Teachers'
+          description: ''
+    post:
+      operationId: teachers_create
+      tags:
+      - teachers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeachersRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TeachersRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TeachersRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teachers'
+          description: ''
+  /api/teachers/{id}/:
+    get:
+      operationId: teachers_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - teachers
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teachers'
+          description: ''
+    put:
+      operationId: teachers_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - teachers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeachersRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TeachersRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TeachersRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teachers'
+          description: ''
+    patch:
+      operationId: teachers_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - teachers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTeachersRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTeachersRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTeachersRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teachers'
+          description: ''
+    delete:
+      operationId: teachers_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - teachers
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/users/:
+    get:
+      operationId: users_list
+      tags:
+      - Staff
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+          description: ''
+    post:
+      operationId: users_create
+      tags:
+      - Staff
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StaffCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StaffCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StaffCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffCreate'
+          description: ''
+  /api/users/{id}/:
+    get:
+      operationId: users_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Staff
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: users_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: users_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    delete:
+      operationId: users_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - users
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/users/me/:
+    get:
+      operationId: users_me_retrieve
+      tags:
+      - Staff
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: users_me_update
+      tags:
+      - Staff
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/users/students/:
+    get:
+      operationId: users_students_retrieve
+      tags:
+      - Students
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentList'
+          description: ''
+components:
+  schemas:
+    AIReportCard:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        student:
+          type: string
+          format: uuid
+          readOnly: true
+        student_name:
+          type: string
+          readOnly: true
+        enrollment:
+          type: string
+          format: uuid
+          readOnly: true
+        class_name:
+          type: string
+          readOnly: true
+        month:
+          type: string
+          readOnly: true
+        summary_text:
+          type: string
+          readOnly: true
+        risk_level:
+          allOf:
+          - $ref: '#/components/schemas/RiskLevelEnum'
+          readOnly: true
+        risk_score:
+          type: integer
+          readOnly: true
+        generated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - class_name
+      - enrollment
+      - generated_at
+      - id
+      - month
+      - risk_level
+      - risk_score
+      - student
+      - student_name
+      - summary_text
+    AIUsageByFeature:
+      type: object
+      properties:
+        feature:
+          type: string
+        label:
+          type: string
+        calls:
+          type: integer
+        cost_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,6})?$
+      required:
+      - calls
+      - cost_usd
+      - feature
+      - label
+    AIUsageSummary:
+      type: object
+      properties:
+        month:
+          type: string
+        total_calls:
+          type: integer
+        successful_calls:
+          type: integer
+        failed_calls:
+          type: integer
+        cache_hits:
+          type: integer
+        cache_hit_rate_pct:
+          type: number
+          format: double
+        total_cost_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,6})?$
+        by_feature:
+          type: array
+          items:
+            $ref: '#/components/schemas/AIUsageByFeature'
+      required:
+      - by_feature
+      - cache_hit_rate_pct
+      - cache_hits
+      - failed_calls
+      - month
+      - successful_calls
+      - total_calls
+      - total_cost_usd
+    Academy:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 15
+        address:
+          type: string
+        subscription_end:
+          type: string
+          format: date
+          nullable: true
+        weekly_report_enabled:
+          type: boolean
+      required:
+      - email
+      - id
+      - name
+      - phone
+    AcademyRegistration:
+      type: object
+      properties:
+        academy_name:
+          type: string
+          maxLength: 100
+        academy_email:
+          type: string
+          format: email
+        academy_phone:
+          type: string
+          maxLength: 15
+        address:
+          type: string
+          maxLength: 1000
+        full_name:
+          type: string
+          maxLength: 100
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          maxLength: 20
+      required:
+      - academy_email
+      - academy_name
+      - academy_phone
+      - address
+      - email
+      - full_name
+      - phone
+    AcademyRegistrationRequest:
+      type: object
+      properties:
+        academy_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        academy_email:
+          type: string
+          format: email
+          minLength: 1
+        academy_phone:
+          type: string
+          minLength: 1
+          maxLength: 15
+        address:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        full_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          minLength: 1
+        phone:
+          type: string
+          minLength: 1
+          maxLength: 20
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        confirm_password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - academy_email
+      - academy_name
+      - academy_phone
+      - address
+      - confirm_password
+      - email
+      - full_name
+      - password
+      - phone
+    AcademyRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        phone:
+          type: string
+          minLength: 1
+          maxLength: 15
+        address:
+          type: string
+        subscription_end:
+          type: string
+          format: date
+          nullable: true
+        weekly_report_enabled:
+          type: boolean
+      required:
+      - email
+      - name
+      - phone
+    Alert:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        enrollment:
+          type: string
+          format: uuid
+          readOnly: true
+        student_id:
+          type: string
+          format: uuid
+          readOnly: true
+        student_name:
+          type: string
+          readOnly: true
+        class_name:
+          type: string
+          readOnly: true
+        parent_email:
+          type: string
+          format: email
+          readOnly: true
+        risk_level:
+          allOf:
+          - $ref: '#/components/schemas/RiskLevelEnum'
+          readOnly: true
+        risk_score:
+          type: integer
+          readOnly: true
+        primary_reason:
+          type: string
+          readOnly: true
+        recommended_action:
+          type: string
+          readOnly: true
+        message:
+          type: string
+          readOnly: true
+        is_dismissed:
+          type: string
+          readOnly: true
+        is_sent:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        last_scanned_at:
+          type: string
+          format: date-time
+          readOnly: true
+        reviewed_at:
+          type: string
+          format: date-time
+          nullable: true
+        notes:
+          type: string
+      required:
+      - class_name
+      - created_at
+      - enrollment
+      - id
+      - is_dismissed
+      - last_scanned_at
+      - message
+      - parent_email
+      - primary_reason
+      - recommended_action
+      - risk_level
+      - risk_score
+      - student_id
+      - student_name
+    AlertRequest:
+      type: object
+      properties:
+        is_sent:
+          type: boolean
+        reviewed_at:
+          type: string
+          format: date-time
+          nullable: true
+        notes:
+          type: string
+    Attendance:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        session:
+          type: string
+          format: uuid
+        enrollment:
+          type: string
+          format: uuid
+        student_id:
+          type: string
+          format: uuid
+          readOnly: true
+        student_name:
+          type: string
+          readOnly: true
+        present:
+          type: boolean
+        recorded_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - enrollment
+      - id
+      - recorded_at
+      - session
+      - student_id
+      - student_name
+    ChannelEnum:
+      enum:
+      - email
+      type: string
+      description: '* `email` - Email'
+    ClassCreate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        subject:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 64
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        is_active:
+          type: boolean
+        session_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          description: Total planned sessions for this class delivery
+        session_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          description: Price per single session.
+        session_duration:
+          type: string
+          nullable: true
+          description: Duration of each session e.g. 01:30:00
+        teachers:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+      - end_date
+      - id
+      - name
+      - start_date
+      - subject
+    ClassCreateRequest:
+      type: object
+      properties:
+        subject:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        is_active:
+          type: boolean
+        session_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          description: Total planned sessions for this class delivery
+        session_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          description: Price per single session.
+        session_duration:
+          type: string
+          nullable: true
+          description: Duration of each session e.g. 01:30:00
+        teachers:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+      - end_date
+      - name
+      - start_date
+      - subject
+    ClassDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        academy:
+          type: string
+          format: uuid
+        academy_name:
+          type: string
+          readOnly: true
+        subject:
+          type: string
+          format: uuid
+        subject_name:
+          type: string
+          readOnly: true
+        session_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          description: Total planned sessions for this class delivery
+        session_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          description: Price per single session.
+        session_duration:
+          type: string
+          nullable: true
+          description: Duration of each session e.g. 01:30:00
+        name:
+          type: string
+          maxLength: 64
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        is_active:
+          type: boolean
+        teachers:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeacherClassDetail'
+          readOnly: true
+        students_count:
+          type: integer
+          readOnly: true
+        sessions_count:
+          type: integer
+          readOnly: true
+        avg_attendance:
+          type: number
+          format: double
+          readOnly: true
+        schedules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClassSchedule'
+          readOnly: true
+        class_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+      required:
+      - academy
+      - academy_name
+      - avg_attendance
+      - class_price
+      - end_date
+      - id
+      - name
+      - schedules
+      - sessions_count
+      - start_date
+      - students_count
+      - subject
+      - subject_name
+      - teachers
+    ClassList:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        class_details:
+          type: string
+          format: uri
+          readOnly: true
+        academy:
+          type: string
+          format: uuid
+        academy_name:
+          type: string
+          readOnly: true
+        subject:
+          type: string
+          format: uuid
+        subject_name:
+          type: string
+          readOnly: true
+        session_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          description: Total planned sessions for this class delivery
+        session_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          description: Price per single session.
+        session_duration:
+          type: string
+          nullable: true
+          description: Duration of each session e.g. 01:30:00
+        name:
+          type: string
+          maxLength: 64
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        is_active:
+          type: boolean
+        students_count:
+          type: integer
+          readOnly: true
+        sessions_count:
+          type: integer
+          readOnly: true
+        teacher_name:
+          type: string
+          readOnly: true
+        sessions_this_week:
+          type: integer
+          readOnly: true
+        class_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+      required:
+      - academy
+      - academy_name
+      - class_details
+      - class_price
+      - end_date
+      - id
+      - name
+      - sessions_count
+      - sessions_this_week
+      - start_date
+      - students_count
+      - subject
+      - subject_name
+      - teacher_name
+    ClassListRequest:
+      type: object
+      properties:
+        academy:
+          type: string
+          format: uuid
+        subject:
+          type: string
+          format: uuid
+        session_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          description: Total planned sessions for this class delivery
+        session_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          description: Price per single session.
+        session_duration:
+          type: string
+          nullable: true
+          description: Duration of each session e.g. 01:30:00
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        is_active:
+          type: boolean
+      required:
+      - academy
+      - end_date
+      - name
+      - start_date
+      - subject
+    ClassSchedule:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        class_obj:
+          type: string
+          format: uuid
+          readOnly: true
+        day_of_week:
+          allOf:
+          - $ref: '#/components/schemas/DayOfWeekEnum'
+          minimum: -2147483648
+          maximum: 2147483647
+        day_of_week_display:
+          type: string
+          readOnly: true
+        start_time:
+          type: string
+          format: time
+        end_time:
+          type: string
+          format: time
+          readOnly: true
+          nullable: true
+      required:
+      - class_obj
+      - day_of_week
+      - day_of_week_display
+      - end_time
+      - id
+      - start_time
+    ClassScheduleRequest:
+      type: object
+      properties:
+        day_of_week:
+          allOf:
+          - $ref: '#/components/schemas/DayOfWeekEnum'
+          minimum: -2147483648
+          maximum: 2147483647
+        start_time:
+          type: string
+          format: time
+      required:
+      - day_of_week
+      - start_time
+    ClassSession:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        session_date:
+          type: string
+          format: date
+        session_time:
+          type: string
+          format: time
+        notes:
+          type: string
+        session_num:
+          type: integer
+          readOnly: true
+        present_count:
+          type: integer
+          readOnly: true
+        absent_count:
+          type: integer
+          readOnly: true
+        total_enrolled:
+          type: integer
+          readOnly: true
+      required:
+      - absent_count
+      - id
+      - present_count
+      - session_date
+      - session_num
+      - session_time
+      - total_enrolled
+    ClassSessionEnrollment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        class_obj:
+          type: string
+          format: uuid
+          readOnly: true
+        session:
+          type: string
+          format: uuid
+        session_num:
+          type: integer
+          readOnly: true
+          description: Sequential session number within this class.
+        session_date:
+          type: string
+          format: date
+          readOnly: true
+        notes:
+          type: string
+          readOnly: true
+      required:
+      - class_obj
+      - id
+      - notes
+      - session
+      - session_date
+      - session_num
+    ClassSessionRequest:
+      type: object
+      properties:
+        session_date:
+          type: string
+          format: date
+        session_time:
+          type: string
+          format: time
+        notes:
+          type: string
+      required:
+      - session_date
+      - session_time
+    ClassSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 64
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        is_active:
+          type: boolean
+      required:
+      - end_date
+      - id
+      - name
+      - start_date
+    ClassUpdate:
+      type: object
+      properties:
+        subject:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 64
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        is_active:
+          type: boolean
+        session_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          description: Total planned sessions for this class delivery
+        session_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          description: Price per single session.
+        session_duration:
+          type: string
+          nullable: true
+          description: Duration of each session e.g. 01:30:00
+        teachers:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+      - end_date
+      - name
+      - start_date
+      - subject
+    ClassUpdateRequest:
+      type: object
+      properties:
+        subject:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        is_active:
+          type: boolean
+        session_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          description: Total planned sessions for this class delivery
+        session_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          description: Price per single session.
+        session_duration:
+          type: string
+          nullable: true
+          description: Duration of each session e.g. 01:30:00
+        teachers:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+      - end_date
+      - name
+      - start_date
+      - subject
+    CompleteSetupResponse:
+      type: object
+      properties:
+        setup_complete:
+          type: boolean
+        refresh:
+          type: string
+        access:
+          type: string
+      required:
+      - access
+      - refresh
+      - setup_complete
+    CustomeTokenObtainPairRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          writeOnly: true
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - email
+      - password
+    DayOfWeekEnum:
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      type: integer
+      description: |-
+        * `0` - Monday
+        * `1` - Tuesday
+        * `2` - Wednesday
+        * `3` - Thursday
+        * `4` - Friday
+        * `5` - Saturday
+        * `6` - Sunday
+    EducationalLevelEnum:
+      enum:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      - 8
+      - 9
+      - 10
+      - 11
+      - 12
+      - 13
+      - 14
+      - 15
+      - 16
+      - 17
+      - 18
+      type: integer
+      description: |-
+        * `1` - Primary 1
+        * `2` - Primary 2
+        * `3` - Primary 3
+        * `4` - Primary 4
+        * `5` - Primary 5
+        * `6` - Primary 6
+        * `7` - Preparatory 1
+        * `8` - Preparatory 2
+        * `9` - Preparatory 3
+        * `10` - Secondary 1
+        * `11` - Secondary 2
+        * `12` - Secondary 3
+        * `13` - College 1
+        * `14` - College 2
+        * `15` - College 3
+        * `16` - College 4
+        * `17` - College 5
+        * `18` - College 6
+    Enrollment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        class_id:
+          type: string
+          format: uuid
+        class_name:
+          type: string
+          readOnly: true
+        student_id:
+          type: string
+          format: uuid
+        student_name:
+          type: string
+          readOnly: true
+        start_date:
+          type: string
+          format: date
+          nullable: true
+        status:
+          $ref: '#/components/schemas/EnrollmentStatusEnum'
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+          readOnly: true
+      required:
+      - class_id
+      - class_name
+      - id
+      - payments
+      - student_id
+      - student_name
+    EnrollmentRequest:
+      type: object
+      properties:
+        class_id:
+          type: string
+          format: uuid
+        student_id:
+          type: string
+          format: uuid
+        start_date:
+          type: string
+          format: date
+          nullable: true
+        status:
+          $ref: '#/components/schemas/EnrollmentStatusEnum'
+      required:
+      - class_id
+      - student_id
+    EnrollmentSimple:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+      required:
+      - id
+    EnrollmentStatusEnum:
+      enum:
+      - active
+      - paused
+      - dropped
+      - completed
+      type: string
+      description: |-
+        * `active` - Active
+        * `paused` - Paused
+        * `dropped` - Dropped
+        * `completed` - Completed
+    Grade:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        enrollment:
+          type: string
+          format: uuid
+        session:
+          type: string
+          format: uuid
+          nullable: true
+        session_num:
+          type: string
+          readOnly: true
+        subject_name:
+          type: string
+          maxLength: 255
+        score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        max_score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        assigned_at:
+          type: string
+          format: date
+      required:
+      - assigned_at
+      - enrollment
+      - id
+      - max_score
+      - score
+      - session_num
+      - subject_name
+    GradeRequest:
+      type: object
+      properties:
+        enrollment:
+          type: string
+          format: uuid
+        session:
+          type: string
+          format: uuid
+          nullable: true
+        subject_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        max_score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        assigned_at:
+          type: string
+          format: date
+      required:
+      - assigned_at
+      - enrollment
+      - max_score
+      - score
+      - subject_name
+    LogoutResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+      - message
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        student:
+          type: string
+          format: uuid
+        student_name:
+          type: string
+          readOnly: true
+        student_email:
+          type: string
+          readOnly: true
+        parent_email:
+          type: string
+          readOnly: true
+        enrollment:
+          type: string
+          format: uuid
+          nullable: true
+        alert:
+          type: string
+          format: uuid
+          nullable: true
+        alert_risk_level:
+          type: string
+          readOnly: true
+        alert_primary_reason:
+          type: string
+          readOnly: true
+        channel:
+          $ref: '#/components/schemas/ChannelEnum'
+        notification_type:
+          $ref: '#/components/schemas/NotificationTypeEnum'
+        message:
+          type: string
+        status:
+          $ref: '#/components/schemas/NotificationStatusEnum'
+        sent_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - alert_primary_reason
+      - alert_risk_level
+      - created_at
+      - id
+      - message
+      - notification_type
+      - parent_email
+      - sent_at
+      - student
+      - student_email
+      - student_name
+    NotificationRequest:
+      type: object
+      properties:
+        student:
+          type: string
+          format: uuid
+        enrollment:
+          type: string
+          format: uuid
+          nullable: true
+        alert:
+          type: string
+          format: uuid
+          nullable: true
+        channel:
+          $ref: '#/components/schemas/ChannelEnum'
+        notification_type:
+          $ref: '#/components/schemas/NotificationTypeEnum'
+        message:
+          type: string
+          minLength: 1
+        status:
+          $ref: '#/components/schemas/NotificationStatusEnum'
+      required:
+      - message
+      - notification_type
+      - student
+    NotificationStatusEnum:
+      enum:
+      - pending
+      - sent
+      - failed
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `sent` - Sent
+        * `failed` - Failed
+    NotificationTypeEnum:
+      enum:
+      - payment_reminder
+      - retention_alert
+      - attendance_alert
+      type: string
+      description: |-
+        * `payment_reminder` - Payment Reminder
+        * `retention_alert` - Retention Alert
+        * `attendance_alert` - Attendance Alert
+    NullEnum:
+      enum:
+      - null
+    PatchedAcademyRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        phone:
+          type: string
+          minLength: 1
+          maxLength: 15
+        address:
+          type: string
+        subscription_end:
+          type: string
+          format: date
+          nullable: true
+        weekly_report_enabled:
+          type: boolean
+    PatchedAlertRequest:
+      type: object
+      properties:
+        is_sent:
+          type: boolean
+        reviewed_at:
+          type: string
+          format: date-time
+          nullable: true
+        notes:
+          type: string
+    PatchedClassScheduleRequest:
+      type: object
+      properties:
+        day_of_week:
+          allOf:
+          - $ref: '#/components/schemas/DayOfWeekEnum'
+          minimum: -2147483648
+          maximum: 2147483647
+        start_time:
+          type: string
+          format: time
+    PatchedClassUpdateRequest:
+      type: object
+      properties:
+        subject:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        is_active:
+          type: boolean
+        session_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          description: Total planned sessions for this class delivery
+        session_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          nullable: true
+          description: Price per single session.
+        session_duration:
+          type: string
+          nullable: true
+          description: Duration of each session e.g. 01:30:00
+        teachers:
+          type: array
+          items:
+            type: string
+            format: uuid
+    PatchedEnrollmentRequest:
+      type: object
+      properties:
+        class_id:
+          type: string
+          format: uuid
+        student_id:
+          type: string
+          format: uuid
+        start_date:
+          type: string
+          format: date
+          nullable: true
+        status:
+          $ref: '#/components/schemas/EnrollmentStatusEnum'
+    PatchedGradeRequest:
+      type: object
+      properties:
+        enrollment:
+          type: string
+          format: uuid
+        session:
+          type: string
+          format: uuid
+          nullable: true
+        subject_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        max_score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        assigned_at:
+          type: string
+          format: date
+    PatchedNotificationRequest:
+      type: object
+      properties:
+        student:
+          type: string
+          format: uuid
+        enrollment:
+          type: string
+          format: uuid
+          nullable: true
+        alert:
+          type: string
+          format: uuid
+          nullable: true
+        channel:
+          $ref: '#/components/schemas/ChannelEnum'
+        notification_type:
+          $ref: '#/components/schemas/NotificationTypeEnum'
+        message:
+          type: string
+          minLength: 1
+        status:
+          $ref: '#/components/schemas/NotificationStatusEnum'
+    PatchedPaymentRequest:
+      type: object
+      properties:
+        enrollment_id:
+          type: string
+          format: uuid
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        due_date:
+          type: string
+          format: date
+          nullable: true
+        paid_on:
+          type: string
+          format: date
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/PaymentStatusEnum'
+    PatchedStudentProfileUpdateRequest:
+      type: object
+      properties:
+        full_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        phone:
+          type: string
+          minLength: 1
+          maxLength: 20
+        parent_email:
+          type: string
+          format: email
+          minLength: 1
+        educational_level:
+          $ref: '#/components/schemas/EducationalLevelEnum'
+        enrolled_at:
+          type: string
+          format: date
+          nullable: true
+    PatchedSubjectUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+        description:
+          type: string
+          minLength: 1
+    PatchedTeachersRequest:
+      type: object
+      properties:
+        academy_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+    PatchedUserRequest:
+      type: object
+      properties:
+        full_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        phone:
+          type: string
+          minLength: 1
+          maxLength: 20
+        role:
+          $ref: '#/components/schemas/UserRoleEnum'
+    Payment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        enrollment_id:
+          type: string
+          format: uuid
+        student_name:
+          type: string
+          readOnly: true
+        class_name:
+          type: string
+          readOnly: true
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        due_date:
+          type: string
+          format: date
+          nullable: true
+        paid_on:
+          type: string
+          format: date
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/PaymentStatusEnum'
+      required:
+      - amount
+      - class_name
+      - enrollment_id
+      - id
+      - student_name
+    PaymentRequest:
+      type: object
+      properties:
+        enrollment_id:
+          type: string
+          format: uuid
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        due_date:
+          type: string
+          format: date
+          nullable: true
+        paid_on:
+          type: string
+          format: date
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/PaymentStatusEnum'
+      required:
+      - amount
+      - enrollment_id
+    PaymentStatusEnum:
+      enum:
+      - pending
+      - completed
+      - cancelled
+      - deleted
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `completed` - Completed
+        * `cancelled` - Cancelled
+        * `deleted` - Deleted
+    RiskLevelEnum:
+      enum:
+      - high
+      - medium
+      - low
+      type: string
+      description: |-
+        * `high` - High
+        * `medium` - Medium
+        * `low` - Low
+    ScanFailedResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+        error:
+          type: string
+      required:
+      - detail
+      - error
+    ScanLog:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ScanLogStatusEnum'
+          readOnly: true
+        triggered_by:
+          allOf:
+          - $ref: '#/components/schemas/TriggeredByEnum'
+          readOnly: true
+        students_scanned:
+          type: integer
+          readOnly: true
+        alerts_created:
+          type: integer
+          readOnly: true
+        alerts_updated:
+          type: integer
+          readOnly: true
+        errors:
+          type: integer
+          readOnly: true
+        error_log:
+          type: string
+          readOnly: true
+        started_at:
+          type: string
+          format: date-time
+          readOnly: true
+        completed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - alerts_created
+      - alerts_updated
+      - completed_at
+      - error_log
+      - errors
+      - id
+      - started_at
+      - status
+      - students_scanned
+      - triggered_by
+    ScanLogStatusEnum:
+      enum:
+      - pending
+      - running
+      - complete
+      - failed
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `running` - Running
+        * `complete` - Complete
+        * `failed` - Failed
+    ScanRateLimitResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+      required:
+      - detail
+    StaffCreate:
+      type: object
+      properties:
+        full_name:
+          type: string
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 20
+        role:
+          $ref: '#/components/schemas/StaffCreateRoleEnum'
+      required:
+      - email
+      - full_name
+      - phone
+      - role
+    StaffCreateRequest:
+      type: object
+      properties:
+        full_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        phone:
+          type: string
+          minLength: 1
+          maxLength: 20
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        confirm_password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        role:
+          $ref: '#/components/schemas/StaffCreateRoleEnum'
+      required:
+      - confirm_password
+      - email
+      - full_name
+      - password
+      - phone
+      - role
+    StaffCreateRoleEnum:
+      enum:
+      - A
+      - T
+      - S
+      type: string
+      description: |-
+        * `A` - Admin
+        * `T` - Teacher
+        * `S` - Student
+    StudentCreate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        full_name:
+          type: string
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 20
+        parent_email:
+          type: string
+          format: email
+        educational_level:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/EducationalLevelEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        academy:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - email
+      - full_name
+      - id
+      - phone
+    StudentCreateRequest:
+      type: object
+      properties:
+        full_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        phone:
+          type: string
+          minLength: 1
+          maxLength: 20
+        parent_email:
+          type: string
+          format: email
+        educational_level:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/EducationalLevelEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        academy:
+          type: string
+          format: uuid
+          nullable: true
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        confirm_password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - confirm_password
+      - email
+      - full_name
+      - password
+      - phone
+    StudentList:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        full_name:
+          type: string
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 20
+        academy:
+          type: string
+          format: uuid
+          nullable: true
+        parent_email:
+          type: string
+          format: email
+          readOnly: true
+        educational_level:
+          type: integer
+          readOnly: true
+        educational_level_display:
+          type: string
+          readOnly: true
+        status:
+          type: string
+          readOnly: true
+        status_display:
+          type: string
+          readOnly: true
+        enrollments:
+          type: string
+          readOnly: true
+      required:
+      - educational_level
+      - educational_level_display
+      - email
+      - enrollments
+      - full_name
+      - id
+      - parent_email
+      - phone
+      - status
+      - status_display
+    StudentProfileUpdate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        full_name:
+          type: string
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 20
+        parent_email:
+          type: string
+          format: email
+        educational_level:
+          $ref: '#/components/schemas/EducationalLevelEnum'
+        enrolled_at:
+          type: string
+          format: date
+          nullable: true
+        status:
+          type: string
+          readOnly: true
+        status_display:
+          type: string
+          readOnly: true
+        enrollments:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnrollmentSimple'
+          readOnly: true
+        attendance_percentage:
+          type: string
+          readOnly: true
+        total_paid:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - attendance_percentage
+      - created_at
+      - educational_level
+      - email
+      - enrollments
+      - full_name
+      - id
+      - parent_email
+      - phone
+      - status
+      - status_display
+      - total_paid
+      - updated_at
+    StudentProfileUpdateRequest:
+      type: object
+      properties:
+        full_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        phone:
+          type: string
+          minLength: 1
+          maxLength: 20
+        parent_email:
+          type: string
+          format: email
+          minLength: 1
+        educational_level:
+          $ref: '#/components/schemas/EducationalLevelEnum'
+        enrolled_at:
+          type: string
+          format: date
+          nullable: true
+      required:
+      - educational_level
+      - email
+      - full_name
+      - parent_email
+      - phone
+    SubjectCreate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 64
+        description:
+          type: string
+      required:
+      - description
+      - id
+      - name
+    SubjectCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+        description:
+          type: string
+          minLength: 1
+      required:
+      - description
+      - name
+    SubjectDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        academy:
+          type: string
+          format: uuid
+        academy_name:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 64
+        description:
+          type: string
+        classes_count:
+          type: integer
+          readOnly: true
+        classes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClassSummary'
+          readOnly: true
+      required:
+      - academy
+      - academy_name
+      - classes
+      - classes_count
+      - description
+      - id
+      - name
+    SubjectList:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        subject_details:
+          type: string
+          format: uri
+          readOnly: true
+        academy:
+          type: string
+          format: uuid
+        academy_name:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 64
+        description:
+          type: string
+        classes_count:
+          type: integer
+          readOnly: true
+      required:
+      - academy
+      - academy_name
+      - classes_count
+      - description
+      - id
+      - name
+      - subject_details
+    SubjectUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 64
+        description:
+          type: string
+      required:
+      - description
+      - name
+    SubjectUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+        description:
+          type: string
+          minLength: 1
+      required:
+      - description
+      - name
+    TeacherClassDetail:
+      type: object
+      properties:
+        teacher_id:
+          type: string
+          format: uuid
+          readOnly: true
+        teacher_name:
+          type: string
+          readOnly: true
+        assigned_at:
+          type: string
+          format: date
+        rate_per_session:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+      required:
+      - assigned_at
+      - rate_per_session
+      - teacher_id
+      - teacher_name
+    Teachers:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        academy_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        phone:
+          type: string
+          readOnly: true
+      required:
+      - academy_id
+      - email
+      - id
+      - name
+      - phone
+      - user_id
+    TeachersRequest:
+      type: object
+      properties:
+        academy_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+      required:
+      - academy_id
+      - user_id
+    TriggeredByEnum:
+      enum:
+      - manual
+      - scheduled
+      type: string
+      description: |-
+        * `manual` - Manual
+        * `scheduled` - Scheduled
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        full_name:
+          type: string
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 20
+        role:
+          $ref: '#/components/schemas/UserRoleEnum'
+        role_display:
+          type: string
+          readOnly: true
+        academy_id:
+          type: string
+          readOnly: true
+        academy_name:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - academy_id
+      - academy_name
+      - created_at
+      - email
+      - full_name
+      - id
+      - phone
+      - role
+      - role_display
+    UserRequest:
+      type: object
+      properties:
+        full_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        phone:
+          type: string
+          minLength: 1
+          maxLength: 20
+        role:
+          $ref: '#/components/schemas/UserRoleEnum'
+      required:
+      - email
+      - full_name
+      - phone
+      - role
+    UserRoleEnum:
+      enum:
+      - O
+      - A
+      - T
+      - S
+      type: string
+      description: |-
+        * `O` - Owner
+        * `A` - Admin
+        * `T` - Teacher
+        * `S` - Student
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: access_token
+tags:
+- name: Auth
+- name: Academy
+- name: Staff
+- name: Students
+- name: Structure
+- name: Finance
+- name: Attendance
+- name: Grades
+- name: AI Reports
+- name: AI Agent
+- name: AI Notifications
+- name: AI Infra

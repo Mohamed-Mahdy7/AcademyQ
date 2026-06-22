@@ -5,10 +5,12 @@ from django.utils import timezone
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import serializers
+from drf_spectacular.utils import extend_schema, inline_serializer
 from decimal import Decimal
 from celery import current_app
 from redis import Redis
-
+from .serializers import AIUsageByFeatureSerializer
 from ai.models import AIUsageLog
 from core.permissions import IsOwner
 
@@ -39,7 +41,22 @@ def celery_health(request):
             "message": str(e),
         }, status=503)
 
-
+@extend_schema(
+    tags=["AI Infra"],
+    responses=inline_serializer(
+        "AIUsageSummary",
+        fields={
+            "month": serializers.CharField(),
+            "total_calls": serializers.IntegerField(),
+            "successful_calls": serializers.IntegerField(),
+            "failed_calls": serializers.IntegerField(),
+            "cache_hits": serializers.IntegerField(),
+            "cache_hit_rate_pct": serializers.FloatField(),
+            "total_cost_usd": serializers.DecimalField(max_digits=10, decimal_places=6),
+            "by_feature": AIUsageByFeatureSerializer(many=True),
+        },
+    ),
+)
 class AIUsageView(APIView):
     permission_classes = [IsAuthenticated, IsOwner]
 
