@@ -48,9 +48,6 @@ class EnrollmentSerializer(serializers.ModelSerializer):
     )
     class_name = serializers.CharField(source='class_id.name', read_only=True)
     payments = PaymentSerializer(many=True, read_only=True)
-    student_id = serializers.PrimaryKeyRelatedField(
-        queryset=Students.objects.all()
-    )
 
     class Meta:
         model = Enrollment
