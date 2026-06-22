@@ -219,10 +219,18 @@ class UserViewSet(viewsets.ModelViewSet):
     
     @action(detail=False,  methods=["GET", "PUT"], permission_classes = [IsAuthenticated])
     def me(self, request):
-        if request.user.role == User.Roles.STUDENT:
-            serializer = StudentProfileUpdateSerializer(request.user)
-        else:
-            serializer = UserSerializer(request.user)
+        serializer_class = (
+            StudentProfileUpdateSerializer
+            if request.user.role == User.Roles.STUDENT
+            else UserSerializer
+            
+        )
+        if request.method == 'GET':
+            return Response(serializer_class(request.user).data)
+        
+        serializer = serializer_class(request.user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data)
     
     def perform_create(self, serializer):
@@ -266,13 +274,18 @@ class StudentProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = StudentProfileUpdateSerializer
 
     def get_object(self):
-        student_id = self.kwargs["pk"]
+        # student_id = self.kwargs["pk"]
         
-        student = get_object_or_404(
-            Students.objects.select_related("user"),
-            pk=student_id,
+        # student = get_object_or_404(
+        #     Students.objects.select_related("user"),
+        #     pk=student_id,
+        # )
+        user = get_object_or_404(
+            User.objects.select_related("students"),
+            pk=self.kwargs["pk"],
+            role=User.Roles.STUDENT,
         )
-        user = student.user
+        # user = student.user
 
         if user.academy != self.request.user.academy:
             raise PermissionDenied()

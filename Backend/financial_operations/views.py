@@ -42,7 +42,7 @@ class EnrollmentViewSet(viewsets.ModelViewSet):
         class_id = self.request.query_params.get('class_id')
         status = self.request.query_params.get('status')
         if student_id:
-            queryset = queryset.filter(student_id=student_id)
+            queryset = queryset.filter(student_id__user_id=student_id)
         if class_id:
             queryset = queryset.filter(class_id=class_id)
         if status:
@@ -51,14 +51,14 @@ class EnrollmentViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def perform_create(self, serializer):
-        student_id = self.request.data.get('student_id')
+        # student_id = self.request.data.get('student_id')
         class_id = self.request.data.get('class_id')
         start_date = self.request.data.get('start_date')
 
-        if Enrollment.objects.filter(student_id=student_id, class_id=class_id).exists(): 
-            raise ValidationError(
-                {'detail': 'Student is already enrolled in this class.'}
-            )
+        # if Enrollment.objects.filter(student_id=student_id, class_id=class_id).exists(): 
+        #     raise ValidationError(
+        #         {'detail': 'Student is already enrolled in this class.'}
+        #     )
 
         enrollment = serializer.save()
 
