@@ -11,9 +11,10 @@ from django.utils import timezone
 from datetime import timedelta
 from structure.models import Class
 from datetime import date, datetime
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from rest_framework.exceptions import ValidationError
 from core.models import User, Students
+from django.db.models import Q
 
 class TeachersViewSet(viewsets.ModelViewSet):
     serializer_class = TeachersSerializer
@@ -65,14 +66,14 @@ class EnrollmentViewSet(viewsets.ModelViewSet):
         student = enrollment.student_id
         if student.status == Students.Status.PENDING:
             student.status = Students.Status.ACTIVE
-            student.enrolled_at = timezone.now()
+            student.enrolled_at = timezone.now().date()
             student.save(update_fields=["status", "enrolled_at"])
 
-        # Auto-create pending payment with due_date = start_date + 3 days
         try:
             class_obj = Class.objects.get(id=class_id)
         except Class.DoesNotExist:
             return
+        
         if class_obj.session_price and class_obj.session_count:
             amount = class_obj.session_count * class_obj.session_price
             if start_date:

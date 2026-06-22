@@ -22,13 +22,6 @@ const AlertInboxPage = () => {
         applyFilter({ ...filter, risk_level: riskLevel })
     }
 
-    const handleToggleReviewed = () => {
-        applyFilter({
-            ...filter,
-            is_dismissed: filter.is_dismissed === "false" ? undefined : "false",
-        })
-    }
-
     return (
         <>
             <div className="flex items-start justify-between mb-6">
@@ -82,17 +75,6 @@ const AlertInboxPage = () => {
                         {f.charAt(0).toUpperCase() + f.slice(1)}
                     </button>
                 ))}
-
-                <button
-                    onClick={handleToggleReviewed}
-                    className={`ml-auto px-4 py-1.5 rounded-full text-sm font-medium border transition-all ${
-                        filter.is_dismissed !== "false"
-                            ? "bg-navy-mid text-white border-navy-mid"
-                            : "bg-white text-gray-500 border-border hover:border-blue"
-                    }`}
-                >
-                    {filter.is_dismissed === "false" ? "Show Reviewed" : "Hide Reviewed"}
-                </button>
             </div>
 
             {error && (
