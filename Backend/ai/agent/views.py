@@ -1,5 +1,6 @@
 import traceback
-
+from drf_spectacular.utils import extend_schema, inline_serializer
+from rest_framework import serializers
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -152,7 +153,21 @@ class AlertViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
     
-
+@extend_schema(
+    tags=["AI Agent"],
+    request=None,
+    responses={
+        202: ScanLogSerializer,
+        429: inline_serializer(
+            "ScanRateLimitResponse",
+            fields={"detail": serializers.CharField()},
+        ),
+        500: inline_serializer(
+            "ScanFailedResponse",
+            fields={"detail": serializers.CharField(), "error": serializers.CharField()},
+        ),
+    },
+)
 class RunScanView(APIView):
     permission_classes = [IsOwner, ActiveSubscriptionRequired]
 
@@ -202,7 +217,10 @@ class RunScanView(APIView):
             status=status.HTTP_202_ACCEPTED,
         )
 
-
+@extend_schema(
+    tags=["AI Agent"],
+    responses={200: ScanLogSerializer(many=True)},
+)
 class ScanLogListView(APIView):
     permission_classes = [IsOwner, ActiveSubscriptionRequired]
 

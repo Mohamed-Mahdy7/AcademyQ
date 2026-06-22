@@ -1,7 +1,9 @@
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+import logging
 
+logger = logging.getLogger(__name__)
 
 class CookieJWTAuthentication(JWTAuthentication):
     def authenticate(self, request):
@@ -26,6 +28,7 @@ class CookieJWTAuthentication(JWTAuthentication):
                     user = self.get_user(validated_token)
                     return user, validated_token
                 except Exception as e:
+                    logger.debug("Refresh token invalid during transparent refresh: %s", e)
                     return None
                 
             return None

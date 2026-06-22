@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Teachers, Enrollment, Payment
+from core.models import Students
 from django.contrib.auth import get_user_model
 from core.models import Students
 
@@ -38,6 +39,10 @@ class PaymentSerializer(serializers.ModelSerializer):
         ]
 
 class EnrollmentSerializer(serializers.ModelSerializer):
+    student_id = serializers.SlugRelatedField(
+        slug_field='user_id',
+        queryset=Students.objects.all(),
+    )
     student_name = serializers.CharField(
         source='student_id.user.full_name', read_only=True
     )

@@ -218,14 +218,10 @@ class StudentCreateSerializer(serializers.ModelSerializer):
 
 
 class StudentListSerializer(serializers.ModelSerializer):
-    id = serializers.UUIDField(
-        source="students.id",
-        read_only=True
-    )
-    user_id = serializers.UUIDField(  
-        source="id",
-        read_only=True
-    )
+    # id = serializers.UUIDField(
+    #     source="students.id",
+    #     read_only=True
+    # )
     parent_email = serializers.EmailField(
         source="students.parent_email",
         read_only=True
