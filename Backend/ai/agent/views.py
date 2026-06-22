@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.utils import timezone
 from core.permissions import IsOwner, ActiveSubscriptionRequired
+from core.exceptions import UpstreamError, RateLimitedError
 from .models import Alert, ScanLog
 from .serializers import AlertSerializer, ScanLogSerializer
 from rest_framework.decorators import action
@@ -109,10 +110,7 @@ class AlertViewSet(viewsets.ModelViewSet):
         try:
             context = get_student_context(enrollment.student_id.pk)
         except Exception as e:
-            return Response(
-                {"detail": f"Failed to retrieve student context: {str(e)}"},
-                status=status.HTTP_502_BAD_GATEWAY,
-            )
+            raise UpstreamError("Failed to retrieve student context.")
 
         context["risk_score"] = alert.risk_score
 
@@ -140,10 +138,7 @@ class AlertViewSet(viewsets.ModelViewSet):
             )
 
         except Exception as e:
-            return Response(
-                {"detail": f"LLM call failed: {str(e)}"},
-                status=status.HTTP_502_BAD_GATEWAY,
-            )
+            raise UpstreamError("LLM call failed.")
 
         alert.message = message
         alert.save()
@@ -183,12 +178,7 @@ class RunScanView(APIView):
         ).count()
 
         if today_scans >= MANUAL_SCAN_DAILY_LIMIT:
-            return Response(
-                {
-                    "detail": f"Manual scan limit reached ({MANUAL_SCAN_DAILY_LIMIT}/day). Try again tomorrow."
-                },
-                status=status.HTTP_429_TOO_MANY_REQUESTS,
-            )
+            raise RateLimitedError(f"Manual scan limit reached ({MANUAL_SCAN_DAILY_LIMIT}/day). Try again tomorrow.")
 
         scan_log = ScanLog.objects.create(
             academy=request.user.academy,
@@ -203,10 +193,7 @@ class RunScanView(APIView):
             scan_log.error_log = str(e)
             scan_log.completed_at = timezone.now()
             scan_log.save()
-            return Response(
-                {"detail": "Scan failed.", "error": str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+            raise UpstreamError("Scan failed. Please try again.")
 
         scan_log.status = ScanLog.STATUS_COMPLETE
         scan_log.completed_at = timezone.now()

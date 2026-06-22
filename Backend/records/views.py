@@ -2,6 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Count, Q, OuterRef, Subquery, IntegerField
 from core.permissions import IsOwner, ActiveSubscriptionRequired
@@ -13,6 +14,7 @@ from .serializers import (
     AttendanceSerializer,
     AttendanceBulkSerializer,
 )
+
 
 
 def get_annotated_sessions(academy_id, class_id=None):
@@ -80,8 +82,8 @@ class ClassSessionViewSet(viewsets.ModelViewSet):
 
         serializer = AttendanceBulkSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+            raise ValidationError(serializer.errors)
+        
         records = serializer.validated_data['records']
         created, updated = 0, 0
 
@@ -160,10 +162,7 @@ class StudentAttendanceViewSet(viewsets.ModelViewSet):
     def stats(self, request, student_id=None):
         class_id = request.query_params.get('class_id')
         if not class_id:
-            return Response(
-                {'detail': 'class_id query param is required.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            raise ValidationError("class_id query param is required.")
 
         records = self.get_queryset().filter(
             enrollment__class_id__id=class_id
@@ -267,25 +266,17 @@ class GenerateSessionsView(APIView):
         end_date_str = request.data.get('end_date')
 
         if not start_date_str or not end_date_str:
-            return Response(
-                {'detail': 'start_date and end_date are required.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            raise ValidationError({"start_date": ["This field is required."], "end_date": ["This field is required."]})
 
         try:
             start_date = date.fromisoformat(start_date_str)
             end_date = date.fromisoformat(end_date_str)
         except ValueError:
-            return Response(
-                {'detail': 'Invalid date format. Use YYYY-MM-DD.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            raise ValidationError({"end_date": ["Invalid date format. Use YYYY-MM-DD."]})
 
         if end_date < start_date:
-            return Response(
-                {'detail': 'end_date must be after start_date.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            raise ValidationError({"end_date": ["end_date must be after start_date."]})
+            
 
         try:
             cls = Class.objects.get(
@@ -293,17 +284,11 @@ class GenerateSessionsView(APIView):
                 academy_id=request.user.academy_id
             )
         except Class.DoesNotExist:
-            return Response(
-                {'detail': 'Class not found.'},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            raise ValidationError({"class_id": ["Class not found."]})
 
         schedules = ClassSchedule.objects.filter(class_obj=cls)
         if not schedules.exists():
-            return Response(
-                {'detail': 'No schedule configured for this class. Add schedule slots before generating sessions.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            raise ValidationError({"class_id": ["No schedules found for this class."]})
 
         sessions_created = 0
         skipped = 0
