@@ -53,7 +53,7 @@ export default function EnrollmentForm({
       student_id: form.student_id,
       class_id: classId,
       start_date: form.start_date,
-      status: "active",
+      status: form.status,
       class_price: classPrice,
     }, editingEnrollment?.id);
   }
