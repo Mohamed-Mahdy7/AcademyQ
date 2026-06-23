@@ -213,6 +213,9 @@ class ComopleteSetupView(APIView):
     list=extend_schema(tags=["Staff"]),
     retrieve=extend_schema(tags=["Staff"]),
     create=extend_schema(tags=["Staff"]),
+    update=extend_schema(tags=["Staff"]),
+    partial_update=extend_schema(tags=["Staff"]),
+    destroy=extend_schema(tags=["Staff"]),
     me=extend_schema(tags=["Staff"]),
     students=extend_schema(tags=["Students"]),
     
@@ -302,18 +305,11 @@ class StudentProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = StudentProfileUpdateSerializer
 
     def get_object(self):
-        # student_id = self.kwargs["pk"]
-        
-        # student = get_object_or_404(
-        #     Students.objects.select_related("user"),
-        #     pk=student_id,
-        # )
         user = get_object_or_404(
             User.objects.select_related("students"),
             pk=self.kwargs["pk"],
             role=User.Roles.STUDENT,
         )
-        # user = student.user
 
         if user.academy != self.request.user.academy:
             raise PermissionDenied()

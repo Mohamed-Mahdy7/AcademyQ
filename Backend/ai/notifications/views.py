@@ -5,6 +5,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from core.mixins import AcademyScopedMixin
 
 from .models import Notification
@@ -15,7 +16,16 @@ from rest_framework.exceptions import ValidationError, NotFound
 
 logger = logging.getLogger(__name__)
 
-
+@extend_schema_view(
+    list=extend_schema(tags=["AI Notifications"]),
+    retrieve=extend_schema(tags=["AI Notifications"]),
+    create=extend_schema(tags=["AI Notifications"]),
+    destroy=extend_schema(tags=["AI Notifications"]),
+    partial_update=extend_schema(tags=["AI Notifications"]),
+    send_alert=extend_schema(tags=["AI Notifications"]),
+    send_reminders=extend_schema(tags=["AI Notifications"]),
+    stats=extend_schema(tags=["AI Notifications"]),
+)
 class NotificationViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]

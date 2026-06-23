@@ -2,7 +2,7 @@ from rest_framework import viewsets, status, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from drf_spectacular.utils import extend_schema, inline_serializer
+from drf_spectacular.utils import extend_schema, inline_serializer, extend_schema_view
 from rest_framework.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Count, Q, OuterRef, Subquery, IntegerField
@@ -54,6 +54,13 @@ def get_annotated_sessions(academy_id, class_id=None):
 
     return sessions
 
+@extend_schema_view(
+    list=extend_schema(tags=["Class Session"]),
+    retrieve=extend_schema(tags=["Class Session"]),
+    create=extend_schema(tags=["Class Session"]),
+    destroy=extend_schema(tags=["Class Session"]),
+    attendance=extend_schema(tags=["Attendance"]),
+)
 class ClassSessionViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = ClassSessionSerializer
     http_method_names = ['get', 'post', 'delete', 'head', 'options']
@@ -146,6 +153,13 @@ class ClassSessionViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
             pass
 
 
+@extend_schema_view(
+    list=extend_schema(tags=["Attendance"]),
+    retrieve=extend_schema(tags=["Attendance"]),
+    create=extend_schema(tags=["Attendance"]),
+    stats=extend_schema(tags=["Attendance"]),
+    history=extend_schema(tags=["Attendance"]),
+)
 class StudentAttendanceViewSet(viewsets.ModelViewSet):
     serializer_class = AttendanceSerializer
     http_method_names = ['get', 'head', 'options']
@@ -217,6 +231,12 @@ class StudentAttendanceViewSet(viewsets.ModelViewSet):
         return Response(data)
 
 
+@extend_schema_view(
+    list=extend_schema(tags=["Attendance"]),
+    retrieve=extend_schema(tags=["Attendance"]),
+    create=extend_schema(tags=["Attendance"]),
+    summary=extend_schema(tags=["Attendance"]),
+)
 class ClassAttendanceViewSet(viewsets.ModelViewSet):
     serializer_class = ClassSessionSerializer
     http_method_names = ['get', 'head', 'options']

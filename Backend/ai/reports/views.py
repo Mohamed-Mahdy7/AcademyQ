@@ -2,6 +2,7 @@ from rest_framework import mixins, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from core.mixins import AcademyScopedMixin
 from structure.models import Class
 from financial_operations.models import Enrollment
@@ -14,7 +15,13 @@ from .serializers import (
 from .generator import generate_report_card
 from .tasks import generate_class_reports_task
 
-
+@extend_schema_view(
+    list=extend_schema(tags=["AI Reports"]),
+    retrieve=extend_schema(tags=["AI Reports"]),
+    destroy=extend_schema(tags=["AI Reports"]),
+    generate=extend_schema(tags=["AI Reports"]),
+    generate_bulk=extend_schema(tags=["AI Reports"]),
+)
 class AIReportCardViewSet(
     AcademyScopedMixin,
     mixins.ListModelMixin,

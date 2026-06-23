@@ -1,5 +1,5 @@
 import traceback
-from drf_spectacular.utils import extend_schema, inline_serializer
+from drf_spectacular.utils import extend_schema, inline_serializer, extend_schema_view
 from rest_framework import serializers
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
@@ -18,6 +18,14 @@ from ai.agent.tasks import run_risk_scan
 
 MANUAL_SCAN_DAILY_LIMIT = 3
 
+@extend_schema_view(
+    list=extend_schema(tags=["Alert"]),
+    retrieve=extend_schema(tags=["Alert"]),
+    create=extend_schema(tags=["Alert"]),
+    partial_update=extend_schema(tags=["Alert"]),
+    stats=extend_schema(tags=["Alert"]),
+    generate_message=extend_schema(tags=["Alert"]),
+)
 class AlertViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = AlertSerializer
     permission_classes = [IsOwner, ActiveSubscriptionRequired]
