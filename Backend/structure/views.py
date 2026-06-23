@@ -4,6 +4,7 @@ from datetime import timedelta
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 from drf_spectacular.utils import extend_schema_view, extend_schema
 from core.mixins import AcademyScopedMixin
 from financial_operations.models import Teachers
@@ -113,19 +114,14 @@ class ClassViewSet(viewsets.ModelViewSet):
         teacher_id = request.data.get("teacher_id")
 
         if not teacher_id:
-            return Response(
-                {"detail": "teacher_id is required."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            raise ValidationError("teacher_id is required.")
 
         try:
             teacher = Teachers.objects.get(
                 id=teacher_id, academy_id=request.user.academy_id
             )
         except Teachers.DoesNotExist:
-            return Response(
-                {"detail": "Teacher not found."}, status=status.HTTP_404_NOT_FOUND
-            )
+            raise ValidationError("Teacher not found.")
 
         if TeacherClass.objects.filter(
             assigned_class=class_obj, teacher=teacher
@@ -151,20 +147,14 @@ class ClassViewSet(viewsets.ModelViewSet):
         teacher_id = request.data.get("teacher_id")
 
         if not teacher_id:
-            return Response(
-                {"detail": "teacher_id is required."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            raise ValidationError("teacher_id is required.")
 
         try:
             assignment = TeacherClass.objects.get(
                 assigned_class=class_obj, teacher__id=teacher_id
             )
         except TeacherClass.DoesNotExist:
-            return Response(
-                {"detail": "Teacher assignment not found."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+            raise ValidationError("Teacher assignment not found.")
 
         assignment.delete()
 
