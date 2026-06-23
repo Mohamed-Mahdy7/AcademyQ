@@ -1,3 +1,4 @@
+from rest_framework.exceptions import PermissionDenied, NotFound, ValidationError
 from rest_framework import mixins, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -7,11 +8,7 @@ from core.mixins import AcademyScopedMixin
 from structure.models import Class
 from financial_operations.models import Enrollment
 from .models import AIReportCard
-from .serializers import (
-    AIReportCardSerializer,
-    GenerateReportSerializer,
-    GenerateBulkReportSerializer,
-)
+from .serializers import AIReportCardSerializer, GenerateReportSerializer, GenerateBulkReportSerializer
 from .generator import generate_report_card
 from .tasks import generate_class_reports_task
 
@@ -55,32 +52,27 @@ class AIReportCardViewSet(
 
     def perform_destroy(self, instance):
         if self.request.user.role not in ("O", "A"):
-            from rest_framework.exceptions import PermissionDenied
-
             raise PermissionDenied("Only owners or admins can delete reports.")
         instance.delete()
 
     @action(detail=False, methods=["post"], url_path="generate")
     def generate(self, request):
         if request.user.role not in ("O", "A"):
-            return Response(
-                {"detail": "Only owners or admins can generate reports."},
-                status=status.HTTP_403_FORBIDDEN,
-            )
+            raise PermissionDenied("Only owners or admins can generate reports.")
+
         serializer = GenerateReportSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         enrollment_id = serializer.validated_data["enrollment_id"]
         month = serializer.validated_data["month"]
+
         try:
             enrollment = Enrollment.objects.get(
                 id=enrollment_id,
                 class_id__academy_id=request.user.academy_id,
             )
         except Enrollment.DoesNotExist:
-            return Response(
-                {"detail": "Enrollment not found."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+            raise NotFound("Enrollment not found.")
+
         report = generate_report_card(enrollment, month)
         return Response(
             AIReportCardSerializer(report).data,
@@ -90,10 +82,7 @@ class AIReportCardViewSet(
     @action(detail=False, methods=["post"], url_path="generate_bulk")
     def generate_bulk(self, request):
         if request.user.role not in ("O", "A"):
-            return Response(
-                {"detail": "Only owners or admins can generate reports."},
-                status=status.HTTP_403_FORBIDDEN,
-            )
+            raise PermissionDenied("Only owners or admins can generate reports.")
 
         serializer = GenerateBulkReportSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -105,19 +94,15 @@ class AIReportCardViewSet(
                 id=class_id, academy_id=request.user.academy_id
             )
         except Class.DoesNotExist:
-            return Response(
-                {"detail": "Class not found."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+            raise NotFound("Class not found.")
 
         active_count = Enrollment.objects.filter(
             class_id=class_obj, status="active"
         ).count()
 
         if active_count == 0:
-            return Response(
-                {"detail": "No active students enrolled in this class."},
-                status=status.HTTP_400_BAD_REQUEST,
+            raise ValidationError(
+                {"class_id": ["No active students enrolled in this class."]}
             )
 
         generate_class_reports_task.delay(str(class_obj.id), month)
