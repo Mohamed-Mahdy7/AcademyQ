@@ -77,36 +77,64 @@ function StudentRegister({ onClose }) {
             <div className="grid md:grid-cols-2 gap-5">
                 <div>
                     <label htmlFor="fullName" className="form-label">Full Name</label>
-                    <input type="text" id="fullName" value={full_name}
+                    <input 
+                        type="text" 
+                        id="fullName" 
+                        value={full_name}
+                        placeholder="Full Name"
                         onChange={(e) => setFullName(e.target.value)}
-                        className={fieldClass("full_name")} required />
+                        className={fieldClass("full_name")} 
+                        required 
+                    />
                     {fieldErrors.full_name && <p className="form-error">{fieldErrors.full_name[0]}</p>}
                 </div>
                 <div>
                     <label htmlFor="email" className="form-label">Email</label>
-                    <input type="email" id="email" value={email}
+                    <input 
+                        type="email" 
+                        id="email" 
+                        value={email}
+                        placeholder="Email"
                         onChange={(e) => setEmail(e.target.value)}
-                        className={fieldClass("email")} required />
+                        className={fieldClass("email")} 
+                        required 
+                    />
                     {fieldErrors.email && <p className="form-error">{fieldErrors.email[0]}</p>}
                 </div>
                 <div>
                     <label htmlFor="phone" className="form-label">Phone</label>
-                    <input type="text" id="phone" value={phone}
+                    <input 
+                        type="text" 
+                        id="phone" 
+                        value={phone}
+                        placeholder="Phone"
                         onChange={(e) => setPhone(e.target.value)}
-                        className={fieldClass("phone")} required />
+                        className={fieldClass("phone")} 
+                        required 
+                    />
                     {fieldErrors.phone && <p className="form-error">{fieldErrors.phone[0]}</p>}
                 </div>
                 <div>
                     <label htmlFor="parentEmail" className="form-label">Parent email</label>
-                    <input type="email" id="parentEmail" value={parent_email}
+                    <input 
+                        type="email" 
+                        id="parentEmail" 
+                        value={parent_email}
+                        placeholder="Parent Email"
                         onChange={(e) => setParentEmail(e.target.value)}
-                        className={fieldClass("parent_email")} required />
+                        className={fieldClass("parent_email")} 
+                        required 
+                    />
                     {fieldErrors.parent_email && <p className="form-error">{fieldErrors.parent_email[0]}</p>}
                 </div>
                 <div>
                     <label htmlFor="academy" className="form-label">Academy</label>
-                    <select id="academy" value={academy} onChange={(e) => setAcademy(e.target.value)}
-                        className={fieldErrors.academy ? "form-input-error" : "form-select"}>
+                    <select 
+                        id="academy" 
+                        value={academy} 
+                        onChange={(e) => setAcademy(e.target.value)}
+                        className={fieldErrors.academy ? "form-input-error" : "form-select"}
+                    >
                         <option value="">Select an academy</option>
                         {academies.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
                     </select>
@@ -114,9 +142,13 @@ function StudentRegister({ onClose }) {
                 </div>
                 <div>
                     <label htmlFor="educational_level" className="form-label">Educational Level</label>
-                    <select id="educational_level" value={educational_level}
-                        onChange={(e) => setEducationalLevel(Number(e.target.value))} required
-                        className={fieldErrors.educational_level ? "form-input-error" : "form-select"}>
+                    <select 
+                        id="educational_level" 
+                        value={educational_level}
+                        onChange={(e) => setEducationalLevel(Number(e.target.value))} 
+                        required
+                        className={fieldErrors.educational_level ? "form-input-error" : "form-select"}
+                    >
                         <option value="">Select an educational level</option>
                         {educational_levels.map((level) => (
                             <option key={level.value} value={level.value}>{level.label}</option>
@@ -126,16 +158,28 @@ function StudentRegister({ onClose }) {
                 </div>
                 <div>
                     <label htmlFor="password" className="form-label">Password</label>
-                    <input type="password" id="password" value={password}
+                    <input 
+                        type="password" 
+                        id="password" 
+                        value={password}
+                        placeholder="Password"
                         onChange={(e) => setPassword(e.target.value)}
-                        className={fieldClass("password")} required />
+                        className={fieldClass("password")} 
+                        required 
+                    />
                     {fieldErrors.password && <p className="form-error">{fieldErrors.password[0]}</p>}
                 </div>
                 <div>
                     <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
-                    <input type="password" id="confirmPassword" value={confirm_password}
+                    <input 
+                        type="password" 
+                        id="confirmPassword" 
+                        value={confirm_password}
+                        placeholder="Confirm Password"
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className={fieldClass("confirm_password")} required />
+                        className={fieldClass("confirm_password")} 
+                        required
+                    />
                     {fieldErrors.confirm_password && <p className="form-error">{fieldErrors.confirm_password[0]}</p>}
                 </div>
             </div>

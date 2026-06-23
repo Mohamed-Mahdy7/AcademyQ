@@ -262,6 +262,8 @@ class EnrollmentSimpleSerializer(serializers.ModelSerializer):
 
 
 class StudentProfileUpdateSerializer(serializers.ModelSerializer):
+    # id = serializers.UUIDField(source="students.id", read_only=True)
+    # user_id = serializers.UUIDField(source="id", read_only=True)
     parent_email = serializers.EmailField(
         source="students.parent_email", required=True, allow_blank=False
     )
@@ -279,7 +281,7 @@ class StudentProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            "id", "full_name", "email", "phone", "parent_email", "educational_level", 
+            "id","full_name", "email", "phone", "parent_email", "educational_level", 
             "enrolled_at", "status", "status_display", "enrollments", 
             "attendance_percentage", "total_paid", "created_at", "updated_at"
         ]

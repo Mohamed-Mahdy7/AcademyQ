@@ -42,17 +42,25 @@ function Login() {
                 <div className="flex justify-between items-center space-y-2">
                     <label htmlFor="email" className="form-label m-0">Email</label>
                     <input
-                        type="email" name="email" id="email" placeholder="Enter your email"
+                        type="email" 
+                        name="email" 
+                        id="email" 
+                        placeholder="Enter your email"
                         value={email} onChange={(e) => setEmail(e.target.value)}
-                        className="form-input w-10/12" required
+                        className="form-input w-10/12" 
+                        required
                     />
                 </div>
                 <div className="flex justify-between items-center space-y-2">
                     <label htmlFor="password" className="form-label m-0">Password</label>
                     <input
-                        type="password" name="password" id="password" placeholder="Password"
+                        type="password" 
+                        name="password" 
+                        id="password" 
+                        placeholder="Password"
                         value={password} onChange={(e) => setPassword(e.target.value)}
-                        className="form-input w-10/12" required
+                        className="form-input w-10/12" 
+                        required
                     />
                 </div>
                 <button type="submit" className="btn-primary w-full" disabled={submitting}>

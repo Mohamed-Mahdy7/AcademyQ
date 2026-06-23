@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Teachers, Enrollment, Payment
 from core.models import Students
 from django.contrib.auth import get_user_model
+from core.models import Students
 
 User = get_user_model()
 

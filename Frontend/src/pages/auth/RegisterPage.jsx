@@ -52,71 +52,122 @@ function Register() {
                 <div>
                     <div className="flex my-3 justify-between items-center">
                         <label htmlFor="academyName" className="form-label m-0">Academy Name</label>
-                        <input type="text" id="academyName" value={academy_name}
+                        <input 
+                            type="text" 
+                            id="academyName" 
+                            value={academy_name}
+                            placeholder="Academy Name"
                             onChange={(e) => setAcademyName(e.target.value)}
-                            className={fieldClass("academy_name")} required />
+                            className={fieldClass("academy_name")} 
+                            required 
+                        />
                     </div>
                     {fieldErrors.academy_name && <p className="form-error">{fieldErrors.academy_name[0]}</p>}
 
                     <div className="flex my-3 justify-between items-center">
                         <label htmlFor="academyEmail" className="form-label m-0">Academy Email</label>
-                        <input type="email" id="academyEmail" value={academy_email}
+                        <input 
+                            type="email" 
+                            id="academyEmail" 
+                            value={academy_email}
+                            placeholder="Academy Email"
                             onChange={(e) => setAcademyEmail(e.target.value)}
-                            className={fieldClass("academy_email")} required />
+                            className={fieldClass("academy_email")} 
+                            required 
+                        />
                     </div>
                     {fieldErrors.academy_email && <p className="form-error">{fieldErrors.academy_email[0]}</p>}
 
                     <div className="flex my-3 justify-between items-center">
                         <label htmlFor="academyPhone" className="form-label m-0">Academy Phone</label>
-                        <input type="text" id="academyPhone" value={academy_phone}
+                        <input 
+                            type="text" 
+                            id="academyPhone" 
+                            value={academy_phone}
+                            placeholder="Academy Phone"
                             onChange={(e) => setAcademyPhone(e.target.value)}
-                            className={fieldClass("academy_phone")} required />
+                            className={fieldClass("academy_phone")} 
+                            required 
+                        />
                     </div>
                     {fieldErrors.academy_phone && <p className="form-error">{fieldErrors.academy_phone[0]}</p>}
 
                     <div className="flex my-3 justify-between items-center">
                         <label htmlFor="address" className="form-label m-0">Address</label>
-                        <input type="text" id="address" value={address}
+                        <input 
+                            type="text" 
+                            id="address" 
+                            value={address}
+                            placeholder="Address"
                             onChange={(e) => setAcademyAddress(e.target.value)}
-                            className={fieldClass("address")} required />
+                            className={fieldClass("address")} 
+                            required 
+                        />
                     </div>
                     {fieldErrors.address && <p className="form-error">{fieldErrors.address[0]}</p>}
 
                     <div className="flex my-3 justify-between items-center">
                         <label htmlFor="fullName" className="form-label m-0">Owner Name</label>
-                        <input type="text" id="fullName" value={full_name}
+                        <input 
+                            type="text" 
+                            id="fullName" 
+                            value={full_name}
+                            placeholder="Full Name"
                             onChange={(e) => setFullName(e.target.value)}
-                            className={fieldClass("full_name")} required />
+                            className={fieldClass("full_name")} required 
+                        />
                     </div>
                     {fieldErrors.full_name && <p className="form-error">{fieldErrors.full_name[0]}</p>}
 
                     <div className="flex my-3 justify-between items-center">
                         <label htmlFor="email" className="form-label m-0">Owner Email</label>
-                        <input type="email" id="email" value={email}
+                        <input 
+                            type="email" 
+                            id="email" 
+                            value={email}
+                            placeholder="Owner Email"
                             onChange={(e) => setEmail(e.target.value)}
-                            className={fieldClass("email")} required />
+                            className={fieldClass("email")} 
+                            required 
+                        />
                     </div>
                     {fieldErrors.email && <p className="form-error">{fieldErrors.email[0]}</p>}
 
                     <div className="flex my-3 justify-between items-center">
                         <label htmlFor="phone" className="form-label m-0">Owner Phone</label>
-                        <input type="text" id="phone" value={phone}
+                        <input 
+                            type="text" 
+                            id="phone" 
+                            value={phone}
+                            placeholder="Owner Phone"
                             onChange={(e) => setPhone(e.target.value)}
-                            className={fieldClass("phone")} required />
+                            className={fieldClass("phone")} 
+                            required 
+                            />
                     </div>
                     {fieldErrors.phone && <p className="form-error">{fieldErrors.phone[0]}</p>}
 
                     <div className="flex my-3 justify-between items-center">
                         <label htmlFor="password" className="form-label m-0">Password</label>
-                        <input type="password" id="password" value={password}
+                        <input 
+                            type="password" 
+                            id="password" 
+                            value={password}
+                            placeholder="Password"
                             onChange={(e) => setPassword(e.target.value)}
-                            className={fieldClass("password")} required />
+                            className={fieldClass("password")} 
+                            required 
+                        />
                     </div>
                     {fieldErrors.password && <p className="form-error">{fieldErrors.password[0]}</p>}
 
                     <div className="flex my-3 justify-between items-center">
                         <label htmlFor="confirmPassword" className="form-label m-0">Confirm Password</label>
-                        <input type="password" id="confirmPassword" value={confirm_password}
+                        <input 
+                            type="password" 
+                            id="confirmPassword" 
+                            value={confirm_password}
+                            placeholder="Confirm Password"
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             className={fieldClass("confirm_password")} required />
                     </div>
