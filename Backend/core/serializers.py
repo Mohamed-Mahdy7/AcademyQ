@@ -251,7 +251,7 @@ class StudentListSerializer(serializers.ModelSerializer):
             "educational_level_display", "status", "status_display", "enrollments",
         ]
 
-    def get_enrollments(self, obj):
+    def get_enrollments(self, obj) -> int:
         return obj.students.enrollments.count()
 
 
@@ -284,14 +284,14 @@ class StudentProfileUpdateSerializer(serializers.ModelSerializer):
             "attendance_percentage", "total_paid", "created_at", "updated_at"
         ]
 
-    def get_attendance_percentage(self, obj):
+    def get_attendance_percentage(self, obj) -> float:
         student = obj.students
         
         total = Attendance.objects.filter(enrollment__student_id=student).count()
         present = Attendance.objects.filter(enrollment__student_id=student, present=True).count()
         return round((present / total) * 100, 2) if total else 0
         
-    def get_total_paid(self, obj):
+    def get_total_paid(self, obj) -> float:
         student = obj.students
         
         total_payment = Payment.objects.filter(

@@ -1,11 +1,10 @@
 from django.db.models import Count, Q, Avg, Case, When, FloatField
 from django.utils import timezone
 from datetime import timedelta
-
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
+from core.mixins import AcademyScopedMixin
 from financial_operations.models import Teachers
 from .models import (
     Subject,
@@ -157,10 +156,13 @@ class ClassViewSet(viewsets.ModelViewSet):
         )
 
 
-class ClassScheduleViewSet(viewsets.ModelViewSet):
+class ClassScheduleViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = ClassScheduleSerializer
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return ClassSchedule.objects.none()
+        
         queryset = ClassSchedule.objects.select_related("class_obj").filter(
             class_obj__academy=self.request.user.academy
         )
@@ -175,10 +177,13 @@ class ClassScheduleViewSet(viewsets.ModelViewSet):
         serializer.save(class_obj=class_obj)
 
 
-class ClassSessionEnrollmentViewSet(viewsets.ReadOnlyModelViewSet):
+class ClassSessionEnrollmentViewSet(AcademyScopedMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = ClassSessionEnrollmentSerializer
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return ClassSessionEnrollment.objects.none()
+        
         queryset = ClassSessionEnrollment.objects.select_related(
             "session", "class_obj"
         ).filter(class_obj__academy=self.request.user.academy)

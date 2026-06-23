@@ -1,6 +1,5 @@
 import { useContext, useState } from "react";
 import { UsersContext } from "../../context/UsersContext";
-import { useNavigate } from "react-router-dom";
 
 
 function UserRegister({ onClose }) {
@@ -11,7 +10,9 @@ function UserRegister({ onClose }) {
     const [password, setPassword] = useState("");
     const [confirm_password, setConfirmPassword] = useState("");
     const [role, setRole] = useState("");
-    const navigate = useNavigate();
+    const [fieldErrors, setFieldErrors] = useState({});
+    const [submitting, setSubmitting] = useState(false);
+    
     const roles = [
         { value: "A", label: "Admin" },
         { value: "T", label: "Teacher" },
@@ -19,127 +20,85 @@ function UserRegister({ onClose }) {
 
     async function handleSubmit(e) {
         e.preventDefault();
+        setFieldErrors({});
 
         if (password !== confirm_password) {
-            alert("Passwords do not match");
+            setFieldErrors({ confirm_password: ["Passwords do not match"] });
             return;
         }
-        
-        const data = {
-            full_name,
-            email,
-            phone,
-            password,
-            confirm_password,
-            role,
-        };
-        const result = await createUser(data);
 
-        if (!result.success) {
-            alert("Invalid credentials");
-        } else {
+        setSubmitting(true);
+        const result = await createUser({
+            full_name, email, phone, password, confirm_password, role,
+        });
+        setSubmitting(false);
+
+        if (result.success) {
             onClose();
+        } else if (result.error?.response?.data?.code === "validation_error") {
+            setFieldErrors(result.error.response.data.fields || {});
         }
     }
 
+    function fieldClass(name) {
+        return fieldErrors[name] ? "form-input-error" : "form-input";
+    }
 
     return (
         <form 
             onSubmit={handleSubmit}
             className="form-card"
         >
-            <h1 className="text-3xl font-bold text-navy mb-8">
-                User Registration
-            </h1>
+            <h1 className="text-3xl font-bold text-navy mb-8">User Registration</h1>
             <div className="grid md:grid-cols-2 gap-5">
                 <div>
                     <label htmlFor="fullName" className="form-label">Full Name</label>
-                    <input 
-                        type="text" 
-                        name="fullName" 
-                        id="fullName"
-                        placeholder="Owner Full Name"
-                        value={full_name}
+                    <input type="text" id="fullName" value={full_name}
                         onChange={(e) => setFullName(e.target.value)}
-                        className="form-input"
-                        required
-                    />
+                        className={fieldClass("full_name")} required />
+                    {fieldErrors.full_name && <p className="form-error">{fieldErrors.full_name[0]}</p>}
                 </div>
                 <div>
                     <label htmlFor="email" className="form-label">Email</label>
-                    <input 
-                        type="email" 
-                        name="email" 
-                        id="email"
-                        placeholder="Email"
-                        value={email}
+                    <input type="email" id="email" value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="form-input"
-                        required
-                    />
+                        className={fieldClass("email")} required />
+                    {fieldErrors.email && <p className="form-error">{fieldErrors.email[0]}</p>}
                 </div>
                 <div>
                     <label htmlFor="phone" className="form-label">Phone</label>
-                    <input 
-                        type="text" 
-                        name="phone" 
-                        id="phone"
-                        placeholder="Phone"
-                        value={phone}
+                    <input type="text" id="phone" value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="form-input"
-                        required
-                    />
+                        className={fieldClass("phone")} required />
+                    {fieldErrors.phone && <p className="form-error">{fieldErrors.phone[0]}</p>}
                 </div>
                 <div>
                     <label htmlFor="password" className="form-label">Password</label>
-                    <input 
-                        type="password" 
-                        name="password" 
-                        id="password"
-                        placeholder="Password"
-                        value={password}
+                    <input type="password" id="password" value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="form-input"
-                        required
-                    />
+                        className={fieldClass("password")} required />
+                    {fieldErrors.password && <p className="form-error">{fieldErrors.password[0]}</p>}
                 </div>
                 <div>
                     <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
-                    <input 
-                        type="password" 
-                        name="confirmPassword" 
-                        id="confirmPassword"
-                        placeholder="Confirm Password"
-                        value={confirm_password}
+                    <input type="password" id="confirmPassword" value={confirm_password}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="form-input"
-                        required
-                    />
+                        className={fieldClass("confirm_password")} required />
+                    {fieldErrors.confirm_password && <p className="form-error">{fieldErrors.confirm_password[0]}</p>}
                 </div>
                 <div>
-                    <label htmlFor="role">Role</label>
-                    <select 
-                        name="role" 
-                        id="role"
-                        value={role}
-                        onChange={(e) => setRole(e.target.value)}
-                        required
-                        className="form-select"
-                    >
+                    <label htmlFor="role" className="form-label">Role</label>
+                    <select id="role" value={role} onChange={(e) => setRole(e.target.value)} required
+                        className={fieldErrors.role ? "form-input-error" : "form-select"}>
                         <option value="">Select a role</option>
-                        {roles.map((roleOption) => (
-                            <option
-                                key={roleOption.value}
-                                value={roleOption.value}
-                            >
-                                {roleOption.label}
-                            </option>
-                        ))}
+                        {roles.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
                     </select>
+                    {fieldErrors.role && <p className="form-error">{fieldErrors.role[0]}</p>}
                 </div>
             </div>
-            <button type="submit" className="btn-primary mt-4 w-full">Register</button>
+            <button type="submit" className="btn-primary mt-4 w-full" disabled={submitting}>
+                {submitting ? <span className="btn-spinner" /> : "Register"}
+            </button>
         </form>
     )
 

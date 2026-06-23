@@ -1,7 +1,6 @@
-from pprint import pprint
-
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
+from core.mixins import AcademyScopedMixin
 from .models import Teachers, Enrollment, Payment
 from .serializers import TeachersSerializer, EnrollmentSerializer, PaymentSerializer
 from rest_framework.decorators import action
@@ -15,11 +14,14 @@ from django.db import transaction
 from rest_framework.exceptions import ValidationError
 from core.models import User, Students
 
-class TeachersViewSet(viewsets.ModelViewSet):
+class TeachersViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = TeachersSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Teachers.objects.none()
+        
         return Teachers.objects.filter(
             academy_id=self.request.user.academy_id
         ).select_related('user_id')
@@ -30,11 +32,14 @@ class TeachersViewSet(viewsets.ModelViewSet):
         user.save()
 
 
-class EnrollmentViewSet(viewsets.ModelViewSet):
+class EnrollmentViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = EnrollmentSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Enrollment.objects.none()
+        
         queryset = Enrollment.objects.filter(
             class_id__academy_id=self.request.user.academy_id
         )
@@ -94,11 +99,14 @@ class EnrollmentViewSet(viewsets.ModelViewSet):
         instance.status = 'dropped'
         instance.save()
 
-class PaymentViewSet(viewsets.ModelViewSet):
+class PaymentViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = PaymentSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Payment.objects.none()
+        
         queryset = Payment.objects.filter(
             enrollment_id__class_id__academy_id=self.request.user.academy_id
         ).exclude(status='deleted') 
