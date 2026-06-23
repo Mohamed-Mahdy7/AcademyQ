@@ -5,6 +5,7 @@ from .models import Teachers, Enrollment, Payment
 from .serializers import TeachersSerializer, EnrollmentSerializer, PaymentSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from django.db.models import Sum, F, ExpressionWrapper, DecimalField
 from django.utils import timezone
 from datetime import timedelta
@@ -15,6 +16,15 @@ from rest_framework.exceptions import ValidationError
 from core.models import User, Students
 from django.db.models import Q
 
+@extend_schema_view(
+    list=extend_schema(tags=["Teacher"]),
+    retrieve=extend_schema(tags=["Teacher"]),
+    create=extend_schema(tags=["Teacher"]),
+    update=extend_schema(tags=["Teacher"]),
+    partial_update=extend_schema(tags=["Teacher"]),
+    destroy=extend_schema(tags=["Teacher"]),
+    
+)
 class TeachersViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = TeachersSerializer
     permission_classes = [IsAuthenticated]
@@ -32,7 +42,14 @@ class TeachersViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
         user.is_active = False
         user.save()
 
-
+@extend_schema_view(
+    list=extend_schema(tags=["Enrollment"]),
+    retrieve=extend_schema(tags=["Enrollment"]),
+    create=extend_schema(tags=["Enrollment"]),
+    update=extend_schema(tags=["Enrollment"]),
+    partial_update=extend_schema(tags=["Enrollment"]),
+    destroy=extend_schema(tags=["Enrollment"]),
+)
 class EnrollmentViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = EnrollmentSerializer
     permission_classes = [IsAuthenticated]
@@ -100,6 +117,15 @@ class EnrollmentViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
         instance.status = 'dropped'
         instance.save()
 
+@extend_schema_view(
+    list=extend_schema(tags=["Payment"]),
+    retrieve=extend_schema(tags=["Payment"]),
+    create=extend_schema(tags=["Payment"]),
+    update=extend_schema(tags=["Payment"]),
+    partial_update=extend_schema(tags=["Payment"]),
+    destroy=extend_schema(tags=["Payment"]),
+    summary=extend_schema(tags=["Payment"]),
+)
 class PaymentViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = PaymentSerializer
     permission_classes = [IsAuthenticated]

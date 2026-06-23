@@ -1,12 +1,22 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from core.mixins import AcademyScopedMixin
 from core.permissions import IsOwner, ActiveSubscriptionRequired
 from .models import Grade
 from .serializers import GradeSerializer
 
-
+@extend_schema_view(
+    list=extend_schema(tags=["Grades"]),
+    retrieve=extend_schema(tags=["Grades"]),
+    create=extend_schema(tags=["Grades"]),
+    partial_update=extend_schema(tags=["Grades"]),
+    destroy=extend_schema(tags=["Grades"]),
+    summary=extend_schema(tags=["Grades"]),
+    class_summary=extend_schema(tags=["Classes"]),
+    
+)
 class GradeViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = GradeSerializer
     permission_classes = [IsOwner, ActiveSubscriptionRequired]
