@@ -79,8 +79,9 @@ export const UsersProvider = ({children}) => {
         try{
             await deleteUserRequest(id);
             await getUsers();
+            return { success: true };
         } catch (error) {
-            console.error(error);
+            return { success: false, error };
         } finally {
             setUser(null);
         }

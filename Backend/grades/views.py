@@ -1,17 +1,21 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from core.mixins import AcademyScopedMixin
 from core.permissions import IsOwner, ActiveSubscriptionRequired
 from .models import Grade
 from .serializers import GradeSerializer
 
 
-class GradeViewSet(viewsets.ModelViewSet):
+class GradeViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = GradeSerializer
     permission_classes = [IsOwner, ActiveSubscriptionRequired]
     http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Grade.objects.none()
+    
         queryset = Grade.objects.filter(
             enrollment__class_id__academy_id=self.request.user.academy_id
         )

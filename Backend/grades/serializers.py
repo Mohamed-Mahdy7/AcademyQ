@@ -18,7 +18,7 @@ class GradeSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id"]
 
-    def get_session_num(self, obj):
+    def get_session_num(self, obj) -> int:
         if not obj.session_id:
             return None
         from structure.models import ClassSessionEnrollment

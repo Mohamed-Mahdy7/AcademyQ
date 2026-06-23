@@ -10,6 +10,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.exceptions import NotFound, PermissionDenied, AuthenticationFailed, ValidationError
 from rest_framework.decorators import action
 from drf_spectacular.utils import extend_schema, extend_schema_view, inline_serializer
+
+from .mixins import AcademyScopedMixin
 from .models import Academy, Students
 from .serializers import (AcademySerializer, CustomeTokenObtainPairSerializer,
     AcademyRegistrationSerializer, StaffCreateSerializer, StudentCreateSerializer, 
@@ -98,7 +100,20 @@ class LoginView(TokenObtainPairView):
             )
         return response
 
-@extend_schema(tags=["Auth"])
+@extend_schema(
+    tags=["Auth"],
+    request=None,
+    responses={
+        200: inline_serializer(
+            "RefreshTokenResponse",
+            fields={"access": serializers.CharField()},
+        ),
+        401: inline_serializer(
+            "RefreshTokenError",
+            fields={"error": serializers.CharField()},
+        ),
+    },
+)
 class RefreshTokenView(APIView):
     def post(self, request):
         refresh_token = request.COOKIES.get("refresh_token")
@@ -202,10 +217,13 @@ class ComopleteSetupView(APIView):
     students=extend_schema(tags=["Students"]),
     
 )
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     permission_classes = [IsOwner]
     
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return User.objects.none()
+        
         return User.objects.filter(
             academy=self.request.user.academy
         ).exclude(role=User.Roles.OWNER)
@@ -253,7 +271,17 @@ class RolesListView(APIView):
             "label": label,
         }for value, label in User.Roles.choices])
 
-@extend_schema(tags=["Students"])
+@extend_schema(
+    tags=["Students"],
+    responses=inline_serializer(
+        "EducationalLevelChoice",
+        fields={
+            "value": serializers.IntegerField(),
+            "label": serializers.CharField(),
+        },
+        many=True,
+    ),
+)
 class EducationalLevelListView(APIView):
     def get(self, request):
         return Response ([

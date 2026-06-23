@@ -17,10 +17,7 @@ export function AuthProvider({ children }) {
         try{
             const response = await meRequest();
             setUser(response.data);
-            console.log(response.data);
         } catch (error) {
-            console.error(error);
-            console.error(error.response?.data?.error)
             setUser(null);
         } finally {
             setLoading(false);
@@ -29,13 +26,11 @@ export function AuthProvider({ children }) {
 
 
     async function register(data) {
-        console.log(data);
         try {
             await registerRequest(data);
-            return true;
+            return { success: true };
         } catch (error) {
-            console.error(error.response?.data)
-            return false;
+            return { success: false, error };
         }
     }
 
@@ -43,10 +38,9 @@ export function AuthProvider({ children }) {
         console.log(data);
         try {
             await studentRegisterRequest(data);
-            return true;
+            return { success: true };
         } catch (error) {
-            console.error(error.response?.data)
-            return false;
+            return { success: false, error };
         }
     }
 
@@ -54,10 +48,9 @@ export function AuthProvider({ children }) {
         try {
             await loginRequest({email, password});
             await checkAuth();
-            return true;
+            return { success: true };
         } catch (error) {
-            console.error(error);
-            return false
+            return { success: false, error };
         }
     }
 

@@ -15,6 +15,8 @@ const EditStudentProfile = ({ onClose }) => {
     const [parent_email, setParentEmail] = useState("");
     const [educational_level, setEducationalLevel] = useState("");
     const [educational_levels, setEducationalLevels] = useState([]);
+    const [fieldErrors, setFieldErrors] = useState({});
+    const [saving, setSaving] = useState(false);
     const { id } = useParams();
     const navigate = useNavigate();
     
@@ -46,29 +48,24 @@ const EditStudentProfile = ({ onClose }) => {
     }, [student]);
 
     if (!student) {
-        return <div>Loading...</div>;
+        return <div className="skeleton skeleton-card" />;
     }
 
     async function handleSubmit(e) {
         e.preventDefault();
+        setFieldErrors({});
+        setSaving(true);
 
-        const data = {
-            educational_level,
-            email,
-            full_name,
-            parent_email,
-            phone,
-        }
-        try{
-            const result = await updateStudent(id, data);
-            if(result.success) {
-                onClose();
-                navigate(`/student/${result.data.id}`)
-            }
-        } catch (error) {
-            console.error(error);
-            console.log(error.response?.data);
-            throw error;
+        const data = { educational_level, email, full_name, parent_email, phone };
+        const result = await updateStudent(id, data);
+
+        setSaving(false);
+
+        if (result.success) {
+            onClose();
+            navigate(`/student/${result.data.id}`);
+        } else if (result.error?.response?.data?.code === "validation_error") {
+            setFieldErrors(result.error.response.data.fields || {});
         }
     }
 
@@ -91,9 +88,10 @@ const EditStudentProfile = ({ onClose }) => {
                         placeholder="Owner Full Name"
                         value={full_name}
                         onChange={(e) => setFullName(e.target.value)}
-                        className="form-input"
+                        className={fieldErrors.full_name ? "form-input-error" : "form-input"}
                         required
                     />
+                    {fieldErrors.full_name && <p className="form-error">{fieldErrors.full_name[0]}</p>}
                 </div>
                 <div>
                     <label htmlFor="email" className="form-label">Email</label>
@@ -104,9 +102,10 @@ const EditStudentProfile = ({ onClose }) => {
                         placeholder="Email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="form-input"
+                        className={fieldErrors.email ? "form-input-error" : "form-input"}
                         required
                     />
+                    {fieldErrors.email && <p className="form-error">{fieldErrors.email[0]}</p>}
                 </div>
                 <div>
                     <label htmlFor="phone" className="form-label">Phone</label>
@@ -117,9 +116,10 @@ const EditStudentProfile = ({ onClose }) => {
                         placeholder="Phone"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="form-input"
+                        className={fieldErrors.phone ? "form-input-error" : "form-input"}
                         required
                     />
+                    {fieldErrors.phone && <p className="form-error">{fieldErrors.phone[0]}</p>}
                 </div>
                 <div>
                     <label htmlFor="parentEmail" className="form-label">Parent email</label>
@@ -130,9 +130,10 @@ const EditStudentProfile = ({ onClose }) => {
                         placeholder="parentEmail"
                         value={parent_email}
                         onChange={(e) => setParentEmail(e.target.value)}
-                        className="form-input"
+                        className={fieldErrors.parent_email ? "form-input-error" : "form-input"}
                         required
                     />
+                    {fieldErrors.parent_email && <p className="form-error">{fieldErrors.parent_email[0]}</p>}
                 </div>
                 <div>
                     <label htmlFor="educational_level">educational_level</label>
@@ -142,7 +143,7 @@ const EditStudentProfile = ({ onClose }) => {
                         value={educational_level}
                         onChange={(e) => setEducationalLevel(Number(e.target.value))}
                         required
-                        className="form-select"
+                        className={fieldErrors.educational_level ? "form-input-error" : "form-select"}
                     >
                         <option value="">Select an educational level</option>
                         {educational_levels.map((level) => (
@@ -154,9 +155,12 @@ const EditStudentProfile = ({ onClose }) => {
                             </option>
                         ))}
                     </select>
+                    {fieldErrors.educational_level && <p className="form-error">{fieldErrors.educational_level[0]}</p>}
                 </div>
             </div>
-            <button type="submit" className="btn-primary mt-4 w-full">Save Changes</button>
+            <button type="submit" className="btn-primary mt-4 w-full" disabled={saving}>
+                {saving ? <span className="btn-spinner" /> : "Save Changes"}
+                </button>
         </form>
     )
 }

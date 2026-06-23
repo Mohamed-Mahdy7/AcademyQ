@@ -14,169 +14,173 @@ function Register() {
     const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
     const [confirm_password, setConfirmPassword] = useState("");
+    const [fieldErrors, setFieldErrors] = useState({});
+    const [submitting, setSubmitting] = useState(false);
     const navigate = useNavigate();
 
     async function handleSubmit(e) {
         e.preventDefault();
+        setFieldErrors({});
 
         if (password !== confirm_password) {
-            alert("Passwords do not match");
+            setFieldErrors({ confirm_password: ["Passwords do not match"] });
             return;
         }
 
-        const data = {
-            academy_name,
-            academy_email,
-            academy_phone,
-            address,
-            full_name,
-            email,
-            phone,
-            password,
-            confirm_password,
-        };
-        const success = await register(data);
-        if (!success) {
-            alert("Invalid credintials");
-        } else { navigate("/") }
+        setSubmitting(true);
+        const result = await register({
+            academy_name, academy_email, academy_phone, address,
+            full_name, email, phone, password, confirm_password,
+        });
+        setSubmitting(false);
+
+        if (result.success) {
+            navigate("/");
+        } else if (result.error?.response?.data?.code === "validation_error") {
+            setFieldErrors(result.error.response.data.fields || {});
+        }
+    }
+
+    function fieldClass(name) {
+        return fieldErrors[name] ? "form-input-error" : "form-input w-9/12";
     }
 
     return (
-        <div className=" w-6/12 mx-auto py-10 align-middle">
+        <div className="w-6/12 mx-auto py-10 align-middle">
             <form onSubmit={handleSubmit} className="form-card">
-                <h1 className="text-3xl font-bold text-navy mb-8">
-                    Academy Registration
-                </h1>
+                <h1 className="text-3xl font-bold text-navy mb-8">Academy Registration</h1>
                 <div>
                     <div className="flex my-3 justify-between items-center">
                         <label htmlFor="academyName" className="form-label m-0">Academy Name</label>
-                        <input
-                            type="text"
-                            name="academyName"
-                            id="academyName"
-                            placeholder="Academy Name"
+                        <input 
+                            type="text" 
+                            id="academyName" 
                             value={academy_name}
+                            placeholder="Academy Name"
                             onChange={(e) => setAcademyName(e.target.value)}
-                            className="form-input w-9/12"
-                            required
+                            className={fieldClass("academy_name")} 
+                            required 
                         />
                     </div>
+                    {fieldErrors.academy_name && <p className="form-error">{fieldErrors.academy_name[0]}</p>}
+
                     <div className="flex my-3 justify-between items-center">
                         <label htmlFor="academyEmail" className="form-label m-0">Academy Email</label>
-                        <input
-                            type="email"
-                            name="academyEmail"
-                            id="academyEmail"
-                            placeholder="Academy Email"
+                        <input 
+                            type="email" 
+                            id="academyEmail" 
                             value={academy_email}
+                            placeholder="Academy Email"
                             onChange={(e) => setAcademyEmail(e.target.value)}
-                            className="form-input w-9/12"
-                            required
+                            className={fieldClass("academy_email")} 
+                            required 
                         />
                     </div>
+                    {fieldErrors.academy_email && <p className="form-error">{fieldErrors.academy_email[0]}</p>}
+
                     <div className="flex my-3 justify-between items-center">
                         <label htmlFor="academyPhone" className="form-label m-0">Academy Phone</label>
-                        <input
-                            type="text"
-                            name="academyPhone"
-                            id="academyPhone"
-                            placeholder="Academy Phone"
+                        <input 
+                            type="text" 
+                            id="academyPhone" 
                             value={academy_phone}
+                            placeholder="Academy Phone"
                             onChange={(e) => setAcademyPhone(e.target.value)}
-                            className="form-input w-9/12"
-                            required
+                            className={fieldClass("academy_phone")} 
+                            required 
                         />
                     </div>
+                    {fieldErrors.academy_phone && <p className="form-error">{fieldErrors.academy_phone[0]}</p>}
+
                     <div className="flex my-3 justify-between items-center">
                         <label htmlFor="address" className="form-label m-0">Address</label>
-                        <input
-                            type="text"
-                            name="address"
-                            id="address"
-                            placeholder="Address"
+                        <input 
+                            type="text" 
+                            id="address" 
                             value={address}
+                            placeholder="Address"
                             onChange={(e) => setAcademyAddress(e.target.value)}
-                            className="form-input w-9/12"
-                            required
+                            className={fieldClass("address")} 
+                            required 
                         />
                     </div>
+                    {fieldErrors.address && <p className="form-error">{fieldErrors.address[0]}</p>}
+
                     <div className="flex my-3 justify-between items-center">
                         <label htmlFor="fullName" className="form-label m-0">Owner Name</label>
-                        <input
-                            type="text"
-                            name="fullName"
-                            id="fullName"
-                            placeholder="Full Name"
+                        <input 
+                            type="text" 
+                            id="fullName" 
                             value={full_name}
+                            placeholder="Full Name"
                             onChange={(e) => setFullName(e.target.value)}
-                            className="form-input w-9/12"
-                            required
+                            className={fieldClass("full_name")} required 
                         />
                     </div>
+                    {fieldErrors.full_name && <p className="form-error">{fieldErrors.full_name[0]}</p>}
+
                     <div className="flex my-3 justify-between items-center">
                         <label htmlFor="email" className="form-label m-0">Owner Email</label>
-                        <input
-                            type="email"
-                            name="email"
-                            id="email"
-                            placeholder="Email"
+                        <input 
+                            type="email" 
+                            id="email" 
                             value={email}
+                            placeholder="Owner Email"
                             onChange={(e) => setEmail(e.target.value)}
-                            className="form-input w-9/12"
-                            required
+                            className={fieldClass("email")} 
+                            required 
                         />
                     </div>
+                    {fieldErrors.email && <p className="form-error">{fieldErrors.email[0]}</p>}
+
                     <div className="flex my-3 justify-between items-center">
                         <label htmlFor="phone" className="form-label m-0">Owner Phone</label>
-                        <input
-                            type="text"
-                            name="phone"
-                            id="phone"
-                            placeholder="Phone"
+                        <input 
+                            type="text" 
+                            id="phone" 
                             value={phone}
+                            placeholder="Owner Phone"
                             onChange={(e) => setPhone(e.target.value)}
-                            className="form-input w-9/12"
-                            required
-                        />
+                            className={fieldClass("phone")} 
+                            required 
+                            />
                     </div>
+                    {fieldErrors.phone && <p className="form-error">{fieldErrors.phone[0]}</p>}
+
                     <div className="flex my-3 justify-between items-center">
                         <label htmlFor="password" className="form-label m-0">Password</label>
-                        <input
-                            type="password"
-                            name="password"
-                            id="password"
-                            placeholder="Password"
+                        <input 
+                            type="password" 
+                            id="password" 
                             value={password}
+                            placeholder="Password"
                             onChange={(e) => setPassword(e.target.value)}
-                            className="form-input w-9/12"
-                            required
+                            className={fieldClass("password")} 
+                            required 
                         />
                     </div>
+                    {fieldErrors.password && <p className="form-error">{fieldErrors.password[0]}</p>}
+
                     <div className="flex my-3 justify-between items-center">
                         <label htmlFor="confirmPassword" className="form-label m-0">Confirm Password</label>
-                        <input
-                            type="password"
-                            name="confirmPassword"
-                            id="confirmPassword"
-                            placeholder="Confirm Password"
+                        <input 
+                            type="password" 
+                            id="confirmPassword" 
                             value={confirm_password}
+                            placeholder="Confirm Password"
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="form-input w-9/12"
-                            required
-                        />
+                            className={fieldClass("confirm_password")} required />
                     </div>
+                    {fieldErrors.confirm_password && <p className="form-error">{fieldErrors.confirm_password[0]}</p>}
                 </div>
-                <button type="submit" className="btn-primary mt-4 w-full">Register</button>
+                <button type="submit" className="btn-primary mt-4 w-full" disabled={submitting}>
+                    {submitting ? <span className="btn-spinner" /> : "Register"}
+                </button>
             </form>
-                <div className="flex gap-3 mt-4 items-center justify-center-safe">
-                    <p className="subheading">Already have an account? </p>
-                    <button 
-                        className="btn-muted"
-                        onClick={() => navigate("/login")}
-                    >
-                        Login
-                    </button>
-                </div>
+            <div className="flex gap-3 mt-4 items-center justify-center-safe">
+                <p className="subheading">Already have an account? </p>
+                <button className="btn-muted" onClick={() => navigate("/login")}>Login</button>
+            </div>
         </div>
     )
 
