@@ -1,26 +1,37 @@
-from pprint import pprint
-
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
+from core.mixins import AcademyScopedMixin
 from .models import Teachers, Enrollment, Payment
 from .serializers import TeachersSerializer, EnrollmentSerializer, PaymentSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from django.db.models import Sum, F, ExpressionWrapper, DecimalField
 from django.utils import timezone
 from datetime import timedelta
 from structure.models import Class
 from datetime import date, datetime
 from django.db import transaction, IntegrityError
-from rest_framework.exceptions import ValidationError
-from core.models import User, Students
-from django.db.models import Q
+from rest_framework.exceptions import ValidationError, NotFound
+from core.models import Students
 
-class TeachersViewSet(viewsets.ModelViewSet):
+@extend_schema_view(
+    list=extend_schema(tags=["Teacher"]),
+    retrieve=extend_schema(tags=["Teacher"]),
+    create=extend_schema(tags=["Teacher"]),
+    update=extend_schema(tags=["Teacher"]),
+    partial_update=extend_schema(tags=["Teacher"]),
+    destroy=extend_schema(tags=["Teacher"]),
+    
+)
+class TeachersViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = TeachersSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Teachers.objects.none()
+        
         return Teachers.objects.filter(
             academy_id=self.request.user.academy_id
         ).select_related('user_id')
@@ -30,12 +41,22 @@ class TeachersViewSet(viewsets.ModelViewSet):
         user.is_active = False
         user.save()
 
-
-class EnrollmentViewSet(viewsets.ModelViewSet):
+@extend_schema_view(
+    list=extend_schema(tags=["Enrollment"]),
+    retrieve=extend_schema(tags=["Enrollment"]),
+    create=extend_schema(tags=["Enrollment"]),
+    update=extend_schema(tags=["Enrollment"]),
+    partial_update=extend_schema(tags=["Enrollment"]),
+    destroy=extend_schema(tags=["Enrollment"]),
+)
+class EnrollmentViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = EnrollmentSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Enrollment.objects.none()
+        
         queryset = Enrollment.objects.filter(
             class_id__academy_id=self.request.user.academy_id
         )
@@ -52,16 +73,15 @@ class EnrollmentViewSet(viewsets.ModelViewSet):
 
     @transaction.atomic
     def perform_create(self, serializer):
-        # student_id = self.request.data.get('student_id')
         class_id = self.request.data.get('class_id')
         start_date = self.request.data.get('start_date')
 
-        # if Enrollment.objects.filter(student_id=student_id, class_id=class_id).exists(): 
-        #     raise ValidationError(
-        #         {'detail': 'Student is already enrolled in this class.'}
-        #     )
-
-        enrollment = serializer.save()
+        try:
+            enrollment = serializer.save()
+        except IntegrityError:
+            raise ValidationError(
+                {'detail': 'Student is already enrolled in this class.'}
+            )
 
         student = enrollment.student_id
         if student.status == Students.Status.PENDING:
@@ -72,7 +92,9 @@ class EnrollmentViewSet(viewsets.ModelViewSet):
         try:
             class_obj = Class.objects.get(id=class_id)
         except Class.DoesNotExist:
-            return
+            raise NotFound(
+                detail=f'Class {class_id} not found.'
+            )
         
         if class_obj.session_price and class_obj.session_count:
             amount = class_obj.session_count * class_obj.session_price
@@ -95,11 +117,23 @@ class EnrollmentViewSet(viewsets.ModelViewSet):
         instance.status = 'dropped'
         instance.save()
 
-class PaymentViewSet(viewsets.ModelViewSet):
+@extend_schema_view(
+    list=extend_schema(tags=["Payment"]),
+    retrieve=extend_schema(tags=["Payment"]),
+    create=extend_schema(tags=["Payment"]),
+    update=extend_schema(tags=["Payment"]),
+    partial_update=extend_schema(tags=["Payment"]),
+    destroy=extend_schema(tags=["Payment"]),
+    summary=extend_schema(tags=["Payment"]),
+)
+class PaymentViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = PaymentSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Payment.objects.none()
+        
         queryset = Payment.objects.filter(
             enrollment_id__class_id__academy_id=self.request.user.academy_id
         ).exclude(status='deleted') 
@@ -115,7 +149,6 @@ class PaymentViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(enrollment_id__student_id=student_id)
         if month:
             year, mon = month.split('-')
-            # Filter by due_date month since paid_on can be null for pending
             queryset = queryset.filter(
                 due_date__year=year,
                 due_date__month=mon
@@ -135,8 +168,13 @@ class PaymentViewSet(viewsets.ModelViewSet):
 
         month = request.query_params.get('month')
         if month:
-            year, mon = month.split('-')
-            year, mon = int(year), int(mon)
+            try:
+                year, mon = month.split('-')
+                year, mon = int(year), int(mon)
+            except ValueError:
+                raise ValidationError(
+                    {'detail': 'Invalid month format. Use YYYY-MM.'}
+                )
         else:
             today = timezone.now()
             year, mon = today.year, today.month
@@ -146,7 +184,6 @@ class PaymentViewSet(viewsets.ModelViewSet):
             output_field=DecimalField(max_digits=10, decimal_places=2)
         )
 
-        # Use due_date for month filtering — paid_on is null for pending
         base_payments = Payment.objects.filter(
             enrollment_id__class_id__academy_id=academy_id,
             due_date__year=year,

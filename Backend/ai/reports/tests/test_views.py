@@ -195,6 +195,7 @@ class AIReportCardViewSetTest(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data["code"], "permission_denied")
 
     def test_generate_report_invalid_month_format(self):
         response = self.client.post(
@@ -203,6 +204,7 @@ class AIReportCardViewSetTest(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["code"], "validation_error")
 
     def test_generate_report_enrollment_not_found(self):
         import uuid
@@ -212,6 +214,7 @@ class AIReportCardViewSetTest(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data["code"], "not_found")
 
     def test_generate_report_unauthenticated(self):
         self.client.force_authenticate(user=None)
@@ -231,4 +234,5 @@ class AIReportCardViewSetTest(APITestCase):
         self.client.force_authenticate(user=self.teacher_user)
         response = self.client.delete(f"/api/reports/{self.report.id}/")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data["code"], "permission_denied")
         self.assertTrue(AIReportCard.objects.filter(id=self.report.id).exists())

@@ -1,10 +1,12 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from drf_spectacular.utils import extend_schema, inline_serializer, extend_schema_view
 from rest_framework.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Count, Q, OuterRef, Subquery, IntegerField
+from core.mixins import AcademyScopedMixin
 from core.permissions import IsOwner, ActiveSubscriptionRequired
 from financial_operations.models import Payment, Enrollment
 from django.utils import timezone
@@ -52,13 +54,23 @@ def get_annotated_sessions(academy_id, class_id=None):
 
     return sessions
 
-class ClassSessionViewSet(viewsets.ModelViewSet):
+@extend_schema_view(
+    list=extend_schema(tags=["Class Session"]),
+    retrieve=extend_schema(tags=["Class Session"]),
+    create=extend_schema(tags=["Class Session"]),
+    destroy=extend_schema(tags=["Class Session"]),
+    attendance=extend_schema(tags=["Attendance"]),
+)
+class ClassSessionViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = ClassSessionSerializer
     http_method_names = ['get', 'post', 'delete', 'head', 'options']
     permission_classes = [IsOwner, ActiveSubscriptionRequired]
     pagination_class = None
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return ClassSession.objects.none()
+        
         if self.action in ['destroy', 'retrieve', 'attendance']:
             return ClassSession.objects.filter(
                 class_links__class_obj__academy_id=self.request.user.academy_id
@@ -141,6 +153,13 @@ class ClassSessionViewSet(viewsets.ModelViewSet):
             pass
 
 
+@extend_schema_view(
+    list=extend_schema(tags=["Attendance"]),
+    retrieve=extend_schema(tags=["Attendance"]),
+    create=extend_schema(tags=["Attendance"]),
+    stats=extend_schema(tags=["Attendance"]),
+    history=extend_schema(tags=["Attendance"]),
+)
 class StudentAttendanceViewSet(viewsets.ModelViewSet):
     serializer_class = AttendanceSerializer
     http_method_names = ['get', 'head', 'options']
@@ -212,6 +231,12 @@ class StudentAttendanceViewSet(viewsets.ModelViewSet):
         return Response(data)
 
 
+@extend_schema_view(
+    list=extend_schema(tags=["Attendance"]),
+    retrieve=extend_schema(tags=["Attendance"]),
+    create=extend_schema(tags=["Attendance"]),
+    summary=extend_schema(tags=["Attendance"]),
+)
 class ClassAttendanceViewSet(viewsets.ModelViewSet):
     serializer_class = ClassSessionSerializer
     http_method_names = ['get', 'head', 'options']
@@ -255,6 +280,33 @@ class ClassAttendanceViewSet(viewsets.ModelViewSet):
         ]
         return Response(data)
     
+@extend_schema(
+    tags=["Attendance"],
+    request=inline_serializer(
+        "GenerateSessionsRequest",
+        fields={
+            "start_date": serializers.DateField(),
+            "end_date": serializers.DateField(),
+        },
+    ),
+    responses={
+        200: inline_serializer(
+            "GenerateSessionsResponse",
+            fields={
+                "sessions_created": serializers.IntegerField(),
+                "skipped": serializers.IntegerField(),
+            },
+        ),
+        400: inline_serializer(
+            "GenerateSessionsError",
+            fields={"detail": serializers.CharField()},
+        ),
+        404: inline_serializer(
+            "GenerateSessionsNotFound",
+            fields={"detail": serializers.CharField()},
+        ),
+    },
+)
 class GenerateSessionsView(APIView):
     permission_classes = [IsOwner, ActiveSubscriptionRequired]
 

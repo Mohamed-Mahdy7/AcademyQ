@@ -1,11 +1,11 @@
 from django.db.models import Count, Q, Avg, Case, When, FloatField
 from django.utils import timezone
 from datetime import timedelta
-
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
+from drf_spectacular.utils import extend_schema_view, extend_schema
+from core.mixins import AcademyScopedMixin
 from financial_operations.models import Teachers
 from .models import (
     Subject,
@@ -27,7 +27,15 @@ from .serializers import (
     ClassSessionEnrollmentSerializer,
 )
 
-
+@extend_schema_view(
+    list=extend_schema(tags=["Subject"]),
+    retrieve=extend_schema(tags=["Subject"]),
+    create=extend_schema(tags=["Subject"]),
+    update=extend_schema(tags=["Subject"]),
+    partial_update=extend_schema(tags=["Subject"]),
+    destroy=extend_schema(tags=["Subject"]),
+    
+)
 class SubjectViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return (
@@ -45,7 +53,16 @@ class SubjectViewSet(viewsets.ModelViewSet):
             return SubjectDetailSerializer
         return SubjectListSerializer
 
-
+@extend_schema_view(
+    list=extend_schema(tags=["Classes"]),
+    retrieve=extend_schema(tags=["Classes"]),
+    create=extend_schema(tags=["Classes"]),
+    update=extend_schema(tags=["Classes"]),
+    partial_update=extend_schema(tags=["Classes"]),
+    destroy=extend_schema(tags=["Classes"]),
+    assign_teacher=extend_schema(tags=["Teacher"]),
+    remove_teacher=extend_schema(tags=["Teacher"]),
+)
 class ClassViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         today = timezone.now().date()
@@ -157,10 +174,21 @@ class ClassViewSet(viewsets.ModelViewSet):
         )
 
 
-class ClassScheduleViewSet(viewsets.ModelViewSet):
+@extend_schema_view(
+    list=extend_schema(tags=["Class Schedule"]),
+    retrieve=extend_schema(tags=["Class Schedule"]),
+    create=extend_schema(tags=["Class Schedule"]),
+    update=extend_schema(tags=["Class Schedule"]),
+    partial_update=extend_schema(tags=["Class Schedule"]),
+    destroy=extend_schema(tags=["Class Schedule"]),
+)
+class ClassScheduleViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = ClassScheduleSerializer
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return ClassSchedule.objects.none()
+        
         queryset = ClassSchedule.objects.select_related("class_obj").filter(
             class_obj__academy=self.request.user.academy
         )
@@ -174,11 +202,17 @@ class ClassScheduleViewSet(viewsets.ModelViewSet):
         class_obj = Class.objects.get(id=class_id, academy=self.request.user.academy)
         serializer.save(class_obj=class_obj)
 
-
-class ClassSessionEnrollmentViewSet(viewsets.ReadOnlyModelViewSet):
+@extend_schema_view(
+    list=extend_schema(tags=["Structure"]),
+    retrieve=extend_schema(tags=["Structure"]),
+)
+class ClassSessionEnrollmentViewSet(AcademyScopedMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = ClassSessionEnrollmentSerializer
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return ClassSessionEnrollment.objects.none()
+        
         queryset = ClassSessionEnrollment.objects.select_related(
             "session", "class_obj"
         ).filter(class_obj__academy=self.request.user.academy)

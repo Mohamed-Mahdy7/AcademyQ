@@ -1,10 +1,23 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, serializers
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from core.exceptions import UpstreamError
+from drf_spectacular.utils import extend_schema, inline_serializer
 from financial_operations.models import Enrollment
 from records.helpers.attendance_signals import get_attendance_pct_28d
 
 
+@extend_schema(
+    tags=["Attendance"],
+    responses=inline_serializer(
+        "AttendanceSummaryResponse",
+        fields={
+            "attendance_pct_28d": serializers.FloatField(allow_null=True),
+            "enrollments_counted": serializers.IntegerField(),
+            "total_active_enrollments": serializers.IntegerField(),
+        },
+    ),
+)
 class AttendanceSummaryViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
@@ -21,7 +34,13 @@ class AttendanceSummaryViewSet(viewsets.ViewSet):
 
         rates = []
         for e in enrollments:
-            pct = get_attendance_pct_28d(e.id)
+            try:
+                pct = get_attendance_pct_28d(e.id)
+            except Exception as exc:
+                raise UpstreamError(
+                    f"Attendance calculation failed for enrollment {e.id}."
+                ) from exc
+
             if pct is not None:
                 rates.append(pct)
 

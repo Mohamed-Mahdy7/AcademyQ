@@ -22,15 +22,27 @@ function StudentReportsTab({ studentId }) {
     const loadData = async () => {
         setLoading(true);
         try {
-            const [reportsRes, enrollmentsRes] = await Promise.all([
-                getReports({ student_id: studentId }),
-                getEnrollments({ student_id: studentId }),
-            ]);
-            setReports(reportsRes.data);
-            setEnrollments(enrollmentsRes.data);
-            if (enrollmentsRes.data.length > 0 && !selectedEnrollmentId) {
-                setSelectedEnrollmentId(enrollmentsRes.data[0].id);
+            const enrollmentsRes = await getEnrollments({ student_id: studentId });
+            const fetchedEnrollments = enrollmentsRes.data;
+            setEnrollments(fetchedEnrollments);
+
+            if (fetchedEnrollments.length === 0) {
+                setReports([]);
+                setLoading(false);
+                return;
             }
+
+            if (!selectedEnrollmentId) {
+                setSelectedEnrollmentId(fetchedEnrollments[0].id);
+            }
+
+            const reportsResults = await Promise.all(
+                fetchedEnrollments.map((e) =>
+                    getReports({ enrollment_id: e.id })
+                )
+            );
+            const allReports = reportsResults.flatMap((r) => r.data);
+            setReports(allReports);
         } catch (err) {
             console.error("Error loading reports:", err);
         } finally {
@@ -113,8 +125,8 @@ function StudentReportsTab({ studentId }) {
                         feedback.type === "error"
                             ? "alert-danger mb-4"
                             : feedback.type === "info"
-                            ? "alert-warning mb-4"
-                            : "alert-success mb-4"
+                                ? "alert-warning mb-4"
+                                : "alert-success mb-4"
                     }
                 >
                     <p className="alert-desc">{feedback.message}</p>
