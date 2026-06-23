@@ -1,5 +1,4 @@
 import logging
-from psycopg import logger
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -12,7 +11,6 @@ from .serializers import GradeSerializer
 
 logger = logging.getLogger(__name__)
 
-class GradeViewSet(viewsets.ModelViewSet):
 @extend_schema_view(
     list=extend_schema(tags=["Grades"]),
     retrieve=extend_schema(tags=["Grades"]),
@@ -35,10 +33,9 @@ class GradeViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
         queryset = Grade.objects.filter(
             enrollment__class_id__academy_id=self.request.user.academy_id
         )
-        enrollment_ids = self.request.query_params.get("enrollment_ids")
-        if enrollment_ids:
-            ids = enrollment_ids.split(",")
-            queryset = queryset.filter(enrollment_id__in=ids)
+        enrollment_id = self.request.query_params.get("enrollment_id")
+        if enrollment_id:
+            queryset = queryset.filter(enrollment_id=enrollment_id)
         return queryset.order_by("assigned_at")
 
     @action(detail=False, methods=["get"])
