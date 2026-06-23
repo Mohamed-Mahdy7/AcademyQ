@@ -1,6 +1,5 @@
 import logging
 from datetime import timedelta
-
 from django.utils import timezone
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -11,6 +10,8 @@ from core.mixins import AcademyScopedMixin
 from .models import Notification
 from .serializers import NotificationSerializer
 from .email_utils import send_email
+from core.exceptions import UpstreamError
+from rest_framework.exceptions import ValidationError, NotFound
 
 logger = logging.getLogger(__name__)
 
@@ -69,16 +70,10 @@ class NotificationViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
             - Returns the created Notification
         """
         from ai.agent.models import Alert
-        print("BODY:", request.body)
-        print("DATA:", request.data)
-        print("CONTENT TYPE:", request.content_type)
-
+        
         alert_id = request.data.get("alert_id") or request.data.get("alertId") or request.data.get("id")
         if not alert_id:
-            return Response(
-                {"detail": "alert_id is required."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            raise ValidationError({"detail": "alert_id is required."})
 
         # Optional: frontend can pass an edited message override
         message_override = request.data.get("message")
@@ -92,23 +87,17 @@ class NotificationViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
                 enrollment__class_id__academy_id=request.user.academy_id,
             )
         except Alert.DoesNotExist:
-            return Response(
-                {"detail": "Alert not found."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+            raise NotFound(detail="Alert not found.")
 
         # Use message override if provided, otherwise use the stored draft
         message = message_override or alert.message
         if not message:
-            return Response(
-                {
-                    "detail": (
-                        "No message to send. "
-                        "Generate a message first via POST /api/alerts/{id}/generate-message/"
-                    )
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            raise ValidationError({
+                "detail": (
+                    "No message to send. "
+                    "Generate a message first via POST /api/alerts/{id}/generate-message/"
+                )
+            })
 
         student = alert.enrollment.student_id
         # Always prefer parent_email; fall back to the student's own email
@@ -119,6 +108,12 @@ class NotificationViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
             subject=f"AcademiQ — Important notice about {student.user.full_name}",
             message=message,
         )
+
+        if result["status"] == "failed":
+            logger.error(
+                "Email delivery failed | alert=%s | recipient=%s | error=%s",
+                alert_id, recipient, result.get("error"),
+            )
 
         now = timezone.now()
         notification = Notification.objects.create(
@@ -159,7 +154,15 @@ class NotificationViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
         from .reminder_tasks import send_overdue_reminders
 
         academy_id = str(request.user.academy.id)
-        results = send_overdue_reminders(academy_id)
+
+        try:
+            results = send_overdue_reminders(academy_id)
+        except Exception as exc:
+            logger.exception("send_overdue_reminders failed | academy=%s", academy_id)
+            raise UpstreamError(
+                detail="Failed to process payment reminders. Please try again."
+            )
+        
         return Response(
             {
                 "message": "Payment reminders processed.",

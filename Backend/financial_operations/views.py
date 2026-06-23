@@ -11,9 +11,8 @@ from datetime import timedelta
 from structure.models import Class
 from datetime import date, datetime
 from django.db import transaction, IntegrityError
-from rest_framework.exceptions import ValidationError
-from core.models import User, Students
-from django.db.models import Q
+from rest_framework.exceptions import ValidationError, NotFound
+from core.models import Students
 
 class TeachersViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = TeachersSerializer
@@ -57,16 +56,15 @@ class EnrollmentViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
 
     @transaction.atomic
     def perform_create(self, serializer):
-        # student_id = self.request.data.get('student_id')
         class_id = self.request.data.get('class_id')
         start_date = self.request.data.get('start_date')
 
-        # if Enrollment.objects.filter(student_id=student_id, class_id=class_id).exists(): 
-        #     raise ValidationError(
-        #         {'detail': 'Student is already enrolled in this class.'}
-        #     )
-
-        enrollment = serializer.save()
+        try:
+            enrollment = serializer.save()
+        except IntegrityError:
+            raise ValidationError(
+                {'detail': 'Student is already enrolled in this class.'}
+            )
 
         student = enrollment.student_id
         if student.status == Students.Status.PENDING:
@@ -77,7 +75,9 @@ class EnrollmentViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
         try:
             class_obj = Class.objects.get(id=class_id)
         except Class.DoesNotExist:
-            return
+            raise NotFound(
+                detail=f'Class {class_id} not found.'
+            )
         
         if class_obj.session_price and class_obj.session_count:
             amount = class_obj.session_count * class_obj.session_price
@@ -123,7 +123,6 @@ class PaymentViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
             queryset = queryset.filter(enrollment_id__student_id=student_id)
         if month:
             year, mon = month.split('-')
-            # Filter by due_date month since paid_on can be null for pending
             queryset = queryset.filter(
                 due_date__year=year,
                 due_date__month=mon
@@ -143,8 +142,13 @@ class PaymentViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
 
         month = request.query_params.get('month')
         if month:
-            year, mon = month.split('-')
-            year, mon = int(year), int(mon)
+            try:
+                year, mon = month.split('-')
+                year, mon = int(year), int(mon)
+            except ValueError:
+                raise ValidationError(
+                    {'detail': 'Invalid month format. Use YYYY-MM.'}
+                )
         else:
             today = timezone.now()
             year, mon = today.year, today.month
@@ -154,7 +158,6 @@ class PaymentViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
             output_field=DecimalField(max_digits=10, decimal_places=2)
         )
 
-        # Use due_date for month filtering — paid_on is null for pending
         base_payments = Payment.objects.filter(
             enrollment_id__class_id__academy_id=academy_id,
             due_date__year=year,
