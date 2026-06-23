@@ -60,7 +60,7 @@ class ClassListSerializer(serializers.ModelSerializer):
             "class_price",
         ]
 
-    def get_teacher_name(self, obj):
+    def get_teacher_name(self, obj) -> str:
         assignment = obj.teacher_assignments.select_related("teacher__user_id").first()
         if assignment:
             return assignment.teacher.user_id.full_name

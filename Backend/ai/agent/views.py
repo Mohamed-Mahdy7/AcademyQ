@@ -5,6 +5,7 @@ from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.utils import timezone
+from core.mixins import AcademyScopedMixin
 from core.permissions import IsOwner, ActiveSubscriptionRequired
 from core.exceptions import UpstreamError, RateLimitedError
 from .models import Alert, ScanLog
@@ -17,12 +18,15 @@ from ai.agent.tasks import run_risk_scan
 
 MANUAL_SCAN_DAILY_LIMIT = 3
 
-class AlertViewSet(viewsets.ModelViewSet):
+class AlertViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = AlertSerializer
     permission_classes = [IsOwner, ActiveSubscriptionRequired]
     http_method_names = ["get", "post", "patch", "head", "options"]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Alert.objects.none()
+        
         qs = Alert.objects.filter(
             enrollment__class_id__academy_id=self.request.user.academy_id
         ).select_related(

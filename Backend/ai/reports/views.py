@@ -2,7 +2,7 @@ from rest_framework import mixins, viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
+from core.mixins import AcademyScopedMixin
 from structure.models import Class
 from financial_operations.models import Enrollment
 from .models import AIReportCard
@@ -16,6 +16,7 @@ from .tasks import generate_class_reports_task
 
 
 class AIReportCardViewSet(
+    AcademyScopedMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.DestroyModelMixin,
@@ -25,6 +26,9 @@ class AIReportCardViewSet(
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return AIReportCard.objects.none()
+        
         qs = AIReportCard.objects.filter(
             enrollment__class_id__academy_id=self.request.user.academy_id
         ).select_related("student", "enrollment__class_id")
