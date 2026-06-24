@@ -24,16 +24,12 @@ class Command(BaseCommand):
             # =========================
             # 0. ACADEMY + OWNER
             # =========================
-<<<<<<< HEAD
-            academy = Academy.objects.get(
-                id="b49d40d5-a15f-4427-8a39-6323e2269f07"
-=======
+            
             academy = Academy.objects.create(
                 name="Demo Academy",
                 email="demo_academy@gmail.com",
                 phone="01000000000",
                 subscription_end=date.today() + timedelta(days=365),
->>>>>>> b2e138c94a203cd642b7fead17acb2b8d83724ed
             )
 
             owner = User.objects.create_user(
