@@ -15,6 +15,10 @@ from grades.models import Grade
 from grades.serializers import GradeSerializer
 
 
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
 def create_academy(**kwargs):
     defaults = {
         "name": "Academy",
@@ -80,9 +84,9 @@ class GradesTestSetupMixin:
         )
 
 
-# =========================================================
-# MODELS
-# =========================================================
+# ===========================================================================
+# MODEL TESTS
+# ===========================================================================
 
 class GradeModelTests(GradesTestSetupMixin, TestCase):
 
@@ -177,10 +181,22 @@ class GradeModelTests(GradesTestSetupMixin, TestCase):
         self.enrollment.delete()
         self.assertEqual(Grade.objects.count(), 0)
 
+    def test_grade_allows_null_session(self):
+        grade = Grade.objects.create(
+            enrollment=self.enrollment,
+            session=None,
+            subject_name="Chemistry",
+            score=75,
+            max_score=100,
+            assigned_at=date.today(),
+        )
+        self.assertIsNone(grade.session)
+        self.assertIsNotNone(grade.id)
 
-# =========================================================
-# SERIALIZERS
-# =========================================================
+
+# ===========================================================================
+# SERIALIZER TESTS
+# ===========================================================================
 
 class GradeSerializerTests(GradesTestSetupMixin, TestCase):
 
@@ -210,6 +226,30 @@ class GradeSerializerTests(GradesTestSetupMixin, TestCase):
         })
         self.assertFalse(serializer.is_valid())
         self.assertIn("subject_name", serializer.errors)
+
+    def test_score_exceeds_max_score_invalid(self):
+        serializer = GradeSerializer(data={
+            "enrollment": self.enrollment.id,
+            "session": self.session.id,
+            "subject_name": "Math",
+            "score": "110.00",
+            "max_score": "100.00",
+            "assigned_at": str(date.today()),
+        })
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("score", serializer.errors)
+
+    def test_max_score_zero_invalid(self):
+        serializer = GradeSerializer(data={
+            "enrollment": self.enrollment.id,
+            "session": self.session.id,
+            "subject_name": "Math",
+            "score": "0.00",
+            "max_score": "0.00",
+            "assigned_at": str(date.today()),
+        })
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("max_score", serializer.errors)
 
     def test_session_num_none_when_no_junction(self):
         grade = Grade.objects.create(
@@ -252,9 +292,9 @@ class GradeSerializerTests(GradesTestSetupMixin, TestCase):
         self.assertIsNone(data["session_num"])
 
 
-# =========================================================
-# API / VIEWS
-# =========================================================
+# ===========================================================================
+# API / VIEW TESTS
+# ===========================================================================
 
 class GradeViewSetApiTests(GradesTestSetupMixin, TestCase):
 
@@ -266,7 +306,7 @@ class GradeViewSetApiTests(GradesTestSetupMixin, TestCase):
         )
         self.client.force_authenticate(self.owner)
 
-    def create_grade(self, score, subject_name="Physics"):
+    def _create_grade(self, score, subject_name="Physics"):
         session = ClassSession.objects.create(
             session_date=date.today() + timedelta(days=ClassSession.objects.count() + 1),
             session_time=time(10, 0),
@@ -310,12 +350,12 @@ class GradeViewSetApiTests(GradesTestSetupMixin, TestCase):
         self.assertEqual(Grade.objects.count(), 1)
 
     def test_grade_retrieve(self):
-        grade = self.create_grade(90)
+        grade = self._create_grade(90)
         response = self.client.get(f"/api/grades/{grade.id}/")
         self.assertEqual(response.status_code, 200)
 
     def test_grade_update(self):
-        grade = self.create_grade(70)
+        grade = self._create_grade(70)
         response = self.client.patch(
             f"/api/grades/{grade.id}/", {"score": 85}, format="json"
         )
@@ -324,20 +364,20 @@ class GradeViewSetApiTests(GradesTestSetupMixin, TestCase):
         self.assertEqual(grade.score, 85)
 
     def test_grade_delete(self):
-        grade = self.create_grade(70)
+        grade = self._create_grade(70)
         response = self.client.delete(f"/api/grades/{grade.id}/")
         self.assertEqual(response.status_code, 204)
         self.assertFalse(Grade.objects.filter(id=grade.id).exists())
 
     def test_grade_put_not_allowed(self):
-        grade = self.create_grade(70)
+        grade = self._create_grade(70)
         response = self.client.put(
             f"/api/grades/{grade.id}/", {"score": 85}, format="json"
         )
         self.assertEqual(response.status_code, 405)
 
     def test_filter_by_enrollment(self):
-        self.create_grade(70)
+        self._create_grade(70)
         response = self.client.get(
             f"/api/grades/?enrollment_ids={self.enrollment.id}"
         )
@@ -349,7 +389,7 @@ class GradeViewSetApiTests(GradesTestSetupMixin, TestCase):
         other_owner = create_user(
             other_academy, User.Roles.OWNER, f"otherowner-{id(self)}@test.com"
         )
-        self.create_grade(70)
+        self._create_grade(70)
 
         client = APIClient()
         client.force_authenticate(other_owner)
@@ -370,9 +410,9 @@ class GradeViewSetApiTests(GradesTestSetupMixin, TestCase):
         self.assertIsNone(response.data["average_pct"])
 
     def test_summary_average(self):
-        self.create_grade(80)
-        self.create_grade(90)
-        self.create_grade(100)
+        self._create_grade(80)
+        self._create_grade(90)
+        self._create_grade(100)
 
         response = self.client.get(
             f"/api/grades/summary/?enrollment_id={self.enrollment.id}"
@@ -383,7 +423,7 @@ class GradeViewSetApiTests(GradesTestSetupMixin, TestCase):
 
     def test_summary_improving(self):
         for score in [50, 55, 60, 70, 80, 90]:
-            self.create_grade(score)
+            self._create_grade(score)
 
         response = self.client.get(
             f"/api/grades/summary/?enrollment_id={self.enrollment.id}"
@@ -392,7 +432,7 @@ class GradeViewSetApiTests(GradesTestSetupMixin, TestCase):
 
     def test_summary_declining(self):
         for score in [90, 90, 80, 70, 60, 55, 50]:
-            self.create_grade(score)
+            self._create_grade(score)
 
         response = self.client.get(
             f"/api/grades/summary/?enrollment_id={self.enrollment.id}"
@@ -400,7 +440,7 @@ class GradeViewSetApiTests(GradesTestSetupMixin, TestCase):
         self.assertEqual(response.data["trend"], "declining")
 
     def test_summary_stable_with_single_grade(self):
-        self.create_grade(80)
+        self._create_grade(80)
         response = self.client.get(
             f"/api/grades/summary/?enrollment_id={self.enrollment.id}"
         )
@@ -411,9 +451,9 @@ class GradeViewSetApiTests(GradesTestSetupMixin, TestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_class_summary(self):
-        self.create_grade(80)
-        self.create_grade(85)
-        self.create_grade(90)
+        self._create_grade(80)
+        self._create_grade(85)
+        self._create_grade(90)
 
         response = self.client.get(
             f"/api/grades/class-summary/?class_id={self.class_obj.id}"
@@ -430,3 +470,39 @@ class GradeViewSetApiTests(GradesTestSetupMixin, TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["students"], [])
+
+
+# ===========================================================================
+# INTEGRATION TESTS
+# ===========================================================================
+
+class GradeIntegrationTests(GradesTestSetupMixin, TestCase):
+    """End-to-end: create grade via API, verify it appears in summary."""
+
+    def setUp(self):
+        self.base_setup()
+        self.client = APIClient()
+        self.owner = create_user(
+            self.academy, User.Roles.OWNER, f"integ-owner-{id(self)}@test.com"
+        )
+        self.client.force_authenticate(self.owner)
+
+    def test_create_grade_then_appears_in_summary(self):
+        self.client.post(
+            "/api/grades/",
+            {
+                "enrollment": self.enrollment.id,
+                "session": self.session.id,
+                "subject_name": "Biology",
+                "score": 88,
+                "max_score": 100,
+                "assigned_at": str(date.today()),
+            },
+            format="json",
+        )
+        summary = self.client.get(
+            f"/api/grades/summary/?enrollment_id={self.enrollment.id}"
+        )
+        self.assertEqual(summary.status_code, 200)
+        self.assertEqual(summary.data["assessment_count"], 1)
+        self.assertEqual(summary.data["average_pct"], 88.0)

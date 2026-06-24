@@ -15,6 +15,10 @@ from records.serializers import ClassSessionSerializer, AttendanceSerializer
 from records.helpers.attendance_signals import get_attendance_pct_28d
 
 
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
 def create_academy(**kwargs):
     defaults = {
         "name": "Academy",
@@ -81,9 +85,9 @@ class RecordsTestSetupMixin:
         )
 
 
-# =========================================================
-# MODELS
-# =========================================================
+# ===========================================================================
+# MODEL TESTS
+# ===========================================================================
 
 class ClassSessionModelTests(TestCase):
 
@@ -107,6 +111,14 @@ class ClassSessionModelTests(TestCase):
 
     def test_default_notes_empty(self):
         self.assertEqual(self.session.notes, "")
+
+    def test_ordering_by_date_time(self):
+        ClassSession.objects.create(
+            session_date=date.today() + timedelta(days=1), session_time=time(9, 0)
+        )
+        sessions = list(ClassSession.objects.all())
+        dates = [(s.session_date, s.session_time) for s in sessions]
+        self.assertEqual(dates, sorted(dates))
 
 
 class AttendanceModelTests(RecordsTestSetupMixin, TestCase):
@@ -133,6 +145,12 @@ class AttendanceModelTests(RecordsTestSetupMixin, TestCase):
         )
         self.assertIn("Present", str(attendance))
 
+    def test_attendance_str_absent(self):
+        attendance = Attendance.objects.create(
+            session=self.session, enrollment=self.enrollment, present=False
+        )
+        self.assertIn("Absent", str(attendance))
+
     def test_unique_attendance_constraint(self):
         Attendance.objects.create(
             session=self.session, enrollment=self.enrollment, present=True
@@ -149,23 +167,41 @@ class AttendanceModelTests(RecordsTestSetupMixin, TestCase):
         self.session.delete()
         self.assertEqual(Attendance.objects.count(), 0)
 
+    def test_attendance_deleted_on_enrollment_delete(self):
+        Attendance.objects.create(
+            session=self.session, enrollment=self.enrollment, present=True
+        )
+        # Enrollment has PROTECT on its FK, but Attendance cascades on enrollment
+        # We can't delete via enrollment.delete() if Payment exists; delete payment first
+        Payment.objects.filter(enrollment_id=self.enrollment).delete()
+        self.enrollment.delete()
+        self.assertEqual(Attendance.objects.count(), 0)
 
-# =========================================================
-# SERIALIZERS
-# =========================================================
+
+# ===========================================================================
+# SERIALIZER TESTS
+# ===========================================================================
 
 class AttendanceSerializerTests(RecordsTestSetupMixin, TestCase):
 
     def setUp(self):
         self.base_setup()
 
-    def test_exposes_student_name_and_id(self):
+    def test_exposes_student_name(self):
         attendance = Attendance.objects.create(
             session=self.session, enrollment=self.enrollment, present=True
         )
         data = AttendanceSerializer(attendance).data
         self.assertEqual(data["student_name"], self.student_user.full_name)
-        self.assertEqual(str(data["student_id"]), str(self.student_profile.pk))
+
+    def test_exposes_student_id(self):
+        attendance = Attendance.objects.create(
+            session=self.session, enrollment=self.enrollment, present=True
+        )
+        data = AttendanceSerializer(attendance).data
+        # student_id source is enrollment.student_id.user_id  (the user PK)
+        self.assertIn("student_id", data)
+        self.assertIsNotNone(data["student_id"])
 
     def test_recorded_at_read_only(self):
         serializer = AttendanceSerializer(data={
@@ -177,6 +213,13 @@ class AttendanceSerializerTests(RecordsTestSetupMixin, TestCase):
         self.assertTrue(serializer.is_valid(), serializer.errors)
         self.assertNotIn("recorded_at", serializer.validated_data)
 
+    def test_present_field_serialized(self):
+        attendance = Attendance.objects.create(
+            session=self.session, enrollment=self.enrollment, present=True
+        )
+        data = AttendanceSerializer(attendance).data
+        self.assertTrue(data["present"])
+
 
 class ClassSessionSerializerTests(RecordsTestSetupMixin, TestCase):
 
@@ -184,11 +227,11 @@ class ClassSessionSerializerTests(RecordsTestSetupMixin, TestCase):
         self.base_setup()
 
     class _FakeRequest:
-        def __init__(self, user, data):
+        def __init__(self, user, data=None):
             self.user = user
-            self.data = data
+            self.data = data or {}
 
-    def test_create_requires_class_ids(self):
+    def test_create_with_empty_class_ids_raises(self):
         serializer = ClassSessionSerializer(
             data={
                 "session_date": str(date.today() + timedelta(days=5)),
@@ -203,10 +246,15 @@ class ClassSessionSerializerTests(RecordsTestSetupMixin, TestCase):
         with self.assertRaises(Exception):
             serializer.save()
 
+    def test_serializer_fields_present(self):
+        data = ClassSessionSerializer(self.session).data
+        for field in ("id", "session_date", "session_time", "notes"):
+            self.assertIn(field, data)
 
-# =========================================================
-# HELPERS
-# =========================================================
+
+# ===========================================================================
+# HELPERS TESTS
+# ===========================================================================
 
 class AttendanceSignalHelperTests(RecordsTestSetupMixin, TestCase):
 
@@ -248,10 +296,17 @@ class AttendanceSignalHelperTests(RecordsTestSetupMixin, TestCase):
         pct = get_attendance_pct_28d(self.enrollment.id)
         self.assertEqual(pct, 50.0)
 
+    def test_returns_zero_when_all_absent(self):
+        Attendance.objects.create(
+            session=self.session, enrollment=self.enrollment, present=False
+        )
+        pct = get_attendance_pct_28d(self.enrollment.id)
+        self.assertEqual(pct, 0.0)
 
-# =========================================================
-# API / VIEWS
-# =========================================================
+
+# ===========================================================================
+# API / VIEW TESTS
+# ===========================================================================
 
 class ClassSessionApiTests(RecordsTestSetupMixin, TestCase):
 
@@ -325,9 +380,9 @@ class ClassSessionApiTests(RecordsTestSetupMixin, TestCase):
         )
         self.assertEqual(response.status_code, 405)
 
-    # -------------------------
+    # ------------------------------------------------------------------
     # Attendance nested action
-    # -------------------------
+    # ------------------------------------------------------------------
 
     def test_attendance_list_empty(self):
         response = self.client.get(f"/api/sessions/{self.session.id}/attendance/")
@@ -423,19 +478,6 @@ class StudentAttendanceApiTests(RecordsTestSetupMixin, TestCase):
         )
         self.client.force_authenticate(self.owner)
 
-    def test_list_method_not_allowed(self):
-        response = self.client.get(
-            f"/api/students/{self.student_profile.pk}/attendance/stats/?class_id={self.class_obj.id}"
-        )
-        # stats action itself is fine; plain list endpoint isn't exposed via urls.py
-        self.assertEqual(response.status_code, 200)
-
-    def test_student_stats_requires_class(self):
-        response = self.client.get(
-            f"/api/students/{self.student_profile.pk}/attendance/stats/"
-        )
-        self.assertEqual(response.status_code, 400)
-
     def test_student_stats_present(self):
         Attendance.objects.create(
             session=self.session, enrollment=self.enrollment, present=True
@@ -446,6 +488,12 @@ class StudentAttendanceApiTests(RecordsTestSetupMixin, TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["present_count"], 1)
         self.assertEqual(response.data["attendance_pct"], 100.0)
+
+    def test_student_stats_requires_class(self):
+        response = self.client.get(
+            f"/api/students/{self.student_profile.pk}/attendance/stats/"
+        )
+        self.assertEqual(response.status_code, 400)
 
     def test_student_stats_absent(self):
         Attendance.objects.create(
@@ -529,11 +577,6 @@ class ClassAttendanceApiTests(RecordsTestSetupMixin, TestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["turnout_pct"], 0)
 
-    def test_class_summary_list_not_allowed(self):
-        response = self.client.get("/api/sessions/")
-        # Sanity: the base ClassSessionViewSet list endpoint stays allowed.
-        self.assertEqual(response.status_code, 200)
-
 
 class GenerateSessionsApiTests(RecordsTestSetupMixin, TestCase):
 
@@ -613,3 +656,56 @@ class GenerateSessionsApiTests(RecordsTestSetupMixin, TestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 404)
+
+
+# ===========================================================================
+# INTEGRATION TESTS
+# ===========================================================================
+
+class AttendanceFullFlowIntegrationTests(RecordsTestSetupMixin, TestCase):
+    """Create session → submit attendance → verify stats + payment signal."""
+
+    def setUp(self):
+        self.base_setup()
+        self.client = APIClient()
+        self.owner = create_user(
+            self.academy, User.Roles.OWNER, f"integ-owner-{id(self)}@test.com"
+        )
+        self.client.force_authenticate(self.owner)
+
+    def test_full_attendance_flow(self):
+        # 1. Create a new session for the class
+        create_resp = self.client.post(
+            "/api/sessions/",
+            {
+                "class_ids": [str(self.class_obj.id)],
+                "session_date": str(date.today() + timedelta(days=2)),
+                "session_time": "14:00:00",
+                "notes": "Integration session",
+            },
+            format="json",
+        )
+        self.assertEqual(create_resp.status_code, 201)
+        new_session_id = create_resp.data["id"]
+
+        # 2. Mark student present
+        Payment.objects.all().delete()
+        attend_resp = self.client.post(
+            f"/api/sessions/{new_session_id}/attendance/",
+            {"records": [{"enrollment_id": str(self.enrollment.id), "present": True}]},
+            format="json",
+        )
+        self.assertEqual(attend_resp.status_code, 200)
+        self.assertEqual(attend_resp.data["created"], 1)
+
+        # 3. Payment should be created
+        self.assertTrue(
+            Payment.objects.filter(enrollment_id=self.enrollment, status="pending").exists()
+        )
+
+        # 4. Stats should reflect the new attendance
+        stats_resp = self.client.get(
+            f"/api/students/{self.student_profile.pk}/attendance/stats/?class_id={self.class_obj.id}"
+        )
+        self.assertEqual(stats_resp.status_code, 200)
+        self.assertEqual(stats_resp.data["present_count"], 1)

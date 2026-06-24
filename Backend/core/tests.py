@@ -10,6 +10,7 @@ from core.models import Academy, User, Students
 from core.serializers import (
     AcademyRegistrationSerializer,
     AcademySerializer,
+    CustomeTokenObtainPairSerializer,
     UserSerializer,
     StaffCreateSerializer,
     StudentCreateSerializer,
@@ -19,7 +20,14 @@ from core.permissions import (
     ActiveSubscriptionRequired,
     IsOwner,
 )
+from rest_framework.exceptions import (
+    ValidationError,
+    NotFound,
+)
 
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
 
 def create_academy(**kwargs):
     defaults = {
@@ -57,13 +65,13 @@ def create_student(academy, email="student@test.com", **kwargs):
         "status": kwargs.pop("status", Students.Status.ACTIVE),
     }
     user = create_user(academy, User.Roles.STUDENT, email, **kwargs)
-    students_profile = Students.objects.create(user=user, **student_kwargs)
-    return user, students_profile
+    student_profile = Students.objects.create(user=user, **student_kwargs)
+    return user, student_profile
 
 
-# =========================================================
-# MODELS
-# =========================================================
+# ===========================================================================
+# MODEL TESTS
+# ===========================================================================
 
 class AcademyModelTests(TestCase):
 
@@ -202,14 +210,15 @@ class StudentsModelTests(TestCase):
         )
         self.assertEqual(student.status, Students.Status.PENDING)
 
-    def test_student_user_is_primary_key(self):
+    def test_student_one_to_one_with_user(self):
         user, student = create_student(self.academy, email="s4@test.com")
-        self.assertEqual(student.pk, user.pk)
+        # Students has its own UUID pk; the OneToOne is via student.user
+        self.assertEqual(student.user_id, user.id)
 
 
-# =========================================================
-# SERIALIZERS
-# =========================================================
+# ===========================================================================
+# SERIALIZER TESTS
+# ===========================================================================
 
 class AcademyRegistrationSerializerTests(TestCase):
 
@@ -247,7 +256,6 @@ class AcademyRegistrationSerializerTests(TestCase):
         self.assertEqual(owner.role, User.Roles.OWNER)
         self.assertEqual(Academy.objects.count(), 1)
         self.assertEqual(owner.academy.name, "Academy")
-        # subscription auto-set to 30 days from now
         self.assertEqual(
             owner.academy.subscription_end,
             timezone.now().date() + timedelta(days=30),
@@ -364,9 +372,9 @@ class StudentCreateSerializerTests(TestCase):
         self.assertEqual(student.parent_email, "parent2@test.com")
 
 
-# =========================================================
-# PERMISSIONS
-# =========================================================
+# ===========================================================================
+# PERMISSION TESTS
+# ===========================================================================
 
 class PermissionTests(TestCase):
 
@@ -380,6 +388,7 @@ class PermissionTests(TestCase):
     class _Request:
         def __init__(self, user):
             self.user = user
+            self.is_authenticated = True
 
     def test_is_owner_permission_true_for_owner(self):
         permission = IsOwner()
@@ -413,9 +422,9 @@ class PermissionTests(TestCase):
         )
 
 
-# =========================================================
+# ===========================================================================
 # API TESTS
-# =========================================================
+# ===========================================================================
 
 class RegisterApiTests(APITestCase):
 
@@ -435,7 +444,6 @@ class RegisterApiTests(APITestCase):
             },
             format="json",
         )
-
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data["role"], User.Roles.OWNER)
         self.assertIn("access_token", response.cookies)
@@ -460,12 +468,8 @@ class RegisterApiTests(APITestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_register_duplicate_email_rejected(self):
-        create_academy(email="dupreg@test.com")
-        create_user(
-            Academy.objects.get(email="dupreg@test.com"),
-            User.Roles.OWNER,
-            "dupowner@test.com",
-        )
+        academy = create_academy(email="dupreg@test.com")
+        create_user(academy, User.Roles.OWNER, "dupowner@test.com")
         response = self.client.post(
             "/api/auth/register/",
             {
@@ -526,14 +530,6 @@ class LogoutApiTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.cookies["access_token"].value, "")
         self.assertEqual(response.cookies["refresh_token"].value, "")
-
-
-class RefreshTokenApiTests(APITestCase):
-
-    def test_refresh_without_cookie_fails(self):
-        response = self.client.post("/api/auth/academy/complete-setup/")
-        # Not authenticated at all -> 401 expected from IsAuthenticated default
-        self.assertIn(response.status_code, [401, 403])
 
 
 class EducationalLevelApiTests(APITestCase):
@@ -623,7 +619,6 @@ class CompleteSetupApiTests(APITestCase):
 class StudentRegistrationApiTests(APITestCase):
 
     def test_register_student_success(self):
-        academy = create_academy(email="studentregacademy@test.com")
         response = self.client.post(
             "/api/auth/users/register/student/",
             {
@@ -743,3 +738,263 @@ class StudentProfileApiTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.student_profile.refresh_from_db()
         self.assertEqual(self.student_profile.parent_email, "newparent@test.com")
+
+
+# ===========================================================================
+# INTEGRATION TESTS
+# ===========================================================================
+
+class AuthFlowIntegrationTest(APITestCase):
+    """Register → login → access protected endpoint → logout."""
+
+    def test_full_auth_flow(self):
+        # 1. Register
+        reg = self.client.post(
+            "/api/auth/register/",
+            {
+                "academy_name": "Integration Academy",
+                "academy_email": "integ@test.com",
+                "academy_phone": "0100",
+                "address": "Cairo",
+                "full_name": "Integration Owner",
+                "email": "integ_owner@test.com",
+                "phone": "0100",
+                "password": "Pass1234",
+                "confirm_password": "Pass1234",
+            },
+            format="json",
+        )
+        self.assertEqual(reg.status_code, 201)
+
+        # 2. Login
+        login = self.client.post(
+            "/api/auth/login/",
+            {"email": "integ_owner@test.com", "password": "Pass1234"},
+            format="json",
+        )
+        self.assertEqual(login.status_code, 200)
+
+        # 3. Access me endpoint (cookie-based auth carried by test client)
+        me = self.client.get("/api/users/me/")
+        self.assertEqual(me.status_code, 200)
+        self.assertEqual(me.data["email"], "integ_owner@test.com")
+
+        # 4. Logout
+        logout = self.client.post("/api/auth/logout/")
+        self.assertEqual(logout.status_code, 200)
+class RefreshTokenApiTests(APITestCase):
+
+    def setUp(self):
+        self.academy = create_academy(email="refreshacademy@test.com")
+        self.user = create_user(
+            self.academy,
+            User.Roles.OWNER,
+            "refresh@test.com",
+            password="123456"
+        )
+
+    def test_refresh_token_success(self):
+        refresh = RefreshToken.for_user(self.user)
+
+        self.client.cookies["refresh_token"] = str(refresh)
+
+        response = self.client.post("/api/auth/refresh/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("access", response.data)
+        self.assertIn("access_token", response.cookies)
+
+    def test_refresh_without_token(self):
+        response = self.client.post("/api/auth/refresh/")
+        self.assertEqual(response.status_code, 401)
+
+    def test_refresh_invalid_token(self):
+        self.client.cookies["refresh_token"] = "invalid"
+
+        response = self.client.post("/api/auth/refresh/")
+        self.assertEqual(response.status_code, 401)
+class RolesListApiTests(APITestCase):
+
+    def test_roles_list(self):
+            response = self.client.get("/api/auth/roles/")
+
+            self.assertEqual(response.status_code, 200)
+
+            values = [r["value"] for r in response.data]
+
+            self.assertIn(User.Roles.OWNER, values)
+            self.assertIn(User.Roles.ADMIN, values)
+            self.assertIn(User.Roles.TEACHER, values)
+            self.assertIn(User.Roles.STUDENT, values)
+class PermissionEdgeCaseTests(TestCase):
+
+    class DummyRequest:
+        def __init__(self, user):
+            self.user = user
+
+    def test_owner_permission_student(self):
+        academy = create_academy()
+
+        student = create_user(
+            academy,
+            User.Roles.STUDENT,
+            "studentperm@test.com"
+        )
+
+        self.assertFalse(
+            IsOwner().has_permission(
+                self.DummyRequest(student),
+                None
+            )
+        )
+
+    def test_subscription_permission_without_academy(self):
+        user = User.objects.create_user(
+            email="noacademy@test.com",
+            password="123456",
+            full_name="No Academy",
+            phone="0100",
+            role=User.Roles.ADMIN
+        )
+
+        self.assertFalse(
+            ActiveSubscriptionRequired().has_permission(
+                self.DummyRequest(user),
+                None
+            )
+        )
+class AcademyIsolationTests(APITestCase):
+
+    def setUp(self):
+        self.academy1 = create_academy(
+            email="academy1@test.com"
+        )
+
+        self.academy2 = create_academy(
+            email="academy2@test.com"
+        )
+
+        self.owner1 = create_user(
+            self.academy1,
+            User.Roles.OWNER,
+            "owner1@test.com"
+        )
+
+        self.owner2 = create_user(
+            self.academy2,
+            User.Roles.OWNER,
+            "owner2@test.com"
+        )
+
+    def test_owner_only_sees_own_students(self):
+
+        create_student(
+            self.academy1,
+            email="student1@test.com"
+        )
+
+        create_student(
+            self.academy2,
+            email="student2@test.com"
+        )
+
+        self.client.force_authenticate(self.owner1)
+
+        response = self.client.get("/api/users/students/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+class StudentProfileSecurityTests(APITestCase):
+
+    def setUp(self):
+
+        self.academy1 = create_academy(
+            email="academy11@test.com"
+        )
+
+        self.academy2 = create_academy(
+            email="academy22@test.com"
+        )
+
+        self.owner1 = create_user(
+            self.academy1,
+            User.Roles.OWNER,
+            "owner11@test.com"
+        )
+
+        self.student_user, _ = create_student(
+            self.academy2,
+            email="otherstudent@test.com"
+        )
+
+    def test_cannot_access_other_academy_student(self):
+
+        self.client.force_authenticate(self.owner1)
+
+        response = self.client.get(
+            f"/api/auth/users/students/profile/{self.student_user.id}/"
+        )
+
+        self.assertEqual(response.status_code, 403)
+class CustomTokenSerializerTests(TestCase):
+
+    def setUp(self):
+
+        self.academy = create_academy()
+
+        self.user = create_user(
+            self.academy,
+            User.Roles.OWNER,
+            "token@test.com",
+            password="123456"
+        )
+
+    def test_token_contains_role(self):
+
+        token = CustomeTokenObtainPairSerializer.get_token(
+            self.user
+        )
+
+        self.assertEqual(
+            token["role"],
+            User.Roles.OWNER
+        )
+
+    def test_token_contains_academy_id(self):
+
+        token = CustomeTokenObtainPairSerializer.get_token(
+            self.user
+        )
+
+        self.assertEqual(
+            str(token["academy_id"]),
+            str(self.academy.id)
+        )
+ 
+class ExceptionHandlerTests(TestCase):
+
+    def test_validation_error_shape(self):
+
+        response = custom_exception_handler(
+            ValidationError({
+                "email": ["required"]
+            }),
+            {}
+        )
+
+        self.assertEqual(
+            response.data["code"],
+            "validation_error"
+        )
+
+    def test_not_found_shape(self):
+
+        response = custom_exception_handler(
+            NotFound(),
+            {}
+        )
+
+        self.assertEqual(
+            response.data["code"],
+            "not_found"
+        )

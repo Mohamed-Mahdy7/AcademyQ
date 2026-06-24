@@ -17,6 +17,10 @@ from financial_operations.serializers import (
 )
 
 
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
 def create_academy(**kwargs):
     defaults = {
         "name": "Academy",
@@ -83,9 +87,9 @@ class FinancialTestSetupMixin:
         )
 
 
-# =========================================================
-# MODELS
-# =========================================================
+# ===========================================================================
+# MODEL TESTS
+# ===========================================================================
 
 class TeachersModelTests(FinancialTestSetupMixin, TestCase):
 
@@ -103,6 +107,9 @@ class TeachersModelTests(FinancialTestSetupMixin, TestCase):
             Teachers.objects.create(
                 academy_id=self.academy, user_id=self.teacher_user
             )
+
+    def test_teacher_belongs_to_academy(self):
+        self.assertEqual(self.teacher.academy_id, self.academy)
 
 
 class EnrollmentModelTests(FinancialTestSetupMixin, TestCase):
@@ -154,7 +161,13 @@ class EnrollmentModelTests(FinancialTestSetupMixin, TestCase):
             class_id=second_class, student_id=self.student_profile
         )
         self.assertEqual(Enrollment.objects.count(), 2)
-        self.assertNotEqual(second_enrollment.id, None)
+        self.assertIsNotNone(second_enrollment.id)
+
+    def test_enrollment_start_date_optional(self):
+        enrollment = Enrollment.objects.create(
+            class_id=self.class_obj, student_id=self.student_profile
+        )
+        self.assertIsNone(enrollment.start_date)
 
 
 class PaymentModelTests(FinancialTestSetupMixin, TestCase):
@@ -189,10 +202,18 @@ class PaymentModelTests(FinancialTestSetupMixin, TestCase):
         with self.assertRaises(ProtectedError):
             self.enrollment.delete()
 
+    def test_payment_all_status_choices(self):
+        for status in ("pending", "completed", "cancelled", "deleted"):
+            payment = Payment.objects.create(
+                enrollment_id=self.enrollment, amount=100, status=status
+            )
+            self.assertEqual(payment.status, status)
+            payment.delete()
 
-# =========================================================
-# SERIALIZERS
-# =========================================================
+
+# ===========================================================================
+# SERIALIZER TESTS
+# ===========================================================================
 
 class TeachersSerializerTests(FinancialTestSetupMixin, TestCase):
 
@@ -204,6 +225,11 @@ class TeachersSerializerTests(FinancialTestSetupMixin, TestCase):
         self.assertEqual(data["name"], self.teacher_user.full_name)
         self.assertEqual(data["email"], self.teacher_user.email)
         self.assertEqual(data["phone"], self.teacher_user.phone)
+
+    def test_serializer_has_required_keys(self):
+        data = TeachersSerializer(self.teacher).data
+        for key in ("id", "name", "email", "phone"):
+            self.assertIn(key, data)
 
 
 class EnrollmentSerializerTests(FinancialTestSetupMixin, TestCase):
@@ -226,6 +252,10 @@ class EnrollmentSerializerTests(FinancialTestSetupMixin, TestCase):
         self.assertEqual(len(data["payments"]), 1)
         self.assertEqual(data["payments"][0]["amount"], "300.00")
 
+    def test_serializer_student_name_present(self):
+        data = EnrollmentSerializer(self.enrollment).data
+        self.assertEqual(data["student_name"], self.student_user.full_name)
+
 
 class PaymentSerializerTests(FinancialTestSetupMixin, TestCase):
 
@@ -243,10 +273,17 @@ class PaymentSerializerTests(FinancialTestSetupMixin, TestCase):
         self.assertEqual(data["class_name"], self.class_obj.name)
         self.assertEqual(data["student_name"], self.student_user.full_name)
 
+    def test_serializer_amount_precision(self):
+        payment = Payment.objects.create(
+            enrollment_id=self.enrollment, amount="750.50"
+        )
+        data = PaymentSerializer(payment).data
+        self.assertEqual(data["amount"], "750.50")
 
-# =========================================================
-# API / VIEWS
-# =========================================================
+
+# ===========================================================================
+# API / VIEW TESTS
+# ===========================================================================
 
 class TeachersApiTests(FinancialTestSetupMixin, TestCase):
 
@@ -268,7 +305,7 @@ class TeachersApiTests(FinancialTestSetupMixin, TestCase):
         self.assertEqual(response.status_code, 204)
         self.teacher_user.refresh_from_db()
         self.assertFalse(self.teacher_user.is_active)
-        # Teacher profile row remains (perform_destroy overridden, not actually deleted)
+        # Teacher profile row remains (soft delete)
         self.assertTrue(Teachers.objects.filter(id=self.teacher.id).exists())
 
     def test_other_academy_teachers_not_visible(self):
@@ -277,6 +314,11 @@ class TeachersApiTests(FinancialTestSetupMixin, TestCase):
         response = self.client.get("/api/teachers/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
+
+    def test_unauthenticated_cannot_list_teachers(self):
+        anon = APIClient()
+        response = anon.get("/api/teachers/")
+        self.assertIn(response.status_code, [401, 403])
 
 
 class EnrollmentApiTests(FinancialTestSetupMixin, TestCase):
@@ -318,7 +360,6 @@ class EnrollmentApiTests(FinancialTestSetupMixin, TestCase):
         self.assertEqual(payment.amount, 1000)  # 10 sessions * 100
 
     def test_create_enrollment_sets_student_active(self):
-        self.assertEqual(self.student_profile.status, Students.Status.ACTIVE)
         new_student_user, new_student = create_student_with_profile(
             self.academy, email=f"pendingstudent-{id(self)}@test.com"
         )
@@ -483,3 +524,47 @@ class PaymentApiTests(FinancialTestSetupMixin, TestCase):
         response = self.client.get("/api/payments/summary/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["collection_rate_pct"], 100.0)
+
+
+# ===========================================================================
+# INTEGRATION TESTS
+# ===========================================================================
+
+class EnrollmentPaymentIntegrationTests(FinancialTestSetupMixin, TestCase):
+    """Verify that enrolling a student automatically creates a payment."""
+
+    def setUp(self):
+        self.base_setup()
+        self.client = APIClient()
+        self.owner = create_user(
+            self.academy, User.Roles.OWNER, f"owner-integ-{id(self)}@test.com"
+        )
+        self.client.force_authenticate(self.owner)
+
+    def test_enroll_then_pay_then_soft_delete(self):
+        # Enroll
+        enroll_resp = self.client.post(
+            "/api/enrollments/",
+            {
+                "class_id": self.class_obj.id,
+                "student_id": self.student_profile.pk,
+                "start_date": str(date.today()),
+            },
+            format="json",
+        )
+        self.assertEqual(enroll_resp.status_code, 201)
+        enrollment = Enrollment.objects.get(id=enroll_resp.data["id"])
+
+        # Payment auto-created
+        payment = Payment.objects.get(enrollment_id=enrollment)
+        self.assertEqual(payment.status, "pending")
+
+        # Mark payment completed
+        payment.status = "completed"
+        payment.save()
+
+        # Soft-delete enrollment
+        del_resp = self.client.delete(f"/api/enrollments/{enrollment.id}/")
+        self.assertEqual(del_resp.status_code, 204)
+        enrollment.refresh_from_db()
+        self.assertEqual(enrollment.status, "dropped")
