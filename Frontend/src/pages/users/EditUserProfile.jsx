@@ -1,7 +1,8 @@
 import { useContext, useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { UsersContext } from "../../context/UsersContext"
-import api from "../../api"
+import { toast } from "../../lib/toastBus"
+
 
 const EditUserProfile = ({ userId, onClose }) => {
     const {
@@ -13,6 +14,8 @@ const EditUserProfile = ({ userId, onClose }) => {
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
     const [role, setRole] = useState("");
+    const [fieldErrors, setFieldErrors] = useState({});
+    const [saving, setSaving] = useState(false);
     const navigate = useNavigate();
     const roles = [
         { value: "A", label: "Admin" },
@@ -34,29 +37,39 @@ const EditUserProfile = ({ userId, onClose }) => {
     }, [user]);
 
     if (!user) {
-        return <div>Loading...</div>;
+        return <div className="skeleton skeleton-card" />;
     }
 
     async function handleSubmit(e) {
         e.preventDefault();
+        setFieldErrors({});
 
-        const data = {
-            full_name,
-            email,
-            phone,
-            role,
+        const data =
+            full_name === (user.full_name || "") &&
+            email === (user.email || "") &&
+            phone === (user.phone || "") &&
+            role === (user.role || "");
+
+        if (data) {
+            toast.warning("No changes made", "Edit a field before saving.");
+            return;
         }
-        try{
-            const result = await updateUser(userId, data);
-            if(result.success) {
-                onClose();
-                navigate(`/users/`)
-            }
-        } catch (error) {
-            console.error(error);
-            console.log(error.response?.data);
-            throw error;
+
+        setSaving(true);
+        const result = await updateUser(userId, { full_name, email, phone, role });
+        setSaving(false);
+
+        if (result.success) {
+            toast.success("User updated", `${full_name}'s profile was saved.`);
+            onClose();
+            navigate(`/users/`);
+        } else if (result.error?.response?.data?.code === "validation_error") {
+            setFieldErrors(result.error.response.data.fields || {});
         }
+    }
+
+    function fieldClass(name) {
+        return fieldErrors[name] ? "form-input-error" : "form-input";
     }
 
     return (
@@ -81,6 +94,7 @@ const EditUserProfile = ({ userId, onClose }) => {
                         className="form-input"
                         required
                     />
+                    {fieldErrors.full_name && <p className="form-error">{fieldErrors.full_name[0]}</p>}
                 </div>
                 <div>
                     <label htmlFor="email" className="form-label">Email</label>
@@ -94,6 +108,7 @@ const EditUserProfile = ({ userId, onClose }) => {
                         className="form-input"
                         required
                     />
+                    {fieldErrors.email && <p className="form-error">{fieldErrors.email[0]}</p>}
                 </div>
                 <div>
                     <label htmlFor="phone" className="form-label">Phone</label>
@@ -107,6 +122,7 @@ const EditUserProfile = ({ userId, onClose }) => {
                         className="form-input"
                         required
                     />
+                    {fieldErrors.phone && <p className="form-error">{fieldErrors.phone[0]}</p>}
                 </div>
                 <div>
                     <label htmlFor="role">Role</label>
@@ -128,9 +144,12 @@ const EditUserProfile = ({ userId, onClose }) => {
                             </option>
                         ))}
                     </select>
+                    {fieldErrors.role && <p className="form-error">{fieldErrors.role[0]}</p>}
                 </div>
             </div>
-            <button type="submit" className="btn-primary mt-4 w-full">Save Changes</button>
+            <button type="submit" className="btn-primary mt-4 w-full" disabled={saving}>
+                {saving ? <span className="btn-spinner" /> : "Save Changes"}
+            </button>
         </form>
     )
 }

@@ -1,6 +1,7 @@
 import { useContext, useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { StudentContext } from "../../context/StudentsContext"
+import { toast } from "../../lib/toastBus"
 import api from "../../api"
 
 const EditStudentProfile = ({ onClose }) => {
@@ -25,7 +26,7 @@ const EditStudentProfile = ({ onClose }) => {
                 const response = await api.get("api/auth/educational_levels/");
                 setEducationalLevels(response.data)
             } catch (error) {
-                console.error(error)
+                toast.warning("Couldn't load educational levels", "Try refreshing the page.");
             }
         }
 
@@ -54,14 +55,26 @@ const EditStudentProfile = ({ onClose }) => {
     async function handleSubmit(e) {
         e.preventDefault();
         setFieldErrors({});
-        setSaving(true);
 
+        const noChanges =
+        full_name === (student.full_name || "") &&
+        email === (student.email || "") &&
+        phone === (student.phone || "") &&
+        parent_email === (student.parent_email || "") &&
+        educational_level === (student.educational_level || "");
+
+        if (noChanges) {
+            toast.warning("No changes made", "Edit a field before saving.");
+            return;
+        }
+
+        setSaving(true);
         const data = { educational_level, email, full_name, parent_email, phone };
         const result = await updateStudent(id, data);
-
         setSaving(false);
 
         if (result.success) {
+            toast.success("Student profile updated", `${full_name}'s profile was saved.`);
             onClose();
             navigate(`/student/${result.data.id}`);
         } else if (result.error?.response?.data?.code === "validation_error") {

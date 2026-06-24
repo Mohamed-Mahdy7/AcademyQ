@@ -10,7 +10,6 @@ const UserManagement = () => {
     const [showRegister, setShowRegister] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
     const [selectedUserId, setSelectedUserId] = useState(null);
-    console.log("USERS: ", users)
     const totalStaff = users?.length || 0;
     const admins = users?.filter(user => user.role === 'A').length || 0;
     const teachers = users?.filter(user => user.role === 'T').length || 0;

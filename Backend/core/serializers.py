@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from django.db.models import Sum
 from django.utils import timezone
 from django.db import transaction
@@ -218,10 +218,6 @@ class StudentCreateSerializer(serializers.ModelSerializer):
 
 
 class StudentListSerializer(serializers.ModelSerializer):
-    # id = serializers.UUIDField(
-    #     source="students.id",
-    #     read_only=True
-    # )
     parent_email = serializers.EmailField(
         source="students.parent_email",
         read_only=True
@@ -243,16 +239,29 @@ class StudentListSerializer(serializers.ModelSerializer):
         read_only=True
     )
     enrollments = serializers.SerializerMethodField()
+    overdue_days = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = [
             "id", "full_name", "email", "phone", "academy", "parent_email", "educational_level", 
-            "educational_level_display", "status", "status_display", "enrollments",
+            "educational_level_display", "status", "status_display", "enrollments", "overdue_days"
         ]
 
     def get_enrollments(self, obj) -> int:
         return obj.students.enrollments.count()
+    
+    def get_overdue_days(self, obj):
+        today = datetime.today().date()
+        max_overdue = 0
+        
+        for enrollment in obj.students.enrollments.all():
+            for payment in enrollment.payments.all():
+                if payment.status == "pending" and payment.due_date and today > payment.due_date:
+                    overdue = (today - payment.due_date).days
+                    max_overdue = max(max_overdue, overdue)
+        
+        return max_overdue if max_overdue > 0 else None
 
 
 class EnrollmentSimpleSerializer(serializers.ModelSerializer):
@@ -262,8 +271,6 @@ class EnrollmentSimpleSerializer(serializers.ModelSerializer):
 
 
 class StudentProfileUpdateSerializer(serializers.ModelSerializer):
-    # id = serializers.UUIDField(source="students.id", read_only=True)
-    # user_id = serializers.UUIDField(source="id", read_only=True)
     parent_email = serializers.EmailField(
         source="students.parent_email", required=True, allow_blank=False
     )

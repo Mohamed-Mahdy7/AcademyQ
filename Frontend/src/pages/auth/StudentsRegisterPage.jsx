@@ -1,6 +1,8 @@
 import { useContext, useEffect, useState } from "react";
 import { StudentContext } from "../../context/StudentsContext";
+import { toast } from "../../lib/toastBus";
 import api from "../../api";
+
 
 function StudentRegister({ onClose }) {
     const {createStudent} = useContext(StudentContext)
@@ -22,7 +24,7 @@ function StudentRegister({ onClose }) {
             const response = await api.get("api/auth/educational_levels/");
             setEducationalLevels(response.data)
         } catch (error) {
-            console.error(error)
+            toast.warning("Couldn't load educational levels", "Try refreshing the page.");
         }
     }
 
@@ -31,7 +33,7 @@ function StudentRegister({ onClose }) {
             const response = await api.get("api/auth/academies/");
             setAcademies(response.data);
         } catch (error) {
-            console.error(error);
+            toast.warning("Couldn't load academies data", "Try refreshing the page.");
         }
     }
 
@@ -58,6 +60,7 @@ function StudentRegister({ onClose }) {
         setSubmitting(false);
 
         if (result.success) {
+            toast.success("Student registered", `${full_name} has been added.`);
             onClose();
         } else if (result.error?.response?.data?.code === "validation_error") {
             setFieldErrors(result.error.response.data.fields || {});
