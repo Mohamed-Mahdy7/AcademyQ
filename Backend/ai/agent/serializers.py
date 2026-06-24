@@ -53,7 +53,7 @@ class AlertSerializer(serializers.ModelSerializer):
             "last_scanned_at",
         ]
 
-    def get_is_dismissed(self, obj):
+    def get_is_dismissed(self, obj) -> bool:
         return obj.reviewed_at is not None
         
 

@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
+from rest_framework import viewsets, serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, generics
@@ -9,6 +9,9 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.exceptions import NotFound, PermissionDenied, AuthenticationFailed, ValidationError
 from rest_framework.decorators import action
+from drf_spectacular.utils import extend_schema, extend_schema_view, inline_serializer
+
+from .mixins import AcademyScopedMixin
 from .models import Academy, Students
 from .serializers import (AcademySerializer, CustomeTokenObtainPairSerializer,
     AcademyRegistrationSerializer, StaffCreateSerializer, StudentCreateSerializer, 
@@ -17,6 +20,7 @@ from .permissions import ActiveSubscriptionRequired, IsOwner
 
 User = get_user_model()
 
+@extend_schema(tags=["Auth"])
 class RegisterView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = AcademyRegistrationSerializer
@@ -60,6 +64,7 @@ class RegisterView(generics.CreateAPIView):
         )
         return response
 
+@extend_schema(tags=["Auth"])
 class LoginView(TokenObtainPairView):
     permission_classes = [AllowAny]
     serializer_class = CustomeTokenObtainPairSerializer
@@ -95,6 +100,20 @@ class LoginView(TokenObtainPairView):
             )
         return response
 
+@extend_schema(
+    tags=["Auth"],
+    request=None,
+    responses={
+        200: inline_serializer(
+            "RefreshTokenResponse",
+            fields={"access": serializers.CharField()},
+        ),
+        401: inline_serializer(
+            "RefreshTokenError",
+            fields={"error": serializers.CharField()},
+        ),
+    },
+)
 class RefreshTokenView(APIView):
     def post(self, request):
         refresh_token = request.COOKIES.get("refresh_token")
@@ -117,7 +136,14 @@ class RefreshTokenView(APIView):
             )
         return response
 
-
+@extend_schema(
+    tags=["Auth"],
+    request=None,
+    responses={200: inline_serializer(
+        "LogoutResponse",
+        fields={"message": serializers.CharField()},
+    )},
+)
 class LogoutView(APIView):
 
     def post(self, request):
@@ -125,6 +151,8 @@ class LogoutView(APIView):
         response.delete_cookie("access_token")
         response.delete_cookie("refresh_token")
         return response
+
+@extend_schema(tags=["Academy"])
 class AcademyView(generics.RetrieveUpdateAPIView):
     serializer_class = AcademySerializer
     
@@ -135,11 +163,23 @@ class AcademyView(generics.RetrieveUpdateAPIView):
             raise NotFound("No academy associated with this account.")
         return academy
 
-
+@extend_schema(tags=["Academy"])
 class AcademyListView(generics.ListAPIView):
     queryset = Academy.objects.all()
     serializer_class = AcademySerializer
 
+@extend_schema(
+    tags=["Academy"],
+    request=None,
+    responses={200: inline_serializer(
+        "CompleteSetupResponse",
+        fields={
+            "setup_complete": serializers.BooleanField(),
+            "refresh": serializers.CharField(),
+            "access": serializers.CharField(),
+        },
+    )},
+)
 class ComopleteSetupView(APIView):
     def post(self, request):
         academy = request.user.academy
@@ -169,10 +209,24 @@ class ComopleteSetupView(APIView):
             "access": str(refresh.access_token)
         }, status=status.HTTP_200_OK)
 
-class UserViewSet(viewsets.ModelViewSet):
+@extend_schema_view(
+    list=extend_schema(tags=["Staff"]),
+    retrieve=extend_schema(tags=["Staff"]),
+    create=extend_schema(tags=["Staff"]),
+    update=extend_schema(tags=["Staff"]),
+    partial_update=extend_schema(tags=["Staff"]),
+    destroy=extend_schema(tags=["Staff"]),
+    me=extend_schema(tags=["Staff"]),
+    students=extend_schema(tags=["Students"]),
+    
+)
+class UserViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     permission_classes = [IsOwner]
     
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return User.objects.none()
+        
         return User.objects.filter(
             academy=self.request.user.academy
         ).exclude(role=User.Roles.OWNER)
@@ -186,10 +240,18 @@ class UserViewSet(viewsets.ModelViewSet):
     
     @action(detail=False,  methods=["GET", "PUT"], permission_classes = [IsAuthenticated])
     def me(self, request):
-        if request.user.role == User.Roles.STUDENT:
-            serializer = StudentProfileUpdateSerializer(request.user)
-        else:
-            serializer = UserSerializer(request.user)
+        serializer_class = (
+            StudentProfileUpdateSerializer
+            if request.user.role == User.Roles.STUDENT
+            else UserSerializer
+            
+        )
+        if request.method == 'GET':
+            return Response(serializer_class(request.user).data)
+        
+        serializer = serializer_class(request.user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data)
     
     def perform_create(self, serializer):
@@ -204,6 +266,7 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(students, many=True)
         return Response(serializer.data)
 
+@extend_schema(tags=["Staff"])
 class RolesListView(APIView):
     def get(self, request):
         return Response([{
@@ -211,6 +274,17 @@ class RolesListView(APIView):
             "label": label,
         }for value, label in User.Roles.choices])
 
+@extend_schema(
+    tags=["Students"],
+    responses=inline_serializer(
+        "EducationalLevelChoice",
+        fields={
+            "value": serializers.IntegerField(),
+            "label": serializers.CharField(),
+        },
+        many=True,
+    ),
+)
 class EducationalLevelListView(APIView):
     def get(self, request):
         return Response ([
@@ -221,21 +295,21 @@ class EducationalLevelListView(APIView):
             for value, label in Students.EducationalLevel.choices
         ])
 
+@extend_schema(tags=["Students"])
 class StudentRegistrationView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = StudentCreateSerializer
 
+@extend_schema(tags=["Students"])
 class StudentProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = StudentProfileUpdateSerializer
 
     def get_object(self):
-        student_id = self.kwargs["pk"]
-        
-        student = get_object_or_404(
-            Students.objects.select_related("user"),
-            pk=student_id,
+        user = get_object_or_404(
+            User.objects.select_related("students"),
+            pk=self.kwargs["pk"],
+            role=User.Roles.STUDENT,
         )
-        user = student.user
 
         if user.academy != self.request.user.academy:
             raise PermissionDenied()

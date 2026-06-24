@@ -20,7 +20,7 @@ export default function KpiCardsSection() {
         getStudentsRequest()
             .then((res) => {
                 const data = res.data.results ?? res.data;
-                const active = data.filter((s) => s.is_active);
+                const active = data.filter((s) => s.status === "A");
                 setActiveStudents(active.length);
                 setTotalEnrollments(data.length);
             })

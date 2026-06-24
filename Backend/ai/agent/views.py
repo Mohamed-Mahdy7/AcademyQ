@@ -1,10 +1,13 @@
 import traceback
-
+from drf_spectacular.utils import extend_schema, inline_serializer, extend_schema_view
+from rest_framework import serializers
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.utils import timezone
+from core.mixins import AcademyScopedMixin
 from core.permissions import IsOwner, ActiveSubscriptionRequired
+from core.exceptions import UpstreamError, RateLimitedError
 from .models import Alert, ScanLog
 from .serializers import AlertSerializer, ScanLogSerializer
 from rest_framework.decorators import action
@@ -15,12 +18,23 @@ from ai.agent.tasks import run_risk_scan
 
 MANUAL_SCAN_DAILY_LIMIT = 3
 
-class AlertViewSet(viewsets.ModelViewSet):
+@extend_schema_view(
+    list=extend_schema(tags=["Alert"]),
+    retrieve=extend_schema(tags=["Alert"]),
+    create=extend_schema(tags=["Alert"]),
+    partial_update=extend_schema(tags=["Alert"]),
+    stats=extend_schema(tags=["Alert"]),
+    generate_message=extend_schema(tags=["Alert"]),
+)
+class AlertViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = AlertSerializer
     permission_classes = [IsOwner, ActiveSubscriptionRequired]
     http_method_names = ["get", "post", "patch", "head", "options"]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Alert.objects.none()
+        
         qs = Alert.objects.filter(
             enrollment__class_id__academy_id=self.request.user.academy_id
         ).select_related(
@@ -108,10 +122,7 @@ class AlertViewSet(viewsets.ModelViewSet):
         try:
             context = get_student_context(enrollment.student_id.pk)
         except Exception as e:
-            return Response(
-                {"detail": f"Failed to retrieve student context: {str(e)}"},
-                status=status.HTTP_502_BAD_GATEWAY,
-            )
+            raise UpstreamError("Failed to retrieve student context.")
 
         context["risk_score"] = alert.risk_score
 
@@ -139,10 +150,7 @@ class AlertViewSet(viewsets.ModelViewSet):
             )
 
         except Exception as e:
-            return Response(
-                {"detail": f"LLM call failed: {str(e)}"},
-                status=status.HTTP_502_BAD_GATEWAY,
-            )
+            raise UpstreamError("LLM call failed.")
 
         alert.message = message
         alert.save()
@@ -152,7 +160,21 @@ class AlertViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
     
-
+@extend_schema(
+    tags=["AI Agent"],
+    request=None,
+    responses={
+        202: ScanLogSerializer,
+        429: inline_serializer(
+            "ScanRateLimitResponse",
+            fields={"detail": serializers.CharField()},
+        ),
+        500: inline_serializer(
+            "ScanFailedResponse",
+            fields={"detail": serializers.CharField(), "error": serializers.CharField()},
+        ),
+    },
+)
 class RunScanView(APIView):
     permission_classes = [IsOwner, ActiveSubscriptionRequired]
 
@@ -168,12 +190,7 @@ class RunScanView(APIView):
         ).count()
 
         if today_scans >= MANUAL_SCAN_DAILY_LIMIT:
-            return Response(
-                {
-                    "detail": f"Manual scan limit reached ({MANUAL_SCAN_DAILY_LIMIT}/day). Try again tomorrow."
-                },
-                status=status.HTTP_429_TOO_MANY_REQUESTS,
-            )
+            raise RateLimitedError(f"Manual scan limit reached ({MANUAL_SCAN_DAILY_LIMIT}/day). Try again tomorrow.")
 
         scan_log = ScanLog.objects.create(
             academy=request.user.academy,
@@ -188,10 +205,7 @@ class RunScanView(APIView):
             scan_log.error_log = str(e)
             scan_log.completed_at = timezone.now()
             scan_log.save()
-            return Response(
-                {"detail": "Scan failed.", "error": str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+            raise UpstreamError("Scan failed. Please try again.")
 
         scan_log.status = ScanLog.STATUS_COMPLETE
         scan_log.completed_at = timezone.now()
@@ -202,7 +216,10 @@ class RunScanView(APIView):
             status=status.HTTP_202_ACCEPTED,
         )
 
-
+@extend_schema(
+    tags=["AI Agent"],
+    responses={200: ScanLogSerializer(many=True)},
+)
 class ScanLogListView(APIView):
     permission_classes = [IsOwner, ActiveSubscriptionRequired]
 

@@ -6,6 +6,8 @@ const api = axios.create({
     withCredentials: true,
 });
 
+let isRedirectingToLogin = false;
+
 api.interceptors.response.use(
     (response) => response,
     (error) => {
@@ -20,16 +22,29 @@ api.interceptors.response.use(
         switch(code) {
             case "validation_error":
                 break;
+
             case "permission_denied":
                 toast.danger("Permission denied", detail);
-                // if (status === 401) window.location.href = "/login";
+                if (status === 401) {
+                    // Session genuinely dead -- redirect once, not once per failed request.
+                    if (!isRedirectingToLogin && window.location.pathname !== "/login") {
+                        isRedirectingToLogin = true;
+                        toast.danger("Session expired", "Please log in again.");
+                        window.location.href = "/login";
+                    }
+                } else {
+                    toast.danger("Permission denied", detail);
+                }
                 break;
+
             case "not_found":
                 toast.danger("Not found", detail);
                 break;
+
             case "rate_limited":
                 toast.warning("Slow down", detail);
                 break;
+                
             default:
                 toast.danger("Something went wrong", detail);
         }

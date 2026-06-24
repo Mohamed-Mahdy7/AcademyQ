@@ -29,6 +29,7 @@ export const StudentProvider = ({ children }) => {
         console.log("STUDENT ID: ", id)
         try {
             const response = await getStudentRequest(id);
+            console.log(response.data)
             setStudent(response.data);
             console.log("STUDENT FROM CONTEXT: ", response.data)
 
@@ -76,7 +77,7 @@ export const StudentProvider = ({ children }) => {
                 data: response.data,
             };
         } catch (error) {
-            console.error(error);
+            console.error(error.response?.data);
             return {
                 success: false,
                 error,

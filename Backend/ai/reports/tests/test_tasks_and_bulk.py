@@ -64,6 +64,7 @@ class GenerateReportCardTaskTest(APITestCase):
 
     def test_task_returns_error_for_missing_enrollment(self):
         import uuid
+
         result = generate_report_card_task(str(uuid.uuid4()), "2026-01")
         self.assertFalse(result["success"])
         self.assertEqual(result["error"], "Enrollment not found")
@@ -196,15 +197,18 @@ class GenerateBulkReportEndpointTest(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data["code"], "permission_denied")
 
     def test_generate_bulk_class_not_found(self):
         import uuid
+
         response = self.client.post(
             "/api/reports/generate_bulk/",
             {"class_id": str(uuid.uuid4()), "month": "2026-01"},
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data["code"], "not_found")
 
     def test_generate_bulk_no_active_students(self):
         empty_class = Class.objects.create(
@@ -222,3 +226,4 @@ class GenerateBulkReportEndpointTest(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["code"], "validation_error")

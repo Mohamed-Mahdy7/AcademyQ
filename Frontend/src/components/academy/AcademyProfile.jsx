@@ -9,6 +9,8 @@ export default function AcademyProfileForm() {
     const [academyEmail, setAcademyEmail] = useState("");
     const [academyPhone, setAcademyPhone] = useState("");
     const [address, setAddress] = useState("");
+    const [fieldErrors, setFieldErrors] = useState({});
+    const [saving, setSaving] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -22,6 +24,8 @@ export default function AcademyProfileForm() {
 
     async function handleSubmit(e) {
         e.preventDefault();
+        setFieldErrors({});
+        setSaving(true);
 
         const result = await updateAcademy({
             name: academyName,
@@ -30,15 +34,17 @@ export default function AcademyProfileForm() {
             address,
         });
 
+        setSaving(false);
+
         if (result.success) {
             navigate("/settings");
-        } else {
-            alert("Failed to update academy profile");
+        } else if (result.error?.response?.data?.code === "validation_error") {
+            setFieldErrors(result.error.response.data.fields || {});
         }
     }
 
     if (!academy) {
-        return <p>Loading...</p>;
+        return <div className="skeleton skeleton-card" />;
     }
 
     return (
@@ -59,8 +65,9 @@ export default function AcademyProfileForm() {
                         onChange={(e) =>
                             setAcademyName(e.target.value)
                         }
-                        className="form-input"
+                        className={fieldErrors.name ? "form-input-error" : "form-input"}
                     />
+                    {fieldErrors.name && <p className="form-error">{fieldErrors.name[0]}</p>}
                 </div>
 
                 <div className="form-field">
@@ -74,8 +81,9 @@ export default function AcademyProfileForm() {
                         onChange={(e) =>
                             setAcademyEmail(e.target.value)
                         }
-                        className="form-input"
+                        className={fieldErrors.email ? "form-input-error" : "form-input"}
                     />
+                    {fieldErrors.email && <p className="form-error">{fieldErrors.email[0]}</p>}
                 </div>
 
                 <div className="form-field">
@@ -89,8 +97,9 @@ export default function AcademyProfileForm() {
                         onChange={(e) =>
                             setAcademyPhone(e.target.value)
                         }
-                        className="form-input"
+                        className={fieldErrors.phone ? "form-input-error" : "form-input"}
                     />
+                    {fieldErrors.phone && <p className="form-error">{fieldErrors.phone[0]}</p>}
                 </div>
 
                 <div className="form-field">
@@ -103,25 +112,17 @@ export default function AcademyProfileForm() {
                         onChange={(e) =>
                             setAddress(e.target.value)
                         }
-                        className="form-textarea"
+                        className={fieldErrors.address ? "form-input-error" : "form-textarea"}
                     />
+                    {fieldErrors.address && <p className="form-error">{fieldErrors.address[0]}</p>}
                 </div>
 
                 <div className="divider" />
 
                 <div className="flex justify-end gap-3">
-                    <button
-                        type="button"
-                        className="btn-muted"
-                    >
-                        Cancel
-                    </button>
-
-                    <button
-                        type="submit"
-                        className="btn-primary"
-                    >
-                        Save Changes
+                    <button type="button" className="btn-muted">Cancel</button>
+                    <button type="submit" className="btn-primary" disabled={saving}>
+                        {saving ? <span className="btn-spinner" /> : "Save Changes"}
                     </button>
                 </div>
             </form>

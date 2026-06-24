@@ -1,9 +1,12 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from drf_spectacular.utils import extend_schema, inline_serializer, extend_schema_view
+from rest_framework.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Count, Q, OuterRef, Subquery, IntegerField
+from core.mixins import AcademyScopedMixin
 from core.permissions import IsOwner, ActiveSubscriptionRequired
 from financial_operations.models import Payment, Enrollment
 from django.utils import timezone
@@ -13,6 +16,7 @@ from .serializers import (
     AttendanceSerializer,
     AttendanceBulkSerializer,
 )
+
 
 
 def get_annotated_sessions(academy_id, class_id=None):
@@ -50,13 +54,23 @@ def get_annotated_sessions(academy_id, class_id=None):
 
     return sessions
 
-class ClassSessionViewSet(viewsets.ModelViewSet):
+@extend_schema_view(
+    list=extend_schema(tags=["Class Session"]),
+    retrieve=extend_schema(tags=["Class Session"]),
+    create=extend_schema(tags=["Class Session"]),
+    destroy=extend_schema(tags=["Class Session"]),
+    attendance=extend_schema(tags=["Attendance"]),
+)
+class ClassSessionViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = ClassSessionSerializer
     http_method_names = ['get', 'post', 'delete', 'head', 'options']
     permission_classes = [IsOwner, ActiveSubscriptionRequired]
     pagination_class = None
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return ClassSession.objects.none()
+        
         if self.action in ['destroy', 'retrieve', 'attendance']:
             return ClassSession.objects.filter(
                 class_links__class_obj__academy_id=self.request.user.academy_id
@@ -80,8 +94,8 @@ class ClassSessionViewSet(viewsets.ModelViewSet):
 
         serializer = AttendanceBulkSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+            raise ValidationError(serializer.errors)
+        
         records = serializer.validated_data['records']
         created, updated = 0, 0
 
@@ -139,6 +153,13 @@ class ClassSessionViewSet(viewsets.ModelViewSet):
             pass
 
 
+@extend_schema_view(
+    list=extend_schema(tags=["Attendance"]),
+    retrieve=extend_schema(tags=["Attendance"]),
+    create=extend_schema(tags=["Attendance"]),
+    stats=extend_schema(tags=["Attendance"]),
+    history=extend_schema(tags=["Attendance"]),
+)
 class StudentAttendanceViewSet(viewsets.ModelViewSet):
     serializer_class = AttendanceSerializer
     http_method_names = ['get', 'head', 'options']
@@ -160,10 +181,7 @@ class StudentAttendanceViewSet(viewsets.ModelViewSet):
     def stats(self, request, student_id=None):
         class_id = request.query_params.get('class_id')
         if not class_id:
-            return Response(
-                {'detail': 'class_id query param is required.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            raise ValidationError("class_id query param is required.")
 
         records = self.get_queryset().filter(
             enrollment__class_id__id=class_id
@@ -213,6 +231,12 @@ class StudentAttendanceViewSet(viewsets.ModelViewSet):
         return Response(data)
 
 
+@extend_schema_view(
+    list=extend_schema(tags=["Attendance"]),
+    retrieve=extend_schema(tags=["Attendance"]),
+    create=extend_schema(tags=["Attendance"]),
+    summary=extend_schema(tags=["Attendance"]),
+)
 class ClassAttendanceViewSet(viewsets.ModelViewSet):
     serializer_class = ClassSessionSerializer
     http_method_names = ['get', 'head', 'options']
@@ -256,6 +280,33 @@ class ClassAttendanceViewSet(viewsets.ModelViewSet):
         ]
         return Response(data)
     
+@extend_schema(
+    tags=["Attendance"],
+    request=inline_serializer(
+        "GenerateSessionsRequest",
+        fields={
+            "start_date": serializers.DateField(),
+            "end_date": serializers.DateField(),
+        },
+    ),
+    responses={
+        200: inline_serializer(
+            "GenerateSessionsResponse",
+            fields={
+                "sessions_created": serializers.IntegerField(),
+                "skipped": serializers.IntegerField(),
+            },
+        ),
+        400: inline_serializer(
+            "GenerateSessionsError",
+            fields={"detail": serializers.CharField()},
+        ),
+        404: inline_serializer(
+            "GenerateSessionsNotFound",
+            fields={"detail": serializers.CharField()},
+        ),
+    },
+)
 class GenerateSessionsView(APIView):
     permission_classes = [IsOwner, ActiveSubscriptionRequired]
 
@@ -267,25 +318,17 @@ class GenerateSessionsView(APIView):
         end_date_str = request.data.get('end_date')
 
         if not start_date_str or not end_date_str:
-            return Response(
-                {'detail': 'start_date and end_date are required.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            raise ValidationError({"start_date": ["This field is required."], "end_date": ["This field is required."]})
 
         try:
             start_date = date.fromisoformat(start_date_str)
             end_date = date.fromisoformat(end_date_str)
         except ValueError:
-            return Response(
-                {'detail': 'Invalid date format. Use YYYY-MM-DD.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            raise ValidationError({"end_date": ["Invalid date format. Use YYYY-MM-DD."]})
 
         if end_date < start_date:
-            return Response(
-                {'detail': 'end_date must be after start_date.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            raise ValidationError({"end_date": ["end_date must be after start_date."]})
+            
 
         try:
             cls = Class.objects.get(
@@ -293,17 +336,11 @@ class GenerateSessionsView(APIView):
                 academy_id=request.user.academy_id
             )
         except Class.DoesNotExist:
-            return Response(
-                {'detail': 'Class not found.'},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            raise ValidationError({"class_id": ["Class not found."]})
 
         schedules = ClassSchedule.objects.filter(class_obj=cls)
         if not schedules.exists():
-            return Response(
-                {'detail': 'No schedule configured for this class. Add schedule slots before generating sessions.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            raise ValidationError({"class_id": ["No schedules found for this class."]})
 
         sessions_created = 0
         skipped = 0

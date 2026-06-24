@@ -218,10 +218,10 @@ class StudentCreateSerializer(serializers.ModelSerializer):
 
 
 class StudentListSerializer(serializers.ModelSerializer):
-    id = serializers.UUIDField(
-        source="students.id",
-        read_only=True
-    )
+    # id = serializers.UUIDField(
+    #     source="students.id",
+    #     read_only=True
+    # )
     parent_email = serializers.EmailField(
         source="students.parent_email",
         read_only=True
@@ -251,7 +251,7 @@ class StudentListSerializer(serializers.ModelSerializer):
             "educational_level_display", "status", "status_display", "enrollments",
         ]
 
-    def get_enrollments(self, obj):
+    def get_enrollments(self, obj) -> int:
         return obj.students.enrollments.count()
 
 
@@ -262,6 +262,8 @@ class EnrollmentSimpleSerializer(serializers.ModelSerializer):
 
 
 class StudentProfileUpdateSerializer(serializers.ModelSerializer):
+    # id = serializers.UUIDField(source="students.id", read_only=True)
+    # user_id = serializers.UUIDField(source="id", read_only=True)
     parent_email = serializers.EmailField(
         source="students.parent_email", required=True, allow_blank=False
     )
@@ -279,19 +281,19 @@ class StudentProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            "id", "full_name", "email", "phone", "parent_email", "educational_level", 
+            "id","full_name", "email", "phone", "parent_email", "educational_level", 
             "enrolled_at", "status", "status_display", "enrollments", 
             "attendance_percentage", "total_paid", "created_at", "updated_at"
         ]
 
-    def get_attendance_percentage(self, obj):
+    def get_attendance_percentage(self, obj) -> float:
         student = obj.students
         
         total = Attendance.objects.filter(enrollment__student_id=student).count()
         present = Attendance.objects.filter(enrollment__student_id=student, present=True).count()
         return round((present / total) * 100, 2) if total else 0
         
-    def get_total_paid(self, obj):
+    def get_total_paid(self, obj) -> float:
         student = obj.students
         
         total_payment = Payment.objects.filter(
