@@ -6,6 +6,7 @@ import {
   getGradeSummary,
   getClassSummary,
 } from "../services/gradesService";
+import { Outlet } from "react-router-dom";
 
 const GradeContext = createContext();
 
@@ -55,7 +56,6 @@ export const GradeProvider = ({ children }) => {
       const res = await createGrade(payload);
       return { data: res.data, isDuplicate: false };
     } catch (error) {
-      // AQ-077 contract: duplicate unique constraint comes as fields error
       const fields = error.response?.data?.fields;
       const detail = error.response?.data?.detail || "";
       const isDuplicate =
@@ -81,7 +81,7 @@ export const GradeProvider = ({ children }) => {
         editGrade,
       }}
     >
-      {children}
+      <Outlet/>
     </GradeContext.Provider>
   );
 };
