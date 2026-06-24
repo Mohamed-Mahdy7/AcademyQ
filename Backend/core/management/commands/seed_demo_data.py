@@ -24,6 +24,7 @@ class Command(BaseCommand):
             # =========================
             # 0. ACADEMY + OWNER
             # =========================
+            
             academy = Academy.objects.create(
                 name="Demo Academy",
                 email="demo_academy@gmail.com",
