@@ -1,5 +1,6 @@
 import {getTeachers,getTeacherById,createTeacher,updateTeacher,deleteTeacher,} from "../services/teachers";
 import { createContext, useContext, useEffect, useState } from "react";
+import { toast } from "../lib/toastBus";
 
 export const teacherContext = createContext();
 
@@ -40,21 +41,25 @@ export function TeacherProvider({ children }) {
     try {
       await createTeacher(data);
       await listTeachers();
+      toast.success("Teacher added", "Teacher profile created successfully.");
       return { success: true };
     } catch (error) {
-      return { success: false, errors: error.response?.data || {} };
+      const fields = error.response?.data?.fields;
+      const detail = error.response?.data?.detail;
+      return { success: false, errors: fields ?? (detail ? { detail } : {}),};
     }
   }
 
   async function editTeacher(id, data) {
     try {
-      const response = await updateTeacher(id, data);
-      console.log("SUCCESS:", response);
+      await updateTeacher(id, data);
       await listTeachers();
+      toast.success("Teacher updated", "Changes saved successfully.");
       return { success: true };
     } catch (error) {
-      console.log("ERROR:", error.response?.data);
-      return { success: false, errors: error.response?.data || {} };
+      const fields = error.response?.data?.fields;
+      const detail = error.response?.data?.detail;
+      return { success: false, errors: fields ?? (detail ? { detail } : {}), };
     }
   }
 
@@ -62,6 +67,7 @@ export function TeacherProvider({ children }) {
     try {
       await deleteTeacher(id);
       setTeachers((prev) => prev.filter((t) => t.id !== id));
+      toast.success("Teacher deactivated", "The teacher's account has been deactivated.");
       return { success: true };
     } catch (error) {
       return { success: false };

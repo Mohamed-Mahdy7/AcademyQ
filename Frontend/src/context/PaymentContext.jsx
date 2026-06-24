@@ -1,5 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import {getPayments, getPaymentsSummary, createPayment, deletePayment, updatePayment, editPayment} from "../services/paymentService";
+import { toast } from "../lib/toastBus";
 
 export const PaymentContext = createContext();
 
@@ -44,9 +45,12 @@ export function PaymentProvider({ children }) {
   async function addPayment(data) {
     try {
       await createPayment(data);
+      toast.success("Payment created", "A new pending payment has been added.");
       return { success: true };
     } catch (err) {
-      return { success: false, errors: err.response?.data || {} };
+      const fields = err.response?.data?.fields;
+      const detail = err.response?.data?.detail;
+      return { success: false, errors: fields ?? (detail ? { detail } : {}) };
     }
   }
 
@@ -54,6 +58,7 @@ export function PaymentProvider({ children }) {
     try {
       await deletePayment(id);
       setPayments((prev) => prev.filter((p) => p.id !== id));
+      toast.success("Payment deleted", "The payment has been removed.");
       return { success: true };
     } catch (err) {
       return { success: false };
@@ -63,9 +68,12 @@ export function PaymentProvider({ children }) {
   async function editPayment(id, data) {
     try {
       await updatePayment(id, data);
+      toast.success("Payment updated", "Payment status has been updated successfully.");
       return { success: true };
     } catch (err) {
-      return { success: false, errors: err.response?.data || {} };
+      const fields = err.response?.data?.fields;
+      const detail = err.response?.data?.detail;
+      return { success: false, errors: fields ?? (detail ? { detail } : {}) };
     }
   }
 

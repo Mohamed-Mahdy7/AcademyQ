@@ -11,6 +11,7 @@ export default function TeachersPage() {
   const [formErrors, setFormErrors]     = useState({});
   const [submitting, setSubmitting]     = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [deleting, setDeleting]           = useState(false);
   const [search, setSearch]             = useState("");
   const [classes, setClasses] = useState([]);
 
@@ -45,11 +46,16 @@ export default function TeachersPage() {
       closeForm();
     } else {
       setFormErrors(result.errors || {});
+      if (result.errors?.detail) {
+          toast.danger("Could not add teacher", result.errors.detail);
+      }
     }
   }
 
   async function confirmDelete(teacher) {
+    setDeleting(true);
     const result = await removeTeacher(teacher.id);
+    setDeleting(false);
     if (result.success) setDeleteConfirm(null);
   }
 
@@ -70,7 +76,6 @@ export default function TeachersPage() {
   return (
     <div className="page-body">
 
-      {/* Header */}
       <div className="page-section">
         <div className="flex items-center justify-between mb-1">
           <div>
@@ -86,25 +91,21 @@ export default function TeachersPage() {
         </div>
       </div>
 
-      {/* KPI */}
       <div className="stat-grid mb-6">
         <div className="kpi-card">
           <p className="kpi-label">Total Teachers</p>
           <p className="kpi-value">{teachers.length}</p>
         </div>
-
         <div className="kpi-card">
           <p className="kpi-label">Active Classes</p>
           <p className="kpi-value">{activeClasses}</p>
         </div>
-
         <div className="kpi-card">
           <p className="kpi-label">Sessions</p>
           <p className="kpi-value">{totalSessions}</p>
         </div>
       </div>
 
-      {/* Search */}
       <div className="filter-bar">
         <div className="input-icon-wrap flex-1 max-w-sm">
           <svg xmlns="http://www.w3.org/2000/svg" className="input-icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -176,8 +177,8 @@ export default function TeachersPage() {
             </div>
             <div className="modal-footer">
               <button className="btn-muted" onClick={() => setDeleteConfirm(null)}>Cancel</button>
-              <button className="btn-danger" onClick={() => confirmDelete(deleteConfirm)}>
-                Deactivate
+              <button className={`btn-danger ${deleting ? "btn-disabled" : ""}`} disabled={deleting} onClick={() => confirmDelete(deleteConfirm)} >
+                  {deleting ? <><span className="btn-spinner" /> Deactivating...</> : "Deactivate"}
               </button>
             </div>
           </div>
