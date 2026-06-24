@@ -1,10 +1,15 @@
 import { useEffect, useState } from "react";
 import api from "../../api";
+import { toast } from "../../lib/toastBus";
 
 export default function RetentionScanCard({ onScanComplete }) {
   const [lastScan, setLastScan] = useState(null);
   const [running, setRunning] = useState(false);
-  const [error, setError] = useState(null);
+  const [rateLimited, setRateLimited] = useState(() => {
+    const stored = localStorage.getItem("scan_rate_limited_until");
+    if (!stored) return false;
+    return new Date(stored) > new Date();
+  });
 
   useEffect(() => {
     api.get("/api/agent/scans/")
@@ -12,21 +17,27 @@ export default function RetentionScanCard({ onScanComplete }) {
         const logs = res.data.results ?? res.data;
         setLastScan(logs[0] ?? null);
       })
-      .catch(() => setLastScan(null));
+      .catch(() => {});
   }, []);
 
   const handleRunScan = async () => {
     setRunning(true);
-    setError(null);
     try {
       const res = await api.post("/api/agent/run-scan/");
       setLastScan(res.data);
       if (onScanComplete) onScanComplete();
+      toast.success("Scan complete", `${res.data.students_scanned} students scanned.`);
     } catch (err) {
       if (err.response?.status === 429) {
-        setError("Daily scan limit reached (3/day). Try again tomorrow.");
+        const detail = err.response?.data?.detail || "Daily scan limit reached. Try again tomorrow.";
+        toast.warning("Rate limited", detail);
+        setRateLimited(true);
+        // persist until midnight
+        const midnight = new Date();
+        midnight.setHours(24, 0, 0, 0);
+        localStorage.setItem("scan_rate_limited_until", midnight.toISOString());
       } else {
-        setError("Scan failed. Please try again.");
+        toast.danger("Scan failed", "Please try again.");
       }
     } finally {
       setRunning(false);
@@ -60,24 +71,19 @@ export default function RetentionScanCard({ onScanComplete }) {
       </div>
 
       <p className="text-base font-semibold text-navy mb-1">Weekly Agent Scan</p>
-
-      <p className="text-caption">
-        Last run: {formatDate(lastScan?.started_at)}
-      </p>
-      <p className="text-caption mb-4">
-        Next: {nextSunday()}
-      </p>
-
-      {error && (
-        <p className="text-sm text-danger mb-2">{error}</p>
-      )}
+      <p className="text-caption">Last run: {formatDate(lastScan?.started_at)}</p>
+      <p className="text-caption mb-4">Next: {nextSunday()}</p>
 
       <button
         className="btn-primary w-full"
         onClick={handleRunScan}
-        disabled={running}
+        disabled={running || rateLimited}
       >
-        {running ? "Scanning..." : "▷ Run Scan Now"}
+        {running
+          ? "Scanning..."
+          : rateLimited
+          ? "Limit reached — try tomorrow"
+          : "▷ Run Scan Now"}
       </button>
     </div>
   );
