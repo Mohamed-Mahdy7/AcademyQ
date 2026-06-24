@@ -118,15 +118,37 @@ export default function AttendanceMarkingPage() {
           session_time: sessionTime,
           notes,
         });
-        console.log("session response:", sessionRes.data);
         activeSessionId = sessionRes.data.id;
         setSessionId(activeSessionId);
         setCurrentSessionNum(sessionRes.data.session_num);
       }
-      await api.post(`/api/sessions/${activeSessionId}/attendance/`, { records });
-      showToast("success", isEditMode ? "Attendance updated." : "Attendance saved.");
-    } catch {
-      showToast("danger", "Failed to save attendance.");
+
+      const res = await api.post(
+        `/api/sessions/${activeSessionId}/attendance/`,
+        { records }
+      );
+
+      const { failed } = res.data;
+
+      if (failed && failed.length > 0) {
+        // find student names for failed enrollment IDs
+        const failedNames = failed.map(enrollmentId => {
+          const enrollment = enrollments.find(e => e.id === enrollmentId);
+          return enrollment?.student_name ?? enrollmentId;
+        });
+        showToast(
+          "warning",
+          `Attendance partially saved. Failed for: ${failedNames.join(", ")}`
+        );
+      } else {
+        showToast(
+          "success",
+          isEditMode ? "Attendance updated." : "Attendance saved."
+        );
+      }
+    } catch (err) {
+      const detail = err.response?.data?.detail || "Failed to save attendance.";
+      showToast("danger", detail);
     } finally {
       setSubmitting(false);
     }

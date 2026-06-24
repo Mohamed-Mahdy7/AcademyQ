@@ -1,3 +1,4 @@
+import logging
 from rest_framework import viewsets, status, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -17,7 +18,7 @@ from .serializers import (
     AttendanceBulkSerializer,
 )
 
-
+logger = logging.getLogger(__name__)
 
 def get_annotated_sessions(academy_id, class_id=None):
     from structure.models import ClassSessionEnrollment
@@ -95,31 +96,36 @@ class ClassSessionViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
         serializer = AttendanceBulkSerializer(data=request.data)
         if not serializer.is_valid():
             raise ValidationError(serializer.errors)
-        
-        records = serializer.validated_data['records']
-        created, updated = 0, 0
 
-        with transaction.atomic():
-            for record in records:
+        records = serializer.validated_data['records']
+        created, updated, failed = 0, 0, []
+
+        for record in records:
+            try:
                 _, was_created = Attendance.objects.update_or_create(
                     session=session,
                     enrollment_id=record['enrollment_id'],
                     defaults={'present': record['present']}
                 )
-                # payment trigger
                 if record['present']:
                     self._create_pending_payment(record['enrollment_id'])
-
                 if was_created:
                     created += 1
                 else:
                     updated += 1
+            except Exception:
+                logger.exception(
+                    "attendance: failed to save record for enrollment %s",
+                    record['enrollment_id']
+                )
+                failed.append(str(record['enrollment_id']))
 
         return Response(
-            {'created': created, 'updated': updated},
+            {'created': created, 'updated': updated, 'failed': failed},
             status=status.HTTP_200_OK
         )
-
+    
+    
     def destroy(self, request, pk=None):
         session = self.get_object()
         with transaction.atomic():
