@@ -4,6 +4,7 @@ import { getClass } from "../../services/classService";
 import EnrollmentTable from "./EnrollmentTable";
 import EnrollmentForm from "./EnrollmentForm";
 import { createPayment } from "../../services/paymentService";
+import { toast } from "../../lib/toastBus";
 
 export default function EnrollmentTab({ classId }) {
   const {
@@ -64,6 +65,9 @@ export default function EnrollmentTab({ classId }) {
         listEnrollments({ class_id: classId });
       } else {
         setFormErrors(result.errors || {});
+        if (result.errors?.detail) {
+          toast.danger("Could not update enrollment", result.errors.detail);
+        }
       }
       return;
     }
@@ -79,14 +83,17 @@ export default function EnrollmentTab({ classId }) {
 
     if (!result.success) {
       setFormErrors(result.errors || {});
+      if (result.errors?.detail) {
+        toast.danger("Could not enroll student", result.errors.detail);
+      }
       return;
     }
 
     closeForm();
     listEnrollments({ class_id: classId });
-  }                                      
+  }
 
-  async function confirmDrop(enrollment) { 
+  async function confirmDrop(enrollment) {
     const result = await removeEnrollment(enrollment.id);
     if (result.success) {
       setDropConfirm(null);
