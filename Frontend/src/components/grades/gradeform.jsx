@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useGrades } from "../../context/gradecontext";
 
 export default function GradeForm({ enrollments = [], sessions = [], subjectName = "", onSuccess }) {
@@ -14,17 +14,70 @@ export default function GradeForm({ enrollments = [], sessions = [], subjectName
   });
 
   const [error, setError] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
   const [success, setSuccess] = useState(false);
+  const [confirmOverwrite, setConfirmOverwrite] = useState(false);
+  const [pendingPayload, setPendingPayload] = useState(null);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setError(null);
+    setFieldErrors({});
     setSuccess(false);
+    setConfirmOverwrite(false);
+  };
+
+  const resetForm = () => {
+    setForm({
+      enrollment: "",
+      session: "",
+      subject_name: subjectName,
+      score: "",
+      max_score: "",
+      assigned_at: "",
+    });
+    setConfirmOverwrite(false);
+    setPendingPayload(null);
+  };
+
+  const handleConfirmOverwrite = async () => {
+    try {
+      const existing = await findExistingGrade(
+        pendingPayload.enrollment,
+        pendingPayload.session,
+        pendingPayload.subject_name
+      );
+      if (!existing) {
+        setError("Could not find the existing grade to update.");
+        setConfirmOverwrite(false);
+        return;
+      }
+      await editGrade(existing.id, pendingPayload);
+      setSuccess(true);
+      resetForm();
+      if (onSuccess) onSuccess();
+    } catch (error) {
+      setError(error.response?.data?.detail || error.message || "Error updating grade.");
+      setConfirmOverwrite(false);
+    }
   };
 
   const handleSubmit = async () => {
+    setError(null);
+    setFieldErrors({});
+
     if (!form.enrollment || !form.score || !form.max_score || !form.assigned_at) {
       setError("Please fill all required fields.");
+      return;
+    }
+
+    if (Number(form.max_score) <= 0) {
+      setFieldErrors({ max_score: ["Max score must be greater than 0."] });
+      return;
+    }
+
+    if (Number(form.score) > Number(form.max_score)) {
+      setFieldErrors({ score: ["Score cannot be greater than max score."] });
       return;
     }
 
@@ -41,34 +94,22 @@ export default function GradeForm({ enrollments = [], sessions = [], subjectName
       const result = await addGrade(payload);
 
       if (result.isDuplicate) {
-        const confirmed = window.confirm(
-          "This student already has a grade for this session and subject. Do you want to update it?"
-        );
-        if (!confirmed) return;
-
-        const existing = await findExistingGrade(
-          payload.enrollment, payload.session, payload.subject_name
-        );
-        if (!existing) {
-          setError("Could not find the existing grade to update.");
-          return;
-        }
-
-        await editGrade(existing.id, payload);
+        setPendingPayload(payload);
+        setConfirmOverwrite(true);
+        return;
       }
 
       setSuccess(true);
-      setForm({
-        enrollment: "",
-        session: "",
-        subject_name: subjectName,
-        score: "",
-        max_score: "",
-        assigned_at: "",
-      });
+      resetForm();
       if (onSuccess) onSuccess();
     } catch (error) {
-      setError(error.response?.data?.detail || error.message || "Error adding grade.");
+      const data = error.response?.data;
+      if (data?.fields) {
+        setFieldErrors(data.fields);
+        setError("Please fix the highlighted fields.");
+      } else {
+        setError(data?.detail || error.message || "Error adding grade.");
+      }
     }
   };
 
@@ -77,33 +118,41 @@ export default function GradeForm({ enrollments = [], sessions = [], subjectName
       <h3 className="heading-3">Add Grade</h3>
 
       {error && <div className="alert alert-danger"><span>{error}</span></div>}
-      {success && <div className="alert alert-success"><span>Grade added successfully.</span></div>}
+      {success && <div className="alert alert-success"><span>Grade saved successfully.</span></div>}
+
+      {confirmOverwrite && (
+        <div className="alert alert-warning">
+          <span>
+            A grade already exists for this student/session/subject.
+            Do you want to update it?
+          </span>
+          <div className="flex gap-2 mt-2">
+            <button className="btn-primary" onClick={handleConfirmOverwrite}>
+              Yes, update it
+            </button>
+            <button className="btn-muted" onClick={() => setConfirmOverwrite(false)}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="form-field">
         <label className="form-label">Student <span className="form-required">*</span></label>
-        <select
-          name="enrollment"
-          value={form.enrollment}
-          onChange={handleChange}
-          className="form-select"
-        >
+        <select name="enrollment" value={form.enrollment} onChange={handleChange} className="form-select">
           <option value="">Select Student</option>
           {enrollments.map((e) => (
-            <option key={e.id} value={e.id}>
-              {e.student_name}
-            </option>
+            <option key={e.id} value={e.id}>{e.student_name}</option>
           ))}
         </select>
+        {fieldErrors.enrollment && (
+          <p className="form-error">{fieldErrors.enrollment[0]}</p>
+        )}
       </div>
 
       <div className="form-field">
         <label className="form-label">Session</label>
-        <select
-          name="session"
-          value={form.session}
-          onChange={handleChange}
-          className="form-select"
-        >
+        <select name="session" value={form.session} onChange={handleChange} className="form-select">
           <option value="">Select Session (optional)</option>
           {sessions.map((s) => (
             <option key={s.id} value={s.id}>
@@ -115,12 +164,7 @@ export default function GradeForm({ enrollments = [], sessions = [], subjectName
 
       <div className="form-field">
         <label className="form-label">Subject</label>
-        <input
-          type="text"
-          value={subjectName}
-          disabled
-          className="form-input-disabled"
-        />
+        <input type="text" value={subjectName} disabled className="form-input-disabled" />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -133,6 +177,9 @@ export default function GradeForm({ enrollments = [], sessions = [], subjectName
             onChange={handleChange}
             className="form-input"
           />
+          {fieldErrors.score && (
+            <p className="form-error">{fieldErrors.score[0]}</p>
+          )}
         </div>
         <div className="form-field">
           <label className="form-label">Max Score <span className="form-required">*</span></label>
@@ -143,6 +190,9 @@ export default function GradeForm({ enrollments = [], sessions = [], subjectName
             onChange={handleChange}
             className="form-input"
           />
+          {fieldErrors.max_score && (
+            <p className="form-error">{fieldErrors.max_score[0]}</p>
+          )}
         </div>
       </div>
 
@@ -157,7 +207,7 @@ export default function GradeForm({ enrollments = [], sessions = [], subjectName
         />
       </div>
 
-      <button className="btn-primary w-full" onClick={handleSubmit}>
+      <button className="btn-primary w-full" onClick={handleSubmit} disabled={confirmOverwrite}>
         Save Grade
       </button>
     </div>

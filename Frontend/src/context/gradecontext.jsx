@@ -6,8 +6,6 @@ import {
   getGradeSummary,
   getClassSummary,
 } from "../services/gradesService";
-import { Outlet } from "react-router-dom";
-
 
 const GradeContext = createContext();
 
@@ -44,24 +42,28 @@ export const GradeProvider = ({ children }) => {
     const grades = res.data.results ?? res.data;
     return grades.find(
       (g) => g.session === sessionId && g.subject_name === subjectName
-        );
-    };
+    );
+  };
 
-    const editGrade = async (gradeId, payload) => {
-        const res = await updateGrade(gradeId, payload);
-        return res.data;
-    };
+  const editGrade = async (gradeId, payload) => {
+    const res = await updateGrade(gradeId, payload);
+    return res.data;
+  };
 
   const addGrade = async (payload) => {
     try {
       const res = await createGrade(payload);
       return { data: res.data, isDuplicate: false };
     } catch (error) {
-      const isDuplicate = error.response?.data?.non_field_errors?.[0]?.includes("unique set");
+      // AQ-077 contract: duplicate unique constraint comes as fields error
+      const fields = error.response?.data?.fields;
+      const detail = error.response?.data?.detail || "";
+      const isDuplicate =
+        fields?.non_field_errors?.some(m => m.includes("unique set")) ||
+        detail.includes("unique set");
       if (isDuplicate) {
         return { isDuplicate: true, payload };
       }
-      console.error("addGrade error:", error);
       throw error;
     }
   };
@@ -79,7 +81,7 @@ export const GradeProvider = ({ children }) => {
         editGrade,
       }}
     >
-      <Outlet/>
+      {children}
     </GradeContext.Provider>
   );
 };
