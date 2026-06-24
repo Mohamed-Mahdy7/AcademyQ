@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { getSubjects } from "../../services/subjectService";
 import { getTeachers } from "../../services/teachers";
+import { toast } from "../../lib/toastBus";
 
-function ClassForm({ onSubmit, initialData = {} }) {
+function ClassForm({ onSubmit, initialData = {}, isEditing = false}) {
     const [formData, setFormData] = useState({
         name: initialData.name || "",
         subject: initialData.subject || "",
@@ -13,12 +14,13 @@ function ClassForm({ onSubmit, initialData = {} }) {
         session_price: initialData.session_price || "",
         session_duration: initialData.session_duration || "",
         teachers: initialData.teachers
-            ? initialData.teachers.map((t) => t.id)
+            ? initialData.teachers.map((t) => t.teacher_id)
             : [],
     });
     const [subjects, setSubjects] = useState([]);
     const [teachers, setTeachers] = useState([]);
     const [errors, setErrors] = useState({});
+    const [submitting, setSubmitting] = useState(false);
     const [loadingOptions, setLoadingOptions] = useState(true);
 
     useEffect(() => {
@@ -32,6 +34,10 @@ function ClassForm({ onSubmit, initialData = {} }) {
                 setTeachers(teachersRes.data);
             } catch (error) {
                 console.error("Error loading form options:", error);
+                toast.danger(
+                    "Failed to load form",
+                    "Could not load subjects or teachers."
+                );
             } finally {
                 setLoadingOptions(false);
             }
@@ -60,18 +66,96 @@ function ClassForm({ onSubmit, initialData = {} }) {
         });
     };
 
+    const validate = () => {
+        const newErrors = {};
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (!formData.name.trim()) {
+            newErrors.name = "Class name is required.";
+        }
+        if (!formData.subject) {
+            newErrors.subject = "Please select a subject.";
+        }
+        if (!formData.start_date) {
+            newErrors.start_date = "Start date is required.";
+        } else if (!isEditing && new Date(formData.start_date) < today) {
+            newErrors.start_date = "Start date cannot be in the past.";
+        }
+        if (!formData.end_date) {
+            newErrors.end_date = "End date is required.";
+        } else if (new Date(formData.end_date) <= new Date(today)) {
+            newErrors.end_date = "End date must be in the future.";
+        }
+        if (formData.start_date && formData.end_date) {
+            if (new Date(formData.end_date) <= new Date(formData.start_date)) {
+                newErrors.end_date = "End date must be after start date.";
+            }
+        }
+        if (formData.session_count !== "" && Number(formData.session_count) < 1) {
+            newErrors.session_count = "Session count must be at least 1.";
+        }
+        if (formData.session_price !== "" && Number(formData.session_price) < 0) {
+            newErrors.session_price = "Session price cannot be negative.";
+        }
+        if (formData.session_duration) {
+            const durationRegex = /^\d{2}:\d{2}:\d{2}$/;
+            if (!durationRegex.test(formData.session_duration)) {
+                newErrors.session_duration = "Duration must be in HH:MM:SS format.";
+            }
+        }
+
+        return newErrors;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const validationErrors = validate();
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            toast.warning(
+                "Please fix the highlighted fields.",
+                "Some required fields are missing or invalid."
+            );
+            return;
+        }
+
+        setSubmitting(true);
+        setErrors({});
+
         try {
             await onSubmit({ ...formData });
         } catch (error) {
-            if (error.response?.data) {
-                setErrors(error.response.data);
+            const data = error.response?.data;
+
+            if (data?.code === "validation_error" && data?.fields) {
+                const fieldErrors = {};
+                Object.entries(data.fields).forEach(([key, messages]) => {
+                    fieldErrors[key] = Array.isArray(messages)
+                        ? messages[0]
+                        : messages;
+                });
+                setErrors(fieldErrors);
+                toast.warning(
+                    "Please fix the highlighted fields.",
+                    "Some fields were rejected by the server."
+                );
+            } else if (data?.detail) {
+                toast.danger("Something went wrong", data.detail);
+            } else {
+                toast.danger(
+                    "Something went wrong",
+                    "An unexpected error occurred. Please try again."
+                );
             }
+        } finally {
+            setSubmitting(false);
         }
     };
 
-    if (loadingOptions) return <p className="text-sm text-blue">Loading form...</p>;
+    if (loadingOptions)
+        return <p className="text-sm text-blue">Loading form...</p>;
 
     return (
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -85,11 +169,12 @@ function ClassForm({ onSubmit, initialData = {} }) {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    required
                     placeholder="e.g. Math G7 Mon/Wed"
                     className={errors.name ? "form-input-error" : "form-input"}
                 />
-                {errors.name && <span className="form-error">{errors.name}</span>}
+                {errors.name && (
+                    <span className="form-error">{errors.name}</span>
+                )}
             </div>
 
             {/* Subject */}
@@ -101,7 +186,6 @@ function ClassForm({ onSubmit, initialData = {} }) {
                     name="subject"
                     value={formData.subject}
                     onChange={handleChange}
-                    required
                     className={errors.subject ? "form-input-error" : "form-select"}
                 >
                     <option value="">-- Select Subject --</option>
@@ -111,7 +195,9 @@ function ClassForm({ onSubmit, initialData = {} }) {
                         </option>
                     ))}
                 </select>
-                {errors.subject && <span className="form-error">{errors.subject}</span>}
+                {errors.subject && (
+                    <span className="form-error">{errors.subject}</span>
+                )}
             </div>
 
             {/* Start & End Date */}
@@ -125,10 +211,13 @@ function ClassForm({ onSubmit, initialData = {} }) {
                         name="start_date"
                         value={formData.start_date}
                         onChange={handleChange}
-                        required
-                        className={errors.start_date ? "form-input-error" : "form-input"}
+                        className={
+                            errors.start_date ? "form-input-error" : "form-input"
+                        }
                     />
-                    {errors.start_date && <span className="form-error">{errors.start_date}</span>}
+                    {errors.start_date && (
+                        <span className="form-error">{errors.start_date}</span>
+                    )}
                 </div>
                 <div className="form-field">
                     <label className="form-label">
@@ -139,10 +228,13 @@ function ClassForm({ onSubmit, initialData = {} }) {
                         name="end_date"
                         value={formData.end_date}
                         onChange={handleChange}
-                        required
-                        className={errors.end_date ? "form-input-error" : "form-input"}
+                        className={
+                            errors.end_date ? "form-input-error" : "form-input"
+                        }
                     />
-                    {errors.end_date && <span className="form-error">{errors.end_date}</span>}
+                    {errors.end_date && (
+                        <span className="form-error">{errors.end_date}</span>
+                    )}
                 </div>
             </div>
 
@@ -155,11 +247,12 @@ function ClassForm({ onSubmit, initialData = {} }) {
                         name="session_count"
                         value={formData.session_count}
                         onChange={handleChange}
-                        min="1"
                         placeholder="e.g. 40"
                         className={errors.session_count ? "form-input-error" : "form-input"}
                     />
-                    {errors.session_count && <span className="form-error">{errors.session_count}</span>}
+                    {errors.session_count && (
+                        <span className="form-error">{errors.session_count}</span>
+                    )}
                 </div>
                 <div className="form-field">
                     <label className="form-label">Session Price (EGP)</label>
@@ -168,11 +261,12 @@ function ClassForm({ onSubmit, initialData = {} }) {
                         name="session_price"
                         value={formData.session_price}
                         onChange={handleChange}
-                        min="0"
                         placeholder="e.g. 150"
                         className={errors.session_price ? "form-input-error" : "form-input"}
                     />
-                    {errors.session_price && <span className="form-error">{errors.session_price}</span>}
+                    {errors.session_price && (
+                        <span className="form-error">{errors.session_price}</span>
+                    )}
                 </div>
                 <div className="form-field">
                     <label className="form-label">Session Duration</label>
@@ -182,10 +276,16 @@ function ClassForm({ onSubmit, initialData = {} }) {
                         value={formData.session_duration}
                         onChange={handleChange}
                         placeholder="e.g. 01:30:00"
-                        className={errors.session_duration ? "form-input-error" : "form-input"}
+                        className={
+                            errors.session_duration
+                                ? "form-input-error"
+                                : "form-input"
+                        }
                     />
                     <span className="form-hint">Format: HH:MM:SS</span>
-                    {errors.session_duration && <span className="form-error">{errors.session_duration}</span>}
+                    {errors.session_duration && (
+                        <span className="form-error">{errors.session_duration}</span>
+                    )}
                 </div>
             </div>
 
@@ -209,7 +309,9 @@ function ClassForm({ onSubmit, initialData = {} }) {
                 <label className="form-label">Teachers (optional)</label>
                 <div className="space-y-2 mt-1">
                     {teachers.length === 0 ? (
-                        <p className="text-sm text-blue">No teachers available.</p>
+                        <p className="text-sm text-blue">
+                            No teachers available.
+                        </p>
                     ) : (
                         teachers.map((t) => (
                             <label
@@ -222,23 +324,25 @@ function ClassForm({ onSubmit, initialData = {} }) {
                                     onChange={() => handleTeacherToggle(t.id)}
                                     className="form-checkbox"
                                 />
-                                <span className="text-sm text-navy">{t.name}</span>
+                                <span className="text-sm text-navy">
+                                    {t.name}
+                                </span>
                             </label>
                         ))
                     )}
                 </div>
-                {errors.teachers && <span className="form-error">{errors.teachers}</span>}
+                {errors.teachers && (
+                    <span className="form-error">{errors.teachers}</span>
+                )}
             </div>
 
-            {errors.non_field_errors && (
-                <div className="alert-danger">
-                    <p className="alert-desc">{errors.non_field_errors}</p>
-                </div>
-            )}
-
             <div className="flex justify-end">
-                <button type="submit" className="btn-primary">
-                    Save Class
+                <button
+                    type="submit"
+                    className="btn-primary"
+                    disabled={submitting}
+                >
+                    {submitting ? "Saving..." : "Save Class"}
                 </button>
             </div>
 
