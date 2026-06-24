@@ -4,6 +4,7 @@ import PaymentSummaryCards from "../components/payments/PaymentSummaryCards";
 import PaymentTable from "../components/payments/PaymentTable";
 import RecordPaymentForm from "../components/payments/RecordPaymentForm";
 import AddPaymentForm from "../components/payments/AddPaymentForm";
+import { toast } from "../lib/toastBus";
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -35,13 +36,11 @@ export default function PaymentsPage() {
 
   async function handleSubmit(payload) {
     setSubmitting(true);
-
     const result = await editPayment(payload.payment_id, {
       status: payload.status,
       paid_on: payload.paid_on,
       notes: payload.notes,
     });
-
     setSubmitting(false);
     if (result.success) {
       setShowForm(false);
@@ -50,6 +49,9 @@ export default function PaymentsPage() {
       fetchSummary(selectedMonth);
     } else {
       setFormErrors(result.errors || {});
+      if (result.errors?.detail) {
+        toast.danger("Could not update payment", result.errors.detail);
+      }
     }
   }
 
@@ -66,13 +68,15 @@ export default function PaymentsPage() {
     setSubmitting(true);
     const result = await addPayment(payload);
     setSubmitting(false);
-
     if (result.success) {
       setShowAddForm(false);
       listPayments({ month: selectedMonth });
       fetchSummary(selectedMonth);
     } else {
       setFormErrors(result.errors || {});
+      if (result.errors?.detail) {
+        toast.danger("Could not create payment", result.errors.detail);
+      }
     }
   }
 

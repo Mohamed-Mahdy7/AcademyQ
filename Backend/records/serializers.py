@@ -2,7 +2,6 @@ from rest_framework import serializers
 from django.db import transaction
 from .models import ClassSession, Attendance
 
-
 class ClassSessionSerializer(serializers.ModelSerializer):
     present_count = serializers.IntegerField(read_only=True)
     absent_count = serializers.IntegerField(read_only=True)
@@ -26,12 +25,10 @@ class ClassSessionSerializer(serializers.ModelSerializer):
         class_ids = self.context['request'].data.get('class_ids', [])
         if not class_ids:
             raise serializers.ValidationError({'class_ids': 'This field is required and must be a non-empty list.'})
-
         from structure.models import ClassSessionEnrollment, Class
         classes = Class.objects.filter(id__in=class_ids, academy_id=self.context['request'].user.academy_id)
         if not classes.exists():
             raise serializers.ValidationError({'class_ids': 'No valid classes found.'})
-
         with transaction.atomic():
             session = ClassSession.objects.create(**validated_data)
             last_junction = None
@@ -56,11 +53,11 @@ class ClassSessionSerializer(serializers.ModelSerializer):
 
 class AttendanceSerializer(serializers.ModelSerializer):
     student_id = serializers.UUIDField(
-        source='enrollment.student_id.id',
+        source='enrollment.student_id.user_id',
         read_only=True
     )
     student_name = serializers.CharField(
-        source='enrollment.student_id.full_name',
+        source='enrollment.student_id.user.full_name',
         read_only=True
     )
 
@@ -76,6 +73,7 @@ class AttendanceSerializer(serializers.ModelSerializer):
             'recorded_at',
         ]
         read_only_fields = ['recorded_at', 'student_id', 'student_name']
+
 
 class AttendanceBulkItemSerializer(serializers.Serializer):
     enrollment_id = serializers.UUIDField()
