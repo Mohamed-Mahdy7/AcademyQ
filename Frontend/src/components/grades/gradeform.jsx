@@ -72,11 +72,6 @@ export default function GradeForm({ enrollments = [], sessions = [], subjectName
     }
   };
 
-  const safeEnrollments = enrollments || [];
-  const safeSessions = sessions || [];
-  console.log("ENROLLMENTS:", safeEnrollments);
-console.log("SESSIONS:", safeSessions);
-
   return (
     <div className="card-body space-y-4 max-w-md">
       <h3 className="heading-3">Add Grade</h3>
