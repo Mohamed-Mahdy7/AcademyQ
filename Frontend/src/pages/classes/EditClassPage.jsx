@@ -50,7 +50,7 @@ function EditClassPage() {
                 </div>
             </div>
             <div className="card-body">
-                <ClassForm onSubmit={handleSubmit} initialData={classData} />
+                <ClassForm onSubmit={handleSubmit} initialData={classData} isEditing />
             </div>
         </div>
     );

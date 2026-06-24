@@ -15,6 +15,14 @@ function ClassReportsTab({ classId, enrollments = [] }) {
     })();
 
     const handleGenerateForClass = async () => {
+        if (activeEnrollments.length === 0) {
+            setFeedback({
+                type: "error",
+                message: "No active students enrolled. Enroll students first to generate reports.",
+            });
+            return;
+        }
+
         setLoading(true);
         setFeedback(null);
         try {
@@ -56,20 +64,22 @@ function ClassReportsTab({ classId, enrollments = [] }) {
                         students at once. Reports are generated in the background via Celery tasks.
                     </p>
                 </div>
-                <button
-                    className="btn-primary"
-                    onClick={handleGenerateForClass}
-                    disabled={loading || activeEnrollments.length === 0}
-                >
-                    {loading ? (
-                        <span className="flex items-center gap-2">
-                            <span className="btn-spinner" />
-                            Queuing...
-                        </span>
-                    ) : (
-                        "⚡ Generate for Class"
-                    )}
-                </button>
+                <div className="flex flex-col items-end gap-1">
+                    <button
+                        className="btn-primary"
+                        onClick={handleGenerateForClass}
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <span className="flex items-center gap-2">
+                                <span className="btn-spinner" />
+                                Queuing...
+                            </span>
+                        ) : (
+                            "⚡ Generate for Class"
+                        )}
+                    </button>
+                </div>
             </div>
 
             {feedback && (
