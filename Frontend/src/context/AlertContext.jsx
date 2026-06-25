@@ -20,8 +20,8 @@ export function AlertProvider({ children }) {
             const response = await getAlertsRequest(params);
             setAlerts(response.data);
         } catch (err) {
-            console.error(err.response?.data);
             setError("Failed to load alerts.");
+            toast.danger("Failed to load alerts", "Could not fetch retention alerts.");
         } finally {
             setLoading(false);
         }
@@ -34,7 +34,7 @@ export function AlertProvider({ children }) {
             if (expandedId === id) setExpandedId(null);
             toast.success("Alert dismissed", "The alert has been marked as reviewed.");
         } catch (err) {
-            console.error(err.response?.data);
+            toast.danger("Could not dismiss", "Failed to dismiss the alert.");
         }
     }
 
@@ -47,7 +47,7 @@ export function AlertProvider({ children }) {
             toast.success("Notes saved", "Internal notes updated successfully.");
             return true;
         } catch (err) {
-            console.error(err.response?.data);
+            toast.danger("Could not save notes", "Failed to update internal notes.");
             return false;
         }
     }
@@ -63,7 +63,6 @@ export function AlertProvider({ children }) {
             toast.success("Message generated", "AI message is ready to review and send.");
             return message;
         } catch (err) {
-            console.error(err.response?.data);
             toast.danger("Generation failed", "Could not generate message. Check your AI quota.");
             return null;
         } finally {

@@ -21,7 +21,7 @@ export function PaymentProvider({ children }) {
       return data;
     } catch (err) {
       setError("Failed to load payments.");
-      console.error(err);
+      toast.danger("Failed to load payments", "Could not fetch payment records.");
       return [];
     } finally {
       setLoading(false);
@@ -35,7 +35,7 @@ export function PaymentProvider({ children }) {
       setSummary(res.data);
       return res.data;
     } catch (err) {
-      console.error(err);
+      toast.danger("Failed to load summary", "Could not fetch payment summary.");
       return null;
     } finally {
       setSummaryLoading(false);
@@ -50,6 +50,8 @@ export function PaymentProvider({ children }) {
     } catch (err) {
       const fields = err.response?.data?.fields;
       const detail = err.response?.data?.detail;
+      const nonFieldError = fields?.non_field_errors?.[0];
+      if (nonFieldError) toast.danger("Could not create payment", nonFieldError);
       return { success: false, errors: fields ?? (detail ? { detail } : {}) };
     }
   }
@@ -61,6 +63,7 @@ export function PaymentProvider({ children }) {
       toast.success("Payment deleted", "The payment has been removed.");
       return { success: true };
     } catch (err) {
+      toast.danger("Could not delete payment", "Failed to remove the payment.");
       return { success: false };
     }
   }
@@ -73,6 +76,8 @@ export function PaymentProvider({ children }) {
     } catch (err) {
       const fields = err.response?.data?.fields;
       const detail = err.response?.data?.detail;
+      const nonFieldError = fields?.non_field_errors?.[0];
+      if (nonFieldError) toast.danger("Could not update payment", nonFieldError);
       return { success: false, errors: fields ?? (detail ? { detail } : {}) };
     }
   }

@@ -9,7 +9,7 @@ export function TeacherProvider({ children }) {
   const [selectedTeacher, setSelectedTeacher] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
+ 
   async function listTeachers(search = "") {
     setLoading(true);
     try {
@@ -17,7 +17,7 @@ export function TeacherProvider({ children }) {
       setTeachers(response.data.results ?? response.data);
     } catch (error) {
       setError("Failed to load teachers.");
-      console.error(error);
+      toast.danger("Failed to load teachers", "Could not fetch teacher list.");
     } finally {
       setLoading(false);
     }
@@ -31,6 +31,7 @@ export function TeacherProvider({ children }) {
       return { success: true, data: response.data };
     } catch (error) {
       setError("Failed to load teacher.");
+      toast.danger("Failed to load teacher", "Could not fetch teacher details.");
       return { success: false };
     } finally {
       setLoading(false);
@@ -46,7 +47,9 @@ export function TeacherProvider({ children }) {
     } catch (error) {
       const fields = error.response?.data?.fields;
       const detail = error.response?.data?.detail;
-      return { success: false, errors: fields ?? (detail ? { detail } : {}),};
+      const nonFieldError = fields?.non_field_errors?.[0];
+      if (nonFieldError) toast.danger("Could not add teacher", nonFieldError);
+      return { success: false, errors: fields ?? (detail ? { detail } : {}) };
     }
   }
 
@@ -59,7 +62,9 @@ export function TeacherProvider({ children }) {
     } catch (error) {
       const fields = error.response?.data?.fields;
       const detail = error.response?.data?.detail;
-      return { success: false, errors: fields ?? (detail ? { detail } : {}), };
+      const nonFieldError = fields?.non_field_errors?.[0];
+      if (nonFieldError) toast.danger("Could not update teacher", nonFieldError);
+      return { success: false, errors: fields ?? (detail ? { detail } : {}) };
     }
   }
 
@@ -70,10 +75,10 @@ export function TeacherProvider({ children }) {
       toast.success("Teacher deactivated", "The teacher's account has been deactivated.");
       return { success: true };
     } catch (error) {
+      toast.danger("Could not deactivate", "Failed to deactivate the teacher account.");
       return { success: false };
     }
   }
-
   useEffect(() => {
     listTeachers();
   }, []);

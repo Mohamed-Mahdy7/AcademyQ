@@ -22,8 +22,8 @@ export const NotificationsProvider = ({ children }) => {
             setNotifications(response.data);
             return response.data;
         } catch (error) {
-            console.error(error);
             setNotifications([]);
+            toast.danger("Failed to load notifications", "Could not fetch notification history.");
             return null;
         }
     }
@@ -34,8 +34,8 @@ export const NotificationsProvider = ({ children }) => {
             setNotification(response.data);
             return response.data;
         } catch (error) {
-            console.error(error);
             setNotification(null);
+            toast.danger("Failed to load notification", "Could not fetch notification details.");
             return null;
         }
     }
@@ -52,7 +52,7 @@ export const NotificationsProvider = ({ children }) => {
             }
             return { success: response.data.success, data: response.data };
         } catch (error) {
-            console.error(error.response?.data);
+            toast.danger("Failed to send", "Could not send the alert notification.");
             return { success: false, error };
         } finally {
             setSending(false);
@@ -69,7 +69,7 @@ export const NotificationsProvider = ({ children }) => {
             );
             return { success: true, data: response.data };
         } catch (error) {
-            console.error(error.response?.data);
+            toast.danger("Failed to send reminders", "Could not process payment reminders.");
             return { success: false, error };
         }
     }
@@ -80,8 +80,8 @@ export const NotificationsProvider = ({ children }) => {
             setStats(response.data);
             return response.data;
         } catch (error) {
-            console.error(error);
             setStats(null);
+            toast.danger("Failed to load stats", "Could not fetch notification statistics.");
             return null;
         }
     }
