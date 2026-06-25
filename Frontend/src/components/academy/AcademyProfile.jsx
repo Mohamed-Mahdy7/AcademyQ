@@ -1,6 +1,7 @@
 import { AcademyContext } from "../../context/AcademyContext";
 import { useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "../../lib/toastBus";
 import FormHeading from "./FormHeading";
 
 export default function AcademyProfileForm() {
@@ -37,6 +38,7 @@ export default function AcademyProfileForm() {
         setSaving(false);
 
         if (result.success) {
+            toast.success("Academy profile updated");
             navigate("/settings");
         } else if (result.error?.response?.data?.code === "validation_error") {
             setFieldErrors(result.error.response.data.fields || {});

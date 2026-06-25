@@ -11,9 +11,9 @@ const StudentManagement = () => {
     const [showRegister, setShowRegister] = useState(false);
     const navigate = useNavigate();
 
-    console.log("STUDENTS: ", students)
     const activeStudents = students?.filter(student => student.status === 'A').length || 0;
     const studentsCount = students.length;
+    const overdueStudents = students?.filter(student => student.overdue_days !== null).length || 0;
 
 
     return (
@@ -42,7 +42,7 @@ const StudentManagement = () => {
                     />
                     <KpiCard
                         title="With Overdue Payments"
-                        value="1"
+                        value={overdueStudents}
                     />
                 </div>
             </div>

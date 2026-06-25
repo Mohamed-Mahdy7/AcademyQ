@@ -1,6 +1,7 @@
 import { useContext, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { toast } from "../../lib/toastBus";
 
 
 function Register() {
@@ -35,6 +36,7 @@ function Register() {
         setSubmitting(false);
 
         if (result.success) {
+            toast.success("Academy registered", "Welcome to AcademiQ.");
             navigate("/");
         } else if (result.error?.response?.data?.code === "validation_error") {
             setFieldErrors(result.error.response.data.fields || {});

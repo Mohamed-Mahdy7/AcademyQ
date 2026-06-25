@@ -1,6 +1,8 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
+import { toast } from "../../lib/toastBus";
+
 
 function Login() {
     const { login } = useContext(AuthContext);
@@ -20,6 +22,7 @@ function Login() {
         setSubmitting(false);
 
         if (result.success) {
+            toast.success("Welcome back!");
             navigate("/");
         } else {
             setError(

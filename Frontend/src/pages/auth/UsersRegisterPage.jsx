@@ -1,5 +1,6 @@
 import { useContext, useState } from "react";
 import { UsersContext } from "../../context/UsersContext";
+import { toast } from "../../lib/toastBus";
 
 
 function UserRegister({ onClose }) {
@@ -34,6 +35,7 @@ function UserRegister({ onClose }) {
         setSubmitting(false);
 
         if (result.success) {
+            toast.success("User registered", `${full_name} added as ${role === "A" ? "an Admin" : "a Teacher"}.`);
             onClose();
         } else if (result.error?.response?.data?.code === "validation_error") {
             setFieldErrors(result.error.response.data.fields || {});
