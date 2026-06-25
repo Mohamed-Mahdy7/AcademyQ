@@ -21,7 +21,7 @@ function Topbar() {
     const { alerts, loading, dismissAlert, fetchAlerts } = useAlerts();
 
     const pageTitles = {
-        "/": "Dashboard",
+        "/dashboard": "Dashboard",
         "/students": "Students",
         "/teacher": "Teachers",
         "/classes": "Classes",

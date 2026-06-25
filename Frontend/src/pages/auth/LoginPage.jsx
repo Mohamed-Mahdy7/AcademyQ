@@ -23,7 +23,7 @@ function Login() {
 
         if (result.success) {
             toast.success("Welcome back!");
-            navigate("/");
+            navigate("/dashboard");
         } else {
             setError(
                 result.error?.response?.data?.detail || "Incorrect email or password."

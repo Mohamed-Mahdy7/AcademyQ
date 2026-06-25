@@ -35,7 +35,6 @@ export function AuthProvider({ children }) {
     }
 
     async function registerStudent(data) {
-        console.log(data);
         try {
             await studentRegisterRequest(data);
             return { success: true };

@@ -10,7 +10,7 @@ export const loginRequest = (data) =>
     api.post("/api/auth/login/", data);
 
 export const meRequest = () =>
-    api.get("/api/users/me/");
+    api.get("/api/users/me/", { skipAuthRedirect: true });
 
 export const logoutRequest = () =>
     api.post("/api/auth/logout/");

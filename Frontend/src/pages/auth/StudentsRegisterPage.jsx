@@ -1,11 +1,11 @@
 import { useContext, useEffect, useState } from "react";
 import { StudentContext } from "../../context/StudentsContext";
+import { createStudentRequest } from "../../services/studentService";
 import { toast } from "../../lib/toastBus";
 import api from "../../api";
 
 
 function StudentRegister({ onClose }) {
-    const {createStudent} = useContext(StudentContext)
     const [full_name, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
@@ -53,7 +53,7 @@ function StudentRegister({ onClose }) {
         }
 
         setSubmitting(true);
-        const result = await createStudent({
+        const result = await createStudentRequest({
             full_name, email, phone, parent_email, academy, password, confirm_password,
             educational_level: Number(educational_level),
         });

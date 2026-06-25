@@ -35,7 +35,7 @@ const Sidebar = () => {
                 </p>
 
                 <NavLink
-                    to="/"
+                    to="/dashboard"
                     end
                     className={({ isActive }) =>
                         isActive

@@ -1,5 +1,4 @@
 import { Routes, Route } from "react-router-dom";
-import { AcademyProvider } from "../context/AcademyContext.jsx";
 import { TeacherProvider } from "../context/TeachersContext.jsx";
 import { GradeProvider } from "../context/gradecontext.jsx";
 import { UsersProvider } from "../context/UsersContext.jsx";
@@ -15,8 +14,6 @@ import TeachersPage from "../pages/TeachersPage.jsx";
 import PaymentsPage from "../pages/PaymentsPage.jsx";
 import Register from "../pages/auth/RegisterPage.jsx";
 import Login from "../pages/auth/LoginPage.jsx";
-import UserRegister from "../pages/auth/UsersRegisterPage.jsx";
-import StudentRegister from "../pages/auth/StudentsRegisterPage.jsx";
 import AttendanceMarkingPage from "../pages/attendance/AttendanceMarkingPage.jsx";
 import SubjectsPage from "../pages/subject/SubjectsPage.jsx";
 import AddSubjectPage from "../pages/subject/AddSubjectPage.jsx";
@@ -37,11 +34,13 @@ import ReportHistoryPage from "../pages/reports/ReportHistoryPage";
 import ReportCardPage from "../pages/reports/ReportCardPage";
 import AlertInboxPage from "../pages/ai/AlertInboxPage.jsx";
 import NotificationHistoryPage from "../pages/ai/NotificationHistoryPage.jsx";
+import LandingPage from "../pages/LandingPage.jsx";
 
 
 const MainRouter = () => {
     return (
         <Routes>
+            <Route path="/" element={<LandingPage />} />
             <Route path="register" element={<Register />} />
             <Route path="login" element={<Login />} />
             <Route element={ 
@@ -51,13 +50,9 @@ const MainRouter = () => {
                         </NotificationsProvider>
                     </AlertProvider>
             }>
-                <Route path="/" element={<Dashboard />} />
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route element={<ProtectedRoute></ProtectedRoute>}>
-                    <Route path="/settings" element={
-                        <AcademyProvider>
-                            <AcademyProfile />
-                        </AcademyProvider>
-                    } />
+                    <Route path="/settings" element={<AcademyProfile />} />
                     <Route path="teacher" element={
                         <TeacherProvider>
                             <TeachersPage />
