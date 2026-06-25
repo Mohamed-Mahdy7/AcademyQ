@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from drf_spectacular.utils import extend_schema, inline_serializer, extend_schema_view
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, NotFound
 from django.db import transaction
 from django.db.models import Count, Q, OuterRef, Subquery, IntegerField
 from core.mixins import AcademyScopedMixin
@@ -12,6 +12,9 @@ from core.permissions import IsOwner, ActiveSubscriptionRequired
 from financial_operations.models import Payment, Enrollment
 from django.utils import timezone
 from .models import ClassSession, Attendance
+from datetime import date, timedelta
+from structure.models import ClassSchedule, ClassSessionEnrollment, Class
+from grades.models import Grade
 from .serializers import (
     ClassSessionSerializer,
     AttendanceSerializer,
@@ -129,8 +132,8 @@ class ClassSessionViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     def destroy(self, request, pk=None):
         session = self.get_object()
         with transaction.atomic():
+            Grade.objects.filter(session=session).delete()
             Attendance.objects.filter(session=session).delete()
-            from structure.models import ClassSessionEnrollment
             ClassSessionEnrollment.objects.filter(session=session).delete()
             session.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -317,8 +320,6 @@ class GenerateSessionsView(APIView):
     permission_classes = [IsOwner, ActiveSubscriptionRequired]
 
     def post(self, request, class_id):
-        from datetime import date, timedelta
-        from structure.models import ClassSchedule, ClassSessionEnrollment, Class
 
         start_date_str = request.data.get('start_date')
         end_date_str = request.data.get('end_date')
@@ -396,6 +397,11 @@ class GenerateSessionsView(APIView):
                         sessions_created += 1
 
                 current_date += timedelta(days=1)
+
+        if sessions_created == 0 and skipped == 0:
+            raise ValidationError({
+                "start_date": ["No sessions were created. The selected date range contains no days matching this class's schedule."]
+            })
 
         return Response(
             {'sessions_created': sessions_created, 'skipped': skipped},

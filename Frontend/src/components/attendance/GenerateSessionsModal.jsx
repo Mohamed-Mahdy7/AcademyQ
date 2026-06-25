@@ -39,11 +39,16 @@ export default function GenerateSessionsModal({ classId, classStartDate, classEn
       onSuccess(res.data);
       onClose();
     } catch (err) {
-      const detail = err.response?.data?.detail;
-      if (detail?.includes("No schedule configured")) {
-        setError("This class has no weekly schedule slots. Add schedule slots first before generating sessions.");
+    const data = err.response?.data;
+    const detail = data?.detail || "Failed to generate sessions.";
+    const fields = data?.fields;
+
+    if (fields?.class_id) {
+        // no schedule or class not found — global toast, close modal
+        toast.danger("Cannot generate sessions", fields.class_id[0]);
+        onClose();
       } else {
-        setError(detail || "Failed to generate sessions.");
+          setError(detail);
       }
     } finally {
       setLoading(false);

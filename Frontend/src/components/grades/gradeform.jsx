@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useGrades } from "../../context/gradecontext";
+import { toast } from "../../lib/toastBus";
 
 export default function GradeForm({ enrollments = [], sessions = [], subjectName = "", onSuccess }) {
   const { addGrade, findExistingGrade, editGrade } = useGrades();
@@ -13,9 +14,9 @@ export default function GradeForm({ enrollments = [], sessions = [], subjectName
     assigned_at: "",
   });
 
-  const [error, setError] = useState(null);
+  // const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
-  const [success, setSuccess] = useState(false);
+  // const [success, setSuccess] = useState(false);
   const [confirmOverwrite, setConfirmOverwrite] = useState(false);
   const [pendingPayload, setPendingPayload] = useState(null);
 
@@ -53,11 +54,11 @@ export default function GradeForm({ enrollments = [], sessions = [], subjectName
         return;
       }
       await editGrade(existing.id, pendingPayload);
-      setSuccess(true);
+      toast.success("Grade updated", "Existing grade has been updated.");
       resetForm();
       if (onSuccess) onSuccess();
     } catch (error) {
-      setError(error.response?.data?.detail || error.message || "Error updating grade.");
+      toast.danger("Failed to update grade", data?.detail || error.message || "Error updating grade.");
       setConfirmOverwrite(false);
     }
   };
@@ -99,7 +100,7 @@ export default function GradeForm({ enrollments = [], sessions = [], subjectName
         return;
       }
 
-      setSuccess(true);
+      toast.success("Grade saved", "Grade has been recorded successfully.");
       resetForm();
       if (onSuccess) onSuccess();
     } catch (error) {
@@ -108,7 +109,7 @@ export default function GradeForm({ enrollments = [], sessions = [], subjectName
         setFieldErrors(data.fields);
         setError("Please fix the highlighted fields.");
       } else {
-        setError(data?.detail || error.message || "Error adding grade.");
+        toast.danger("Failed to save grade", data?.detail || error.message || "Error adding grade.");
       }
     }
   };
@@ -117,13 +118,10 @@ export default function GradeForm({ enrollments = [], sessions = [], subjectName
     <div className="card-body space-y-4 max-w-md">
       <h3 className="heading-3">Add Grade</h3>
 
-      {error && <div className="alert alert-danger"><span>{error}</span></div>}
-      {success && <div className="alert alert-success"><span>Grade saved successfully.</span></div>}
-
       {confirmOverwrite && (
         <div className="alert alert-warning">
           <span>
-            A grade already exists for this student/session/subject.
+            A grade already exists for this student in the selected session of this class.
             Do you want to update it?
           </span>
           <div className="flex gap-2 mt-2">
