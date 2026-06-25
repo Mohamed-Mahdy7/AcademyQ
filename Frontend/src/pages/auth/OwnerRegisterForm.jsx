@@ -51,7 +51,7 @@ export default function OwnerRegisterForm() {
   }
 
   return (
-    <div className="form-card bg-white rounded-2xl py-2 p-8">
+    <div className="form-card bg-white rounded-2xl py-3 p-8">
       <form onSubmit={handleSubmit} className="space-y-4">
       <div className="flex flex-row items-center justify-between form-field">
         <label className="form-label m-0 text-black">Academy name</label>

@@ -53,7 +53,7 @@ const features = [
   {
     icon: Bell,
     title: "Smart Notifications",
-    description: "Automated WhatsApp and SMS alerts keep parents informed. Every notification is logged with delivery status so nothing falls through the cracks.",
+    description: "Automated Emails alerts keep parents informed. Every notification is logged with delivery status so nothing falls through the cracks.",
     badge: null, iconBg: "bg-blue/10", highlight: false,
   },
 ];
@@ -451,13 +451,22 @@ export default function LandingPage() {
                       </div>
                     </div>
                     : 
-                    "Join your academy"}
+                    <div className="flex items-center gap-3 mb-7">
+                      <div className="w-10 h-10 bg-blue/15 border border-blue/90 rounded-xl flex items-center justify-center">
+                        <UserCheck className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-bold text-black">Join your academy</h3>
+                        <p className="text-xs text-black/40">Your academy must already be registered on AcademiQ</p>
+                      </div>
+                    </div>
+                    }
                 </h2>
                 <button className="modal-close" onClick={() => setOpenModal(null)} aria-label="Close">
                   <X className="w-5 h-5 text-blue" />
                 </button>
               </div>
-              <div className="modal-body py-2">
+              <div className="modal-body bg-gray-200 py-2">
                 {openModal === "owner"
                   ? <OwnerRegisterForm onSuccess={() => { setOpenModal(null); navigate("/dashboard"); }} />
                   : <StudentRegisterForm onSuccess={() => { setOpenModal(null); navigate("/login"); }} />}

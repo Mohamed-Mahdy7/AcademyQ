@@ -1,5 +1,4 @@
 import { Routes, Route } from "react-router-dom";
-import { AcademyProvider } from "../context/AcademyContext.jsx";
 import { TeacherProvider } from "../context/TeachersContext.jsx";
 import { GradeProvider } from "../context/gradecontext.jsx";
 import { UsersProvider } from "../context/UsersContext.jsx";
@@ -15,8 +14,6 @@ import TeachersPage from "../pages/TeachersPage.jsx";
 import PaymentsPage from "../pages/PaymentsPage.jsx";
 import Register from "../pages/auth/RegisterPage.jsx";
 import Login from "../pages/auth/LoginPage.jsx";
-import UserRegister from "../pages/auth/UsersRegisterPage.jsx";
-import StudentRegister from "../pages/auth/StudentsRegisterPage.jsx";
 import AttendanceMarkingPage from "../pages/attendance/AttendanceMarkingPage.jsx";
 import SubjectsPage from "../pages/subject/SubjectsPage.jsx";
 import AddSubjectPage from "../pages/subject/AddSubjectPage.jsx";
@@ -55,11 +52,7 @@ const MainRouter = () => {
             }>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route element={<ProtectedRoute></ProtectedRoute>}>
-                    <Route path="/settings" element={
-                        <AcademyProvider>
-                            <AcademyProfile />
-                        </AcademyProvider>
-                    } />
+                    <Route path="/settings" element={<AcademyProfile />} />
                     <Route path="teacher" element={
                         <TeacherProvider>
                             <TeachersPage />

@@ -2,12 +2,14 @@ import { useContext, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { UsersContext } from "../../context/UsersContext"
 import { StudentContext } from "../../context/StudentsContext"
+import { AcademyContext } from "../../context/AcademyContext"
 import KpiCard from "../../components/KpiCard"
-import StudentRegister from "../auth/StudentsRegisterPage"
+import StudentRegisterForm from "../auth/StudentRegisterForm"
 import CardHeading from "../../components/CardHeader"
 
 const StudentManagement = () => {
     const { students } = useContext(StudentContext);
+    const { academy } = useContext(AcademyContext);
     const [showRegister, setShowRegister] = useState(false);
     const navigate = useNavigate();
 
@@ -48,24 +50,24 @@ const StudentManagement = () => {
             </div>
 
             {showRegister && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                <div className="fixed inset-0  z-50 flex items-center justify-center">
 
                     <div className="absolute inset-0 bg-black/30 backdrop-blur-sm"
                         onClick={() => setShowRegister(false)}
                     />
 
                     <div
-                        className="relative z-10 w-full max-w-5xl mx-4 bg-white rounded-3xl shadow-2xl"
+                        className="relative z-10 w-3/5 max-w-5xl mx-4 bg-white rounded-3xl shadow-2xl"
                     >
                         <button
                             onClick={() => setShowRegister(false)}
-                            className="absolute top-6 right-6 text-3xl text-navy"
+                            className="absolute top-0 right-6 text-3xl text-navy"
                         >
                             x
                         </button>
-
-                        <StudentRegister
-                            onClose={() => setShowRegister(false)}
+                        <StudentRegisterForm
+                            academyId={academy?.id}
+                            onSuccess={() => setShowRegister(false)}
                         />
                     </div>
                 </div>
