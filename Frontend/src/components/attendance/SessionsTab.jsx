@@ -8,10 +8,8 @@ export default function SessionsTab({ sessions, classId, classStartDate, classEn
   const [showModal, setShowModal] = useState(false);
   const [deleting, setDeleting] = useState(null);
 
-  const handleSuccess = (result) => {
-    const { sessions_created, skipped } = result;
+  const handleSuccess = () => {
     if (onSessionsGenerated) onSessionsGenerated();
-    alert(`${sessions_created} sessions created, ${skipped} skipped.`);
   };
 
   const handleDelete = async (e, sessionId) => {
