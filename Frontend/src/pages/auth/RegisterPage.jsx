@@ -41,7 +41,7 @@ function Register() {
         } else if (result.error?.response?.data?.code === "validation_error") {
             setFieldErrors(result.error.response.data.fields || {});
         } else {
-            toast.error("Registration failed", "Please check your details and try again.");
+            toast.danger("Registration failed", "Please check your details and try again.");
         }
     }
 
@@ -173,7 +173,8 @@ function Register() {
                             value={confirm_password}
                             placeholder="Confirm Password"
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            className={fieldClass("confirm_password")} required />
+                            className={fieldClass("confirm_password")} required 
+                            />
                     </div>
                     {fieldErrors.confirm_password && <p className="form-error">{fieldErrors.confirm_password[0]}</p>}
                 </div>

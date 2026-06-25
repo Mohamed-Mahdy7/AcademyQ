@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   GraduationCap, Brain, BarChart3, Users, CalendarCheck,
   DollarSign, Bell, ArrowRight, Check, Building2, UserCheck,
@@ -85,6 +85,8 @@ export default function LandingPage() {
   const [mobileOpen,  setMobileOpen]  = useState(false);
   const [navScrolled, setNavScrolled] = useState(false);
   const [activeReg,   setActiveReg]   = useState("owner");
+  const [openModal, setOpenModal] = useState(null);
+  const navigate = useNavigate();
   const regRef = useRef(null);
 
   useEffect(() => {
@@ -418,23 +420,51 @@ export default function LandingPage() {
             <p className="text-lg text-white/50">Choose your path below and be running in under 5 minutes.</p>
           </div>
 
-          <div className="flex items-center bg-white/5 border border-white/10 rounded-2xl p-1.5 max-w-md mx-auto mb-10">
-            <button onClick={() => setActiveReg("owner")}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all ${activeReg === "owner" ? "bg-sky text-navy shadow-md" : "text-white/50 hover:text-white"}`}>
-              <Building2 className="w-4 h-4" />Academy Owner
+          <div className="grid sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
+            <button onClick={() => setOpenModal("owner")} className="reg-option-card">
+              <Building2 className="w-6 h-6 text-sky mb-3" />
+              <h3 className="text-base font-bold text-white mb-1">Academy Owner</h3>
+              <p className="text-xs text-white/50">Register your academy and get started in minutes</p>
             </button>
-            <button onClick={() => setActiveReg("student")}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all ${activeReg === "student" ? "bg-blue text-white shadow-md" : "text-white/50 hover:text-white"}`}>
-              <UserCheck className="w-4 h-4" />Student
+            <button onClick={() => setOpenModal("student")} className="reg-option-card">
+              <UserCheck className="w-6 h-6 text-blue mb-3" />
+              <h3 className="text-base font-bold text-white mb-1">Student</h3>
+              <p className="text-xs text-white/50">Join an academy already registered on AcademiQ</p>
             </button>
-          </div>
-
-          {/* Forms — all state, validation, toasts, and navigation live inside each component */}
-          <div className="max-w-md mx-auto">
-            {activeReg === "owner"   && <OwnerRegisterForm />}
-            {activeReg === "student" && <StudentRegisterForm />}
           </div>
         </div>
+
+        {openModal && (
+          <div className="modal-backdrop" onClick={() => setOpenModal(null)}>
+            <div className="modal modal-xl" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header h-15 pt-5 pb-0">
+                <h2 className="modal-title">
+                  {openModal === "owner" 
+                    ?
+                    <div className="flex items-center gap-3 mb-7">
+                      <div className="w-10 h-10 bg-blue/15 border border-blue/90 rounded-xl flex items-center justify-center">
+                        <Building2 className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-bold text-black">Register your academy</h3>
+                        <p className="text-xs text-black/40">Free — no credit card required</p>
+                      </div>
+                    </div>
+                    : 
+                    "Join your academy"}
+                </h2>
+                <button className="modal-close" onClick={() => setOpenModal(null)} aria-label="Close">
+                  <X className="w-5 h-5 text-blue" />
+                </button>
+              </div>
+              <div className="modal-body py-2">
+                {openModal === "owner"
+                  ? <OwnerRegisterForm onSuccess={() => { setOpenModal(null); navigate("/dashboard"); }} />
+                  : <StudentRegisterForm onSuccess={() => { setOpenModal(null); navigate("/login"); }} />}
+              </div>
+            </div>
+          </div>
+        )}
       </section>
 {/* -------------------------------------------------------------------------- */
 /*                                   FOOTER                                   */
