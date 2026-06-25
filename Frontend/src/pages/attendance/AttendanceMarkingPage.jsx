@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import api from "../../api";
 import { getClassSchedule } from "../../services/classService";
-import AttendanceToast from "../../components/attendance/AttendanceToast";
+import { toast } from "../../lib/toastBus";
 import SessionControls from "../../components/attendance/SessionControls";
 import StudentAttendanceGrid from "../../components/attendance/StudentAttendanceGrid";
 
@@ -20,11 +20,9 @@ export default function AttendanceMarkingPage() {
   const [sessionTime, setSessionTime] = useState('00:00:00');
   const [isEditMode, setIsEditMode] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [toast, setToast] = useState(null);
   const [classData, setClassData] = useState(null);
   const [currentSessionNum, setCurrentSessionNum] = useState(null);
   const [schedules, setSchedules] = useState([]);
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,9 +30,11 @@ export default function AttendanceMarkingPage() {
       .then(res => {
         const data = res.data.results ?? res.data;
         setEnrollments(data);
-        const initial = {};
-        data.forEach(e => { initial[e.id] = false; });
-        setAttendance(initial);
+        setAttendance(prev => {
+            const initial = {};
+            data.forEach(e => { initial[e.id] = prev[e.id] ?? false; });
+            return initial;
+        });
       })
       .catch(() => showToast("danger", "Failed to load students."));
   }, [classId]);
@@ -94,8 +94,9 @@ export default function AttendanceMarkingPage() {
   }, [classId]);
 
   const showToast = (type, message) => {
-    setToast({ type, message });
-    setTimeout(() => setToast(null), 3000);
+    if (type === "success") toast.success("Success", message);
+    else if (type === "warning") toast.warning("Warning", message);
+    else toast.danger("Error", message);
   };
 
   const handleToggle = (enrollmentId, value) => {
@@ -112,6 +113,19 @@ export default function AttendanceMarkingPage() {
     try {
       let activeSessionId = sessionId;
       if (!activeSessionId) {
+        // validate selected date against schedule
+        if (schedules.length > 0) {
+          const dateObj = new Date(selectedDate + "T00:00:00");
+          const jsDay = dateObj.getDay();
+          const pyDay = jsDay === 0 ? 6 : jsDay - 1;
+          const matchingSlot = schedules.find(s => s.day_of_week === pyDay);
+          if (!matchingSlot) {
+            showToast("warning", `No class scheduled on this day. Choose a day that matches the class timetable.`);
+            setSubmitting(false);
+            return;
+          }
+        }
+
         const sessionRes = await api.post(`/api/sessions/`, {
           class_ids: [classId],
           session_date: selectedDate,
@@ -131,20 +145,13 @@ export default function AttendanceMarkingPage() {
       const { failed } = res.data;
 
       if (failed && failed.length > 0) {
-        // find student names for failed enrollment IDs
         const failedNames = failed.map(enrollmentId => {
           const enrollment = enrollments.find(e => e.id === enrollmentId);
           return enrollment?.student_name ?? enrollmentId;
         });
-        showToast(
-          "warning",
-          `Attendance partially saved. Failed for: ${failedNames.join(", ")}`
-        );
+        showToast("warning", `Attendance partially saved. Failed for: ${failedNames.join(", ")}`);
       } else {
-        showToast(
-          "success",
-          isEditMode ? "Attendance updated." : "Attendance saved."
-        );
+        showToast("success", isEditMode ? "Attendance updated." : "Attendance saved.");
       }
     } catch (err) {
       const detail = err.response?.data?.detail || "Failed to save attendance.";
@@ -156,7 +163,6 @@ export default function AttendanceMarkingPage() {
 
   return (
     <div className="page-body">
-      <AttendanceToast toast={toast} />
 
       <div className="flex items-start gap-3 mb-6">
           <button
