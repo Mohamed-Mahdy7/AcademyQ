@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getSubjects, deleteSubject } from "../../services/subjectService";
+import { toast } from "../../lib/toastBus";
 
 function SubjectsPage() {
     const [subjects, setSubjects] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [deleting, setDeleting] = useState(false);
     const [deleteTargetId, setDeleteTargetId] = useState(null);
     const navigate = useNavigate();
 
@@ -18,19 +20,37 @@ function SubjectsPage() {
             setSubjects(response.data);
         } catch (error) {
             console.error("Error:", error);
+            toast.danger("Failed to load subjects", "Please refresh the page.");
         } finally {
             setLoading(false);
         }
     };
 
     const handleDeleteConfirm = async () => {
+        setDeleting(true);
         try {
             await deleteSubject(deleteTargetId);
             setSubjects((prev) => prev.filter((s) => s.id !== deleteTargetId));
-        } catch (error) {
-            console.error("Delete error:", error);
-        } finally {
             setDeleteTargetId(null);
+            toast.success("Subject deleted", "Subject has been removed successfully.");
+        } catch (error) {
+            const data = error.response?.data;
+            if (error.response?.status === 409 || data?.code === "server_error") {
+                toast.danger(
+                    "Cannot delete subject",
+                    "This subject has classes assigned to it. Remove all classes first."
+                );
+            } else if (data?.detail) {
+                toast.danger("Delete failed", data.detail);
+            } else {
+                toast.danger(
+                    "Delete failed",
+                    "An unexpected error occurred. Please try again."
+                );
+            }
+            setDeleteTargetId(null);
+        } finally {
+            setDeleting(false);
         }
     };
 
@@ -38,6 +58,8 @@ function SubjectsPage() {
 
     const totalSubjects = subjects.length;
     const totalClasses = subjects.reduce((sum, s) => sum + (s.classes_count || 0), 0);
+    const targetSubject = subjects.find((s) => s.id === deleteTargetId);
+    const targetHasClasses = (targetSubject?.classes_count || 0) > 0;
 
     return (
         <div className="page-body">
@@ -149,9 +171,21 @@ function SubjectsPage() {
                         </div>
                         <div className="modal-body">
                             <p className="text-body">
-                                Are you sure you want to delete this subject? This action
+                                Are you sure you want to delete{" "}
+                                <strong>{targetSubject?.name}</strong>? This action
                                 cannot be undone.
                             </p>
+                            {targetHasClasses && (
+                                <div className="alert-warning mt-3">
+                                    <p className="alert-desc">
+                                        This subject has{" "}
+                                        <strong>{targetSubject.classes_count}</strong>{" "}
+                                        class{targetSubject.classes_count !== 1 ? "es" : ""}{" "}
+                                        assigned. You must delete or reassign them before
+                                        deleting this subject.
+                                    </p>
+                                </div>
+                            )}
                         </div>
                         <div className="modal-footer">
                             <button
@@ -163,8 +197,9 @@ function SubjectsPage() {
                             <button
                                 className="btn-danger"
                                 onClick={handleDeleteConfirm}
+                                disabled={deleting || targetHasClasses}
                             >
-                                Delete
+                                {deleting ? "Deleting..." : "Delete"}
                             </button>
                         </div>
                     </div>

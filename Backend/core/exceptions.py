@@ -3,6 +3,7 @@ import uuid
 from django.conf import settings
 from django.core.exceptions import PermissionDenied as DjangoPermissionDenied
 from django.db import IntegrityError
+from django.db.models.deletion import ProtectedError
 from django.http import Http404
 from rest_framework import exceptions as drf_exceptions
 from rest_framework.response import Response
@@ -35,7 +36,6 @@ def _extract_fields(exc_detail):
     into the contract's `fields` shape, or return None if there's
     nothing field-specific to report.
     """
-
     if isinstance(exc_detail, dict):
         return {
             key: [str(v) for v in value] if isinstance(value, list) else [str(value)]
@@ -44,8 +44,8 @@ def _extract_fields(exc_detail):
     return None
 
 def custom_exception_handler(exc, context):
-    # Let DRF build its normal response first(status code, basic detail)
-    # We only reshape ther body, not the reinvent status-code logic.
+    # Let DRF build its normal response first (status code, basic detail)
+    # We only reshape the body, not reinvent status-code logic.
     response = drf_default_handler(exc, context)
     
     if response is not None:
@@ -73,7 +73,7 @@ def custom_exception_handler(exc, context):
         
         elif isinstance(exc, drf_exceptions.Throttled):
             response.data = _shape(
-                str(response.data.get("detail", "Too many requests. Try gain later.")),
+                str(response.data.get("detail", "Too many requests. Try again later.")),
                 "rate_limited",
             )
         
@@ -101,11 +101,19 @@ def custom_exception_handler(exc, context):
     
     error_id = uuid.uuid4().hex[:8]
     logger.exception("Unhandled exception [ref=%s]", error_id)
-    
-    if isinstance(exc, IntegrityError):
+
+    # ProtectedError must come before IntegrityError since it's a subclass —
+    # deleting a record that is referenced by a PROTECT foreign key.
+    if isinstance(exc, ProtectedError):
+        detail = "Cannot delete this item because it is still referenced by other records."
+        return Response(
+            _shape(f"{detail} [ref: {error_id}]", "server_error"),
+            status=409,
+        )
+    elif isinstance(exc, IntegrityError):
         detail = "This action conflicts with existing data."
     else:
-        detail = "An unexpected error occured. Please try again."
+        detail = "An unexpected error occurred. Please try again."
         
     if settings.DEBUG:
         detail = f"{detail} (DEBUG: {exc})"
