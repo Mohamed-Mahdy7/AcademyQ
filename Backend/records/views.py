@@ -190,7 +190,7 @@ class StudentAttendanceViewSet(viewsets.ModelViewSet):
     def stats(self, request, student_id=None):
         class_id = request.query_params.get('class_id')
         if not class_id:
-            raise ValidationError("class_id query param is required.")
+            raise ValidationError({"class_id": ["class_id query param is required."]})
 
         records = self.get_queryset().filter(
             enrollment__class_id__id=class_id
@@ -212,10 +212,7 @@ class StudentAttendanceViewSet(viewsets.ModelViewSet):
     def history(self, request, student_id=None):
         class_id = request.query_params.get('class_id')
         if not class_id:
-            return Response(
-                {'detail': 'class_id query param is required.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            raise ValidationError({"class_id": ["class_id query param is required."]})
 
         from structure.models import ClassSessionEnrollment
         records = self.get_queryset().filter(
@@ -252,10 +249,11 @@ class ClassAttendanceViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOwner, ActiveSubscriptionRequired]
 
     def get_queryset(self):
-        return get_annotated_sessions(
-            self.request.user.academy_id,
-            class_id=self.kwargs.get('class_id')
-        ).order_by('session_date')
+        sessions = get_annotated_sessions(
+        self.request.user.academy_id,
+        class_id=self.kwargs.get('class_id')
+    )
+        return sorted(sessions, key=lambda s: s.session_date)
 
     def list(self, request, *args, **kwargs):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -343,7 +341,7 @@ class GenerateSessionsView(APIView):
                 academy_id=request.user.academy_id
             )
         except Class.DoesNotExist:
-            raise ValidationError({"class_id": ["Class not found."]})
+            raise NotFound("Class not found.")
 
         schedules = ClassSchedule.objects.filter(class_obj=cls)
         if not schedules.exists():
