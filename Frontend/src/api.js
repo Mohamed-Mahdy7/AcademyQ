@@ -26,11 +26,13 @@ api.interceptors.response.use(
             case "permission_denied":
                 toast.danger("Permission denied", detail);
                 if (status === 401) {
-                    // Session genuinely dead -- redirect once, not once per failed request.
+                    if (error.config?.skipAuthRedirect) {
+                        break; // expected 401 from a routine auth check, not a real session-expiry event
+                    }
                     if (!isRedirectingToLogin && window.location.pathname !== "/login") {
                         isRedirectingToLogin = true;
                         toast.danger("Session expired", "Please log in again.");
-                        window.location.href = "/login";
+                        // window.location.href = "/login";
                     }
                 } else {
                     toast.danger("Permission denied", detail);

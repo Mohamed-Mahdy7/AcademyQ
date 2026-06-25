@@ -37,9 +37,11 @@ function Register() {
 
         if (result.success) {
             toast.success("Academy registered", "Welcome to AcademiQ.");
-            navigate("/");
+            navigate("/dashboard");
         } else if (result.error?.response?.data?.code === "validation_error") {
             setFieldErrors(result.error.response.data.fields || {});
+        } else {
+            toast.error("Registration failed", "Please check your details and try again.");
         }
     }
 

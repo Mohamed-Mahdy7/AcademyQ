@@ -37,11 +37,13 @@ import ReportHistoryPage from "../pages/reports/ReportHistoryPage";
 import ReportCardPage from "../pages/reports/ReportCardPage";
 import AlertInboxPage from "../pages/ai/AlertInboxPage.jsx";
 import NotificationHistoryPage from "../pages/ai/NotificationHistoryPage.jsx";
+import LandingPage from "../pages/LandingPage.jsx";
 
 
 const MainRouter = () => {
     return (
         <Routes>
+            <Route path="/" element={<LandingPage />} />
             <Route path="register" element={<Register />} />
             <Route path="login" element={<Login />} />
             <Route element={ 
@@ -51,7 +53,7 @@ const MainRouter = () => {
                         </NotificationsProvider>
                     </AlertProvider>
             }>
-                <Route path="/" element={<Dashboard />} />
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route element={<ProtectedRoute></ProtectedRoute>}>
                     <Route path="/settings" element={
                         <AcademyProvider>

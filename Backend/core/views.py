@@ -165,6 +165,7 @@ class AcademyView(generics.RetrieveUpdateAPIView):
 
 @extend_schema(tags=["Academy"])
 class AcademyListView(generics.ListAPIView):
+    permission_classes = [AllowAny]
     queryset = Academy.objects.all()
     serializer_class = AcademySerializer
 
@@ -286,6 +287,7 @@ class RolesListView(APIView):
     ),
 )
 class EducationalLevelListView(APIView):
+    permission_classes=[AllowAny]
     def get(self, request):
         return Response ([
             {

@@ -6,14 +6,12 @@ function ProtectedRoute({ children }) {
     const { isAuthenticated, loading } = useContext(AuthContext);
 
     if (loading) {
-        return <p>Loading...</p>;
+        return <div className="skeleton skeleton-card" />;
     }
 
-    if (!isAuthenticated) {
-        return <Navigate to="/login" replace />;
-    }
-
-    return <Outlet />
+    return isAuthenticated
+        ? <Outlet />
+        : <Navigate to="/login" replace />;
 }
 
 export default ProtectedRoute;
