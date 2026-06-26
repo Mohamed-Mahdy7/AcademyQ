@@ -19,7 +19,7 @@ const StudentProfile = () => {
     const [loadError, setLoadError] = useState(null)
     const { id } = useParams();
     const navigate = useNavigate();
-
+    console.log("STUDENT: ", student)
     useEffect(() => {
         setLoadError(null);
         getStudent(id).then((result) => {
@@ -171,7 +171,7 @@ const StudentProfile = () => {
                         <GradeHistoryTab studentId={student.id} />
                     )}
                     {activeTab === "Payments" && (
-                        <StudentPaymentTab studentId={student.id} />
+                        <StudentPaymentTab studentId={student.student_id} />
                     )}
                     {activeTab === "Attendance" && (
                         <AttendanceTab studentId={student.id} />
