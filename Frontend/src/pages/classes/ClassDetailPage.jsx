@@ -48,7 +48,7 @@ function ClassDetailPage() {
     if (!classData) return <p className="p-6 text-sm text-danger">Class not found.</p>;
 
     const sessionsDone = classData.sessions_count || 0;
-    const sessionsTotal = classData.session_count || 0;  // was subject_session_count
+    const sessionsTotal = classData.session_count || 0;
     const progressPercent = sessionsTotal > 0
         ? Math.round((sessionsDone / sessionsTotal) * 100)
         : 0;
@@ -56,6 +56,21 @@ function ClassDetailPage() {
         ? classData.avg_attendance.toFixed(1)
         : "0.0";
     const primaryTeacher = classData.teachers?.[0]?.teacher_name ?? "—";
+
+    const refreshAll = async () => {
+        try {
+            const [classRes, sessionsRes, enrollmentsRes] = await Promise.all([
+                getClass(id),
+                getClassSessions(id),
+                getClassEnrollments(id),
+            ]);
+            setClassData(classRes.data);
+            setSessions(sessionsRes.data.results ?? sessionsRes.data);
+            setEnrollments(enrollmentsRes.data.results ?? enrollmentsRes.data);
+        } catch (error) {
+            console.error("Error refreshing class detail:", error);
+        }
+    };
 
     return (
         <div className="page-body">
@@ -123,9 +138,7 @@ function ClassDetailPage() {
             <ScheduleSection
                 classId={id}
                 sessionDuration={classData.session_duration}
-                onUpdate={() => {
-                    getClass(id).then(res => setClassData(res.data));
-                }}
+                onUpdate={refreshAll}
             />
 
             {/* Tabs */}
@@ -134,6 +147,7 @@ function ClassDetailPage() {
                     {TABS.map((tab) => (
                         <button
                             key={tab}
+                            type="button"
                             className={activeTab === tab ? "tab-active" : "tab"}
                             onClick={() => setActiveTab(tab)}
                         >
@@ -144,10 +158,10 @@ function ClassDetailPage() {
 
                 <div className="p-5">
                     {activeTab === "Students" && (
-                        <EnrollmentTab classId={id} />
+                        <EnrollmentTab classId={id} onUpdate={refreshAll} />
                     )}
                     {activeTab === "Sessions" && (
-                        <SessionsTab sessions={sessions} classId={id} />
+                        <SessionsTab sessions={sessions} classId={id} onUpdate={refreshAll} />
                     )}
                     {activeTab === "Grades" && (
                             <GradesTabContent
@@ -155,15 +169,14 @@ function ClassDetailPage() {
                                 enrollments={enrollments}
                                 sessions={sessions}
                                 subjectName={classData.subject_name}
+                                onUpdate={refreshAll}
                             />
                     )}
                     {activeTab === "Teachers" && (
                         <TeachersTab
                             teachers={classData.teachers ?? []}
                             classId={id}
-                            onUpdate={() => {
-                                getClass(id).then(res => setClassData(res.data));
-                            }}
+                            onUpdate={refreshAll}
                         />
                     )}
                     {activeTab === "AI Reports" && (
