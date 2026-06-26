@@ -72,8 +72,8 @@ export default function ClassGradeSummaryTab({ classId, enrollments = [] }) {
       {/* Class Performance Overview */}
       <div>
         <h3 className="heading-3 mb-4">Class Performance Overview</h3>
-        <div className="table-wrap">
-          <table className="table">
+        <div className="overflow-x-auto rounded-xl border border-border">
+          <table className="table min-w-[700px]">
             <thead className="table-thead">
               <tr>
                 <th>Student Name</th>
@@ -126,7 +126,7 @@ export default function ClassGradeSummaryTab({ classId, enrollments = [] }) {
 
           <div className="relative">
             <button
-              className="form-select min-w-44 flex items-center justify-between"
+              className="form-select w-full sm:min-w-44 flex items-center justify-between"
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
               {selectedStudent?.student_name ?? "Select Student"}
@@ -160,8 +160,8 @@ export default function ClassGradeSummaryTab({ classId, enrollments = [] }) {
             </p>
           </div>
         ) : (
-          <div className="table-wrap">
-            <table className="table">
+          <div className="overflow-x-auto rounded-xl border border-border">
+            <table className="table min-w-[700px]">
               <thead className="table-thead">
                 <tr>
                   <th>Session #</th>

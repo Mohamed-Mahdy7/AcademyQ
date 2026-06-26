@@ -164,32 +164,18 @@ export default function AttendanceMarkingPage() {
   return (
     <div className="page-body">
 
-      <div className="flex items-start gap-3 mb-6">
-          <button
-              className="btn-icon mt-1"
-              onClick={() => {
-                  console.log("navigating to:", `/classes/${classId}`);
-                  navigate(`/classes/${classId}`);
-              }}
-          >
-              ←
-          </button>
-        <div>
-            <h1 className="heading-1">
-                {classData?.name ?? 'Attendance'}
-            </h1>
-            <div className="flex items-center gap-3 mt-1">
-                {currentSessionNum && (
-                    <span className="text-caption">
-                        Session {currentSessionNum}
-                    </span>
-                )}
-                {isEditMode && (
-                    <span className="badge-warning">Edit Mode</span>
-                )}
-            </div>
-        </div>
-    </div>
+      <div className="flex items-start gap-3 mb-6 flex-wrap">
+          <button className="btn-icon mt-1" onClick={() => navigate(`/classes/${classId}`)}>←</button>
+          <div className="flex-1 min-w-0">
+              <h1 className="heading-1 truncate">{classData?.name ?? 'Attendance'}</h1>
+              <div className="flex items-center gap-3 mt-1 flex-wrap">
+                  {currentSessionNum && (
+                      <span className="text-caption">Session {currentSessionNum}</span>
+                  )}
+                  {isEditMode && <span className="badge-warning">Edit Mode</span>}
+              </div>
+          </div>
+      </div>
 
       <SessionControls
         selectedDate={selectedDate}

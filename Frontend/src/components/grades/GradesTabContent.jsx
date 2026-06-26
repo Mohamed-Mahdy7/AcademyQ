@@ -7,29 +7,30 @@ export default function GradesTabContent({ classId, enrollments, sessions, subje
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <h3 className="heading-3">
-          {view === "summary" ? "Grade Summary" : "Assign Grade"}
+            {view === "summary" ? "Grade Summary" : "Assign Grade"}
         </h3>
         {view === "summary" ? (
-          <button className="btn-primary" onClick={() => setView("form")}>
-            Assign Grade
-          </button>
+            <button className="btn-primary" onClick={() => setView("form")}>
+                Assign Grade
+            </button>
         ) : (
-          <button className="btn-muted" onClick={() => setView("summary")}>
-            ← Back to Summary
-          </button>
+            <button className="btn-muted" onClick={() => setView("summary")}>
+                ← Back to Summary
+            </button>
         )}
-      </div>
+    </div>
 
       {view === "summary" ? (
     <ClassGradeSummaryTab classId={classId} enrollments={enrollments} />
       ) : (
         <GradeForm
-          enrollments={enrollments}
-          sessions={sessions}
-          subjectName={subjectName}
-          onSuccess={() => setView("summary")}
+            enrollments={enrollments}
+            sessions={sessions}
+            subjectName={subjectName}
+            classId={classId}
+            onSuccess={() => setView("summary")}
         />
       )}
     </div>

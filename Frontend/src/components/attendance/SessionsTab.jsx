@@ -30,9 +30,9 @@ export default function SessionsTab({ sessions, classId, classStartDate, classEn
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <h3 className="heading-3">Session History</h3>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <button className="btn-secondary" onClick={() => setShowModal(true)}>
             Generate Sessions
           </button>
@@ -45,80 +45,79 @@ export default function SessionsTab({ sessions, classId, classStartDate, classEn
         </div>
       </div>
 
-      <table className="table">
-        <thead className="table-thead">
-          <tr>
-            <th>Session #</th>
-            <th>Date</th>
-            <th>Attendance</th>
-            <th>Turnout</th>
-            <th>Notes</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {sessions.length === 0 ? (
-            <tr>
-              <td colSpan={6}>
-                <div className="empty-state">
-                  <p className="empty-state-title">No sessions yet</p>
-                  <p className="empty-state-desc">
-                    Generate sessions from the class schedule or create one manually.
-                  </p>
-                </div>
-              </td>
-            </tr>
-          ) : (
-            sessions.map((session) => {
-              const total = session.total_enrolled || 0;
-              const present = session.present_count || 0;
-              const absent = session.absent_count || 0;
-              const turnout = total > 0 ? Math.round((present / total) * 100) : 0;
-
-              return (
-                <tr
-                  key={session.id}
-                  className="table-row"
-                  onClick={() => navigate(
-                    `/classes/${classId}/attendance?date=${session.session_date}`
-                  )}
-                >
-                  <td className="table-cell font-medium">
-                    Session {session.session_num}
-                  </td>
-                  <td className="table-cell">{session.session_date}</td>
-                  <td className="table-cell">
-                    <span className="text-success font-semibold">{present}</span>
-                    <span className="text-blue mx-1">/</span>
-                    <span className="text-danger font-semibold">{absent}</span>
-                  </td>
-                  <td className="table-cell">
-                    <div className="flex items-center gap-2">
-                      <div className="progress-md w-24">
-                        <div
-                          className="progress-fill-navy"
-                          style={{ width: `${turnout}%` }}
-                        />
-                      </div>
-                      <span className="text-sm text-blue">{turnout}%</span>
+      <div className="overflow-x-auto rounded-xl border border-border">
+        <table className="table min-w-[600px]">
+            <thead className="table-thead">
+              <tr>
+                <th>Session #</th>
+                <th>Date</th>
+                <th>Attendance</th>
+                <th className="hidden sm:table-cell">Turnout</th>
+                <th>Notes</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {sessions.length === 0 ? (
+                <tr>
+                  <td colSpan={6}>
+                    <div className="empty-state">
+                      <p className="empty-state-title">No sessions yet</p>
+                      <p className="empty-state-desc">
+                        Generate sessions from the class schedule or create one manually.
+                      </p>
                     </div>
                   </td>
-                  <td className="table-cell-muted">{session.notes || "—"}</td>
-                  <td className="table-actions">
-                    <button
-                      className="btn-danger-outline"
-                      onClick={(e) => handleDelete(e, session.id)}
-                      disabled={deleting === session.id}
-                    >
-                      {deleting === session.id ? "Deleting..." : "Delete"}
-                    </button>
-                  </td>
                 </tr>
-              );
-            })
-          )}
-        </tbody>
-      </table>
+              ) : (
+                sessions.map((session) => {
+                  const total = session.total_enrolled || 0;
+                  const present = session.present_count || 0;
+                  const absent = session.absent_count || 0;
+                  const turnout = total > 0 ? Math.round((present / total) * 100) : 0;
+
+                  return (
+                    <tr
+                      key={session.id}
+                      className="table-row"
+                      onClick={() => navigate(
+                        `/classes/${classId}/attendance?date=${session.session_date}`
+                      )}
+                    >
+                      <td className="table-cell font-medium">
+                        Session {session.session_num}
+                      </td>
+                      <td className="table-cell">{session.session_date}</td>
+                      <td className="table-cell">
+                        <span className="text-success font-semibold">{present}</span>
+                        <span className="text-blue mx-1">/</span>
+                        <span className="text-danger font-semibold">{absent}</span>
+                      </td>
+                      <td className="table-cell hidden sm:table-cell">
+                        <div className="flex items-center gap-2">
+                          <div className="progress-md w-24">
+                            <div className="progress-fill-navy" style={{ width: `${turnout}%` }} />
+                          </div>
+                          <span className="text-sm text-blue">{turnout}%</span>
+                        </div>
+                      </td>
+                      <td className="table-cell-muted">{session.notes || "—"}</td>
+                      <td className="table-actions">
+                        <button
+                          className="btn-danger-outline"
+                          onClick={(e) => handleDelete(e, session.id)}
+                          disabled={deleting === session.id}
+                        >
+                          {deleting === session.id ? "Deleting..." : "Delete"}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+      </div>
 
       {showModal && (
         <GenerateSessionsModal
