@@ -98,37 +98,39 @@ export default function GradeHistoryTab({ studentId }) {
                 {enrollmentGrades.length === 0 ? (
                   <p className="text-body-muted text-sm">No grades recorded yet.</p>
                 ) : (
-                  <table className="table">
-                    <thead className="table-thead">
-                      <tr>
-                        <th>Session #</th>
-                        <th>Subject</th>
-                        <th>Score</th>
-                        <th>%</th>
-                        <th>Date</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {enrollmentGrades.map((g) => {
-                        const pct = g.max_score
-                          ? Math.round((g.score / g.max_score) * 100)
-                          : 0;
-                        return (
-                          <tr key={g.id} className="table-row">
-                            <td className="table-cell">
-                              {g.session_num ? `Session ${g.session_num}` : "—"}
-                            </td>
-                            <td className="table-cell">{g.subject_name}</td>
-                            <td className="table-cell">{g.score}/{g.max_score}</td>
-                            <td className="table-cell">
-                              <span className={getPctBadge(pct)}>{pct}%</span>
-                            </td>
-                            <td className="table-cell-muted">{g.assigned_at}</td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                  <div className="overflow-x-auto">
+                    <table className="table min-w-[400px]">
+                      <thead className="table-thead">
+                        <tr>
+                          <th>Session #</th>
+                          <th>Subject</th>
+                          <th>Score</th>
+                          <th>%</th>
+                          <th>Date</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {enrollmentGrades.map((g) => {
+                          const pct = g.max_score
+                            ? Math.round((g.score / g.max_score) * 100)
+                            : 0;
+                          return (
+                            <tr key={g.id} className="table-row">
+                              <td className="table-cell">
+                                {g.session_num ? `Session ${g.session_num}` : "—"}
+                              </td>
+                              <td className="table-cell">{g.subject_name}</td>
+                              <td className="table-cell">{g.score}/{g.max_score}</td>
+                              <td className="table-cell">
+                                <span className={getPctBadge(pct)}>{pct}%</span>
+                              </td>
+                              <td className="table-cell-muted">{g.assigned_at}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
                 )}
               </div>
             )}

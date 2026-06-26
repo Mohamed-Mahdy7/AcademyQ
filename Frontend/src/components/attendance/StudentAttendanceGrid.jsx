@@ -1,9 +1,9 @@
 export default function StudentAttendanceGrid({ enrollments, attendance, onToggle, onSubmit, submitting, isEditMode }) {
   return (
     <div className="card">
-      <div className="card-header">
+      <div className="card-header flex-wrap gap-2">
         <h3 className="card-header-title">Students</h3>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <span className="badge-count">
             {Object.values(attendance).filter(Boolean).length} / {enrollments.length} Present
           </span>
@@ -13,15 +13,11 @@ export default function StudentAttendanceGrid({ enrollments, attendance, onToggl
             disabled={submitting}
           >
             {submitting ? (
-              <>
-                <span className="btn-spinner" />
-                Saving...
-              </>
+              <><span className="btn-spinner" />Saving...</>
             ) : isEditMode ? "Update Attendance" : "Save Attendance"}
           </button>
         </div>
       </div>
-
       {enrollments.length === 0 ? (
         <div className="empty-state">
           <div className="empty-state-title">No students enrolled</div>
@@ -30,9 +26,9 @@ export default function StudentAttendanceGrid({ enrollments, attendance, onToggl
       ) : (
         <ul>
           {enrollments.map((e) => (
-            <li key={e.id} className="attendance-row">
+            <li key={e.id} className="attendance-row flex-wrap gap-2">
               <span className="attendance-name">{e.student_name}</span>
-              <div className="flex items-center gap-2 ml-auto">
+              <div className="flex items-center gap-2 ml-auto flex-shrink-0">
                 <button
                   className={attendance[e.id] ? "attendance-toggle-present" : "attendance-toggle-inactive"}
                   onClick={() => onToggle(e.id, true)}

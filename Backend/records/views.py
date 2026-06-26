@@ -176,9 +176,9 @@ class StudentAttendanceViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Attendance.objects.filter(
-            enrollment__student_id__id=self.kwargs.get('student_id'),
+            enrollment__student_id__user_id=self.kwargs.get('student_id'),
             enrollment__class_id__academy_id=self.request.user.academy_id,
-        )
+    )
 
     def list(self, request, *args, **kwargs):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
