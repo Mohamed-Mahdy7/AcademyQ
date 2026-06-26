@@ -5,7 +5,9 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # update kernal + install dep
-RUN apt-get update && apt-get -y install gcc libpq-dev
+RUN apt-get update && \
+    apt-get install -y gcc libpq-dev gettext && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 

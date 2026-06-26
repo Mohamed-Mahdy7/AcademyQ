@@ -1,6 +1,7 @@
 import logging
 import uuid
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import PermissionDenied as DjangoPermissionDenied
 from django.db import IntegrityError
 from django.db.models.deletion import ProtectedError
@@ -15,12 +16,12 @@ logger = logging.getLogger(__name__)
 
 class UpstreamError(APIException):
     status_code = 502
-    default_detail = "An upstream service failed. Please try again."
+    default_detail = _("An upstream service failed. Please try again.")
     default_code = "upstream_error"
 
 class RateLimitedError(APIException):
     status_code = 429
-    default_detail = "Too many requests. Try again later."
+    default_detail = _("Too many requests. Try again later.")
     default_code = "rate_limited"
 
 def _shape(detail, code, fields=None):
@@ -52,13 +53,13 @@ def custom_exception_handler(exc, context):
         if isinstance(exc, drf_exceptions.ValidationError):
             fields = _extract_fields(exc.detail)
             detail = (
-                "Please fix the highlighted fields."
-                if fields else str(response.data.get("detail", "Invalid request."))
+                _("Please fix the highlighted fields.")
+                if fields else str(response.data.get("detail", _("Invalid request.")))
             )
             response.data = _shape(detail, "validation_error", fields)
         
         elif isinstance(exc, (drf_exceptions.NotFound, Http404)):
-            response.data = _shape("Not found.", "not_found")
+            response.data = _shape("Not found.", _("not_found"))
         
         elif isinstance(exc, (
             drf_exceptions.PermissionDenied, 
@@ -67,13 +68,13 @@ def custom_exception_handler(exc, context):
             drf_exceptions.AuthenticationFailed)):
             
             response.data = _shape(
-                str(response.data.get("detail", "You don't have permission to do this.")),
+                str(response.data.get("detail", _("You don't have permission to do this."))),
                 "permission_denied",
             )
         
         elif isinstance(exc, drf_exceptions.Throttled):
             response.data = _shape(
-                str(response.data.get("detail", "Too many requests. Try again later.")),
+                str(response.data.get("detail", _("Too many requests. Try again later."))),
                 "rate_limited",
             )
         
@@ -87,7 +88,7 @@ def custom_exception_handler(exc, context):
             # Any other DRF-recognized exception we haven't special-cased --
             # keep its message but still wrap it in the contract.
             response.data = _shape(
-                str(response.data.get("detail", "Something went wrong.")),
+                str(response.data.get("detail", _("Something went wrong."))),
                 "server_error",
             )
             
@@ -105,15 +106,15 @@ def custom_exception_handler(exc, context):
     # ProtectedError must come before IntegrityError since it's a subclass —
     # deleting a record that is referenced by a PROTECT foreign key.
     if isinstance(exc, ProtectedError):
-        detail = "Cannot delete this item because it is still referenced by other records."
+        detail = _("Cannot delete this item because it is still referenced by other records.")
         return Response(
             _shape(f"{detail} [ref: {error_id}]", "server_error"),
             status=409,
         )
     elif isinstance(exc, IntegrityError):
-        detail = "This action conflicts with existing data."
+        detail = _("This action conflicts with existing data.")
     else:
-        detail = "An unexpected error occurred. Please try again."
+        detail = _("An unexpected error occurred. Please try again.")
         
     if settings.DEBUG:
         detail = f"{detail} (DEBUG: {exc})"

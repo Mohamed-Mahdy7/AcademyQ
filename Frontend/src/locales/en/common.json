@@ -1,0 +1,15 @@
+{
+    "save_changes": "Save Changes",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "toast": {
+        "session_expired": "Session expired",
+        "please_login_again": "Please log in again",
+        "connection_problem": "Connection problem",
+        "connection_desc": "Can't reach the server. Check your connection.",
+        "permission_denied": "Permission denied",
+        "not_found": "Not found",
+        "slow_down": "Slow down",
+        "something_wrong": "Something went wrong"
+    }
+}

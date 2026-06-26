@@ -2,6 +2,7 @@
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
+from django.utils.translation import gettext_lazy as _
 import os
 
 load_dotenv()
@@ -14,6 +15,17 @@ GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 GEMINI_EMBEDDING_MODEL = "gemini-embedding-001"
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-e0vk%pu@t)i6j_cfbelbi9p&*9q=g7b-9861ms*j&3=w5wkca6'
+
+# LANGUAGES CONFIG
+
+LOCALE_PATHS = [BASE_DIR / "locale",]
+
+USE_I18N = True
+LANGUAGES = [
+    ("ar", _("Arabic")),
+    ("en", _("English")),
+]
+LANGUAGE_CODE = "ar"  # Arabic-first default
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -52,6 +64,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "django.middleware.locale.LocaleMiddleware", 
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
