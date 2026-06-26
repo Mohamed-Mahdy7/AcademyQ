@@ -644,6 +644,20 @@ LAYER: COMPONENTS
     9. TABLE
     ========================================================== */
 
+
+/* In index.css, inside @layer components */
+@media (max-width: 768px) {
+  .table-wrap {
+    @apply overflow-x-auto;
+  }
+  .table-cell,
+  .table-cell-muted,
+  .table-thead th,
+  .table-actions {
+    @apply px-3 py-2;
+  }
+}
+    
 /* Table wrapper */
 .table-wrap {
 @apply bg-card border border-border rounded-xl overflow-hidden;

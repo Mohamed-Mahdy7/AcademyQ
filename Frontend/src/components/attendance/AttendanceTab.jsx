@@ -102,32 +102,34 @@ export default function AttendanceTab({ studentId }) {
                 {!classHistory.length ? (
                   <p className="text-body-muted text-sm">No sessions recorded yet.</p>
                 ) : (
-                  <table className="table">
-                    <thead className="table-thead">
-                      <tr>
-                        <th>Session #</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {classHistory.map((record, idx) => (
-                        <tr key={idx} className="table-row">
-                          <td className="table-cell">
-                            Session {record.session_num}
-                          </td>
-                          <td className="table-cell">{record.session_date}</td>
-                          <td className="table-cell">
-                            {record.present ? (
-                              <span className="badge-success">Present</span>
-                            ) : (
-                              <span className="badge-danger">Absent</span>
-                            )}
-                          </td>
+                  <div className="overflow-x-auto">
+                    <table className="table min-w-[300px]">
+                      <thead className="table-thead">
+                        <tr>
+                          <th>Session #</th>
+                          <th>Date</th>
+                          <th>Status</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {classHistory.map((record, idx) => (
+                          <tr key={idx} className="table-row">
+                            <td className="table-cell">
+                              Session {record.session_num}
+                            </td>
+                            <td className="table-cell">{record.session_date}</td>
+                            <td className="table-cell">
+                              {record.present ? (
+                                <span className="badge-success">Present</span>
+                              ) : (
+                                <span className="badge-danger">Absent</span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>  
                 )}
               </div>
             )}
