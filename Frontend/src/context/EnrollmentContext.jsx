@@ -34,6 +34,14 @@ export function EnrollmentProvider({ children }) {
     } catch (err) {
       const fields = err.response?.data?.fields;
       const detail = err.response?.data?.detail;
+      const nonFieldError = fields?.non_field_errors?.[0];
+
+      if (nonFieldError) {
+        toast.danger("Could not enroll student", nonFieldError);
+      } else if (detail && detail !== "Please fix the highlighted fields.") {
+        toast.danger("Could not enroll student", detail);
+      }
+
       return { success: false, errors: fields ?? (detail ? { detail } : {}) };
     }
   }

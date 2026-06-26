@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { getAlertsRequest, patchAlertRequest, generateMessageRequest,} from "../services/alertService";
+import { toast } from "../lib/toastBus";
 
 export const AlertContext = createContext();
 
@@ -19,8 +20,8 @@ export function AlertProvider({ children }) {
             const response = await getAlertsRequest(params);
             setAlerts(response.data);
         } catch (err) {
-            console.error(err.response?.data);
             setError("Failed to load alerts.");
+            toast.danger("Failed to load alerts", "Could not fetch retention alerts.");
         } finally {
             setLoading(false);
         }
@@ -28,11 +29,12 @@ export function AlertProvider({ children }) {
 
     async function dismissAlert(id) {
         try {
-            await patchAlertRequest(id, { is_dismissed: true });   // was { reviewed: true }
+            await patchAlertRequest(id, { is_dismissed: true });
             setAlerts((prev) => prev.filter((a) => a.id !== id));
             if (expandedId === id) setExpandedId(null);
+            toast.success("Alert dismissed", "The alert has been marked as reviewed.");
         } catch (err) {
-            console.error(err.response?.data);
+            toast.danger("Could not dismiss", "Failed to dismiss the alert.");
         }
     }
 
@@ -42,9 +44,10 @@ export function AlertProvider({ children }) {
             setAlerts((prev) =>
                 prev.map((a) => (a.id === id ? { ...a, notes: response.data.notes } : a))
             );
+            toast.success("Notes saved", "Internal notes updated successfully.");
             return true;
         } catch (err) {
-            console.error(err.response?.data);
+            toast.danger("Could not save notes", "Failed to update internal notes.");
             return false;
         }
     }
@@ -57,9 +60,10 @@ export function AlertProvider({ children }) {
             setAlerts((prev) =>
                 prev.map((a) => (a.id === id ? { ...a, message } : a))
             );
+            toast.success("Message generated", "AI message is ready to review and send.");
             return message;
         } catch (err) {
-            console.error(err.response?.data);
+            toast.danger("Generation failed", "Could not generate message. Check your AI quota.");
             return null;
         } finally {
             setGeneratingId(null);

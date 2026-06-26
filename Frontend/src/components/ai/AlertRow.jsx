@@ -2,6 +2,7 @@ import { useState, useContext } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAlerts } from "../../context/AlertContext"
 import { NotificationsContext } from "../../context/NotificationsContext"
+import { toast } from "../../lib/toastBus"
 
 const initials = (name = "") =>
     name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase()
@@ -51,6 +52,8 @@ const AlertRow = ({ alert }) => {
             if (result.success) {
                 setSentSuccess(true)
                 setTimeout(() => dismissAlert(alert.id), 1200)
+            } else {
+                toast.danger("Failed to send", "The message could not be delivered. Please try again.")
             }
         } finally {
             setIsSending(false)
