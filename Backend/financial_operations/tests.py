@@ -336,7 +336,7 @@ class EnrollmentApiTests(FinancialTestSetupMixin, TestCase):
             "/api/enrollments/",
             {
                 "class_id": self.class_obj.id,
-                "student_id": self.student_profile.pk,
+                "student_id": self.student_profile.user.id,
                 "start_date": str(date.today()),
             },
             format="json",
@@ -348,7 +348,7 @@ class EnrollmentApiTests(FinancialTestSetupMixin, TestCase):
             "/api/enrollments/",
             {
                 "class_id": self.class_obj.id,
-                "student_id": self.student_profile.pk,
+                "student_id": self.student_profile.user.id,
                 "start_date": str(date.today()),
             },
             format="json",
@@ -357,7 +357,7 @@ class EnrollmentApiTests(FinancialTestSetupMixin, TestCase):
             Payment.objects.filter(status="pending").exists()
         )
         payment = Payment.objects.first()
-        self.assertEqual(payment.amount, 1000)  # 10 sessions * 100
+        self.assertEqual(payment.amount, 1000)
 
     def test_create_enrollment_sets_student_active(self):
         new_student_user, new_student = create_student_with_profile(
@@ -370,7 +370,7 @@ class EnrollmentApiTests(FinancialTestSetupMixin, TestCase):
             "/api/enrollments/",
             {
                 "class_id": self.class_obj.id,
-                "student_id": new_student.pk,
+                "student_id": new_student.user.id,
                 "start_date": str(date.today()),
             },
             format="json",
@@ -386,7 +386,7 @@ class EnrollmentApiTests(FinancialTestSetupMixin, TestCase):
             "/api/enrollments/",
             {
                 "class_id": self.class_obj.id,
-                "student_id": self.student_profile.pk,
+                "student_id": self.student_profile.user.id,
                 "start_date": str(date.today()),
             },
             format="json",
@@ -406,7 +406,7 @@ class EnrollmentApiTests(FinancialTestSetupMixin, TestCase):
             class_id=self.class_obj, student_id=self.student_profile
         )
         response = self.client.get(
-            f"/api/enrollments/?student_id={self.student_profile.pk}"
+            f"/api/enrollments/?student_id={self.student_profile.user.id}"
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
@@ -542,12 +542,11 @@ class EnrollmentPaymentIntegrationTests(FinancialTestSetupMixin, TestCase):
         self.client.force_authenticate(self.owner)
 
     def test_enroll_then_pay_then_soft_delete(self):
-        # Enroll
         enroll_resp = self.client.post(
             "/api/enrollments/",
             {
                 "class_id": self.class_obj.id,
-                "student_id": self.student_profile.pk,
+                "student_id": self.student_profile.user.id,
                 "start_date": str(date.today()),
             },
             format="json",
@@ -555,15 +554,12 @@ class EnrollmentPaymentIntegrationTests(FinancialTestSetupMixin, TestCase):
         self.assertEqual(enroll_resp.status_code, 201)
         enrollment = Enrollment.objects.get(id=enroll_resp.data["id"])
 
-        # Payment auto-created
         payment = Payment.objects.get(enrollment_id=enrollment)
         self.assertEqual(payment.status, "pending")
 
-        # Mark payment completed
         payment.status = "completed"
         payment.save()
 
-        # Soft-delete enrollment
         del_resp = self.client.delete(f"/api/enrollments/{enrollment.id}/")
         self.assertEqual(del_resp.status_code, 204)
         enrollment.refresh_from_db()
