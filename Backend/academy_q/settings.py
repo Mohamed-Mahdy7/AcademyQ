@@ -18,14 +18,15 @@ SECRET_KEY = 'django-insecure-e0vk%pu@t)i6j_cfbelbi9p&*9q=g7b-9861ms*j&3=w5wkca6
 
 # LANGUAGES CONFIG
 
-LOCALE_PATHS = [BASE_DIR / "locale",]
+LANGUAGE_CODE = "ar"  # Arabic-first default
 
-USE_I18N = True
 LANGUAGES = [
     ("ar", _("Arabic")),
     ("en", _("English")),
 ]
-LANGUAGE_CODE = "ar"  # Arabic-first default
+
+LOCALE_PATHS = [BASE_DIR / "locale",]
+USE_I18N = True
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

@@ -59,7 +59,7 @@ def custom_exception_handler(exc, context):
             response.data = _shape(detail, "validation_error", fields)
         
         elif isinstance(exc, (drf_exceptions.NotFound, Http404)):
-            response.data = _shape("Not found.", _("not_found"))
+            response.data = _shape(_("Not found."), "not_found")
         
         elif isinstance(exc, (
             drf_exceptions.PermissionDenied, 
