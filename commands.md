@@ -1,0 +1,1 @@
+docker compose exec web find . -name "models.py" -not -path "*/migrations/*" -exec echo "=== {} ===" \; -exec cat {} \;
