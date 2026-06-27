@@ -1,5 +1,5 @@
 import axios from "axios";
-import {toast} from "./lib/toastBus"
+import {toast} from "./lib/toastBus";
 import i18n from "./i18n";
 
 
@@ -13,28 +13,33 @@ let isRedirectingToLogin = false;
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if(!error.response) {
-            toast.danger("Connection problem", "Can't reach the server. Check your connection.")
+        if (!error.response) {
+            toast.danger("Connection problem", "Can't reach the server. Check your connection.");
             return Promise.reject(error);
         }
-        const {status, data} = error.response;
+
+        if (error.config?.skipErrorToast) {
+            return Promise.reject(error);
+        }
+
+        const { status, data } = error.response;
         const code = data?.code;
         const detail = data?.detail || "Something went wrong.";
 
-        switch(code) {
+        switch (code) {
             case "validation_error":
                 break;
 
             case "permission_denied":
                 if (status === 401) {
                     if (error.config?.skipAuthRedirect) {
-                        break; // expected 401 from a routine auth check, not a real session-expiry event
+                        break;
                     }
-                    toast.danger("Permission denied", detail);
+
                     if (!isRedirectingToLogin && window.location.pathname !== "/login") {
                         isRedirectingToLogin = true;
                         toast.danger("Session expired", "Please log in again.");
-                        // window.location.href = "/login";
+
                     }
                 } else {
                     toast.danger("Permission denied", detail);
@@ -48,7 +53,7 @@ api.interceptors.response.use(
             case "rate_limited":
                 toast.warning("Slow down", detail);
                 break;
-                
+
             default:
                 toast.danger("Something went wrong", detail);
         }

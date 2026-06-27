@@ -16,7 +16,7 @@ class Subject(models.Model):
         related_name="subjects",
     )
     name = models.CharField(max_length=64)
-    description = models.TextField()
+    description = models.TextField(blank=True, default="")
 
     class Meta:
         db_table = "subjects"
