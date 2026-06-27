@@ -4,7 +4,7 @@ import { getClasses } from "../services/classService";
 import { toast } from "../lib/toastBus";
 import TeachersList from "../components/teachers/TeachersList";
 import TeacherForm from "../components/teachers/TeacherForm";
-import EditUserProfile from "../pages/users/EditUserProfile"
+import EditTeacherForm from "../components/teachers/EditTeacherForm";
 import { UsersProvider } from "../context/UsersContext";
 
 export default function TeachersPage() {
@@ -203,7 +203,7 @@ export default function TeachersPage() {
                       ✕
                   </button>
                   <UsersProvider>
-                      <EditUserProfile
+                      <EditTeacherForm
                           userId={editingUserId}
                           onClose={() => {
                               setEditingUserId(null);
