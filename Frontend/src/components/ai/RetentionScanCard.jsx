@@ -27,6 +27,7 @@ export default function RetentionScanCard({ onScanComplete }) {
       setLastScan(res.data);
       if (onScanComplete) onScanComplete();
       toast.success("Scan complete", `${res.data.students_scanned} students scanned.`);
+      setTimeout(() => window.location.reload(), 1500);
     } catch (err) {
       if (err.response?.status === 429) {
         const detail = err.response?.data?.detail || "Daily scan limit reached. Try again tomorrow.";

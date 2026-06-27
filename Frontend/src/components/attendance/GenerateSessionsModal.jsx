@@ -24,18 +24,21 @@ export default function GenerateSessionsModal({ classId, classStartDate, classEn
         start_date: startDate,
         end_date: endDate,
       });
-      const { sessions_created, skipped } = res.data;
+      const { sessions_created, skipped_existing, skipped_limit } = res.data;
       if (sessions_created === 0) {
-        toast.warning(
-          "No sessions created",
-          "The selected date range contains no days matching the class schedule. Try a wider range or check the weekly slots."
-        );
+          toast.warning(
+              "No sessions created",
+              "The selected date range contains no days matching the class schedule."
+          );
       } else {
-        toast.success(
-          "Sessions generated",
-          `${sessions_created} session${sessions_created !== 1 ? "s" : ""} created${skipped > 0 ? `, ${skipped} skipped (already existed or limit reached)` : ""}.`
-        );
-      }
+          const parts = [];
+          if (skipped_existing > 0) parts.push(`${skipped_existing} already existed`);
+          if (skipped_limit > 0) parts.push(`${skipped_limit} exceeded session limit`);
+          toast.success(
+              "Sessions generated",
+              `${sessions_created} session${sessions_created !== 1 ? "s" : ""} created${parts.length > 0 ? `. Skipped: ${parts.join(", ")}` : ""}.`
+          );
+      } 
       onSuccess(res.data);
       onClose();
     } catch (err) {
