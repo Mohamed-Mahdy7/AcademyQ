@@ -41,7 +41,7 @@ const StudentManagement = () => {
                         value={studentsCount}
                     />
                     <KpiCard
-                        title={t("active")}
+                        title={t("common:active")}
                         value={activeStudents}
                     />
                     <KpiCard
@@ -85,9 +85,9 @@ const StudentManagement = () => {
                             <th>{t("parent_phone")}</th>
                             <th>{t("grade_level")}</th>
                             <th>{t("enrollments")}</th>
-                            <th>{t("status")}</th>
+                            <th>{t("common:status")}</th>
                             <th>{t("enrolled_since")}</th>
-                            <th className="text-end">{t("actions")}</th>
+                            <th className="text-end">{t("common:actions")}</th>
                         </tr>
                     </thead>
 
@@ -133,7 +133,7 @@ const StudentManagement = () => {
                                             className="btn-secondary"
                                             onClick={() => (navigate(`/student/${student.id}`))}
                                         >
-                                            {t("view_profile")}
+                                            {t("common:view_profile")}
                                         </button>
                                     </div>
                                 </td>

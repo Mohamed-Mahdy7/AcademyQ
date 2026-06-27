@@ -174,7 +174,7 @@ const EditStudentProfile = ({ onClose }) => {
                 </div>
             </div>
             <button type="submit" className="btn-primary mt-4 w-full" disabled={saving}>
-                {saving ? <span className="btn-spinner" /> : t("save_changes")}
+                {saving ? <span className="btn-spinner" /> : t("common:save_changes")}
                 </button>
         </form>
     )
