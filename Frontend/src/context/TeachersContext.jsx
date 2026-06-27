@@ -70,13 +70,13 @@ export function TeacherProvider({ children }) {
 
   async function removeTeacher(id) {
     try {
-      await deleteTeacher(id);
-      setTeachers((prev) => prev.filter((t) => t.id !== id));
-      toast.success("Teacher deactivated", "The teacher's account has been deactivated.");
-      return { success: true };
+        await deleteTeacher(id);
+        await listTeachers(); 
+        toast.success("Teacher deactivated", "The teacher's account has been deactivated.");
+        return { success: true };
     } catch (error) {
-      toast.danger("Could not deactivate", "Failed to deactivate the teacher account.");
-      return { success: false };
+        toast.danger("Could not deactivate", "Failed to deactivate the teacher account.");
+        return { success: false };
     }
   }
   useEffect(() => {

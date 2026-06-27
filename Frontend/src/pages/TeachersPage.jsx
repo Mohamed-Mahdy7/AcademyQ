@@ -1,11 +1,14 @@
 import { useState , useEffect} from "react";
 import { useTeacher } from "../context/TeachersContext";
 import { getClasses } from "../services/classService";
+import { toast } from "../lib/toastBus";
 import TeachersList from "../components/teachers/TeachersList";
 import TeacherForm from "../components/teachers/TeacherForm";
+import EditUserProfile from "../pages/users/EditUserProfile"
+import { UsersProvider } from "../context/UsersContext";
 
 export default function TeachersPage() {
-  const { teachers, loading, error, addTeacher, removeTeacher } = useTeacher();
+  const { teachers, loading, error, addTeacher, removeTeacher, listTeachers } = useTeacher();
 
   const [showForm, setShowForm]         = useState(false);
   const [formErrors, setFormErrors]     = useState({});
@@ -14,6 +17,7 @@ export default function TeachersPage() {
   const [deleting, setDeleting]           = useState(false);
   const [search, setSearch]             = useState("");
   const [classes, setClasses] = useState([]);
+  const [editingUserId, setEditingUserId] = useState(null);
 
   useEffect(() => {
     loadClasses();
@@ -140,9 +144,9 @@ export default function TeachersPage() {
 
       {!loading && (
         <TeachersList
-          teachers={filtered}
-          onEdit={() => {}}
-          onDelete={setDeleteConfirm}
+            teachers={filtered}
+            onEdit={(teacher) => setEditingUserId(teacher.user_id)}
+            onDelete={setDeleteConfirm}
         />
       )}
 
@@ -183,6 +187,32 @@ export default function TeachersPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {editingUserId && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+              <div
+                  className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+                  onClick={() => setEditingUserId(null)}
+              />
+              <div className="relative z-10 w-full max-w-2xl mx-4 bg-white rounded-3xl shadow-2xl p-8">
+                  <button
+                      onClick={() => setEditingUserId(null)}
+                      className="absolute top-6 right-6 text-2xl text-navy"
+                  >
+                      ✕
+                  </button>
+                  <UsersProvider>
+                      <EditUserProfile
+                          userId={editingUserId}
+                          onClose={() => {
+                              setEditingUserId(null);
+                              listTeachers();
+                          }}
+                      />
+                  </UsersProvider>
+              </div>
+          </div>
       )}
 
     </div>
