@@ -6,18 +6,29 @@ import commonEn from "./locales/en/common.json";
 import commonAr from "./locales/ar/common.json";
 import authEn from "./locales/en/auth.json";
 import authAr from "./locales/ar/auth.json";
+import studentsEn from "./locales/en/students.json"
+import studentsAr from "./locales/ar/students.json"
+
 
 i18n
 .use(LanguageDetector)
 .use(initReactI18next)
 .init({
     resources: {
-    en: { common: commonEn, auth: authEn },
-    ar: { common: commonAr, auth: authAr },
+        en: { 
+            common: commonEn,
+            auth: authEn,
+            students: studentsEn
+        },
+        ar: { 
+            common: commonAr, 
+            auth: authAr,
+            students: studentsAr
+        },
     },
     fallbackLng: "ar", // Arabic-first: if detection fails, default to Arabic, not English
     defaultNS: "common",
-    ns: ["common", "auth"],
+    ns: ["common", "auth", "students"],
     interpolation: { escapeValue: false },
     detection: {
     order: ["localStorage", "navigator"],

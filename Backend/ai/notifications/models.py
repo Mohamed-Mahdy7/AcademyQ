@@ -1,18 +1,19 @@
+from django.utils.translation import gettext_lazy as _
 from django.db import models
 from ai.agent.models import Alert
 import uuid  
 
 class Notification(models.Model):
-    CHANNEL_CHOICES = [("email", "Email")]
+    CHANNEL_CHOICES = [("email", _("Email"))]
     STATUS_CHOICES = [
-        ("pending", "Pending"),
-        ("sent", "Sent"),
-        ("failed", "Failed"),
+        ("pending", _("Pending")),
+        ("sent", _("Sent")),
+        ("failed", _("Failed")),
     ]
     TYPE_CHOICES = [
-        ('payment_reminder', 'Payment Reminder'),
-        ('retention_alert', 'Retention Alert'),
-        ('attendance_alert', 'Attendance Alert'),
+        ('payment_reminder', _('Payment Reminder')),
+        ('retention_alert', _('Retention Alert')),
+        ('attendance_alert', _('Attendance Alert')),
     ]
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=True)
     student = models.ForeignKey(

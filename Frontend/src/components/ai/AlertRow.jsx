@@ -9,15 +9,15 @@ const initials = (name = "") =>
 
 const REASON_META = {
     low_attendance: { label: "Low Attendance", icon: "📉" },
-    overdue_fee:    { label: "Overdue Fee",     icon: "💳" },
-    low_grades:     { label: "Low Grades",      icon: "📝" },
-    combined:       { label: "Combined Risk",   icon: "⚠️" },
+    overdue_fee: { label: "Overdue Fee", icon: "💳" },
+    low_grades: { label: "Low Grades", icon: "📝" },
+    combined: { label: "Combined Risk", icon: "⚠️" },
 }
 
 const RISK_BADGE = {
-    high:   "badge-pct-bad",
+    high: "badge-pct-bad",
     medium: "badge-pct-warn",
-    low:    "badge-pct-good",
+    low: "badge-pct-good",
 }
 
 const AlertRow = ({ alert }) => {
@@ -31,12 +31,12 @@ const AlertRow = ({ alert }) => {
         updateLocalMessage,
     } = useAlerts()
 
-    const isExpanded   = expandedId === alert.id
+    const isExpanded = expandedId === alert.id
     const isGenerating = generatingId === alert.id
 
     const [localMessage, setLocalMessage] = useState(alert.message || "")
-    const [isSending, setIsSending]       = useState(false)
-    const [sentSuccess, setSentSuccess]   = useState(false)
+    const [isSending, setIsSending] = useState(false)
+    const [sentSuccess, setSentSuccess] = useState(false)
     const { sendAlertNotification } = useContext(NotificationsContext)
 
     const handleGenerateMessage = async () => {
@@ -67,11 +67,11 @@ const AlertRow = ({ alert }) => {
 
     const formattedDate = alert.created_at
         ? new Date(alert.created_at).toLocaleDateString("en-EG", {
-              day: "numeric",
-              month: "short",
-              hour: "2-digit",
-              minute: "2-digit",
-          })
+            day: "numeric",
+            month: "short",
+            hour: "2-digit",
+            minute: "2-digit",
+        })
         : "—"
 
     const messagePreview = (alert.message || "").slice(0, 60).trim()
@@ -102,13 +102,12 @@ const AlertRow = ({ alert }) => {
 
                 <div className="hidden sm:flex flex-col items-center flex-shrink-0">
                     <span className="text-[11px] font-semibold text-blue uppercase tracking-widest">Score</span>
-                    <span className={`text-lg font-bold ${
-                        alert.risk_level === "high"
+                    <span className={`text-lg font-bold ${alert.risk_level === "high"
                             ? "text-danger"
                             : alert.risk_level === "medium"
-                            ? "text-warning"
-                            : "text-success"
-                    }`}>
+                                ? "text-warning"
+                                : "text-success"
+                        }`}>
                         {alert.risk_score}
                     </span>
                 </div>
@@ -123,7 +122,7 @@ const AlertRow = ({ alert }) => {
                     </p>
                 </div>
 
-                <div className="hidden md:block flex-shrink-0 text-right">
+                <div className="hidden md:block flex-shrink-0 text-end">
                     <p className="text-caption">{formattedDate}</p>
                 </div>
 

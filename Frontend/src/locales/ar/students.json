@@ -1,0 +1,61 @@
+{
+    "students_title": "الطلاب",
+    "manage_students_description": "إدارة ملفات الطلاب والتسجيل والتقدم الدراسي",
+
+    "add_student": "إضافة طالب",
+
+    "total_students": "إجمالي الطلاب",
+    "with_overdue_payments": "الطلاب المتأخرون في السداد",
+
+    "all_students": "جميع الطلاب",
+
+    "student_name": "اسم الطالب",
+    "parent_phone": "هاتف ولي الأمر",
+    "grade_level": "المرحلة الدراسية",
+    "enrollments": "الاشتراكات",
+    "enrolled_since": "تاريخ التسجيل",
+
+    "enrolled_since_date": "مسجل منذ",
+    "not_enrolled_yet": "لم يتم التسجيل بعد",
+    "not_yet_enrolled": "غير مسجل بعد",
+
+    "student_profile": "الملف الشخصي للطالب",
+    "update_profile": "تحديث الملف الشخصى",
+
+    "full_name": "الاسم الكامل",
+    "parent_email": "بريد ولي الأمر",
+    "educational_level": "المرحلة التعليمية",
+
+    "full_name_placeholder": "الاسم الكامل",
+    "email_placeholder": "البريد الإلكتروني",
+    "phone_placeholder": "رقم الهاتف",
+    "parent_email_placeholder": "بريد ولي الأمر",
+
+    "select_educational_level": "اختر المرحلة التعليمية",
+
+    "could_not_load_educational_levels": "تعذر تحميل المراحل التعليمية",
+    "refresh_page_message": "حاول تحديث الصفحة.",
+
+    "edit_before_saving": "قم بتعديل أحد الحقول قبل الحفظ.",
+
+    "student_profile_updated": "تم تحديث ملف الطالب",
+    "student_profile_saved": "تم حفظ ملف",
+
+    "could_not_load_student": "تعذر تحميل الطالب",
+    "could_not_load_student_message": "تعذر تحميل بيانات هذا الطالب.",
+
+    "grade_label": "الصف",
+
+    "enrollments_tab": "الاشتراكات",
+    "grades_tab": "الدرجات",
+    "payments_tab": "المدفوعات",
+    "attendance_tab": "الحضور",
+    "reports_tab": "التقارير",
+
+    "attendance_kpi": "الحضور",
+    "total_paid": "إجمالي المدفوع",
+    "outstanding": "المستحقات",
+
+    "egp_amount": "{{amount}} جنيه",
+    "percentage_value": "% {{value}}"
+}

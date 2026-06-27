@@ -1,6 +1,7 @@
 import { useContext, useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { StudentContext } from "../../context/StudentsContext"
+import { useTranslation } from "react-i18next"
 import KpiCard from "../../components/KpiCard"
 import EditStudentProfile from "./EditStudentProfile"
 import StudentEnrollmentTab from "../../components/enrollments/StudentEnrollmentTab"
@@ -14,6 +15,7 @@ const tabs = ["Enrollments", "Grades", "Payments", "Attendance", "Reports"];
 
 const StudentProfile = () => {
     const { student, getStudent } = useContext(StudentContext);
+    const { t, i18n } = useTranslation(["students", "common"])
     const [activeTab, setActiveTab] = useState("Enrollments");
     const [showProfile, setshowProfile] = useState(false);
     const [loadError, setLoadError] = useState(null)
@@ -23,7 +25,7 @@ const StudentProfile = () => {
         setLoadError(null);
         getStudent(id).then((result) => {
             if (result && result.success === false) {
-                setLoadError(result.error?.response?.data?.detail || "Couldn't load this student.")
+                setLoadError(result.error?.response?.data?.detail || t("could_not_load_student_message"))
             }
         });
     }, [id]);
@@ -32,7 +34,7 @@ const StudentProfile = () => {
         return (
             <div className="alert-danger">
                 <div>
-                    <div className="alert-title">Couldn't load student</div>
+                    <div className="alert-title">{t("could_not_load_student")}</div>
                     <div className="alert-desc">{loadError}</div>
                 </div>
             </div>
@@ -61,7 +63,7 @@ const StudentProfile = () => {
                             strokeWidth="2" 
                             strokeLinecap="round" 
                             strokeLinejoin="round" 
-                            className="lucide lucide-arrow-left w-4 h-4 text-navy"
+                            className="lucide lucide-arrow-left w-4 h-4 text-navy rtl:-scale-x-100"
                             onClick={() => navigate("/students")}
                         >
                             <path d="m12 19-7-7 7-7"></path>
@@ -72,11 +74,11 @@ const StudentProfile = () => {
                         <h1 className="heading-1">{student.full_name}</h1>
                         <div className="flex gap-2">
                             <span className="text-caption">{student.parent_email}</span>
-                            <span className="text-caption">Grade {student.educational_level}</span>
+                            <span className="text-caption">{t("grade_label")} {student.educational_level}</span>
                             <span className="text-caption">
                                 {student.enrolled_at
-                                    ? `Enrolled since ${new Date(student.enrolled_at).toLocaleDateString()}`
-                                    : "Not yet enrolled"
+                                    ? `${t("enrolled_since_date")} ${new Date(student.enrolled_at).toLocaleDateString()}`
+                                    : t("not_enrolled_yet")
                                 }
                             </span>
                         </div>
@@ -100,7 +102,7 @@ const StudentProfile = () => {
                         className="btn-primary"
                         onClick={() => setshowProfile(true)}
                     >
-                        Update Profile
+                        {t("update_profile")}
                     </button>
                 </div>
                 {showProfile && (
@@ -129,19 +131,19 @@ const StudentProfile = () => {
             <div>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 my-6">
                     <KpiCard
-                        title="ENROLLMENTS"
+                        title={t("enrollments")}
                         value={student.enrollments.length}
                     />
                     <KpiCard
-                        title="ATTENDANCE"
+                        title={t("attendance_kpi")}
                         value={attendancePercentage}
                     />
                     <KpiCard
-                        title="TOTAL PAID"
+                        title={t("total_paid")}
                         value={totalPaid}
                     />
                     <KpiCard
-                        title="OUTSTANDING"
+                        title={t("outstanding")}
                         value=""
                     />
                 </div>
@@ -155,9 +157,24 @@ const StudentProfile = () => {
                         <button
                             key={tab}
                             className={activeTab === tab ? "tab-active" : "tab"}
-                            onClick={() => setActiveTab(tab)}
+                            onClick={
+                                () => setActiveTab(tab)
+                            }
                         >
-                            {tab}
+                            {tab === "Enrollments" &&
+                                t("enrollments_tab")}
+
+                            {tab === "Grades" &&
+                                t("grades_tab")}
+
+                            {tab === "Payments" &&
+                                t("payments_tab")}
+
+                            {tab === "Attendance" &&
+                                t("attendance_tab")}
+
+                            {tab === "Reports" &&
+                                t("reports_tab")}
                         </button>
                     ))}
                 </div>

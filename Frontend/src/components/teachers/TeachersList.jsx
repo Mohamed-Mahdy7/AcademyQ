@@ -34,7 +34,7 @@ export default function TeachersList({ teachers, onEdit, onDelete }) {
               <th>Name</th>
               <th>Email</th>
               <th>Phone</th>
-              <th className="text-right">Actions</th>
+              <th className="text-end">Actions</th>
             </tr>
           </thead>
           <tbody>

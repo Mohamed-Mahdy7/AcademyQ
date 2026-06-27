@@ -149,6 +149,11 @@ LAYER: COMPONENTS
         px-1.5 py-0.5 rounded-full leading-none;
 }
 
+[dir="rtl"] .sidebar-badge {
+        margin-left: 0;
+        margin-right: auto;
+}
+
 /* Bottom of sidebar — user info + logout */
 .sidebar-footer {
 @apply px-3 py-3 border-t border-white/10 sticky bottom-0 bg-navy;
@@ -210,6 +215,11 @@ LAYER: COMPONENTS
 /* Notification dot on topbar icon */
 .topbar-dot {
 @apply absolute top-1 right-1 w-2 h-2 rounded-full bg-danger;
+}
+
+[dir="rtl"] .topbar-dot {
+        right: auto;
+        left: 0.25rem;
 }
 
 /* Avatar in topbar */
@@ -444,6 +454,11 @@ LAYER: COMPONENTS
         w-4 h-4 text-blue pointer-events-none;
 }
 
+[dir="rtl"] .input-icon-left {
+        left: auto;
+        right: 0.75rem;
+}
+
 .form-input-icon {
 @apply w-full pl-9 pr-3 py-2.5 rounded-lg border border-border bg-card
         text-sm text-navy placeholder:text-blue/40
@@ -451,10 +466,20 @@ LAYER: COMPONENTS
         transition-all;
 }
 
+[dir="rtl"] .form-input-icon {
+        padding-left: 0.75rem;
+        padding-right: 2.25rem;
+}
+
 /* Input with right action (e.g. show/hide password) */
 .input-icon-right {
 @apply absolute right-3 top-1/2 -translate-y-1/2
         w-4 h-4 text-blue cursor-pointer hover:text-navy;
+}
+
+[dir="rtl"] .input-icon-right {
+        right: auto;
+        left: 0.75rem;
 }
 
 /* Search input */
@@ -679,7 +704,7 @@ LAYER: COMPONENTS
 }
 
 .table-thead th {
-@apply text-left px-4 py-3 text-[12px] font-semibold
+@apply text-start px-4 py-3 text-[12px] font-semibold
         uppercase tracking-widest text-blue whitespace-nowrap;
 }
 
@@ -1392,7 +1417,7 @@ content: '';
     ========================================================== */
 
 .reg-option-card {
-@apply flex flex-col items-start text-left bg-white/5 border border-white/10
+@apply flex flex-col items-start text-start bg-white/5 border border-white/10
         rounded-2xl p-6 w-full
         hover:bg-white/10 hover:border-white/20
         transition-all cursor-pointer;

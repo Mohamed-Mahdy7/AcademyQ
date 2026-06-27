@@ -11,5 +11,20 @@
         "not_found": "Not found",
         "slow_down": "Slow down",
         "something_wrong": "Something went wrong"
-    }
+    },
+    "add": "Add",
+    "actions": "Actions",
+    "active": "Active",
+    "attendance": "Attendance",
+    "email": "Email",
+    "grades": "Grades",
+    "no_changes_made": "No changes made",
+    "payments": "Payments",
+    "phone": "Phone",
+    "reports": "Reports",
+    "saving": "Saving...",
+    "select_option": "Select an option",
+    "status": "Status",
+    "update": "Update",
+    "view_profile": "View Profile"
 }

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { UsersContext } from "../../context/UsersContext"
 import { StudentContext } from "../../context/StudentsContext"
 import { AcademyContext } from "../../context/AcademyContext"
+import { useTranslation } from "react-i18next"
 import KpiCard from "../../components/KpiCard"
 import StudentRegisterForm from "../auth/StudentRegisterForm"
 import CardHeading from "../../components/CardHeader"
@@ -10,6 +11,7 @@ import CardHeading from "../../components/CardHeader"
 const StudentManagement = () => {
     const { students } = useContext(StudentContext);
     const { academy } = useContext(AcademyContext);
+    const { t, i18n } = useTranslation(["students", "common"])
     const [showRegister, setShowRegister] = useState(false);
     const navigate = useNavigate();
 
@@ -22,28 +24,28 @@ const StudentManagement = () => {
         <>
             <div className="flex justify-between">
                 <div>
-                    <h1 className="heading-1">Students</h1>
-                    <p className="subheading">Manage student profiles, enrollments, and progress</p>
+                    <h1 className="heading-1">{t("students_title")}</h1>
+                    <p className="subheading">{t("manage_students_description")}</p>
                 </div>
                 <button
                     onClick={() => setShowRegister(true)}
                     className="btn-primary h-3/5"
                 >
-                    + Add Student
+                    + {t("add_student")}
                 </button>
             </div>
             <div className={showRegister ? "pointer-events-none" : ""}>
                 <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 my-6">
                     <KpiCard
-                        title="TOTAL STUDENTS"
+                        title={t("total_students")}
                         value={studentsCount}
                     />
                     <KpiCard
-                        title="ACTIVE"
+                        title={t("active")}
                         value={activeStudents}
                     />
                     <KpiCard
-                        title="With Overdue Payments"
+                        title={t("with_overdue_payments")}
                         value={overdueStudents}
                     />
                 </div>
@@ -74,18 +76,18 @@ const StudentManagement = () => {
             )}
             <div className="table-wrap">
                 <div className="card-header">
-                    <h1 className="heading-3">All Students</h1>
+                    <h1 className="heading-3">{t("all_students")}</h1>
                 </div>
                 <table className="table">
                     <thead className="table-thead">
                         <tr>
-                            <th>STUDENT NAME</th>
-                            <th>PARENT PHONE</th>
-                            <th>GRADE LEVEL</th>
-                            <th>ENROLLMENTS</th>
-                            <th>STATUS</th>
-                            <th>ENROLLED SINCE</th>
-                            <th className="text-right">ACTIONS</th>
+                            <th>{t("student_name")}</th>
+                            <th>{t("parent_phone")}</th>
+                            <th>{t("grade_level")}</th>
+                            <th>{t("enrollments")}</th>
+                            <th>{t("status")}</th>
+                            <th>{t("enrolled_since")}</th>
+                            <th className="text-end">{t("actions")}</th>
                         </tr>
                     </thead>
 
@@ -122,16 +124,16 @@ const StudentManagement = () => {
                                 <td className="table-cell">
                                     {student.enrolled_at
                                         ? `Enrolled since ${new Date(student.enrolled_at).toLocaleDateString()}`
-                                        : "Not enrolled yet"
+                                        : t("not_enrolled_yet")
                                     }
                                 </td>
                                 <td className="table-cell">
                                     <div className="flex justify-end">
-                                        <button 
+                                        <button
                                             className="btn-secondary"
                                             onClick={() => (navigate(`/student/${student.id}`))}
                                         >
-                                            View Profile
+                                            {t("view_profile")}
                                         </button>
                                     </div>
                                 </td>

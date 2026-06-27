@@ -1,5 +1,7 @@
 import uuid
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+
 
 
 class Alert(models.Model):
@@ -8,9 +10,9 @@ class Alert(models.Model):
     RISK_HIGH = "high"
 
     RISK_LEVEL_CHOICES = [
-        (RISK_LOW, "Low"),
-        (RISK_MEDIUM, "Medium"),
-        (RISK_HIGH, "High"),
+        (RISK_LOW, _("Low")),
+        (RISK_MEDIUM, _("Medium")),
+        (RISK_HIGH, _("High")),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -44,10 +46,10 @@ class ScanLog(models.Model):
     STATUS_FAILED = "failed"
 
     STATUS_CHOICES = [
-        (STATUS_PENDING, "Pending"),
-        (STATUS_RUNNING, "Running"),
-        (STATUS_COMPLETE, "Complete"),
-        (STATUS_FAILED, "Failed"),
+        (STATUS_PENDING, _("Pending")),
+        (STATUS_RUNNING, _("Running")),
+        (STATUS_COMPLETE, _("Complete")),
+        (STATUS_FAILED, _("Failed")),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

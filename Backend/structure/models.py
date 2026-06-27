@@ -2,6 +2,8 @@ import uuid
 from django.db import models
 from django.core.exceptions import ValidationError
 from datetime import datetime
+from django.utils.translation import gettext_lazy as _
+
 
 
 class Subject(models.Model):
@@ -111,13 +113,13 @@ class Class(models.Model):
 
 class ClassSchedule(models.Model):
     DAY_CHOICES = [
-        (0, "Monday"),
-        (1, "Tuesday"),
-        (2, "Wednesday"),
-        (3, "Thursday"),
-        (4, "Friday"),
-        (5, "Saturday"),
-        (6, "Sunday"),
+        (0, _("Monday")),
+        (1, _("Tuesday")),
+        (2, _("Wednesday")),
+        (3, _("Thursday")),
+        (4, _("Friday")),
+        (5, _("Saturday")),
+        (6, _("Sunday")),
     ]
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     class_obj = models.ForeignKey(

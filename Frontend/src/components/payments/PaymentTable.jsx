@@ -24,10 +24,10 @@ export default function PaymentTable({ payments, onDelete }) {
             <th>Student</th>
             <th>Class</th>
             <th>Amount</th>
-             <th>Status</th>
+            <th>Status</th>
             <th>Payment date</th>
             <th>Notes</th>
-            <th className="text-right">Actions</th>
+            <th className="text-end">Actions</th>
           </tr>
         </thead>
         <tbody>

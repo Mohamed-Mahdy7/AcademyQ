@@ -82,7 +82,7 @@ const UserManagement = () => {
                             <th>ROLE</th>
                             <th>STATUS</th>
                             <th>CREATED</th>
-                            <th className="text-right">ACTIONS</th>
+                            <th className="text-end">ACTIONS</th>
                         </tr>
                     </thead>
 
@@ -131,11 +131,12 @@ const UserManagement = () => {
                                     </td>
                                     <td className="table-cell">
                                         <div className="flex justify-end">
-                                            <button 
+                                            <button
                                                 className="btn-secondary"
                                                 onClick={() => {
                                                     setSelectedUserId(user.id)
-                                                    setShowProfile(true)}}
+                                                    setShowProfile(true)
+                                                }}
                                             >
                                                 Edit
                                             </button>
