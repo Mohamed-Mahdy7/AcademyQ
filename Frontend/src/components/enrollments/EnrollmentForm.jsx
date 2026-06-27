@@ -10,6 +10,7 @@ const EMPTY_FORM = {
 export default function EnrollmentForm({
   classId,
   classPrice,
+  classStart, 
   editingEnrollment,
   onSubmit,
   onCancel,
@@ -57,6 +58,13 @@ export default function EnrollmentForm({
       class_price: classPrice,
     }, editingEnrollment?.id);
   }
+
+  const dateMin = classStart
+      ? new Date(new Date(classStart).getTime() - 7 * 24 * 60 * 60 * 1000)
+          .toISOString().split("T")[0]
+      : undefined;
+
+  const dateMax = classStart || undefined;
 
   return (
     <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && onCancel()}>
@@ -126,11 +134,15 @@ export default function EnrollmentForm({
                 name="start_date"
                 value={form.start_date}
                 onChange={handleChange}
+                min={dateMin}
+                max={dateMax}
                 className={errors?.start_date ? "form-input-error" : "form-input"}
                 required
               />
-              {errors?.start_date && (
-                <p className="form-error">{errors.start_date}</p>
+              {classStart && (
+                  <p className="form-hint">
+                      Must be within 1 week before class start ({classStart}) and no later than class start date.
+                  </p>
               )}
             </div>
 

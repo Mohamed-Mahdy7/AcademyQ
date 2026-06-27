@@ -19,18 +19,20 @@ export default function EnrollmentTab({ classId }) {
   const [dropConfirm, setDropConfirm]   = useState(null);
   const [statusFilter, setStatusFilter] = useState("");
   const [classPrice, setClassPrice]     = useState(null);
+  const [classStart, setClassStart] = useState(null);
 
   useEffect(() => {
     if (classId) {
       listEnrollments({ class_id: classId });
         getClass(classId)
           .then((res) => {
-            const data = res.data;
-            const price = data.class_price ||
-              (data.session_count && data.session_price
-                ? data.session_count * data.session_price
-                : null);
-            setClassPrice(price);
+              const data = res.data;
+              const price = data.class_price ||
+                  (data.session_count && data.session_price
+                      ? data.session_count * data.session_price
+                      : null);
+              setClassPrice(price);
+              setClassStart(data.start_date); 
           })
           .catch((err) => console.error("Failed to load class", err));
     }
@@ -159,6 +161,7 @@ export default function EnrollmentTab({ classId }) {
         <EnrollmentForm
           classId={classId}
           classPrice={classPrice}
+          classStart={classStart}
           editingEnrollment={editingEnrollment}
           onSubmit={handleSubmit}
           onCancel={closeForm}

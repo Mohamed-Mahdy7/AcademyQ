@@ -33,7 +33,8 @@ class TeachersViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
             return Teachers.objects.none()
         
         return Teachers.objects.filter(
-            academy_id=self.request.user.academy_id
+            academy_id=self.request.user.academy_id,
+            user_id__is_active=True,  
         ).select_related('user_id')
 
     def perform_destroy(self, instance):
