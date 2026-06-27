@@ -113,6 +113,12 @@ export default function AttendanceMarkingPage() {
     try {
       let activeSessionId = sessionId;
       if (!activeSessionId) {
+        const today = new Date().toISOString().split("T")[0];
+        if (selectedDate > today) {
+            showToast("warning", "Cannot save attendance for a future date.");
+            setSubmitting(false);
+            return;
+        }
         // validate selected date against schedule
         if (schedules.length > 0) {
           const dateObj = new Date(selectedDate + "T00:00:00");

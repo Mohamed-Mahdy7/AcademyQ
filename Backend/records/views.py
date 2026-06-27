@@ -340,6 +340,17 @@ class GenerateSessionsView(APIView):
                 id=class_id,
                 academy_id=request.user.academy_id
             )
+            if start_date > cls.end_date:
+                raise ValidationError({
+                    "start_date": ["Start date is after the class end date."]
+                })
+            if start_date < cls.start_date:
+                raise ValidationError({
+                    "start_date": ["Start date cannot be before the class start date."]
+                })
+
+            if end_date > cls.end_date:
+                end_date = cls.end_date  # silently cap, or raise — your choice
         except Class.DoesNotExist:
             raise NotFound("Class not found.")
 
@@ -348,7 +359,8 @@ class GenerateSessionsView(APIView):
             raise ValidationError({"class_id": ["No schedules found for this class."]})
 
         sessions_created = 0
-        skipped = 0
+        skipped_existing = 0
+        skipped_limit = 0
 
         with transaction.atomic():
             last_junction = (
@@ -370,7 +382,7 @@ class GenerateSessionsView(APIView):
 
                 for slot in matching_slots:
                     if max_sessions and next_session_num > max_sessions:
-                        skipped += 1
+                        skipped_limit += 1
                         continue  # stop creating, count as skipped
 
                     exists = ClassSession.objects.filter(
@@ -379,7 +391,7 @@ class GenerateSessionsView(APIView):
                     ).exists()
 
                     if exists:
-                        skipped += 1
+                        skipped_existing += 1
                     else:
                         session = ClassSession.objects.create(
                             session_date=current_date,
@@ -396,12 +408,13 @@ class GenerateSessionsView(APIView):
 
                 current_date += timedelta(days=1)
 
-        if sessions_created == 0 and skipped == 0:
+        if sessions_created == 0 and skipped_existing == 0 and skipped_limit == 0:
             raise ValidationError({
                 "start_date": ["No sessions were created. The selected date range contains no days matching this class's schedule."]
             })
 
-        return Response(
-            {'sessions_created': sessions_created, 'skipped': skipped},
-            status=status.HTTP_200_OK
-        )
+        return Response({
+            'sessions_created': sessions_created,
+            'skipped_existing': skipped_existing,
+            'skipped_limit': skipped_limit,
+        }, status=status.HTTP_200_OK)

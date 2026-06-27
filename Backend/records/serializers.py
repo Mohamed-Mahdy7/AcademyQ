@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from django.db import transaction
 from .models import ClassSession, Attendance
-
+from structure.models import ClassSessionEnrollment, Class
+from django.utils import timezone
 class ClassSessionSerializer(serializers.ModelSerializer):
     present_count = serializers.IntegerField(read_only=True)
     absent_count = serializers.IntegerField(read_only=True)
@@ -25,10 +26,16 @@ class ClassSessionSerializer(serializers.ModelSerializer):
         class_ids = self.context['request'].data.get('class_ids', [])
         if not class_ids:
             raise serializers.ValidationError({'class_ids': 'This field is required and must be a non-empty list.'})
-        from structure.models import ClassSessionEnrollment, Class
+
+        if validated_data.get('session_date') > timezone.now().date():
+            raise serializers.ValidationError({
+                'session_date': ['Cannot create a session for a future date.']
+            })
+
         classes = Class.objects.filter(id__in=class_ids, academy_id=self.context['request'].user.academy_id)
         if not classes.exists():
             raise serializers.ValidationError({'class_ids': 'No valid classes found.'})
+
         with transaction.atomic():
             session = ClassSession.objects.create(**validated_data)
             last_junction = None

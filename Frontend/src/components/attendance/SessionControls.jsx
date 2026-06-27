@@ -5,10 +5,11 @@ export default function SessionControls({ selectedDate, notes, sessionTime, onDa
         <div className="form-field">
           <label className="form-label">Session Date</label>
           <input
-            type="date"
-            className="form-input"
-            value={selectedDate}
-            onChange={(e) => onDateChange(e.target.value)}
+              type="date"
+              className="form-input"
+              value={selectedDate}
+              max={new Date().toISOString().split("T")[0]}
+              onChange={(e) => onDateChange(e.target.value)}
           />
         </div>
         <div className="form-field">
