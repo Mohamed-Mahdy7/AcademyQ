@@ -65,19 +65,19 @@ function NotificationHistoryPage() {
                 <div className="kpi-card">
                     <p className="kpi-label">This Week</p>
                     <p className="kpi-value">
-                        {loading ? "—" : (stats?.this_week ?? 0)}
+                        {loading ? "—" : (stats?.sent_this_week ?? 0)} 
                     </p>
                 </div>
                 <div className="kpi-card">
                     <p className="kpi-label">Failed</p>
                     <p className="kpi-value text-danger">
-                        {loading ? "—" : (stats?.failed ?? 0)}
+                        {loading ? "—" : (stats?.failed_this_week ?? 0)} 
                     </p>
                 </div>
                 <div className="kpi-card">
                     <p className="kpi-label">Delivery Rate</p>
                     <p className="kpi-value text-success">
-                        {loading ? "—" : `${stats?.delivery_rate ?? 0}%`}
+                        {loading ? "—" : `${stats?.delivery_rate_pct ?? 0}%`} 
                     </p>
                 </div>
             </div>
