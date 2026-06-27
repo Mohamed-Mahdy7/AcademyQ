@@ -1,18 +1,29 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { generateBulkReports } from "../../services/reportService";
+
+const getInitials = (name) =>
+    name
+        .split(" ")
+        .map((n) => n[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase();
 
 function ClassReportsTab({ classId, enrollments = [] }) {
     const [loading, setLoading] = useState(false);
     const [feedback, setFeedback] = useState(null);
     const navigate = useNavigate();
 
-    const activeEnrollments = enrollments.filter((e) => e.status === "active");
+    const activeEnrollments = useMemo(
+        () => enrollments.filter((e) => e.status === "active"),
+        [enrollments]
+    );
 
-    const currentMonth = (() => {
+    const currentMonth = useMemo(() => {
         const today = new Date();
         return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
-    })();
+    }, []);
 
     const handleGenerateForClass = async () => {
         if (activeEnrollments.length === 0) {
@@ -43,14 +54,6 @@ function ClassReportsTab({ classId, enrollments = [] }) {
         }
     };
 
-    const initials = (name) =>
-        name
-            .split(" ")
-            .map((n) => n[0])
-            .slice(0, 2)
-            .join("")
-            .toUpperCase();
-
     return (
         <div>
             <div className="flex items-start justify-between mb-5 flex-wrap gap-3">
@@ -64,22 +67,20 @@ function ClassReportsTab({ classId, enrollments = [] }) {
                         students at once. Reports are generated in the background via Celery tasks.
                     </p>
                 </div>
-                <div className="flex flex-col items-end gap-1">
-                    <button
-                        className="btn-primary"
-                        onClick={handleGenerateForClass}
-                        disabled={loading}
-                    >
-                        {loading ? (
-                            <span className="flex items-center gap-2">
-                                <span className="btn-spinner" />
-                                Queuing...
-                            </span>
-                        ) : (
-                            "⚡ Generate for Class"
-                        )}
-                    </button>
-                </div>
+                <button
+                    className="btn-primary"
+                    onClick={handleGenerateForClass}
+                    disabled={loading}
+                >
+                    {loading ? (
+                        <span className="flex items-center gap-2">
+                            <span className="btn-spinner" />
+                            Queuing...
+                        </span>
+                    ) : (
+                        "⚡ Generate for Class"
+                    )}
+                </button>
             </div>
 
             {feedback && (
@@ -111,7 +112,7 @@ function ClassReportsTab({ classId, enrollments = [] }) {
                             >
                                 <div className="flex items-center gap-3">
                                     <div className="avatar-circle">
-                                        {initials(enrollment.student_name)}
+                                        {getInitials(enrollment.student_name)}
                                     </div>
                                     <div>
                                         <p className="text-base font-semibold text-navy">
@@ -126,7 +127,7 @@ function ClassReportsTab({ classId, enrollments = [] }) {
                                     </div>
                                 </div>
                                 <button
-                                    className="link-action"
+                                    className="btn-secondary"
                                     onClick={() => navigate(`/student/${enrollment.student_id}`)}
                                 >
                                     View Profile →
