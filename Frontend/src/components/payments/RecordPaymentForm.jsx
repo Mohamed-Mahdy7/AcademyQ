@@ -113,9 +113,16 @@ export default function RecordPaymentForm({ onSubmit, onCancel, errors, submitti
                 name="paid_on"
                 value={form.paid_on}
                 onChange={handleChange}
+                min={selectedPayment?.due_date || undefined}
+                max={new Date().toISOString().split("T")[0]}
                 className={errors?.paid_on ? "form-input-error" : "form-input"}
                 required
               />
+              {selectedPayment?.due_date && (
+                <p className="form-hint">
+                  Payment date cannot be before due date ({selectedPayment.due_date}).
+                </p>
+              )}
               {errors?.paid_on && (
                 <p className="form-error">{errors.paid_on}</p>
               )}

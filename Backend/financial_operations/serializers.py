@@ -23,6 +23,9 @@ class PaymentSerializer(serializers.ModelSerializer):
     class_name = serializers.CharField(
         source='enrollment_id.class_id.name', read_only=True
     )
+    parent_email = serializers.CharField(
+        source='enrollment_id.student_id.parent_email', read_only=True
+    )
 
     class Meta:
         model = Payment
@@ -31,6 +34,7 @@ class PaymentSerializer(serializers.ModelSerializer):
             'enrollment_id',
             'student_name',
             'class_name',
+            'parent_email',
             'amount',
             'due_date',
             'paid_on',

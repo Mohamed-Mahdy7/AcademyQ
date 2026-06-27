@@ -175,11 +175,19 @@ export default function PaymentsPage() {
                   .filter((p) => {
                     if (p.status !== "pending") return false;
                     if (!p.due_date) return false;
-                    return new Date(p.due_date) < new Date();
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const due = new Date(p.due_date);
+                    due.setHours(0, 0, 0, 0);
+                    return due < today;  
                   })
                   .map((payment) => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const due = new Date(payment.due_date);
+                    due.setHours(0, 0, 0, 0);
                     const daysOverdue = Math.floor(
-                      (new Date() - new Date(payment.due_date)) / (1000 * 60 * 60 * 24)
+                      (today - due) / (1000 * 60 * 60 * 24)
                     );
                     return (
                       <tr key={payment.id} className="table-row">
