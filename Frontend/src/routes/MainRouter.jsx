@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import { AcademyProvider } from "../context/AcademyContext.jsx";
 import { TeacherProvider } from "../context/TeachersContext.jsx";
 import { GradeProvider } from "../context/gradecontext.jsx";
 import { UsersProvider } from "../context/UsersContext.jsx";
@@ -44,11 +45,13 @@ const MainRouter = () => {
             <Route path="register" element={<Register />} />
             <Route path="login" element={<Login />} />
             <Route element={ 
+                <AcademyProvider>
                     <AlertProvider>
                         <NotificationsProvider>
                             <MainLayout />
                         </NotificationsProvider>
                     </AlertProvider>
+                </AcademyProvider>
             }>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route element={<ProtectedRoute></ProtectedRoute>}>

@@ -26,10 +26,8 @@ export const StudentProvider = ({ children }) => {
     }
 
     async function getStudent(id) {
-        console.log("STUDENT ID: ", id)
         try {
             const response = await getStudentRequest(id);
-            console.log(response.data)
             setStudent(response.data);
             console.log("STUDENT FROM CONTEXT: ", response.data)
 

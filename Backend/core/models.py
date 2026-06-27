@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+from django.utils.translation import gettext_lazy as _
 import uuid
 # Create your models here.
 
@@ -54,10 +55,10 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     class Roles(models.TextChoices):
-        OWNER="O", "Owner"
-        ADMIN="A", "Admin"
-        TEACHER='T', "Teacher"
-        STUDENT='S', "Student"
+        OWNER="O", _("Owner")
+        ADMIN="A", _("Admin")
+        TEACHER='T', _("Teacher")
+        STUDENT='S', _("Student")
     
     id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     academy=models.ForeignKey(
@@ -92,29 +93,29 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Students(models.Model):
     class Status(models.TextChoices):
-        ACTIVE="A", "Active"
-        PENDING="P", "Pending"
-        DROPPED='D', "Dropped"
+        ACTIVE="A", _("Active")
+        PENDING="P", _("Pending")
+        DROPPED='D', _("Dropped")
     
     class EducationalLevel(models.IntegerChoices):
-        PRIMARY_1 = 1, "Primary 1"
-        PRIMARY_2 = 2, "Primary 2"
-        PRIMARY_3 = 3, "Primary 3"
-        PRIMARY_4 = 4, "Primary 4"
-        PRIMARY_5 = 5, "Primary 5"
-        PRIMARY_6 = 6, "Primary 6"
-        PREP_1 = 7, "Preparatory 1"
-        PREP_2 = 8, "Preparatory 2"
-        PREP_3 = 9, "Preparatory 3"
-        SEC_1 = 10, "Secondary 1"
-        SEC_2 = 11, "Secondary 2"
-        SEC_3 = 12, "Secondary 3"
-        COLLEGE_1 = 13, "College 1"
-        COLLEGE_2 = 14, "College 2"
-        COLLEGE_3 = 15, "College 3"
-        COLLEGE_4 = 16, "College 4"
-        COLLEGE_5 = 17, "College 5"
-        COLLEGE_6 = 18, "College 6"
+        PRIMARY_1 = 1, _("Primary 1")
+        PRIMARY_2 = 2, _("Primary 2")
+        PRIMARY_3 = 3, _("Primary 3")
+        PRIMARY_4 = 4, _("Primary 4")
+        PRIMARY_5 = 5, _("Primary 5")
+        PRIMARY_6 = 6, _("Primary 6")
+        PREP_1 = 7, _("Preparatory 1")
+        PREP_2 = 8, _("Preparatory 2")
+        PREP_3 = 9, _("Preparatory 3")
+        SEC_1 = 10, _("Secondary 1")
+        SEC_2 = 11, _("Secondary 2")
+        SEC_3 = 12, _("Secondary 3")
+        COLLEGE_1 = 13, _("College 1")
+        COLLEGE_2 = 14, _("College 2")
+        COLLEGE_3 = 15, _("College 3")
+        COLLEGE_4 = 16, _("College 4")
+        COLLEGE_5 = 17, _("College 5")
+        COLLEGE_6 = 18, _("College 6")
     
     id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(

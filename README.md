@@ -184,7 +184,7 @@ Celery Beat (Monday 08:00)
             │    └─ payment balance + overdue days
             ├─ compute_risk(context)  ← pure function, no DB
             │    ├─ attendance < 70%  → +40 pts
-            │    ├─ overdue > 14 days → +35 pts
+            │    ├─ overdue > 4 days → +35 pts
             │    └─ avg score < 50%   → +25 pts
             └─ if risk >= medium:
                  ├─ create Alert row

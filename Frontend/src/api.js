@@ -1,5 +1,7 @@
 import axios from "axios";
 import {toast} from "./lib/toastBus";
+import i18n from "./i18n";
+
 
 const api = axios.create({
     baseURL: "http://127.0.0.1:8000/",
@@ -59,5 +61,10 @@ api.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
+api.interceptors.request.use((config) => {
+    config.headers["Accept-Language"] = i18n.language;
+    return config;
+});
 
 export default api;
