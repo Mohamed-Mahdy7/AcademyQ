@@ -12,7 +12,7 @@ export function ToastProvider({ children }) {
     const push = useCallback((toastData) => {
         const id = ++idCounter;
         setToasts((prev) => [...prev, {id, ...toastData}]);
-        setTimeout(() => remove(id), 4000);
+        setTimeout(() => remove(id), 8000);
     }, [remove])
 
     useEffect(() => subscribeToast(push), [push]);

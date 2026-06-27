@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.db import transaction
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth import get_user_model
+from django.utils.translation import gettext_lazy as _
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer 
 from rest_framework import serializers
 from .models import Academy, Students
@@ -23,11 +24,25 @@ class AcademyRegistrationSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True, style={'input_type': 'password'})
     confirm_password = serializers.CharField(write_only=True, style={'input_type': 'password'})
 
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError(
+                _("This email is already registered.")
+            )
+        return value
+
+    def validate_academy_email(self, value):
+        if Academy.objects.filter(email=value).exists():
+            raise serializers.ValidationError(
+                _("Academy email already exists.")
+            )
+        return value
+
     def validate(self, attrs):
-        if (attrs["password"] != attrs["confirm_password"]):
+        if attrs["password"] != attrs["confirm_password"]:
             raise serializers.ValidationError({
-                "confirm_password": "Passwords do not match"
-                })
+                "confirm_password": _("Passwords do not match.")
+            })
         return attrs
 
     @transaction.atomic

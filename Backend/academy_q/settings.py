@@ -206,9 +206,6 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 EMAIL_PORT = os.getenv("EMAIL_PORT")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-INFOBIP_API_KEY = os.getenv("INFOBIP_API_KEY")
-INFOBIP_BASE_URL = os.getenv("INFOBIP_BASE_URL")
-INFOBIP_SENDER = os.getenv("INFOBIP_SENDER")
 
 # celery
 CELERY_RESULT_BACKEND = os.getenv("REDIS_URL")
@@ -274,7 +271,7 @@ SPECTACULAR_SETTINGS = {
     "COMPONENT_SPLIT_REQUEST": True,
     "TAGS": [
         {"name": "Auth"}, {"name": "Academy"}, {"name": "Staff"}, {"name": "Students"},
-        {"name": "Structure"}, {"name": "Finance"}, {"name": "Attendance"}, {"name": "Grades"},
+        {"name": "Structure"}, {"name": "Attendance"}, {"name": "Grades"},
         {"name": "AI Reports"}, {"name": "AI Agent"}, {"name": "AI Notifications"}, {"name": "AI Infra"},
     ],
 }
