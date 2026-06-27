@@ -1,0 +1,15 @@
+{
+    "save_changes": "حفظ التغييرات",
+    "cancel": "إلغاء",
+    "loading": "...جاري التحميل",
+    "toast": {
+        "session_expired": "انتهت الجلسة",
+        "please_login_again": "يرجى تسجيل الدخول مرة أخرى",
+        "connection_problem": "مشكلة في الاتصال",
+        "connection_desc": ".تعذر الوصول إلى الخادم. تحقق من اتصالك",
+        "permission_denied": "غير مسموح بالوصول",
+        "not_found": "غير موجود",
+        "slow_down": "ببطء أكثر",
+        "something_wrong": "حدث خطأ ما"
+    }
+}

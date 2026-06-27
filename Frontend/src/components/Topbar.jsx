@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { useAlerts } from "../context/AlertContext";
 import RiskBadge from "./ai/RiskBadge";
+import LanguageSwitcher from "./languageSwitcher";
 
 const reasonLabels = {
     low_attendance: "Low Attendance",
@@ -64,7 +65,7 @@ function Topbar() {
             <div>
                 <h1 className="topbar-title">{title}</h1>
             </div>
-
+            <LanguageSwitcher />
             <div className="topbar-actions">
 
                 {/* Bell + Dropdown */}

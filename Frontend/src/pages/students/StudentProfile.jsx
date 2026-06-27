@@ -19,7 +19,6 @@ const StudentProfile = () => {
     const [loadError, setLoadError] = useState(null)
     const { id } = useParams();
     const navigate = useNavigate();
-    console.log("STUDENT: ", student)
     useEffect(() => {
         setLoadError(null);
         getStudent(id).then((result) => {
