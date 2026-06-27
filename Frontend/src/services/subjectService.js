@@ -9,13 +9,13 @@ export const getSubject = (id) => {
 };
 
 export const createSubject = (data) => {
-    return api.post("/api/subjects/", data);  
+    return api.post("/api/subjects/", data, { skipErrorToast: true });
 };
 
 export const updateSubject = (id, data) => {
-    return api.put(`/api/subjects/${id}/`, data);
+    return api.put(`/api/subjects/${id}/`, data, { skipErrorToast: true });
 };
 
 export const deleteSubject = (id) => {
-    return api.delete(`/api/subjects/${id}/`);
-}; 
+    return api.delete(`/api/subjects/${id}/`, { skipErrorToast: true });
+};

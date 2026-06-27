@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { getSubjects, deleteSubject } from "../../services/subjectService";
 import { toast } from "../../lib/toastBus";
@@ -8,77 +8,84 @@ function SubjectsPage() {
     const [loading, setLoading] = useState(true);
     const [deleting, setDeleting] = useState(false);
     const [deleteTargetId, setDeleteTargetId] = useState(null);
+    const [deleteError, setDeleteError] = useState("");
     const navigate = useNavigate();
 
-    useEffect(() => {
-        loadSubjects();
-    }, []);
+    const { totalSubjects, totalClasses } = useMemo(() => ({
+        totalSubjects: subjects.length,
+        totalClasses: subjects.reduce((sum, s) => sum + (s.classes_count || 0), 0),
+    }), [subjects]);
 
-    const loadSubjects = async () => {
+    const targetSubject = useMemo(
+        () => subjects.find((s) => s.id === deleteTargetId),
+        [subjects, deleteTargetId]
+    );
+
+    const targetHasClasses = useMemo(
+        () => (targetSubject?.classes_count || 0) > 0,
+        [targetSubject]
+    );
+
+    const loadSubjects = useCallback(async () => {
         try {
             const response = await getSubjects();
             setSubjects(response.data);
-        } catch (error) {
-            console.error("Error:", error);
+        } catch {
             toast.danger("Failed to load subjects", "Please refresh the page.");
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
-    const handleDeleteConfirm = async () => {
+    const closeModal = useCallback(() => {
+        setDeleteTargetId(null);
+        setDeleteError("");
+    }, []);
+
+    const handleDeleteConfirm = useCallback(async () => {
+        if (targetHasClasses) {
+            setDeleteError(
+                `This subject has ${targetSubject.classes_count} class${
+                    targetSubject.classes_count !== 1 ? "es" : ""
+                } assigned. Delete or reassign ${
+                    targetSubject.classes_count !== 1 ? "them" : "it"
+                } before deleting this subject.`
+            );
+            return;
+        }
+
         setDeleting(true);
         try {
             await deleteSubject(deleteTargetId);
             setSubjects((prev) => prev.filter((s) => s.id !== deleteTargetId));
-            setDeleteTargetId(null);
-            toast.success("Subject deleted", "Subject has been removed successfully.");
-        } catch (error) {
-            const data = error.response?.data;
-            if (error.response?.status === 409 || data?.code === "server_error") {
-                toast.danger(
-                    "Cannot delete subject",
-                    "This subject has classes assigned to it. Remove all classes first."
-                );
-            } else if (data?.detail) {
-                toast.danger("Delete failed", data.detail);
-            } else {
-                toast.danger(
-                    "Delete failed",
-                    "An unexpected error occurred. Please try again."
-                );
-            }
-            setDeleteTargetId(null);
+            toast.success("Subject deleted", "The subject has been removed successfully.");
+            closeModal();
+        } catch {
+            toast.danger("Delete failed", "Something went wrong while deleting the subject.");
         } finally {
             setDeleting(false);
         }
-    };
+    }, [deleteTargetId, targetSubject, targetHasClasses, closeModal]);
 
+    useEffect(() => {
+        loadSubjects();
+    }, [loadSubjects]);
+
+    // ── Render ───────────────────────────────────────────────────────
     if (loading) return <p className="p-6 text-sm text-blue">Loading...</p>;
-
-    const totalSubjects = subjects.length;
-    const totalClasses = subjects.reduce((sum, s) => sum + (s.classes_count || 0), 0);
-    const targetSubject = subjects.find((s) => s.id === deleteTargetId);
-    const targetHasClasses = (targetSubject?.classes_count || 0) > 0;
 
     return (
         <div className="page-body">
-
-            {/* Page Header */}
             <div className="flex items-center justify-between mb-6">
                 <div>
                     <h1 className="heading-1">Subjects</h1>
                     <p className="subheading">Manage subject curriculum and class offerings</p>
                 </div>
-                <button
-                    className="btn-primary"
-                    onClick={() => navigate("/subjects/add")}
-                >
+                <button className="btn-primary" onClick={() => navigate("/subjects/add")}>
                     + Add Subject
                 </button>
             </div>
 
-            {/* Stat Cards */}
             <div className="stat-grid mb-6">
                 <div className="kpi-card">
                     <p className="kpi-label">Total Subjects</p>
@@ -90,7 +97,6 @@ function SubjectsPage() {
                 </div>
             </div>
 
-            {/* Table Card */}
             <div className="table-wrap">
                 <div className="card-header">
                     <h2 className="card-header-title">All Subjects</h2>
@@ -109,16 +115,11 @@ function SubjectsPage() {
                     <tbody>
                         {subjects.length === 0 ? (
                             <tr>
-                                <td colSpan={6}>
+                                <td colSpan={5}>
                                     <div className="empty-state">
                                         <p className="empty-state-title">No subjects yet</p>
-                                        <p className="empty-state-desc">
-                                            Add your first subject to get started.
-                                        </p>
-                                        <button
-                                            className="btn-primary"
-                                            onClick={() => navigate("/subjects/add")}
-                                        >
+                                        <p className="empty-state-desc">Add your first subject to get started.</p>
+                                        <button className="btn-primary" onClick={() => navigate("/subjects/add")}>
                                             + Add Subject
                                         </button>
                                     </div>
@@ -127,16 +128,10 @@ function SubjectsPage() {
                         ) : (
                             subjects.map((subject) => (
                                 <tr key={subject.id} className="table-row">
-                                    <td className="table-cell font-medium">
-                                        {subject.name}
-                                    </td>
-                                    <td className="table-cell-muted">
-                                        {subject.description || "—"}
-                                    </td>
+                                    <td className="table-cell font-medium">{subject.name}</td>
+                                    <td className="table-cell-muted">{subject.description || "—"}</td>
                                     <td className="table-cell">
-                                        <span className="badge-count">
-                                            {subject.classes_count} classes
-                                        </span>
+                                        <span className="badge-count">{subject.classes_count} classes</span>
                                     </td>
                                     <td className="table-cell">
                                         <span className="badge-success">Active</span>
@@ -150,7 +145,10 @@ function SubjectsPage() {
                                         </button>
                                         <button
                                             className="btn-danger-outline"
-                                            onClick={() => setDeleteTargetId(subject.id)}
+                                            onClick={() => {
+                                                setDeleteError("");
+                                                setDeleteTargetId(subject.id);
+                                            }}
                                         >
                                             Delete
                                         </button>
@@ -162,7 +160,6 @@ function SubjectsPage() {
                 </table>
             </div>
 
-            {/* Delete Confirmation Modal */}
             {deleteTargetId && (
                 <div className="modal-backdrop">
                     <div className="modal-sm">
@@ -172,32 +169,22 @@ function SubjectsPage() {
                         <div className="modal-body">
                             <p className="text-body">
                                 Are you sure you want to delete{" "}
-                                <strong>{targetSubject?.name}</strong>? This action
-                                cannot be undone.
+                                <strong>{targetSubject?.name}</strong>? This action cannot be undone.
                             </p>
-                            {targetHasClasses && (
+                            {deleteError && (
                                 <div className="alert-warning mt-3">
-                                    <p className="alert-desc">
-                                        This subject has{" "}
-                                        <strong>{targetSubject.classes_count}</strong>{" "}
-                                        class{targetSubject.classes_count !== 1 ? "es" : ""}{" "}
-                                        assigned. You must delete or reassign them before
-                                        deleting this subject.
-                                    </p>
+                                    <p className="alert-desc">{deleteError}</p>
                                 </div>
                             )}
                         </div>
                         <div className="modal-footer">
-                            <button
-                                className="btn-muted"
-                                onClick={() => setDeleteTargetId(null)}
-                            >
+                            <button className="btn-muted" onClick={closeModal}>
                                 Cancel
                             </button>
                             <button
                                 className="btn-danger"
                                 onClick={handleDeleteConfirm}
-                                disabled={deleting || targetHasClasses}
+                                disabled={deleting}
                             >
                                 {deleting ? "Deleting..." : "Delete"}
                             </button>

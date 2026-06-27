@@ -10,20 +10,22 @@ function SubjectForm({ onSubmit, initialData = {} }) {
     const [submitting, setSubmitting] = useState(false);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-        setErrors({ ...errors, [e.target.name]: null });
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+        setErrors((prev) => ({ ...prev, [name]: null }));
     };
 
     const validate = () => {
-        const newErrors = {};
-        if (!formData.name.trim()) {
-            newErrors.name = "Subject name is required.";
-        } else if (formData.name.trim().length < 2) {
-            newErrors.name = "Subject name must be at least 2 characters.";
-        } else if (formData.name.trim().length > 64) {
-            newErrors.name = "Subject name cannot exceed 64 characters.";
+        const errs = {};
+        const name = formData.name.trim();
+        if (!name) {
+            errs.name = "Subject name is required.";
+        } else if (name.length < 2) {
+            errs.name = "Subject name must be at least 2 characters.";
+        } else if (name.length > 64) {
+            errs.name = "Subject name cannot exceed 64 characters.";
         }
-        return newErrors;
+        return errs;
     };
 
     const handleSubmit = async (e) => {
@@ -32,10 +34,6 @@ function SubjectForm({ onSubmit, initialData = {} }) {
         const validationErrors = validate();
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
-            toast.warning(
-                "Please fix the highlighted fields.",
-                "Some required fields are missing or invalid."
-            );
             return;
         }
 
@@ -50,25 +48,19 @@ function SubjectForm({ onSubmit, initialData = {} }) {
         } catch (error) {
             const data = error.response?.data;
 
-            if (data?.code === "validation_error" && data?.fields) {
-                const fieldErrors = {};
-                Object.entries(data.fields).forEach(([key, messages]) => {
-                    fieldErrors[key] = Array.isArray(messages)
-                        ? messages[0]
-                        : messages;
-                });
+            const fieldKeys = ["name", "description"];
+            const fieldErrors = {};
+            fieldKeys.forEach((key) => {
+                if (data?.[key]) {
+                    fieldErrors[key] = Array.isArray(data[key])
+                        ? data[key][0]
+                        : data[key];
+                }
+            });
+
+            if (Object.keys(fieldErrors).length > 0) {
                 setErrors(fieldErrors);
-                toast.warning(
-                    "Please fix the highlighted fields.",
-                    "Some fields were rejected by the server."
-                );
-            } else if (data?.detail) {
-                toast.danger("Something went wrong", data.detail);
             } else {
-                toast.danger(
-                    "Something went wrong",
-                    "An unexpected error occurred. Please try again."
-                );
             }
         } finally {
             setSubmitting(false);
@@ -101,9 +93,7 @@ function SubjectForm({ onSubmit, initialData = {} }) {
                     onChange={handleChange}
                     rows={3}
                     placeholder="Brief description of the subject..."
-                    className={
-                        errors.description ? "form-input-error" : "form-textarea"
-                    }
+                    className={errors.description ? "form-input-error" : "form-textarea"}
                 />
                 {errors.description && (
                     <span className="form-error">{errors.description}</span>
