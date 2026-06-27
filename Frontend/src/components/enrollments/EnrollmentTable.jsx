@@ -28,7 +28,7 @@ export default function EnrollmentTable({ enrollments, classPrice, onEdit, onDro
             <th>Class price</th>
             <th>Due date</th>
             <th>Start date</th>
-            <th className="text-right">Actions</th>
+            <th className="text-end">Actions</th>
           </tr>
         </thead>
         <tbody>

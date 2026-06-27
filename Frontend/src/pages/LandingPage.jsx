@@ -13,9 +13,9 @@ import OwnerRegisterForm from "./auth/OwnerRegisterForm";
 /* -------------------------------------------------------------------------- */
 const stats = [
   { value: "2,400+", label: "Students Enrolled" },
-  { value: "180+",   label: "Active Academies"  },
-  { value: "94%",    label: "Retention Rate"    },
-  { value: "38k+",   label: "Sessions Tracked"  },
+  { value: "180+", label: "Active Academies" },
+  { value: "94%", label: "Retention Rate" },
+  { value: "38k+", label: "Sessions Tracked" },
 ];
 
 const features = [
@@ -59,32 +59,32 @@ const features = [
 ];
 
 const ownerSteps = [
-  { step: "01", title: "Register your academy",            desc: "Set up your academy profile in under two minutes." },
+  { step: "01", title: "Register your academy", desc: "Set up your academy profile in under two minutes." },
   { step: "02", title: "Create classes & enroll students", desc: "Add subjects, assign teachers, and onboard students with their parent contact." },
-  { step: "03", title: "Track every session",              desc: "Mark attendance, record grades, and collect payments — all from one dashboard." },
-  { step: "04", title: "Let AI guard retention",           desc: "The weekly AI scan surfaces at-risk students and drafts parent messages for you." },
+  { step: "03", title: "Track every session", desc: "Mark attendance, record grades, and collect payments — all from one dashboard." },
+  { step: "04", title: "Let AI guard retention", desc: "The weekly AI scan surfaces at-risk students and drafts parent messages for you." },
 ];
 
 const studentSteps = [
-  { step: "01", title: "Find your academy",           desc: "Select the academy you're enrolled in from the list." },
+  { step: "01", title: "Find your academy", desc: "Select the academy you're enrolled in from the list." },
   { step: "02", title: "Create your student account", desc: "Provide your name and parent contact details to get started." },
-  { step: "03", title: "Track your progress",         desc: "View your attendance, grades, and upcoming session schedule." },
-  { step: "04", title: "Stay connected",              desc: "Receive updates directly through the parent contact channel." },
+  { step: "03", title: "Track your progress", desc: "View your attendance, grades, and upcoming session schedule." },
+  { step: "04", title: "Stay connected", desc: "Receive updates directly through the parent contact channel." },
 ];
 
 const mockAlerts = [
-  { name: "Ahmed Mohamed", risk: "high",   score: 75, type: "Combined Risk",  initials: "AM" },
-  { name: "Sara Khaled",   risk: "high",   score: 65, type: "Low Attendance", initials: "SK" },
-  { name: "Omar Hassan",   risk: "medium", score: 48, type: "Grade Decline",  initials: "OH" },
+  { name: "Ahmed Mohamed", risk: "high", score: 75, type: "Combined Risk", initials: "AM" },
+  { name: "Sara Khaled", risk: "high", score: 65, type: "Low Attendance", initials: "SK" },
+  { name: "Omar Hassan", risk: "medium", score: 48, type: "Grade Decline", initials: "OH" },
 ];
 
 /* -------------------------------------------------------------------------- */
 /*                                  Component                                 */
 /* -------------------------------------------------------------------------- */
 export default function LandingPage() {
-  const [mobileOpen,  setMobileOpen]  = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [navScrolled, setNavScrolled] = useState(false);
-  const [activeReg,   setActiveReg]   = useState("owner");
+  const [activeReg, setActiveReg] = useState("owner");
   const [openModal, setOpenModal] = useState(null);
   const navigate = useNavigate();
   const regRef = useRef(null);
@@ -107,7 +107,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen overflow-x-hidden" style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}>
 
-{/* -------------------------------------------------------------------------- */
+      {/* -------------------------------------------------------------------------- */
 /*                                   NavBar                                   */
 /* -------------------------------------------------------------------------- */}
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${navScrolled ? "bg-navy/95 backdrop-blur-md shadow-lg" : "bg-transparent"}`}>
@@ -124,10 +124,10 @@ export default function LandingPage() {
 
           <nav className="hidden md:flex items-center gap-8">
             {[
-              { label: "Features",      action: () => scrollTo("features")     },
-              { label: "How it Works",  action: () => scrollTo("how-it-works") },
-              { label: "For Academies", action: () => scrollToReg("owner")     },
-              { label: "For Students",  action: () => scrollToReg("student")   },
+              { label: "Features", action: () => scrollTo("features") },
+              { label: "How it Works", action: () => scrollTo("how-it-works") },
+              { label: "For Academies", action: () => scrollToReg("owner") },
+              { label: "For Students", action: () => scrollToReg("student") },
             ].map(({ label, action }) => (
               <button key={label} onClick={action} className="text-sm text-white/70 hover:text-white transition-colors">
                 {label}
@@ -151,8 +151,8 @@ export default function LandingPage() {
 
         {mobileOpen && (
           <div className="md:hidden bg-navy/97 backdrop-blur-md border-t border-white/10 px-6 py-5 space-y-4">
-            <button onClick={() => scrollToReg("owner")}   className="block w-full text-left text-sm text-white/80 hover:text-white py-2">For Academies</button>
-            <button onClick={() => scrollToReg("student")} className="block w-full text-left text-sm text-white/80 hover:text-white py-2">For Students</button>
+            <button onClick={() => scrollToReg("owner")} className="block w-full text-start text-sm text-white/80 hover:text-white py-2">For Academies</button>
+            <button onClick={() => scrollToReg("student")} className="block w-full text-start text-sm text-white/80 hover:text-white py-2">For Students</button>
             <hr className="border-white/10" />
             <Link to="/login" className="block text-sm text-white/80 hover:text-white py-2">Sign in</Link>
             <button onClick={() => scrollToReg("owner")} className="block w-full text-sm font-semibold bg-sky text-navy px-4 py-2.5 rounded-lg text-center">
@@ -161,7 +161,7 @@ export default function LandingPage() {
           </div>
         )}
       </header>
-{/* -------------------------------------------------------------------------- */
+      {/* -------------------------------------------------------------------------- */
 /*                                    HERO                                    */
 /* -------------------------------------------------------------------------- */}
       <section className="relative bg-navy min-h-screen flex flex-col justify-center overflow-hidden pt-16">
@@ -230,7 +230,7 @@ export default function LandingPage() {
           <ChevronDown className="w-4 h-4 animate-bounce" />
         </div>
       </section>
-{/* -------------------------------------------------------------------------- */
+      {/* -------------------------------------------------------------------------- */
 /*                                    STATS                                   */
 /* -------------------------------------------------------------------------- */}
       <section className="bg-navy-mid border-y border-white/10">
@@ -245,7 +245,7 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-{/* -------------------------------------------------------------------------- */
+      {/* -------------------------------------------------------------------------- */
 /*                                  FEATURES                                  */
 /* -------------------------------------------------------------------------- */}
       <section id="features" className="bg-surface py-24 px-6">
@@ -279,7 +279,7 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-{/* -------------------------------------------------------------------------- */
+      {/* -------------------------------------------------------------------------- */
 /*                                HOW IT WORKS                                */
 /* -------------------------------------------------------------------------- */}
       <section id="how-it-works" className="bg-navy py-24 px-6">
@@ -349,7 +349,7 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-{/* -------------------------------------------------------------------------- */
+      {/* -------------------------------------------------------------------------- */
 /*                                AI HIGHLIGHT                                */
 /* -------------------------------------------------------------------------- */}
       <section className="bg-surface py-24 px-6">
@@ -409,7 +409,7 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-{/* -------------------------------------------------------------------------- */
+      {/* -------------------------------------------------------------------------- */
 /*                                REGISTRATION                                */
 /* -------------------------------------------------------------------------- */}
       <section ref={regRef} id="register" className="bg-navy py-24 px-6 scroll-mt-16">
@@ -439,7 +439,7 @@ export default function LandingPage() {
             <div className="modal modal-xl" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header h-15 pt-5 pb-0">
                 <h2 className="modal-title">
-                  {openModal === "owner" 
+                  {openModal === "owner"
                     ?
                     <div className="flex items-center gap-3 mb-7">
                       <div className="w-10 h-10 bg-blue/15 border border-blue/90 rounded-xl flex items-center justify-center">
@@ -450,7 +450,7 @@ export default function LandingPage() {
                         <p className="text-xs text-black/40">Free — no credit card required</p>
                       </div>
                     </div>
-                    : 
+                    :
                     <div className="flex items-center gap-3 mb-7">
                       <div className="w-10 h-10 bg-blue/15 border border-blue/90 rounded-xl flex items-center justify-center">
                         <UserCheck className="w-5 h-5 text-blue-600" />
@@ -460,7 +460,7 @@ export default function LandingPage() {
                         <p className="text-xs text-black/40">Your academy must already be registered on AcademiQ</p>
                       </div>
                     </div>
-                    }
+                  }
                 </h2>
                 <button className="modal-close" onClick={() => setOpenModal(null)} aria-label="Close">
                   <X className="w-5 h-5 text-blue" />
@@ -475,7 +475,7 @@ export default function LandingPage() {
           </div>
         )}
       </section>
-{/* -------------------------------------------------------------------------- */
+      {/* -------------------------------------------------------------------------- */
 /*                                   FOOTER                                   */
 /* -------------------------------------------------------------------------- */}
       <footer className="bg-navy border-t border-white/10 py-12 px-6">
@@ -494,15 +494,15 @@ export default function LandingPage() {
             <div className="flex flex-wrap gap-8 text-sm text-white/40">
               <div className="space-y-2">
                 <p className="font-semibold text-white/60 text-xs uppercase tracking-wide">Platform</p>
-                <button onClick={() => scrollToReg("owner")}   className="block hover:text-white transition-colors">For Academies</button>
+                <button onClick={() => scrollToReg("owner")} className="block hover:text-white transition-colors">For Academies</button>
                 <button onClick={() => scrollToReg("student")} className="block hover:text-white transition-colors">For Students</button>
                 <Link to="/login" className="block hover:text-white transition-colors">Sign in</Link>
               </div>
               <div className="space-y-2">
                 <p className="font-semibold text-white/60 text-xs uppercase tracking-wide">Product</p>
-                <button onClick={() => scrollTo("features")}     className="block hover:text-white transition-colors">Features</button>
+                <button onClick={() => scrollTo("features")} className="block hover:text-white transition-colors">Features</button>
                 <button onClick={() => scrollTo("how-it-works")} className="block hover:text-white transition-colors">How it works</button>
-                <button onClick={() => scrollTo("register")}     className="block hover:text-white transition-colors">Get started</button>
+                <button onClick={() => scrollTo("register")} className="block hover:text-white transition-colors">Get started</button>
               </div>
             </div>
           </div>

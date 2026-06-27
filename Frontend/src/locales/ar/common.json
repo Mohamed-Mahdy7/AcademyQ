@@ -11,5 +11,20 @@
         "not_found": "غير موجود",
         "slow_down": "ببطء أكثر",
         "something_wrong": "حدث خطأ ما"
-    }
+    },
+    "add": "إضافة",
+    "actions": "الإجراءات",
+    "active": "نشط",
+    "attendance": "الحضور",
+    "email": "البريد الإلكتروني",
+    "grades": "الدرجات",
+    "no_changes_made": "لم يتم إجراء أي تغييرات",
+    "payments": "المدفوعات",
+    "phone": "الهاتف",
+    "reports": "التقارير",
+    "saving": "جارٍ الحفظ...",
+    "select_option": "اختر خيارًا",
+    "status": "الحالة",
+    "update": "تحديث",
+    "view_profile": "عرض الملف الشخصي"
 }

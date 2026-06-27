@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-26 11:23+0000\n"
+"POT-Creation-Date: 2026-06-27 05:43+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,13 +18,62 @@ msgstr ""
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
-#: academy_q/settings.py:25
+#: academy_q/settings.py:24
 msgid "Arabic"
 msgstr "العربية"
 
-#: academy_q/settings.py:26
+#: academy_q/settings.py:25
 msgid "English"
 msgstr "الإنجليزية"
+
+#: ai/agent/models.py:13 ai/reports/models.py:11
+msgid "Low"
+msgstr ""
+
+#: ai/agent/models.py:14 ai/reports/models.py:10
+msgid "Medium"
+msgstr ""
+
+#: ai/agent/models.py:15 ai/reports/models.py:9
+msgid "High"
+msgstr ""
+
+#: ai/agent/models.py:49 ai/notifications/models.py:9 core/models.py:97
+#: financial_operations/models.py:47
+msgid "Pending"
+msgstr "قيد الانتظار"
+
+#: ai/agent/models.py:50
+msgid "Running"
+msgstr ""
+
+#: ai/agent/models.py:51
+msgid "Complete"
+msgstr ""
+
+#: ai/agent/models.py:52 ai/notifications/models.py:11
+msgid "Failed"
+msgstr ""
+
+#: ai/notifications/models.py:7
+msgid "Email"
+msgstr ""
+
+#: ai/notifications/models.py:10
+msgid "Sent"
+msgstr ""
+
+#: ai/notifications/models.py:14
+msgid "Payment Reminder"
+msgstr ""
+
+#: ai/notifications/models.py:15
+msgid "Retention Alert"
+msgstr ""
+
+#: ai/notifications/models.py:16
+msgid "Attendance Alert"
+msgstr ""
 
 #: core/exceptions.py:19
 msgid "An upstream service failed. Please try again."
@@ -41,7 +90,6 @@ msgstr "يرجى تصحيح الحقول المحددة."
 #: core/exceptions.py:57
 msgid "Invalid request."
 msgstr "طلب غير صالح."
-
 
 #: core/exceptions.py:62
 msgid "Not found."
@@ -84,15 +132,11 @@ msgstr "معلم"
 msgid "Student"
 msgstr "طالب"
 
-#: core/models.py:96
+#: core/models.py:96 financial_operations/models.py:20
 msgid "Active"
 msgstr "نشط"
 
-#: core/models.py:97
-msgid "Pending"
-msgstr "قيد الانتظار"
-
-#: core/models.py:98
+#: core/models.py:98 financial_operations/models.py:22
 msgid "Dropped"
 msgstr "منقطع"
 
@@ -167,3 +211,47 @@ msgstr "الفرقة الخامسة الجامعية"
 #: core/models.py:118
 msgid "College 6"
 msgstr "الفرقة السادسة الجامعية"
+
+#: financial_operations/models.py:21
+msgid "Paused"
+msgstr ""
+
+#: financial_operations/models.py:23 financial_operations/models.py:48
+msgid "Completed"
+msgstr ""
+
+#: financial_operations/models.py:49
+msgid "Cancelled"
+msgstr ""
+
+#: financial_operations/models.py:50
+msgid "Deleted"
+msgstr ""
+
+#: structure/models.py:116
+msgid "Monday"
+msgstr ""
+
+#: structure/models.py:117
+msgid "Tuesday"
+msgstr ""
+
+#: structure/models.py:118
+msgid "Wednesday"
+msgstr ""
+
+#: structure/models.py:119
+msgid "Thursday"
+msgstr ""
+
+#: structure/models.py:120
+msgid "Friday"
+msgstr ""
+
+#: structure/models.py:121
+msgid "Saturday"
+msgstr ""
+
+#: structure/models.py:122
+msgid "Sunday"
+msgstr ""

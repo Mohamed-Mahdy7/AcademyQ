@@ -1,12 +1,14 @@
 import uuid
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+
 
 
 class AIReportCard(models.Model):
     RISK_CHOICES = [
-        ('high', 'High'),
-        ('medium', 'Medium'),
-        ('low', 'Low'),
+        ('high', _('High')),
+        ('medium', _('Medium')),
+        ('low', _('Low')),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

@@ -1,0 +1,62 @@
+{
+    "students_title": "Students",
+    "manage_students_description": "Manage student profiles, enrollments, and progress",
+
+    "add_student": "Add Student",
+
+    "total_students": "TOTAL STUDENTS",
+    "with_overdue_payments": "With Overdue Payments",
+
+    "all_students": "All Students",
+
+    "student_name": "STUDENT NAME",
+    "parent_phone": "PARENT PHONE",
+    "grade_level": "GRADE LEVEL",
+    "enrollments": "ENROLLMENTS",
+    "enrolled_since": "ENROLLED SINCE",
+
+    "enrolled_since_date": "Enrolled since",
+    "not_enrolled_yet": "Not enrolled yet",
+    "not_yet_enrolled": "Not yet enrolled",
+
+    "student_profile": "Student Profile",
+    "update_profile": "Update Profile",
+
+
+    "full_name": "Full Name",
+    "parent_email": "Parent email",
+    "educational_level": "Educational Level",
+
+    "full_name_placeholder": "Full Name",
+    "email_placeholder": "Email",
+    "phone_placeholder": "Phone",
+    "parent_email_placeholder": "Parent email",
+
+    "select_educational_level": "Select an educational level",
+
+    "could_not_load_educational_levels": "Couldn't load educational levels",
+    "refresh_page_message": "Try refreshing the page.",
+
+    "edit_before_saving": "Edit a field before saving.",
+
+    "student_profile_updated": "Student profile updated",
+    "student_profile_saved": "'s profile was saved.",
+
+    "could_not_load_student": "Couldn't load student",
+    "could_not_load_student_message": "Couldn't load this student.",
+
+    "grade_label": "Grade",
+
+    "enrollments_tab": "Enrollments",
+    "grades_tab": "Grades",
+    "payments_tab": "Payments",
+    "attendance_tab": "Attendance",
+    "reports_tab": "Reports",
+
+    "attendance_kpi": "ATTENDANCE",
+    "total_paid": "TOTAL PAID",
+    "outstanding": "OUTSTANDING",
+
+    "egp_amount": "{{amount}} EGP",
+    "percentage_value": "{{value}} %"
+}

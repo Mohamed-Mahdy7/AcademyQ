@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from django.db import models
 import uuid
 from structure.models import Class
@@ -16,10 +17,10 @@ class Teachers(models.Model):
 
 class Enrollment(models.Model):
     STATUS_CHOICES = [
-        ('active', 'Active'),
-        ('paused', 'Paused'),
-        ('dropped', 'Dropped'),
-        ('completed', 'Completed'),
+        ('active', _('Active')),
+        ('paused', _('Paused')),
+        ('dropped', _('Dropped')),
+        ('completed', _('Completed')),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -43,10 +44,10 @@ class Enrollment(models.Model):
 
 class Payment(models.Model):
     STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('completed', 'Completed'),
-        ('cancelled', 'Cancelled'),
-        ('deleted', 'Deleted'),
+        ('pending', _('Pending')),
+        ('completed', _('Completed')),
+        ('cancelled', _('Cancelled')),
+        ('deleted', _('Deleted')),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
