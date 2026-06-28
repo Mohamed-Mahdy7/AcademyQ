@@ -82,7 +82,7 @@ const StudentManagement = () => {
                     <thead className="table-thead">
                         <tr>
                             <th>{t("student_name")}</th>
-                            <th>{t("parent_phone")}</th>
+                            <th>{t("parent_email_header")}</th>
                             <th>{t("grade_level")}</th>
                             <th>{t("enrollments")}</th>
                             <th>{t("common:status")}</th>
@@ -123,7 +123,7 @@ const StudentManagement = () => {
                                 </td>
                                 <td className="table-cell">
                                     {student.enrolled_at
-                                        ? `Enrolled since ${new Date(student.enrolled_at).toLocaleDateString()}`
+                                        ? `${t("enrolled_since_date")} ${new Date(student.enrolled_at).toLocaleDateString()}`
                                         : t("not_enrolled_yet")
                                     }
                                 </td>

@@ -26,5 +26,6 @@
     "select_option": "اختر خيارًا",
     "status": "الحالة",
     "update": "تحديث",
-    "view_profile": "عرض الملف الشخصي"
+    "view_profile": "عرض الملف الشخصي",
+    "logout": "تسجيل خروج"
 }

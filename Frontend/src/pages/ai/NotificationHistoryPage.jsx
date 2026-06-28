@@ -144,8 +144,8 @@ function NotificationHistoryPage() {
                             {notifications.map((n) => (
                                 <tr key={n.id} className="table-row">
                                     <td className="table-cell">
-                                        <p className="font-medium text-navy">{n.recipient_name}</p>
-                                        <p className="text-xs text-blue">{n.recipient_email}</p>
+                                        <p className="font-medium text-navy">{n.student_name}</p>
+                                        <p className="text-xs text-blue">{n.parent_email || n.student_email}</p>
                                     </td>
                                     <td className="table-cell-muted">
                                         <span className="badge-info">

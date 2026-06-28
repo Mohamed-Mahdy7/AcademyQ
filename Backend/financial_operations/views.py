@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from core.mixins import AcademyScopedMixin
 from .models import Teachers, Enrollment, Payment
@@ -34,8 +34,20 @@ class TeachersViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
         
         return Teachers.objects.filter(
             academy_id=self.request.user.academy_id,
-            user_id__is_active=True,  
+            user_id__is_active=True,
         ).select_related('user_id')
+
+    def create(self, request, *args, **kwargs):
+        user_id = request.data.get('user_id')
+
+        existing = Teachers.objects.filter(user_id=user_id).first()
+        if existing:
+            existing.user_id.is_active = True
+            existing.user_id.save(update_fields=['is_active'])
+            serializer = self.get_serializer(existing)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return super().create(request, *args, **kwargs)
 
     def perform_destroy(self, instance):
         user = instance.user_id

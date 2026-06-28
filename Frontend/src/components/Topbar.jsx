@@ -2,6 +2,7 @@ import { useContext, useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { useAlerts } from "../context/AlertContext";
+import { useTranslation } from "react-i18next";
 import RiskBadge from "./ai/RiskBadge";
 import LanguageSwitcher from "./languageSwitcher";
 
@@ -12,27 +13,35 @@ const reasonLabels = {
     combined: "Combined Risk",
 };
 
-function Topbar() {
+function Topbar({onMenuClick}) {
     const { user } = useContext(AuthContext);
+    const { t } = useTranslation("layout")
     const location = useLocation();
     const navigate = useNavigate();
     const [open, setOpen] = useState(false);
     const dropdownRef = useRef(null);
 
-    const { alerts, loading, dismissAlert, fetchAlerts } = useAlerts();
+    const [dropdownDismissed, setDropdownDismissed] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem('dropdown_dismissed_alerts') || '[]');
+        } catch {
+            return [];
+        }
+    });
+
+    const { alerts, loading, fetchAlerts } = useAlerts();
 
     const pageTitles = {
-        "/dashboard": "Dashboard",
-        "/students": "Students",
-        "/teacher": "Teachers",
-        "/classes": "Classes",
-        "/subjects": "Subjects",
-        "/payments": "Payments",
-        "/users": "Staff Users",
-        "/settings": "Settings",
-        "/grade": "Grades",
-        "/alerts": "Alert Inbox",
-        "/notifications": "Notification History",
+        "/dashboard": t("page_dashboard"),
+        "/students": t("page_students"),
+        "/teacher": t("page_teachers"),
+        "/classes": t("page_classes"),
+        "/subjects": t("page_subjects"),
+        "/payments": t("page_payments"),
+        "/users": t("page_staff"),
+        "/settings": t("page_settings"),
+        "/alerts": t("page_alert"),
+        "/notifications": t("page_notification"),
     };
 
     const title = pageTitles[location.pathname] || "AcademiQ";
@@ -45,7 +54,7 @@ function Topbar() {
     });
 
     useEffect(() => {
-        fetchAlerts({ riskLevel: "all", reviewed: "false" });
+        fetchAlerts({ risk_level: "all", is_dismissed: "false" });
     }, []);
 
     useEffect(() => {
@@ -58,11 +67,27 @@ function Topbar() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const pendingAlerts = alerts.filter((a) => !a.is_reviewed).slice(0, 5);
+    const undismissedAlerts = alerts.filter((a) => !a.is_dismissed);
 
+    const dropdownAlerts = undismissedAlerts.filter(
+        (a) => !dropdownDismissed.includes(a.id)
+    );
+
+    function handleDropdownDismiss(id) {
+        setDropdownDismissed((prev) => {
+            const updated = [...prev, id];
+            localStorage.setItem('dropdown_dismissed_alerts', JSON.stringify(updated));
+            return updated;
+        });
+    }
     return (
         <header className="topbar">
-            <div>
+            <div className="flex items-center gap-3">
+                <button className="topbar-menu-btn" onClick={onMenuClick} aria-label="Open menu">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
                 <h1 className="topbar-title">{title}</h1>
             </div>
             <LanguageSwitcher />
@@ -87,15 +112,15 @@ function Topbar() {
                             <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                         </svg>
 
-                        {pendingAlerts.length > 0 && (
-                            <span className="absolute -top-1 -right-1 w-4 h-4 bg-danger rounded-full text-white text-[10px] font-bold flex items-center justify-center">
-                                {pendingAlerts.length > 9 ? "9+" : pendingAlerts.length}
+                        {dropdownAlerts.length > 0 && (
+                            <span className="absolute -top-1 -end-1 w-4 h-4 bg-danger rounded-full text-white text-[10px] font-bold flex items-center justify-center">
+                                {dropdownAlerts.length > 9 ? "9+" : dropdownAlerts.length}
                             </span>
                         )}
                     </button>
 
                     {open && (
-                        <div className="absolute right-0 top-12 z-50 w-80 bg-white border border-border shadow-dropdown rounded-xl overflow-hidden">
+                        <div className="absolute end-0 top-12 z-50 w-80 bg-white border border-border shadow-dropdown rounded-xl overflow-hidden">
 
                             {/* Header */}
                             <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card">
@@ -103,8 +128,8 @@ function Topbar() {
                                     <h2 className="heading-3">Retention Alerts</h2>
                                     <p className="text-caption">{today}</p>
                                 </div>
-                                {pendingAlerts.length > 0
-                                    ? <span className="badge-danger-dark">{pendingAlerts.length} open</span>
+                                {dropdownAlerts.length > 0
+                                    ? <span className="badge-danger-dark">{dropdownAlerts.length} open</span>
                                     : <span className="badge-success">All Clear</span>
                                 }
                             </div>
@@ -123,17 +148,16 @@ function Topbar() {
                                             </div>
                                         ))}
                                     </div>
-                                ) : pendingAlerts.length === 0 ? (
+                                ) : dropdownAlerts.length === 0 ? (
                                     <div className="p-6 text-center">
                                         <p className="text-sm text-blue">No pending alerts 🎉</p>
                                     </div>
                                 ) : (
-                                    pendingAlerts.map((alert) => (
+                                    dropdownAlerts.map((alert) => (
                                         <div
                                             key={alert.id}
                                             className="flex items-start gap-3 px-4 py-3 hover:bg-sky-pale transition-colors"
                                         >
-                                            {/* Avatar */}
                                             <div className="avatar avatar-sm flex-shrink-0">
                                                 {(alert.student_name || "")
                                                     .split(" ")
@@ -156,12 +180,11 @@ function Topbar() {
                                                 <p className="text-caption truncate">{alert.class_name}</p>
                                             </div>
 
-                                            {/* Dismiss X */}
                                             <button
                                                 className="text-blue hover:text-danger transition-colors flex-shrink-0 mt-0.5"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    dismissAlert(alert.id);
+                                                    handleDropdownDismiss(alert.id);
                                                 }}
                                             >
                                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -173,7 +196,6 @@ function Topbar() {
                                 )}
                             </div>
 
-                            {/* Footer — View all alerts */}
                             <button
                                 className="w-full flex items-center justify-between px-4 py-3 border-t border-border text-sm font-medium text-navy-mid hover:bg-sky-pale transition-colors"
                                 onClick={() => {

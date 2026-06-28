@@ -14,6 +14,11 @@ import gradesEn from "./locales/en/grades.json";
 import gradesAr from "./locales/ar/grades.json";
 import alertsEn from "./locales/en/alerts.json";
 import alertsAr from "./locales/ar/alerts.json";
+import studentsEn from "./locales/en/students.json"
+import studentsAr from "./locales/ar/students.json"
+import layoutEn from "./locales/en/layout.json"
+import layoutAr from "./locales/ar/layout.json"
+
 
 i18n
 .use(LanguageDetector)
@@ -26,7 +31,8 @@ i18n
             students: studentsEn,
             attendance: attendanceEn,
             grades: gradesEn,
-            alerts: alertsEn 
+            alerts: alertsEn,
+            layout: layoutEn,
         },
         ar: { 
             common: commonAr,
@@ -34,13 +40,14 @@ i18n
             students: studentsAr,
             attendance: attendanceAr,
             grades: gradesAr,
-            alerts: alertsAr 
+            alerts: alertsAr,
+            layout: layoutAr
         },
 
     },
     fallbackLng: "ar", // Arabic-first: if detection fails, default to Arabic, not English
     defaultNS: "common",
-    ns: ["common", "auth", "students", "attendance", "grades", "alerts"],
+    ns: ["common", "auth", "students", "attendance", "grades", "alerts", "layout"],
     interpolation: { escapeValue: false },
     detection: {
     order: ["localStorage", "navigator"],
