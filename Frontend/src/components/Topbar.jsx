@@ -21,7 +21,15 @@ function Topbar({onMenuClick}) {
     const [open, setOpen] = useState(false);
     const dropdownRef = useRef(null);
 
-    const { alerts, loading, dismissAlert, fetchAlerts } = useAlerts();
+    const [dropdownDismissed, setDropdownDismissed] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem('dropdown_dismissed_alerts') || '[]');
+        } catch {
+            return [];
+        }
+    });
+
+    const { alerts, loading, fetchAlerts } = useAlerts();
 
     const pageTitles = {
         "/dashboard": t("page_dashboard"),
@@ -46,7 +54,7 @@ function Topbar({onMenuClick}) {
     });
 
     useEffect(() => {
-        fetchAlerts({ riskLevel: "all", reviewed: "false" });
+        fetchAlerts({ risk_level: "all", is_dismissed: "false" });
     }, []);
 
     useEffect(() => {
@@ -59,8 +67,19 @@ function Topbar({onMenuClick}) {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const pendingAlerts = alerts.filter((a) => !a.is_reviewed).slice(0, 5);
+    const undismissedAlerts = alerts.filter((a) => !a.is_dismissed);
 
+    const dropdownAlerts = undismissedAlerts.filter(
+        (a) => !dropdownDismissed.includes(a.id)
+    );
+
+    function handleDropdownDismiss(id) {
+        setDropdownDismissed((prev) => {
+            const updated = [...prev, id];
+            localStorage.setItem('dropdown_dismissed_alerts', JSON.stringify(updated));
+            return updated;
+        });
+    }
     return (
         <header className="topbar">
             <div className="flex items-center gap-3">
@@ -109,8 +128,8 @@ function Topbar({onMenuClick}) {
                                     <h2 className="heading-3">Retention Alerts</h2>
                                     <p className="text-caption">{today}</p>
                                 </div>
-                                {pendingAlerts.length > 0
-                                    ? <span className="badge-danger-dark">{pendingAlerts.length} open</span>
+                                {dropdownAlerts.length > 0
+                                    ? <span className="badge-danger-dark">{dropdownAlerts.length} open</span>
                                     : <span className="badge-success">All Clear</span>
                                 }
                             </div>
@@ -129,17 +148,16 @@ function Topbar({onMenuClick}) {
                                             </div>
                                         ))}
                                     </div>
-                                ) : pendingAlerts.length === 0 ? (
+                                ) : dropdownAlerts.length === 0 ? (
                                     <div className="p-6 text-center">
                                         <p className="text-sm text-blue">No pending alerts 🎉</p>
                                     </div>
                                 ) : (
-                                    pendingAlerts.map((alert) => (
+                                    dropdownAlerts.map((alert) => (
                                         <div
                                             key={alert.id}
                                             className="flex items-start gap-3 px-4 py-3 hover:bg-sky-pale transition-colors"
                                         >
-                                            {/* Avatar */}
                                             <div className="avatar avatar-sm flex-shrink-0">
                                                 {(alert.student_name || "")
                                                     .split(" ")
@@ -162,12 +180,11 @@ function Topbar({onMenuClick}) {
                                                 <p className="text-caption truncate">{alert.class_name}</p>
                                             </div>
 
-                                            {/* Dismiss X */}
                                             <button
                                                 className="text-blue hover:text-danger transition-colors flex-shrink-0 mt-0.5"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    dismissAlert(alert.id);
+                                                    handleDropdownDismiss(alert.id);
                                                 }}
                                             >
                                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -179,7 +196,6 @@ function Topbar({onMenuClick}) {
                                 )}
                             </div>
 
-                            {/* Footer — View all alerts */}
                             <button
                                 className="w-full flex items-center justify-between px-4 py-3 border-t border-border text-sm font-medium text-navy-mid hover:bg-sky-pale transition-colors"
                                 onClick={() => {
