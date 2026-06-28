@@ -5,7 +5,7 @@ import api from "../../api";
 
 export default function RetentionRiskCard({ refreshTrigger }) {
   const navigate = useNavigate();
-  const { t } = useTranslation("dashboard");
+  const { t } = useTranslation(["dashboard","alerts", "common"]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 

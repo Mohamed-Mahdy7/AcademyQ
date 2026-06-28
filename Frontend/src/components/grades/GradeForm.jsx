@@ -5,7 +5,7 @@ import { toast } from "../../lib/toastBus";
 import api from "../../api";
 
 export default function GradeForm({ enrollments = [], sessions = [], subjectName = "", classId, onSuccess }) {
-  const { t } = useTranslation("grades");
+  const { t } = useTranslation(["grades", "common"]);
   const { addGrade, findExistingGrade, editGrade } = useGrades();
 
   const [form, setForm] = useState({

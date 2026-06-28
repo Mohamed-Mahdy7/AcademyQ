@@ -29,10 +29,23 @@
     "view_profile": "عرض الملف الشخصي",
     "logout": "تسجيل خروج",
 
-    "delete": "حذف",
-    "deleting": "جارٍ الحذف...",
     "delete_confirm": "لا يمكن التراجع عن هذا الإجراء.",
     "are_you_sure_delete": "هل أنت متأكد أنك تريد حذف",
     "refresh_page": "يرجى تحديث الصفحة.",
-    "something_wrong": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+    "something_wrong": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+    "date": "التاريخ",
+    "time": "الوقت",
+    "notes": "ملاحظات",
+    "delete": "حذف",
+    "deleting": "جارٍ الحذف...",
+    "generating": "جارٍ التوليد...",
+    "session": "حصة",
+    "reschedule": "إعادة جدولة",
+    "rescheduling": "جارٍ إعادة الجدولة...",
+    "rescheduled_success": "تمت إعادة جدولة الحصة بنجاح.",
+    "reschedule_failed": "فشلت إعادة الجدولة.",
+    "present": "حاضر",
+    "absent": "غائب",
+    "never": "لم يتم",
+    "na": "غير محدد"
 }

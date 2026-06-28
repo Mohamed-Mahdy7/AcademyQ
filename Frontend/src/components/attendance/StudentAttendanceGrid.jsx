@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 export default function StudentAttendanceGrid({ enrollments, attendance, onToggle, onSubmit, submitting, isEditMode }) {
-  const { t } = useTranslation("attendance");
+  const { t } = useTranslation(["attendance", "common"]);
 
   return (
     <div className="card">

@@ -4,7 +4,7 @@ import ClassGradeSummaryTab from "./ClassGradeSummaryTab";
 import GradeForm from "./GradeForm";
 
 export default function GradesTabContent({ classId, enrollments, sessions, subjectName }) {
-  const { t } = useTranslation("grades");
+  const { t } = useTranslation(["grades", "common"]);
   const [view, setView] = useState("summary");
 
   return (
