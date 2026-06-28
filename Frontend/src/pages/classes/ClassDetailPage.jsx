@@ -164,7 +164,13 @@ function ClassDetailPage() {
                         <EnrollmentTab classId={id} onUpdate={fetchAll} />
                     )}
                     {activeTab === "Sessions" && (
-                        <SessionsTab sessions={sessions} classId={id} onUpdate={fetchAll} />
+                        <SessionsTab
+                            sessions={sessions}
+                            classId={id}
+                            classStartDate={classData.start_date}
+                            classEndDate={classData.end_date}
+                            onSessionsGenerated={fetchAll}
+                        />
                     )}
                     {activeTab === "Grades" && (
                         <GradesTabContent
