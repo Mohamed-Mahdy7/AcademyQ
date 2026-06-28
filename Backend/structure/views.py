@@ -39,9 +39,12 @@ from .serializers import (
 )
 class SubjectViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Subject.objects.none()
         return (
             Subject.objects.select_related("academy")
             .prefetch_related("classes")
+            .filter(academy=self.request.user.academy)
             .annotate(classes_count=Count("classes"))
         )
 
@@ -66,6 +69,9 @@ class SubjectViewSet(viewsets.ModelViewSet):
 )
 class ClassViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Class.objects.none()
+
         today = timezone.now().date()
         week_start = today - timedelta(days=today.weekday())
         week_end = week_start + timedelta(days=6)
@@ -73,6 +79,7 @@ class ClassViewSet(viewsets.ModelViewSet):
         return (
             Class.objects.select_related("academy", "subject")
             .prefetch_related("teacher_assignments__teacher__user_id", "schedules")
+            .filter(academy=self.request.user.academy)
             .annotate(
                 students_count=Count("enrollments", distinct=True),
                 sessions_count=Count("session_links", distinct=True),
