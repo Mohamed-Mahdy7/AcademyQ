@@ -161,7 +161,9 @@ const AlertRow = ({ alert }) => {
                         <div className="flex items-center justify-between mb-1.5">
                             <p className="text-label">AI-Generated Parent Message</p>
                             <button
-                                className={`btn-ghost text-xs px-2 py-1 flex items-center gap-1 ${isGenerating ? "opacity-60 pointer-events-none" : ""}`}
+                                className={`btn-ghost border border-blue-500 text-blue-500 text-xs px-2 py-1 flex items-center gap-1 ${
+                                    isGenerating ? "opacity-60 pointer-events-none" : ""
+                                }`}
                                 onClick={handleGenerateMessage}
                             >
                                 {isGenerating ? (

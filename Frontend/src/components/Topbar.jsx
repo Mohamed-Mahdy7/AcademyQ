@@ -19,7 +19,15 @@ function Topbar() {
     const [open, setOpen] = useState(false);
     const dropdownRef = useRef(null);
 
-    const { alerts, loading, dismissAlert, fetchAlerts } = useAlerts();
+    const [dropdownDismissed, setDropdownDismissed] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem('dropdown_dismissed_alerts') || '[]');
+        } catch {
+            return [];
+        }
+    });
+
+    const { alerts, loading, fetchAlerts } = useAlerts();
 
     const pageTitles = {
         "/dashboard": "Dashboard",
@@ -45,7 +53,7 @@ function Topbar() {
     });
 
     useEffect(() => {
-        fetchAlerts({ riskLevel: "all", reviewed: "false" });
+        fetchAlerts({ risk_level: "all", is_dismissed: "false" });
     }, []);
 
     useEffect(() => {
@@ -58,8 +66,19 @@ function Topbar() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const pendingAlerts = alerts.filter((a) => !a.is_reviewed).slice(0, 5);
+    const undismissedAlerts = alerts.filter((a) => !a.is_dismissed);
 
+    const dropdownAlerts = undismissedAlerts.filter(
+        (a) => !dropdownDismissed.includes(a.id)
+    );
+
+    function handleDropdownDismiss(id) {
+        setDropdownDismissed((prev) => {
+            const updated = [...prev, id];
+            localStorage.setItem('dropdown_dismissed_alerts', JSON.stringify(updated));
+            return updated;
+        });
+    }
     return (
         <header className="topbar">
             <div>
@@ -87,9 +106,9 @@ function Topbar() {
                             <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                         </svg>
 
-                        {pendingAlerts.length > 0 && (
+                        {dropdownAlerts.length > 0 && (
                             <span className="absolute -top-1 -right-1 w-4 h-4 bg-danger rounded-full text-white text-[10px] font-bold flex items-center justify-center">
-                                {pendingAlerts.length > 9 ? "9+" : pendingAlerts.length}
+                                {dropdownAlerts.length > 9 ? "9+" : dropdownAlerts.length}
                             </span>
                         )}
                     </button>
@@ -103,8 +122,8 @@ function Topbar() {
                                     <h2 className="heading-3">Retention Alerts</h2>
                                     <p className="text-caption">{today}</p>
                                 </div>
-                                {pendingAlerts.length > 0
-                                    ? <span className="badge-danger-dark">{pendingAlerts.length} open</span>
+                                {dropdownAlerts.length > 0
+                                    ? <span className="badge-danger-dark">{dropdownAlerts.length} open</span>
                                     : <span className="badge-success">All Clear</span>
                                 }
                             </div>
@@ -123,17 +142,16 @@ function Topbar() {
                                             </div>
                                         ))}
                                     </div>
-                                ) : pendingAlerts.length === 0 ? (
+                                ) : dropdownAlerts.length === 0 ? (
                                     <div className="p-6 text-center">
                                         <p className="text-sm text-blue">No pending alerts 🎉</p>
                                     </div>
                                 ) : (
-                                    pendingAlerts.map((alert) => (
+                                    dropdownAlerts.map((alert) => (
                                         <div
                                             key={alert.id}
                                             className="flex items-start gap-3 px-4 py-3 hover:bg-sky-pale transition-colors"
                                         >
-                                            {/* Avatar */}
                                             <div className="avatar avatar-sm flex-shrink-0">
                                                 {(alert.student_name || "")
                                                     .split(" ")
@@ -156,12 +174,11 @@ function Topbar() {
                                                 <p className="text-caption truncate">{alert.class_name}</p>
                                             </div>
 
-                                            {/* Dismiss X */}
                                             <button
                                                 className="text-blue hover:text-danger transition-colors flex-shrink-0 mt-0.5"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    dismissAlert(alert.id);
+                                                    handleDropdownDismiss(alert.id);
                                                 }}
                                             >
                                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -173,7 +190,6 @@ function Topbar() {
                                 )}
                             </div>
 
-                            {/* Footer — View all alerts */}
                             <button
                                 className="w-full flex items-center justify-between px-4 py-3 border-t border-border text-sm font-medium text-navy-mid hover:bg-sky-pale transition-colors"
                                 onClick={() => {
