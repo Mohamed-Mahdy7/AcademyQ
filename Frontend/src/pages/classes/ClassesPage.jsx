@@ -1,9 +1,11 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { getClasses, deleteClass } from "../../services/classService";
 import { toast } from "../../lib/toastBus";
 
 function ClassesPage() {
+    const { t } = useTranslation(["classes", "common"]);
     const [classes, setClasses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [deleteTargetId, setDeleteTargetId] = useState(null);
@@ -36,11 +38,14 @@ function ClassesPage() {
             const response = await getClasses();
             setClasses(response.data);
         } catch {
-            toast.danger("Failed to load classes", "Please refresh the page.");
+            toast.danger(
+                t("failed_to_load_classes"),
+                t("common:refresh_page")
+            );
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [t]);
 
     const closeModal = useCallback(() => {
         setDeleteTargetId(null);
@@ -53,65 +58,63 @@ function ClassesPage() {
         try {
             await deleteClass(deleteTargetId);
             setClasses((prev) => prev.filter((c) => c.id !== deleteTargetId));
-            toast.success("Class deleted", "The class has been removed successfully.");
+            toast.success(t("class_deleted"), t("class_deleted_desc"));
             closeModal();
         } catch (error) {
             const rawDetail = error.response?.data?.detail || "";
-
             const message = rawDetail.includes("referenced by other records")
-                ? "This class has enrollments or sessions linked to it. Remove them first before deleting."
-                : rawDetail || "Something went wrong. Please try again.";
-
+                ? t("delete_class_has_records")
+                : rawDetail.replace(/\s*\[ref:[^\]]+\]/, "").trim() || t("common:something_wrong");
             setDeleteError(message);
         } finally {
             setDeleting(false);
         }
-    }, [deleteTargetId, closeModal]);
+    }, [deleteTargetId, closeModal, t]);
 
     useEffect(() => {
         loadClasses();
     }, [loadClasses]);
 
     if (loading)
-        return <p className="p-6 text-sm text-blue">Loading...</p>;
+        return <p className="p-6 text-sm text-blue">{t("common:loading")}</p>;
 
     return (
         <div className="page-body">
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h1 className="heading-1">Classes</h1>
-                    <p className="subheading">Manage class schedules, enrollments, and sessions</p>
+                    <h1 className="heading-1">{t("classes")}</h1>
+                    <p className="subheading">{t("manage_classes_desc")}</p>
                 </div>
                 <button className="btn-primary" onClick={() => navigate("/classes/add")}>
-                    + Create Class
+                    + {t("create_class")}
                 </button>
             </div>
 
             <div className="stat-grid mb-6">
                 <div className="kpi-card">
-                    <p className="kpi-label">Active Classes</p>
+                    <p className="kpi-label">{t("active_classes")}</p>
                     <p className="kpi-value">{stats.activeClasses}</p>
                 </div>
                 <div className="kpi-card">
-                    <p className="kpi-label">Total Enrollments</p>
+                    <p className="kpi-label">{t("total_enrollments")}</p>
                     <p className="kpi-value">{stats.totalEnrollments}</p>
                 </div>
                 <div className="kpi-card">
-                    <p className="kpi-label">Sessions This Week</p>
+                    <p className="kpi-label">{t("sessions_this_week")}</p>
                     <p className="kpi-value">{stats.sessionsThisWeek}</p>
                 </div>
                 <div className="kpi-card">
-                    <p className="kpi-label">Avg. Completion</p>
+                    <p className="kpi-label">{t("avg_completion")}</p>
                     <p className="kpi-value">{stats.avgCompletion}%</p>
                 </div>
             </div>
 
             {classes.length === 0 ? (
                 <div className="empty-state">
-                    <p className="empty-state-title">No classes yet</p>
-                    <p className="empty-state-desc">Create your first class to get started.</p>
+                    <p className="empty-state-title">{t("no_classes_yet")}</p>
+                    <p className="empty-state-desc">{t("no_classes_desc")}</p>
                     <button className="btn-primary" onClick={() => navigate("/classes/add")}>
-                        + Create Class
+                        + {t("create_class")}
                     </button>
                 </div>
             ) : (
@@ -120,6 +123,7 @@ function ClassesPage() {
                         <ClassCard
                             key={cls.id}
                             cls={cls}
+                            t={t}
                             onViewDetails={() => navigate(`/classes/${cls.id}`)}
                             onEdit={() => navigate(`/classes/${cls.id}/edit`)}
                             onDelete={() => {
@@ -135,12 +139,13 @@ function ClassesPage() {
                 <div className="modal-backdrop">
                     <div className="modal-sm">
                         <div className="modal-header">
-                            <h3 className="modal-title">Delete Class</h3>
+                            <h3 className="modal-title">{t("delete_class")}</h3>
                         </div>
                         <div className="modal-body">
                             <p className="text-body">
-                                Are you sure you want to delete{" "}
-                                <strong>{targetClass?.name}</strong>? This action cannot be undone.
+                                {t("common:are_you_sure_delete")}{" "}
+                                <strong>{targetClass?.name}</strong>?{" "}
+                                {t("common:delete_confirm")}
                             </p>
                             {deleteError && (
                                 <div className="alert-warning mt-3">
@@ -149,13 +154,15 @@ function ClassesPage() {
                             )}
                         </div>
                         <div className="modal-footer">
-                            <button className="btn-muted" onClick={closeModal}>Cancel</button>
+                            <button className="btn-muted" onClick={closeModal}>
+                                {t("common:cancel")}
+                            </button>
                             <button
                                 className="btn-danger"
                                 onClick={handleDeleteConfirm}
                                 disabled={deleting}
                             >
-                                {deleting ? "Deleting..." : "Delete"}
+                                {deleting ? t("common:deleting") : t("common:delete")}
                             </button>
                         </div>
                     </div>
@@ -165,7 +172,7 @@ function ClassesPage() {
     );
 }
 
-function ClassCard({ cls, onViewDetails, onEdit, onDelete }) {
+function ClassCard({ cls, t, onViewDetails, onEdit, onDelete }) {
     const total = cls.session_count || 0;
     const done = cls.sessions_count || 0;
     const progress = total ? Math.round((done / total) * 100) : 0;
@@ -186,18 +193,18 @@ function ClassCard({ cls, onViewDetails, onEdit, onDelete }) {
 
             <div className="grid grid-cols-2 gap-3">
                 <div>
-                    <p className="text-label">Enrolled</p>
+                    <p className="text-label">{t("enrolled")}</p>
                     <p className="text-sm font-semibold">{cls.students_count ?? "—"}</p>
                 </div>
                 <div>
-                    <p className="text-label">Teacher</p>
+                    <p className="text-label">{t("teacher")}</p>
                     <p className="text-sm font-semibold truncate">{cls.teacher_name ?? "—"}</p>
                 </div>
             </div>
 
             <div>
                 <div className="flex justify-between mb-1">
-                    <p className="text-label">Progress</p>
+                    <p className="text-label">{t("progress")}</p>
                     <p className="text-xs text-blue">{done}/{total}</p>
                 </div>
                 <div className="progress-md">
@@ -208,7 +215,9 @@ function ClassCard({ cls, onViewDetails, onEdit, onDelete }) {
             <p className="text-caption">{cls.start_date} - {cls.end_date}</p>
 
             <div className="flex gap-2 mt-auto">
-                <button className="btn-secondary flex-1" onClick={onViewDetails}>View Details</button>
+                <button className="btn-secondary flex-1" onClick={onViewDetails}>
+                    {t("view_details")}
+                </button>
                 <button className="btn-icon" onClick={onEdit}>✎</button>
                 <button className="btn-icon" onClick={onDelete}>🗑</button>
             </div>
