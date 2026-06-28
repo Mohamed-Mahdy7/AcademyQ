@@ -61,23 +61,23 @@ msgstr "تم الوصول إلى الحد اليومي للفحص اليدوي. 
 
 #: ai/notifications/models.py:7
 msgid "Email"
-msgstr ""
+msgstr "البريد الإلكتروني"
 
 #: ai/notifications/models.py:10
 msgid "Sent"
-msgstr ""
+msgstr "مرسلة"
 
 #: ai/notifications/models.py:14
 msgid "Payment Reminder"
-msgstr ""
+msgstr "تذكير بالدفع"
 
 #: ai/notifications/models.py:15
 msgid "Retention Alert"
-msgstr ""
+msgstr "تنبيه الاحتفاظ"
 
 #: ai/notifications/models.py:16
 msgid "Attendance Alert"
-msgstr ""
+msgstr "تنبيه الحضور"
 
 #: core/exceptions.py:19
 msgid "An upstream service failed. Please try again."
@@ -292,30 +292,30 @@ msgstr "لا يمكن أن يكون تاريخ التسجيل قبل تاريخ 
 msgid "This session has not been conducted yet."
 msgstr "لم تُعقد هذه الحصة بعد."
 
-#: structure/enrollment/serializers.py
+#: structure/enrollment/serializers.py:45
 msgid "Student is already enrolled in this class"
 msgstr "الطالب مسجل بالفعل في هذا الفصل"
 
-#: structure/enrollment/serializers.py
+#: structure/enrollment/serializers.py:48
 msgid "Enrollment start date cannot be before class start date"
 msgstr "لا يمكن أن يكون تاريخ بداية التسجيل قبل تاريخ بداية الفصل"
 
-#: structure/enrollment/serializers.py
+#: structure/enrollment/serializers.py:51
 msgid "Cannot enroll student in a class that has been completed"
 msgstr "لا يمكن تسجيل الطالب في فصل مكتمل"
 
-#: structure/enrollment/views.py
+#: structure/enrollment/views.py:52
 msgid "Enrollment created successfully"
 msgstr "تم إنشاء التسجيل بنجاح"
 
-#: structure/enrollment/views.py
+#: structure/enrollment/views.py:58
 msgid "Enrollment updated successfully"
 msgstr "تم تحديث التسجيل بنجاح"
 
-#: structure/enrollment/views.py
+#: structure/enrollment/views.py:64
 msgid "Enrollment deleted successfully"
 msgstr "تم حذف التسجيل بنجاح"
 
-#: structure/enrollment/views.py
+#: structure/enrollment/views.py:70
 msgid "Cannot delete enrollment: pending payments exist"
 msgstr "لا يمكن حذف التسجيل: توجد دفعات معلقة"

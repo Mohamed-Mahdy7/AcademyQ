@@ -1,0 +1,36 @@
+{
+    "page": {
+        "title": "Notification History",
+        "subtitle": "Track all parent messages sent by the AI Retention System"
+    },
+    "kpi": {
+        "sent_today": "Sent Today",
+        "this_week": "This Week",
+        "failed": "Failed",
+        "delivery_rate": "Delivery Rate"
+    },
+    "table": {
+        "title": "All Messages",
+        "filter_channels": "All channels",
+        "filter_email": "Email",
+        "filter_statuses": "All statuses",
+        "filter_sent": "Sent",
+        "filter_failed": "Failed",
+        "filter_pending": "Pending",
+        "empty_title": "No notifications yet",
+        "empty_desc": "Messages sent from the Alert Inbox will appear here.",
+        "header_recipient": "Recipient",
+        "header_channel": "Channel",
+        "header_message": "Message",
+        "header_status": "Status",
+        "header_sent_at": "Sent At"
+    },
+    "status": {
+        "sent": "Sent",
+        "failed": "Failed",
+        "pending": "Pending"
+    },
+    "channel": {
+        "email": "Email"
+    }
+}
