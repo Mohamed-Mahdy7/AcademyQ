@@ -56,6 +56,24 @@ LAYER: COMPONENTS
 [dir="rtl"] body {
   font-family: 'Tajawal', sans-serif;
 }
+[dir="rtl"] {
+    font-size: 18px;
+}
+
+[dir="rtl"] .kpi-label {
+    font-size: 16px;
+    letter-spacing: normal;
+}
+
+[dir="rtl"] .table-thead tr th {
+    font-size: 16px;
+    letter-spacing: normal;
+}
+
+[dir="rtl"] .topbar-title {
+    font-size: 20px;
+    letter-spacing: normal;
+}
 
 /* Page wrapper — wraps sidebar + main */
 .page-shell {
@@ -88,7 +106,20 @@ LAYER: COMPONENTS
     ========================================================== */
 
 .sidebar {
-@apply w-64 h-screen bg-navy flex flex-col flex-shrink-0 sticky top-0;
+@apply w-64 h-screen bg-navy flex flex-col flex-shrink-0
+        fixed inset-y-0 start-0 z-50
+        ltr:max-md:-translate-x-full
+        rtl:max-md:translate-x-full
+        transition-transform duration-300
+        md:sticky md:top-0 md:inset-auto md:start-auto md:translate-x-0 md:z-auto;
+}
+
+.sidebar-open {
+@apply translate-x-0;
+}
+
+.sidebar-backdrop {
+@apply fixed inset-0 bg-navy/50 z-40 md:hidden;
 }
 
 .sidebar-collapsed {
@@ -110,7 +141,7 @@ LAYER: COMPONENTS
 }
 
 .sidebar-academy-sub {
-@apply text-sky/70 text-xs truncate mt-0.5;
+@apply text-sky/70 text-sm truncate mt-0.5;
 }
 
 /* Nav container */
@@ -120,14 +151,14 @@ LAYER: COMPONENTS
 
 /* Section label inside nav (e.g. "Management") */
 .sidebar-section-label {
-@apply text-sky/40 text-[10px] font-semibold uppercase tracking-widest
+@apply text-sky/60 text-[14px] font-semibold uppercase tracking-widest
         px-3 pt-4 pb-1 select-none;
 }
 
 /* Nav link — default (inactive) */
 .sidebar-link {
 @apply flex items-center gap-3 px-3 py-2.5 rounded-lg
-        text-sky/70 hover:bg-white/8 hover:text-white
+        text-sky/90 hover:bg-white/8 hover:text-white
         text-sm font-medium transition-colors cursor-pointer select-none;
 }
 
@@ -210,6 +241,11 @@ LAYER: COMPONENTS
 .topbar-icon-btn {
 @apply relative w-8 h-8 rounded-lg text-blue hover:bg-sky-pale
         flex items-center justify-center transition-colors;
+}
+
+.topbar-menu-btn {
+@apply md:hidden w-9 h-9 flex items-center justify-center rounded-lg
+        text-navy hover:bg-sky-pale transition-colors flex-shrink-0;
 }
 
 /* Notification dot on topbar icon */
