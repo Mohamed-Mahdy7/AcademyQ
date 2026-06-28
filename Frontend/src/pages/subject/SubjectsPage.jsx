@@ -1,9 +1,11 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { getSubjects, deleteSubject } from "../../services/subjectService";
 import { toast } from "../../lib/toastBus";
 
 function SubjectsPage() {
+    const { t } = useTranslation(["subjects", "common"]);
     const [subjects, setSubjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [deleting, setDeleting] = useState(false);
@@ -31,11 +33,14 @@ function SubjectsPage() {
             const response = await getSubjects();
             setSubjects(response.data);
         } catch {
-            toast.danger("Failed to load subjects", "Please refresh the page.");
+            toast.danger(
+                t("failed_to_load_subjects"),
+                t("refresh_page")
+            );
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [t]);
 
     const closeModal = useCallback(() => {
         setDeleteTargetId(null);
@@ -45,11 +50,9 @@ function SubjectsPage() {
     const handleDeleteConfirm = useCallback(async () => {
         if (targetHasClasses) {
             setDeleteError(
-                `This subject has ${targetSubject.classes_count} class${
-                    targetSubject.classes_count !== 1 ? "es" : ""
-                } assigned. Delete or reassign ${
-                    targetSubject.classes_count !== 1 ? "them" : "it"
-                } before deleting this subject.`
+                t("delete_subject_has_classes", {
+                    count: targetSubject.classes_count,
+                })
             );
             return;
         }
@@ -58,58 +61,67 @@ function SubjectsPage() {
         try {
             await deleteSubject(deleteTargetId);
             setSubjects((prev) => prev.filter((s) => s.id !== deleteTargetId));
-            toast.success("Subject deleted", "The subject has been removed successfully.");
+            toast.success(
+                t("subject_deleted"),
+                t("subject_deleted_desc")
+            );
             closeModal();
         } catch {
-            toast.danger("Delete failed", "Something went wrong while deleting the subject.");
+            toast.danger(
+                t("delete_failed"),
+                t("subject_delete_failed_desc")
+            );
         } finally {
             setDeleting(false);
         }
-    }, [deleteTargetId, targetSubject, targetHasClasses, closeModal]);
+    }, [deleteTargetId, targetSubject, targetHasClasses, closeModal, t]);
 
     useEffect(() => {
         loadSubjects();
     }, [loadSubjects]);
 
-    // ── Render ───────────────────────────────────────────────────────
-    if (loading) return <p className="p-6 text-sm text-blue">Loading...</p>;
+    if (loading)
+        return <p className="p-6 text-sm text-blue">{t("loading")}</p>;
 
     return (
         <div className="page-body">
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h1 className="heading-1">Subjects</h1>
-                    <p className="subheading">Manage subject curriculum and class offerings</p>
+                    <h1 className="heading-1">{t("subjects")}</h1>
+                    <p className="subheading">{t("manage_subjects_desc")}</p>
                 </div>
-                <button className="btn-primary" onClick={() => navigate("/subjects/add")}>
-                    + Add Subject
+                <button
+                    className="btn-primary"
+                    onClick={() => navigate("/subjects/add")}
+                >
+                    + {t("add_subject")}
                 </button>
             </div>
 
             <div className="stat-grid mb-6">
                 <div className="kpi-card">
-                    <p className="kpi-label">Total Subjects</p>
+                    <p className="kpi-label">{t("total_subjects")}</p>
                     <p className="kpi-value">{totalSubjects}</p>
                 </div>
                 <div className="kpi-card">
-                    <p className="kpi-label">Active Classes</p>
+                    <p className="kpi-label">{t("active_classes")}</p>
                     <p className="kpi-value">{totalClasses}</p>
                 </div>
             </div>
 
             <div className="table-wrap">
                 <div className="card-header">
-                    <h2 className="card-header-title">All Subjects</h2>
+                    <h2 className="card-header-title">{t("all_subjects")}</h2>
                 </div>
 
                 <table className="table">
                     <thead className="table-thead">
                         <tr>
-                            <th>Subject Name</th>
-                            <th>Description</th>
-                            <th>Active Classes</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th>{t("subject_name")}</th>
+                            <th>{t("description")}</th>
+                            <th>{t("active_classes")}</th>
+                            <th>{t("common:status")}</th>
+                            <th>{t("common:actions")}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -117,10 +129,13 @@ function SubjectsPage() {
                             <tr>
                                 <td colSpan={5}>
                                     <div className="empty-state">
-                                        <p className="empty-state-title">No subjects yet</p>
-                                        <p className="empty-state-desc">Add your first subject to get started.</p>
-                                        <button className="btn-primary" onClick={() => navigate("/subjects/add")}>
-                                            + Add Subject
+                                        <p className="empty-state-title">{t("no_subjects_yet")}</p>
+                                        <p className="empty-state-desc">{t("no_subjects_desc")}</p>
+                                        <button
+                                            className="btn-primary"
+                                            onClick={() => navigate("/subjects/add")}
+                                        >
+                                            + {t("add_subject")}
                                         </button>
                                     </div>
                                 </td>
@@ -128,20 +143,30 @@ function SubjectsPage() {
                         ) : (
                             subjects.map((subject) => (
                                 <tr key={subject.id} className="table-row">
-                                    <td className="table-cell font-medium">{subject.name}</td>
-                                    <td className="table-cell-muted">{subject.description || "—"}</td>
-                                    <td className="table-cell">
-                                        <span className="badge-count">{subject.classes_count} classes</span>
+                                    <td className="table-cell font-medium">
+                                        {subject.name}
+                                    </td>
+                                    <td className="table-cell-muted">
+                                        {subject.description || "—"}
                                     </td>
                                     <td className="table-cell">
-                                        <span className="badge-success">Active</span>
+                                        <span className="badge-count">
+                                            {t("classes_count_label", {
+                                                count: subject.classes_count,
+                                            })}
+                                        </span>
+                                    </td>
+                                    <td className="table-cell">
+                                        <span className="badge-success">{t("common:active")}</span>
                                     </td>
                                     <td className="table-actions">
                                         <button
                                             className="btn-secondary"
-                                            onClick={() => navigate(`/subjects/${subject.id}/edit`)}
+                                            onClick={() =>
+                                                navigate(`/subjects/${subject.id}/edit`)
+                                            }
                                         >
-                                            Edit
+                                            {t("edit")}
                                         </button>
                                         <button
                                             className="btn-danger-outline"
@@ -150,7 +175,7 @@ function SubjectsPage() {
                                                 setDeleteTargetId(subject.id);
                                             }}
                                         >
-                                            Delete
+                                            {t("delete")}
                                         </button>
                                     </td>
                                 </tr>
@@ -164,12 +189,13 @@ function SubjectsPage() {
                 <div className="modal-backdrop">
                     <div className="modal-sm">
                         <div className="modal-header">
-                            <h3 className="modal-title">Delete Subject</h3>
+                            <h3 className="modal-title">{t("delete_subject")}</h3>
                         </div>
                         <div className="modal-body">
                             <p className="text-body">
-                                Are you sure you want to delete{" "}
-                                <strong>{targetSubject?.name}</strong>? This action cannot be undone.
+                                {t("are_you_sure_delete")}{" "}
+                                <strong>{targetSubject?.name}</strong>?{" "}
+                                {t("delete_confirm")}
                             </p>
                             {deleteError && (
                                 <div className="alert-warning mt-3">
@@ -179,14 +205,14 @@ function SubjectsPage() {
                         </div>
                         <div className="modal-footer">
                             <button className="btn-muted" onClick={closeModal}>
-                                Cancel
+                                {t("cancel")}
                             </button>
                             <button
                                 className="btn-danger"
                                 onClick={handleDeleteConfirm}
                                 disabled={deleting}
                             >
-                                {deleting ? "Deleting..." : "Delete"}
+                                {deleting ? t("deleting") : t("delete")}
                             </button>
                         </div>
                     </div>

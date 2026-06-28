@@ -52,5 +52,12 @@
     "educational_level": "Educational Level",
 
     "admin": "Admin",
-    "teacher": "Teacher"
+    "teacher": "Teacher",
+
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "delete_confirm": "This action cannot be undone.",
+    "are_you_sure_delete": "Are you sure you want to delete",
+    "refresh_page": "Please refresh the page.",
+    "something_wrong": "Something went wrong. Please try again."
 }
