@@ -10,7 +10,7 @@
     "all_students": "All Students",
 
     "student_name": "STUDENT NAME",
-    "parent_phone": "PARENT PHONE",
+    "parent_email_header": "PARENT EMAIL",
     "grade_level": "GRADE LEVEL",
     "enrollments": "ENROLLMENTS",
     "enrolled_since": "ENROLLED SINCE",
