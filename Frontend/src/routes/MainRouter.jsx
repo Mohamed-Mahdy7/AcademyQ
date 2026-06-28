@@ -25,7 +25,7 @@ import EditClassPage from "../pages/classes/EditClassPage.jsx";
 import ClassDetailPage from "../pages/classes/ClassDetailPage.jsx";
 import UserManagement from "../pages/users/UserManagementPage.jsx";
 import StudentManagement from "../pages/students/StudentManagementpage.jsx";
-import GradeForm from "../components/grades/gradeform";
+import GradeForm from "../components/grades/GradeForm";
 import GradeHistoryTab from "../components/grades/GradeHistoryTab";
 import GradeSummaryTab from "../components/grades/ClassGradeSummaryTab";
 import StudentProfile from "../pages/students/StudentProfile.jsx";
@@ -44,7 +44,7 @@ const MainRouter = () => {
             <Route path="/" element={<LandingPage />} />
             <Route path="register" element={<Register />} />
             <Route path="login" element={<Login />} />
-            <Route element={ 
+            <Route element={
                 <AcademyProvider>
                     <AlertProvider>
                         <NotificationsProvider>
