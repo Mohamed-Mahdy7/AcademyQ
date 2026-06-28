@@ -1,157 +1,75 @@
-import { Link, useNavigate, NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useContext } from "react";
+import { useTranslation } from "react-i18next";
 import { AuthContext } from "../context/AuthContext";
+import { AcademyContext} from "../context/AcademyContext";
 
-const Sidebar = () => {
-    const {user, logout} = useContext(AuthContext);
+const Sidebar = ({ isOpen, onClose }) => {
+    const { t } = useTranslation("layout");
+    const { user, logout } = useContext(AuthContext);
+    const { academy } = useContext(AcademyContext);
     const navigate = useNavigate();
 
     async function handleLogout() {
         await logout();
-        navigate("/login")
+        navigate("/login");
     }
 
-    return(
+    const links = [
+        { to: "/dashboard", end: true, label: t("page_dashboard") },
+        { to: "/students", label: t("page_students") },
+        { to: "/classes", label: t("page_classes") },
+        { to: "/teacher", label: t("page_teachers") },
+        { to: "/subjects", label: t("page_subjects") },
+        { to: "/payments", label: t("page_payments") },
+        { to: "/users", label: t("page_staff") },
+        { to: "/settings", label: t("page_settings") },
+    ];
+
+    return (
         <>
-            <aside className="sidebar">
-            <div className="sidebar-header">
-                <div className="sidebar-logo">
-                    A
-                </div>
+            {isOpen && <div className="sidebar-backdrop" onClick={onClose} />}
 
-                <div>
-                    <p className="sidebar-academy-name">
-                        AcademiQ
-                    </p>
-                    <p className="sidebar-academy-sub">
-                        Academy Management
-                    </p>
-                </div>
-            </div>
-
-            <nav className="sidebar-nav">
-                <p className="sidebar-section-label">
-                    Management
-                </p>
-
-                <NavLink
-                    to="/dashboard"
-                    end
-                    className={({ isActive }) =>
-                        isActive
-                            ? "sidebar-link-active"
-                            : "sidebar-link"
-                    }
-                >
-                    Dashboard
-                </NavLink>
-
-                <NavLink
-                    to="/students"
-                    className={({ isActive }) =>
-                        isActive
-                            ? "sidebar-link-active"
-                            : "sidebar-link"
-                    }
-                >
-                    Students
-                </NavLink>
-
-                <NavLink
-                    to="/classes"
-                    className={({ isActive }) =>
-                        isActive
-                            ? "sidebar-link-active"
-                            : "sidebar-link"
-                    }
-                >
-                    Classes
-                </NavLink>
-
-                <NavLink
-                    to="/teacher"
-                    className={({ isActive }) =>
-                        isActive
-                            ? "sidebar-link-active"
-                            : "sidebar-link"
-                    }
-                >
-                    Teachers
-                </NavLink>
-
-                <NavLink
-                    to="/subjects"
-                    className={({ isActive }) =>
-                        isActive
-                            ? "sidebar-link-active"
-                            : "sidebar-link"
-                    }
-                >
-                    Subjects
-                </NavLink>
-
-                <NavLink
-                    to="/payments"
-                    className={({ isActive }) =>
-                        isActive
-                            ? "sidebar-link-active"
-                            : "sidebar-link"
-                    }
-                >
-                    Payments
-                </NavLink>
-
-                <NavLink
-                    to="/users"
-                    className={({ isActive }) =>
-                        isActive
-                            ? "sidebar-link-active"
-                            : "sidebar-link"
-                    }
-                >
-                    Staff Users
-                </NavLink>
-
-                <NavLink
-                    to="/settings"
-                    className={({ isActive }) =>
-                        isActive
-                            ? "sidebar-link-active"
-                            : "sidebar-link"
-                    }
-                >
-                    Settings
-                </NavLink>
-            </nav>
-
-            {/* Footer */}
-            <div className="sidebar-footer">
-                <div className="sidebar-user">
-                    <div className="avatar-sm">
-                        {user?.full_name?.[0]?.toUpperCase() || "U"}
-                    </div>
-
-                    <div className="min-w-0">
-                        <p className="sidebar-user-name">
-                            {user?.full_name}
-                        </p>
-
-                        <p className="sidebar-user-role">
-                            {user?.role}
-                        </p>
+            <aside className={isOpen ? "sidebar sidebar-open" : "sidebar"}>
+                <div className="sidebar-header">
+                    <div className="sidebar-logo">{academy?.name?.[0]?.toUpperCase()}</div>
+                    <div>
+                        <p className="sidebar-academy-name">{academy?.name}</p>
+                        <p className="sidebar-academy-sub">{t("acadmey_management")}</p>
                     </div>
                 </div>
 
-                <button
-                    onClick={handleLogout}
-                    className="btn-danger w-full mt-3"
-                >
-                    Logout
-                </button>
-            </div>
-        </aside>
+                <nav className="sidebar-nav">
+                    <p className="sidebar-section-label">{t("nav_management")}</p>
+
+                    {links.map((link) => (
+                        <NavLink
+                            key={link.to}
+                            to={link.to}
+                            end={link.end}
+                            onClick={onClose}
+                            className={({ isActive }) => isActive ? "sidebar-link-active" : "sidebar-link"}
+                        >
+                            {link.label}
+                        </NavLink>
+                    ))}
+                </nav>
+
+                <div className="sidebar-footer">
+                    <div className="sidebar-user">
+                        <div className="avatar-sm">{user?.full_name?.[0]?.toUpperCase() || "U"}</div>
+                        <div className="min-w-0">
+                            <p className="sidebar-user-name">{user?.full_name}</p>
+                            <p className="sidebar-user-role">{user?.role_display || user?.role}</p>
+                        </div>
+                    </div>
+                    <button onClick={handleLogout} className="btn-danger w-full mt-3">
+                        {t("common:logout")}
+                    </button>
+                </div>
+            </aside>
         </>
     );
-}
+};
 
-export default Sidebar
+export default Sidebar;

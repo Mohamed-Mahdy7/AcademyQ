@@ -26,5 +26,6 @@
     "select_option": "Select an option",
     "status": "Status",
     "update": "Update",
-    "view_profile": "View Profile"
+    "view_profile": "View Profile",
+    "logout": "Logout"
 }

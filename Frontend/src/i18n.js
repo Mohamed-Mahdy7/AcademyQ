@@ -8,6 +8,8 @@ import authEn from "./locales/en/auth.json";
 import authAr from "./locales/ar/auth.json";
 import studentsEn from "./locales/en/students.json"
 import studentsAr from "./locales/ar/students.json"
+import layoutEn from "./locales/en/layout.json"
+import layoutAr from "./locales/ar/layout.json"
 
 
 i18n
@@ -18,17 +20,19 @@ i18n
         en: { 
             common: commonEn,
             auth: authEn,
-            students: studentsEn
+            students: studentsEn,
+            layout: layoutEn,
         },
         ar: { 
             common: commonAr, 
             auth: authAr,
-            students: studentsAr
+            students: studentsAr,
+            layout: layoutAr
         },
     },
     fallbackLng: "ar", // Arabic-first: if detection fails, default to Arabic, not English
     defaultNS: "common",
-    ns: ["common", "auth", "students"],
+    ns: ["common", "auth", "students", "layout"],
     interpolation: { escapeValue: false },
     detection: {
     order: ["localStorage", "navigator"],

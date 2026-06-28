@@ -2,6 +2,7 @@ import { useContext, useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { useAlerts } from "../context/AlertContext";
+import { useTranslation } from "react-i18next";
 import RiskBadge from "./ai/RiskBadge";
 import LanguageSwitcher from "./languageSwitcher";
 
@@ -12,8 +13,9 @@ const reasonLabels = {
     combined: "Combined Risk",
 };
 
-function Topbar() {
+function Topbar({onMenuClick}) {
     const { user } = useContext(AuthContext);
+    const { t } = useTranslation("layout")
     const location = useLocation();
     const navigate = useNavigate();
     const [open, setOpen] = useState(false);
@@ -22,17 +24,16 @@ function Topbar() {
     const { alerts, loading, dismissAlert, fetchAlerts } = useAlerts();
 
     const pageTitles = {
-        "/dashboard": "Dashboard",
-        "/students": "Students",
-        "/teacher": "Teachers",
-        "/classes": "Classes",
-        "/subjects": "Subjects",
-        "/payments": "Payments",
-        "/users": "Staff Users",
-        "/settings": "Settings",
-        "/grade": "Grades",
-        "/alerts": "Alert Inbox",
-        "/notifications": "Notification History",
+        "/dashboard": t("page_dashboard"),
+        "/students": t("page_students"),
+        "/teacher": t("page_teachers"),
+        "/classes": t("page_classes"),
+        "/subjects": t("page_subjects"),
+        "/payments": t("page_payments"),
+        "/users": t("page_staff"),
+        "/settings": t("page_settings"),
+        "/alerts": t("page_alert"),
+        "/notifications": t("page_notification"),
     };
 
     const title = pageTitles[location.pathname] || "AcademiQ";
@@ -62,7 +63,12 @@ function Topbar() {
 
     return (
         <header className="topbar">
-            <div>
+            <div className="flex items-center gap-3">
+                <button className="topbar-menu-btn" onClick={onMenuClick} aria-label="Open menu">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
                 <h1 className="topbar-title">{title}</h1>
             </div>
             <LanguageSwitcher />
@@ -88,14 +94,14 @@ function Topbar() {
                         </svg>
 
                         {pendingAlerts.length > 0 && (
-                            <span className="absolute -top-1 -right-1 w-4 h-4 bg-danger rounded-full text-white text-[10px] font-bold flex items-center justify-center">
+                            <span className="absolute -top-1 -end-1 w-4 h-4 bg-danger rounded-full text-white text-[10px] font-bold flex items-center justify-center">
                                 {pendingAlerts.length > 9 ? "9+" : pendingAlerts.length}
                             </span>
                         )}
                     </button>
 
                     {open && (
-                        <div className="absolute right-0 top-12 z-50 w-80 bg-white border border-border shadow-dropdown rounded-xl overflow-hidden">
+                        <div className="absolute end-0 top-12 z-50 w-80 bg-white border border-border shadow-dropdown rounded-xl overflow-hidden">
 
                             {/* Header */}
                             <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card">
