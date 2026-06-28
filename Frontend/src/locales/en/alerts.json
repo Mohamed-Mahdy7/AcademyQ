@@ -1,0 +1,21 @@
+{
+    "retention_risk": "RETENTION RISK",
+    "open_alerts": "open alerts",
+    "high_risk": "● High Risk ({{count}})",
+    "medium_risk": "● Medium Risk ({{count}})",
+    "all_clear": "● All Clear",
+    "view_alert_inbox": "View Alert Inbox →",
+    "retention_scan": "RETENTION SCAN",
+    "weekly_agent_scan": "Weekly Agent Scan",
+    "last_run": "Last run: {{date}}",
+    "next_run": "Next: {{date}}",
+    "run_scan_now": "▷ Run Scan Now",
+    "scanning": "Scanning...",
+    "limit_reached": "Limit reached — try tomorrow",
+    "scan_complete": "Scan complete",
+    "scan_complete_desc": "{{count}} students scanned.",
+    "rate_limited": "Rate limited",
+    "scan_failed": "Scan failed",
+    "scan_failed_desc": "Please try again.",
+    "never": "Never"
+}

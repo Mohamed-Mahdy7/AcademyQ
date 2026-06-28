@@ -1,0 +1,21 @@
+{
+    "retention_risk": "خطر الانقطاع",
+    "open_alerts": "تنبيهات مفتوحة",
+    "high_risk": "● خطر مرتفع ({{count}})",
+    "medium_risk": "● خطر متوسط ({{count}})",
+    "all_clear": "● لا توجد مخاطر",
+    "view_alert_inbox": "→ عرض صندوق التنبيهات",
+    "retention_scan": "فحص الانقطاع",
+    "weekly_agent_scan": "الفحص الأسبوعي",
+    "last_run": "آخر تشغيل: {{date}}",
+    "next_run": "التالي: {{date}}",
+    "run_scan_now": "▷ تشغيل الفحص الآن",
+    "scanning": "جارٍ الفحص...",
+    "limit_reached": "تم الوصول للحد — حاول غداً",
+    "scan_complete": "اكتمل الفحص",
+    "scan_complete_desc": "تم فحص {{count}} طالب.",
+    "rate_limited": "تم تجاوز الحد",
+    "scan_failed": "فشل الفحص",
+    "scan_failed_desc": "يرجى المحاولة مرة أخرى.",
+    "never": "لم يتم"
+}

@@ -67,7 +67,7 @@ def get_annotated_sessions(academy_id, class_id=None):
 )
 class ClassSessionViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = ClassSessionSerializer
-    http_method_names = ['get', 'post', 'delete', 'head', 'options']
+    http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
     permission_classes = [IsOwner, ActiveSubscriptionRequired]
     pagination_class = None
 
@@ -75,7 +75,7 @@ class ClassSessionViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
         if getattr(self, "swagger_fake_view", False):
             return ClassSession.objects.none()
         
-        if self.action in ['destroy', 'retrieve', 'attendance']:
+        if self.action in ['destroy', 'retrieve', 'attendance','partial_update', 'update']:
             return ClassSession.objects.filter(
                 class_links__class_obj__academy_id=self.request.user.academy_id
             )
@@ -128,6 +128,48 @@ class ClassSessionViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
             status=status.HTTP_200_OK
         )
     
+    def partial_update(self, request, pk=None):
+        session = self.get_object()
+
+        # block reschedule if attendance already exists
+        if Attendance.objects.filter(session=session).exists():
+            raise ValidationError({
+                "session": ["Cannot reschedule a session that already has attendance records."]
+            })
+
+        new_date = request.data.get('session_date')
+        new_time = request.data.get('session_time')
+
+        if not new_date and not new_time:
+            raise ValidationError({
+                "session_date": ["At least session_date or session_time is required."]
+            })
+
+        from django.utils import timezone
+        if new_date:
+            from datetime import date as date_type
+            try:
+                parsed = date_type.fromisoformat(new_date)
+            except ValueError:
+                raise ValidationError({"session_date": ["Invalid date format. Use YYYY-MM-DD."]})
+
+            # get class date range via junction
+            from structure.models import ClassSessionEnrollment
+            junction = ClassSessionEnrollment.objects.filter(session=session).first()
+            if junction:
+                cls = junction.class_obj
+                if parsed < cls.start_date:
+                    raise ValidationError({"session_date": ["Date cannot be before the class start date."]})
+                if parsed > cls.end_date:
+                    raise ValidationError({"session_date": ["Date cannot be after the class end date."]})
+
+            session.session_date = parsed
+
+        if new_time:
+            session.session_time = new_time
+
+        session.save()
+        return Response(ClassSessionSerializer(session).data)
     
     def destroy(self, request, pk=None):
         session = self.get_object()
