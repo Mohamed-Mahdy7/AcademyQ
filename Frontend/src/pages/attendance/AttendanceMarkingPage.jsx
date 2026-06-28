@@ -23,6 +23,10 @@ export default function AttendanceMarkingPage() {
   const [classData, setClassData] = useState(null);
   const [currentSessionNum, setCurrentSessionNum] = useState(null);
   const [schedules, setSchedules] = useState([]);
+  const [showReschedule, setShowReschedule] = useState(false);
+  const [rescheduleDate, setRescheduleDate] = useState("");
+  const [rescheduleTime, setRescheduleTime] = useState("");
+  const [rescheduling, setRescheduling] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -105,65 +109,91 @@ export default function AttendanceMarkingPage() {
 
   const handleSubmit = async () => {
     setSubmitting(true);
+
+    const today = new Date().toISOString().split("T")[0];
+    if (selectedDate > today) {
+        showToast("warning", "This session has not been conducted yet.");
+        setSubmitting(false);
+        return;
+    }
+
     const records = Object.entries(attendance).map(([enrollment_id, present]) => ({
-      enrollment_id,
-      present,
+        enrollment_id,
+        present,
     }));
 
     try {
-      let activeSessionId = sessionId;
-      if (!activeSessionId) {
-        const today = new Date().toISOString().split("T")[0];
-        if (selectedDate > today) {
-            showToast("warning", "Cannot save attendance for a future date.");
-            setSubmitting(false);
-            return;
+        let activeSessionId = sessionId;
+        if (!activeSessionId) {
+            if (schedules.length > 0) {
+                const dateObj = new Date(selectedDate + "T00:00:00");
+                const jsDay = dateObj.getDay();
+                const pyDay = jsDay === 0 ? 6 : jsDay - 1;
+                const matchingSlot = schedules.find(s => s.day_of_week === pyDay);
+                if (!matchingSlot) {
+                    showToast("warning", "No class scheduled on this day. Choose a day that matches the class timetable.");
+                    setSubmitting(false);
+                    return;
+                }
+            }
+            const sessionRes = await api.post(`/api/sessions/`, {
+                class_ids: [classId],
+                session_date: selectedDate,
+                session_time: sessionTime,
+                notes,
+            });
+            activeSessionId = sessionRes.data.id;
+            setSessionId(activeSessionId);
+            setCurrentSessionNum(sessionRes.data.session_num);
         }
-        // validate selected date against schedule
-        if (schedules.length > 0) {
-          const dateObj = new Date(selectedDate + "T00:00:00");
-          const jsDay = dateObj.getDay();
-          const pyDay = jsDay === 0 ? 6 : jsDay - 1;
-          const matchingSlot = schedules.find(s => s.day_of_week === pyDay);
-          if (!matchingSlot) {
-            showToast("warning", `No class scheduled on this day. Choose a day that matches the class timetable.`);
-            setSubmitting(false);
-            return;
-          }
+
+        const res = await api.post(
+            `/api/sessions/${activeSessionId}/attendance/`,
+            { records }
+        );
+
+        const { failed } = res.data;
+        if (failed && failed.length > 0) {
+            const failedNames = failed.map(enrollmentId => {
+                const enrollment = enrollments.find(e => e.id === enrollmentId);
+                return enrollment?.student_name ?? enrollmentId;
+            });
+            showToast("warning", `Attendance partially saved. Failed for: ${failedNames.join(", ")}`);
+        } else {
+            showToast("success", isEditMode ? "Attendance updated." : "Attendance saved.");
         }
-
-        const sessionRes = await api.post(`/api/sessions/`, {
-          class_ids: [classId],
-          session_date: selectedDate,
-          session_time: sessionTime,
-          notes,
-        });
-        activeSessionId = sessionRes.data.id;
-        setSessionId(activeSessionId);
-        setCurrentSessionNum(sessionRes.data.session_num);
-      }
-
-      const res = await api.post(
-        `/api/sessions/${activeSessionId}/attendance/`,
-        { records }
-      );
-
-      const { failed } = res.data;
-
-      if (failed && failed.length > 0) {
-        const failedNames = failed.map(enrollmentId => {
-          const enrollment = enrollments.find(e => e.id === enrollmentId);
-          return enrollment?.student_name ?? enrollmentId;
-        });
-        showToast("warning", `Attendance partially saved. Failed for: ${failedNames.join(", ")}`);
-      } else {
-        showToast("success", isEditMode ? "Attendance updated." : "Attendance saved.");
-      }
     } catch (err) {
-      const detail = err.response?.data?.detail || "Failed to save attendance.";
-      showToast("danger", detail);
+        const detail = err.response?.data?.detail || "Failed to save attendance.";
+        showToast("danger", detail);
     } finally {
-      setSubmitting(false);
+        setSubmitting(false);
+    }
+  };
+
+  const handleReschedule = async () => {
+    if (!rescheduleDate && !rescheduleTime) {
+        showToast("warning", "Please enter a new date or time.");
+        return;
+    }
+    setRescheduling(true);
+    try {
+        await api.patch(`/api/sessions/${sessionId}/`, {
+            ...(rescheduleDate && { session_date: rescheduleDate }),
+            ...(rescheduleTime && { session_time: rescheduleTime }),
+        });
+        showToast("success", "Session rescheduled successfully.");
+        setShowReschedule(false);
+        if (rescheduleDate) {
+            navigate(`/classes/${classId}/attendance?date=${rescheduleDate}`);
+        } else {
+            window.location.reload();
+        }
+    } catch (err) {
+        const data = err.response?.data;
+        const msg = data?.fields?.session?.[0] || data?.fields?.session_date?.[0] || data?.detail || "Failed to reschedule.";
+        showToast("danger", msg);
+    } finally {
+        setRescheduling(false);
     }
   };
 
@@ -181,12 +211,23 @@ export default function AttendanceMarkingPage() {
                   {isEditMode && <span className="badge-warning">Edit Mode</span>}
               </div>
           </div>
+            {isEditMode && (
+              <button className="btn-secondary mt-1" onClick={() => {
+                  setRescheduleDate(selectedDate);
+                  setRescheduleTime(sessionTime);
+                  setShowReschedule(true);
+              }}>
+                  Reschedule
+              </button>
+          )}
       </div>
 
       <SessionControls
         selectedDate={selectedDate}
         notes={notes}
         sessionTime={sessionTime}
+        classStartDate={classData?.start_date ?? ""}
+        classEndDate={classData?.end_date ?? ""}
         onDateChange={setSelectedDate}
         onNotesChange={setNotes}
         onTimeChange={setSessionTime}
@@ -200,6 +241,52 @@ export default function AttendanceMarkingPage() {
         submitting={submitting}
         isEditMode={isEditMode}
       />
+
+      {showReschedule && (
+        <div className="modal-backdrop">
+            <div className="modal-sm">
+                <div className="modal-header">
+                    <h3 className="modal-title">Reschedule Session</h3>
+                    <button className="btn-icon modal-close" onClick={() => setShowReschedule(false)}>✕</button>
+                </div>
+                <div className="modal-body space-y-4">
+                    <div className="alert alert-warning">
+                        <span className="alert-desc">
+                            Rescheduling is only allowed if no attendance has been recorded for this session.
+                        </span>
+                    </div>
+                    <div className="form-field">
+                        <label className="form-label">New Date</label>
+                        <input
+                            type="date"
+                            className="form-input"
+                            value={rescheduleDate}
+                            min={classData?.start_date || undefined}
+                            max={classData?.end_date || undefined}
+                            onChange={(e) => setRescheduleDate(e.target.value)}
+                        />
+                    </div>
+                    <div className="form-field">
+                        <label className="form-label">New Time</label>
+                        <input
+                            type="time"
+                            className="form-input"
+                            value={rescheduleTime}
+                            onChange={(e) => setRescheduleTime(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="modal-footer">
+                    <button className="btn-muted" onClick={() => setShowReschedule(false)} disabled={rescheduling}>
+                        Cancel
+                    </button>
+                    <button className="btn-primary" onClick={handleReschedule} disabled={rescheduling}>
+                        {rescheduling ? <><span className="btn-spinner" />Rescheduling...</> : "Confirm Reschedule"}
+                    </button>
+                </div>
+            </div>
+        </div>
+    )}
     </div>
   );
 }

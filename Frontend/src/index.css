@@ -459,6 +459,10 @@ LAYER: COMPONENTS
         right: 0.75rem;
 }
 
+[dir="rtl"] .rtl-flip {
+  transform: scaleX(-1);
+}
+
 .form-input-icon {
 @apply w-full pl-9 pr-3 py-2.5 rounded-lg border border-border bg-card
         text-sm text-navy placeholder:text-blue/40
