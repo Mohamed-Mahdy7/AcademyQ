@@ -112,9 +112,9 @@ function Topbar({onMenuClick}) {
                             <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                         </svg>
 
-                        {pendingAlerts.length > 0 && (
+                        {dropdownAlerts.length > 0 && (
                             <span className="absolute -top-1 -end-1 w-4 h-4 bg-danger rounded-full text-white text-[10px] font-bold flex items-center justify-center">
-                                {pendingAlerts.length > 9 ? "9+" : pendingAlerts.length}
+                                {dropdownAlerts.length > 9 ? "9+" : dropdownAlerts.length}
                             </span>
                         )}
                     </button>
