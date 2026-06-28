@@ -1,7 +1,9 @@
 import { useState } from "react";
 import TeacherCard from "./TeacherCard";
+import { useTranslation } from "react-i18next";
 
 export default function TeachersList({ teachers, onEdit, onDelete }) {
+  const { t } = useTranslation("teacher");
   const [page, setPage] = useState(1);
   const pageSize = 5;
 
@@ -16,8 +18,8 @@ export default function TeachersList({ teachers, onEdit, onDelete }) {
             <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
           </svg>
         </div>
-        <p className="empty-state-title">No teachers yet</p>
-        <p className="empty-state-desc">Add your first teacher to get started.</p>
+        <p className="empty-state-title">{t("list.empty_title")}</p>
+        <p className="empty-state-desc">{t("list.empty_desc")}</p>
       </div>
     );
   }
@@ -31,10 +33,10 @@ export default function TeachersList({ teachers, onEdit, onDelete }) {
         <table className="table">
           <thead className="table-thead">
             <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th className="text-end">Actions</th>
+              <th>{t("list.table_name")}</th>
+              <th>{t("list.table_email")}</th>
+              <th>{t("list.table_phone")}</th>
+              <th className="text-end">{t("list.table_actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -53,7 +55,7 @@ export default function TeachersList({ teachers, onEdit, onDelete }) {
       {totalPages > 1 && (
         <div className="pagination">
           <p className="pagination-info">
-            Page {page} of {totalPages}
+            {t("pagination.page_info", { page, total: totalPages })}
           </p>
           <div className="pagination-btns">
             <button

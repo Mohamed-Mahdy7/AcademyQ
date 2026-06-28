@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { getUsersRequest } from "../../services/usersService";
+import { useTranslation } from "react-i18next";
 
 const EMPTY_FORM = {
   user_id: "",
 };
 
 export default function TeacherForm({ editingTeacher, onSubmit, onCancel, errors, submitting }) {
+  const { t } = useTranslation("teacher");
   const [form, setForm] = useState(EMPTY_FORM);
   const [availableUsers, setAvailableUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
@@ -52,7 +54,7 @@ export default function TeacherForm({ editingTeacher, onSubmit, onCancel, errors
 
         <div className="modal-header">
           <h2 className="modal-title">
-            {editingTeacher ? "Edit teacher" : "Add teacher"}
+            {editingTeacher ? t("form.edit_title") : t("form.add_title")}
           </h2>
           <button className="btn-icon modal-close" onClick={onCancel}>
             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -67,7 +69,7 @@ export default function TeacherForm({ editingTeacher, onSubmit, onCancel, errors
             {!editingTeacher && (
               <div className="form-field">
                 <label className="form-label">
-                  User account <span className="form-required">*</span>
+                  {t("form.user_account_label")} <span className="form-required">*</span>
                 </label>
                 <select
                   name="user_id"
@@ -77,7 +79,7 @@ export default function TeacherForm({ editingTeacher, onSubmit, onCancel, errors
                   required
                 >
                   <option value="">
-                    {loadingUsers ? "Loading users..." : "Select a teacher user"}
+                    {loadingUsers ? t("form.loading_users") : t("form.select_user")}
                   </option>
                   {availableUsers.map((u) => (
                     <option key={u.id} value={u.id}>
@@ -87,7 +89,7 @@ export default function TeacherForm({ editingTeacher, onSubmit, onCancel, errors
                 </select>
                 {availableUsers.length === 0 && !loadingUsers && (
                   <p className="form-hint" style={{ color: "var(--color-warning)" }}>
-                    No available users with role = Teacher. Create a user first.
+                    {t("form.no_users")}
                   </p>
                 )}
                 {errors?.user_id && (
@@ -108,7 +110,7 @@ export default function TeacherForm({ editingTeacher, onSubmit, onCancel, errors
 
           <div className="modal-footer">
             <button type="button" className="btn-muted" onClick={onCancel}>
-              Cancel
+              {t("form.cancel")}
             </button>
             <button
               type="submit"
@@ -116,8 +118,8 @@ export default function TeacherForm({ editingTeacher, onSubmit, onCancel, errors
               disabled={submitting}
             >
               {submitting ? (
-                <><span className="btn-spinner" /> Saving...</>
-              ) : editingTeacher ? "Save changes" : "Add teacher"}
+                <><span className="btn-spinner" /> {t("form.saving")}</>
+              ) : editingTeacher ? t("form.save_submit") : t("form.add_submit")}
             </button>
           </div>
         </form>

@@ -1,0 +1,67 @@
+{
+    "page": {
+        "title": "Teachers",
+        "subtitle": "Manage teacher profiles and class assignments",
+        "add_button": "Add teacher"
+    },
+    "kpi": {
+        "total_teachers": "Total Teachers",
+        "active_classes": "Active Classes",
+        "sessions": "Sessions"
+    },
+    "search": {
+        "placeholder": "Search by name or email...",
+        "results": "{{count}} result",
+        "results_plural": "{{count}} results"
+    },
+    "list": {
+        "empty_title": "No teachers yet",
+        "empty_desc": "Add your first teacher to get started.",
+        "table_name": "Name",
+        "table_email": "Email",
+        "table_phone": "Phone",
+        "table_actions": "Actions"
+    },
+    "pagination": {
+        "page_info": "Page {{page}} of {{total}}"
+    },
+    "form": {
+        "add_title": "Add teacher",
+        "edit_title": "Edit teacher",
+        "user_account_label": "User account",
+        "loading_users": "Loading users...",
+        "select_user": "Select a teacher user",
+        "no_users": "No available users with role = Teacher. Create a user first.",
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "add_submit": "Add teacher",
+        "save_submit": "Save changes"
+    },
+    "edit_form": {
+        "title": "Edit Teacher",
+        "full_name_label": "Full Name",
+        "full_name_placeholder": "Teacher Full Name",
+        "email_label": "Email",
+        "email_placeholder": "Email",
+        "phone_label": "Phone",
+        "phone_placeholder": "Phone",
+        "save_button": "Save Changes"
+    },
+    "card": {
+        "edit_title": "Edit teacher",
+        "delete_title": "Deactivate teacher"
+    },
+    "delete_modal": {
+        "title": "Deactivate teacher?",
+        "message": "<strong>{{name}}</strong>'s account will be deactivated. They will no longer be able to log in. No data will be deleted.",
+        "cancel": "Cancel",
+        "confirm": "Deactivate",
+        "confirming": "Deactivating..."
+    },
+    "toast": {
+        "no_changes_title": "No changes made",
+        "no_changes_desc": "Edit a field before saving.",
+        "updated_title": "Teacher updated",
+        "updated_desc": "{{name}}'s profile was saved."
+    }
+}
