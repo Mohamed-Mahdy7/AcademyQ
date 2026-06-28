@@ -123,7 +123,7 @@ const StudentManagement = () => {
                                 </td>
                                 <td className="table-cell">
                                     {student.enrolled_at
-                                        ? `${t("enrolled_since_date")} ${new Date(student.enrolled_at).toLocaleDateString()}`
+                                        ? `${new Date(student.enrolled_at).toLocaleDateString()}`
                                         : t("not_enrolled_yet")
                                     }
                                 </td>

@@ -255,11 +255,12 @@ class StudentListSerializer(serializers.ModelSerializer):
     )
     enrollments = serializers.SerializerMethodField()
     overdue_days = serializers.SerializerMethodField()
+    enrolled_at = serializers.DateField(source="students.enrolled_at", required=False, allow_null=True)
 
     class Meta:
         model = User
         fields = [
-            "id", "full_name", "email", "phone", "academy", "parent_email", "educational_level", 
+            "id", "full_name", "email", "phone", "academy", "parent_email", "educational_level", "enrolled_at",
             "educational_level_display", "status", "status_display", "enrollments", "overdue_days"
         ]
 
