@@ -5,6 +5,7 @@ import EnrollmentTable from "./EnrollmentTable";
 import EnrollmentForm from "./EnrollmentForm";
 import { createPayment } from "../../services/paymentService";
 import { toast } from "../../lib/toastBus";
+import { useTranslation, Trans } from "react-i18next";
 
 export default function EnrollmentTab({ classId }) {
   const {
@@ -12,6 +13,7 @@ export default function EnrollmentTab({ classId }) {
     listEnrollments, addEnrollment, editEnrollment, removeEnrollment,
   } = useEnrollment();
 
+  const { t } = useTranslation("enrollment");
   const [showForm, setShowForm]         = useState(false);
   const [editingEnrollment, setEditing] = useState(null);
   const [formErrors, setFormErrors]     = useState({});
@@ -115,21 +117,21 @@ export default function EnrollmentTab({ classId }) {
           onChange={(e) => setStatusFilter(e.target.value)}
           className="filter-select"
         >
-          <option value="">All statuses</option>
-          <option value="active">Active</option>
-          <option value="paused">Paused</option>
-          <option value="dropped">Dropped</option>
-          <option value="completed">Completed</option>
+          <option value="">{t("tab.filter_all")}</option>
+          <option value="active">{t("tab.filter_active")}</option>
+          <option value="paused">{t("tab.filter_paused")}</option>
+          <option value="dropped">{t("tab.filter_dropped")}</option>
+          <option value="completed">{t("tab.filter_completed")}</option>
         </select>
         <div className="filter-bar-right">
           <p className="text-caption">
-            {filtered.length} student{filtered.length !== 1 ? "s" : ""}
+            {t(`tab.results${filtered.length !== 1 ? "_plural" : ""}`, { count: filtered.length })}
           </p>
           <button className="btn-primary" onClick={openAdd}>
             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
             </svg>
-            Enroll student
+            {t("tab.enroll_button")}
           </button>
         </div>
       </div>
@@ -174,7 +176,7 @@ export default function EnrollmentTab({ classId }) {
         <div className="modal-backdrop">
           <div className="modal modal-sm">
             <div className="modal-header">
-              <h2 className="modal-title">Drop enrollment?</h2>
+              <h2 className="modal-title">{t("drop_modal.title")}</h2>
               <button className="btn-icon" onClick={() => setDropConfirm(null)}>
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -183,14 +185,14 @@ export default function EnrollmentTab({ classId }) {
             </div>
             <div className="modal-body">
               <div className="alert alert-warning">
-                <p className="alert-desc">
-                  <strong>{dropConfirm.student_name}</strong>'s enrollment will be set to <strong>dropped</strong>. No data will be deleted.
-                </p>
+                <p className="alert-desc" dangerouslySetInnerHTML={{
+                  __html: t("drop_modal.message", { name: dropConfirm.student_name })
+                }} />
               </div>
             </div>
             <div className="modal-footer">
-              <button className="btn-muted" onClick={() => setDropConfirm(null)}>Cancel</button>
-              <button className="btn-danger" onClick={() => confirmDrop(dropConfirm)}>Drop</button>
+              <button className="btn-muted" onClick={() => setDropConfirm(null)}>{t("drop_modal.cancel")}</button>
+              <button className="btn-danger" onClick={() => confirmDrop(dropConfirm)}>{t("drop_modal.confirm")}</button>
             </div>
           </div>
         </div>

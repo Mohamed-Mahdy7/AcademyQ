@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getStudentsRequest } from "../../services/studentService";
+import { useTranslation, Trans } from "react-i18next";
 
 const EMPTY_FORM = {
   student_id: "",
@@ -17,6 +18,7 @@ export default function EnrollmentForm({
   errors,
   submitting,
 }) {
+  const { t } = useTranslation("enrollment");
   const [form, setForm] = useState(EMPTY_FORM);
   const [students, setStudents] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
@@ -72,7 +74,7 @@ export default function EnrollmentForm({
 
         <div className="modal-header">
           <h2 className="modal-title">
-            {editingEnrollment ? "Edit enrollment" : "Enroll student"}
+            {editingEnrollment ? t("form.edit_title") : t("form.add_title")}
           </h2>
           <button className="btn-icon modal-close" onClick={onCancel}>
             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -88,8 +90,11 @@ export default function EnrollmentForm({
             {classPrice && (
               <div className="alert alert-info">
                 <p className="alert-desc">
-                  Class price: <strong>{parseFloat(classPrice).toFixed(2)} EGP</strong>
-                  — a pending payment will be created automatically.
+                  <Trans
+                    i18nKey="enrollment:form.class_price_desc"
+                    values={{ price: parseFloat(classPrice).toFixed(2) }}
+                    components={{ strong: <strong /> }}
+                  />
                 </p>
               </div>
             )}
@@ -98,7 +103,7 @@ export default function EnrollmentForm({
             {!editingEnrollment && (
               <div className="form-field">
                 <label className="form-label">
-                  Student <span className="form-required">*</span>
+                  {t("form.student_label")} <span className="form-required">*</span>
                 </label>
                 <select
                   name="student_id"
@@ -108,7 +113,7 @@ export default function EnrollmentForm({
                   required
                 >
                   <option value="">
-                    {loadingUsers ? "Loading students..." : "Select a student"}
+                    {loadingUsers ? t("form.loading_students") : t("form.select_student")}
                   </option>
                   {students.map((s) => (
                     <option key={s.id} value={s.id}>
@@ -127,7 +132,7 @@ export default function EnrollmentForm({
             {/* Start date */}
             <div className="form-field">
               <label className="form-label">
-                Start date <span className="form-required">*</span>
+                {t("form.start_date_label")} <span className="form-required">*</span>
               </label>
               <input
                 type="date"
@@ -137,11 +142,12 @@ export default function EnrollmentForm({
                 min={dateMin}
                 max={dateMax}
                 className={errors?.start_date ? "form-input-error" : "form-input"}
+                disabled={editingEnrollment ? true : false}
                 required
               />
               {classStart && (
                   <p className="form-hint">
-                      Must be within 1 week before class start ({classStart}) and no later than class start date.
+                      {t("form.start_date_hint", { classStart })}
                   </p>
               )}
             </div>
@@ -149,17 +155,17 @@ export default function EnrollmentForm({
             {/* Status — only on edit */}
             {editingEnrollment && (
               <div className="form-field">
-                <label className="form-label">Status</label>
+                <label className="form-label">{t("form.status_label")}</label>
                 <select
                   name="status"
                   value={form.status}
                   onChange={handleChange}
                   className="form-select"
                 >
-                  <option value="active">Active</option>
-                  <option value="paused">Paused</option>
-                  <option value="dropped">Dropped</option>
-                  <option value="completed">Completed</option>
+                  <option value="active">{t("form.status_active")}</option>
+                  <option value="paused">{t("form.status_paused")}</option>
+                  <option value="dropped">{t("form.status_dropped")}</option>
+                  <option value="completed">{t("form.status_completed")}</option>
                 </select>
               </div>
             )}
@@ -173,15 +179,15 @@ export default function EnrollmentForm({
           </div>
 
           <div className="modal-footer">
-            <button type="button" className="btn-muted" onClick={onCancel}>Cancel</button>
+            <button type="button" className="btn-muted" onClick={onCancel}>{t("form.cancel")}</button>
             <button
               type="submit"
               className={`btn-primary ${submitting ? "btn-disabled" : ""}`}
               disabled={submitting}
             >
               {submitting ? (
-                <><span className="btn-spinner" /> Saving...</>
-              ) : editingEnrollment ? "Save changes" : "Enroll student"}
+                <><span className="btn-spinner" /> {t("form.saving")}</>
+              ) : editingEnrollment ? t("form.save_submit") : t("form.add_submit")}
             </button>
           </div>
         </form>

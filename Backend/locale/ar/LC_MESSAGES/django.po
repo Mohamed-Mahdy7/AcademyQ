@@ -218,19 +218,19 @@ msgstr "الفرقة السادسة الجامعية"
 
 #: financial_operations/models.py:21
 msgid "Paused"
-msgstr ""
+msgstr "مؤجل"
 
 #: financial_operations/models.py:23 financial_operations/models.py:48
 msgid "Completed"
-msgstr ""
+msgstr "مكتمل"
 
 #: financial_operations/models.py:49
 msgid "Cancelled"
-msgstr ""
+msgstr "ملغى"
 
 #: financial_operations/models.py:50
 msgid "Deleted"
-msgstr ""
+msgstr "محذوف"
 
 #: structure/models.py:116
 msgid "Monday"
@@ -291,3 +291,31 @@ msgstr "لا يمكن أن يكون تاريخ التسجيل قبل تاريخ 
 #: grades/serializers.py:44
 msgid "This session has not been conducted yet."
 msgstr "لم تُعقد هذه الحصة بعد."
+
+#: structure/enrollment/serializers.py
+msgid "Student is already enrolled in this class"
+msgstr "الطالب مسجل بالفعل في هذا الفصل"
+
+#: structure/enrollment/serializers.py
+msgid "Enrollment start date cannot be before class start date"
+msgstr "لا يمكن أن يكون تاريخ بداية التسجيل قبل تاريخ بداية الفصل"
+
+#: structure/enrollment/serializers.py
+msgid "Cannot enroll student in a class that has been completed"
+msgstr "لا يمكن تسجيل الطالب في فصل مكتمل"
+
+#: structure/enrollment/views.py
+msgid "Enrollment created successfully"
+msgstr "تم إنشاء التسجيل بنجاح"
+
+#: structure/enrollment/views.py
+msgid "Enrollment updated successfully"
+msgstr "تم تحديث التسجيل بنجاح"
+
+#: structure/enrollment/views.py
+msgid "Enrollment deleted successfully"
+msgstr "تم حذف التسجيل بنجاح"
+
+#: structure/enrollment/views.py
+msgid "Cannot delete enrollment: pending payments exist"
+msgstr "لا يمكن حذف التسجيل: توجد دفعات معلقة"
