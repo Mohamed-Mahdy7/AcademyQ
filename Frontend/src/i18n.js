@@ -14,8 +14,8 @@ import gradesEn from "./locales/en/grades.json";
 import gradesAr from "./locales/ar/grades.json";
 import alertsEn from "./locales/en/alerts.json";
 import alertsAr from "./locales/ar/alerts.json";
-import layoutEn from "./locales/en/layout.json"
-import layoutAr from "./locales/ar/layout.json"
+import layoutEn from "./locales/en/layout.json";
+import layoutAr from "./locales/ar/layout.json";
 
 
 i18n
