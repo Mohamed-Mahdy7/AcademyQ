@@ -19,7 +19,13 @@ function Topbar() {
     const [open, setOpen] = useState(false);
     const dropdownRef = useRef(null);
 
-    const [dropdownDismissed, setDropdownDismissed] = useState([]);
+    const [dropdownDismissed, setDropdownDismissed] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem('dropdown_dismissed_alerts') || '[]');
+        } catch {
+            return [];
+        }
+    });
 
     const { alerts, loading, fetchAlerts } = useAlerts();
 
@@ -67,9 +73,12 @@ function Topbar() {
     );
 
     function handleDropdownDismiss(id) {
-        setDropdownDismissed((prev) => [...prev, id]);
+        setDropdownDismissed((prev) => {
+            const updated = [...prev, id];
+            localStorage.setItem('dropdown_dismissed_alerts', JSON.stringify(updated));
+            return updated;
+        });
     }
-
     return (
         <header className="topbar">
             <div>
