@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import api from "../../api";
 import { getGrades } from "../../services/gradesService";
 
 export default function GradeHistoryTab({ studentId }) {
+  const { t } = useTranslation("grades");
   const [enrollments, setEnrollments] = useState([]);
   const [grades, setGrades] = useState({});
   const [expanded, setExpanded] = useState(null);
@@ -11,19 +13,13 @@ export default function GradeHistoryTab({ studentId }) {
   useEffect(() => {
     if (!studentId) return;
     api.get(`/api/enrollments/?student_id=${studentId}`)
-      .then(res => {
-        const data = res.data.results ?? res.data;
-        setEnrollments(data);
-      })
+      .then(res => setEnrollments(res.data.results ?? res.data))
       .catch(() => setEnrollments([]))
       .finally(() => setLoading(false));
   }, [studentId]);
 
   const handleExpand = (enrollmentId) => {
-    if (expanded === enrollmentId) {
-      setExpanded(null);
-      return;
-    }
+    if (expanded === enrollmentId) { setExpanded(null); return; }
     setExpanded(enrollmentId);
     if (!grades[enrollmentId]) {
       getGrades(enrollmentId)
@@ -41,14 +37,12 @@ export default function GradeHistoryTab({ studentId }) {
     return "badge-grade-bad";
   };
 
-  if (loading) return <p className="text-body-muted p-4">Loading grades...</p>;
+  if (loading) return <p className="text-body-muted p-4">{t("loading_grades")}</p>;
 
   if (!enrollments.length) return (
     <div className="empty-state">
-      <p className="empty-state-title">No enrollments found</p>
-      <p className="empty-state-desc">
-        Grades will appear here once the student is enrolled in a class.
-      </p>
+      <p className="empty-state-title">{t("no_grades_enrolled")}</p>
+      <p className="empty-state-desc">{t("no_grades_enrolled_desc")}</p>
     </div>
   );
 
@@ -57,70 +51,56 @@ export default function GradeHistoryTab({ studentId }) {
       {enrollments.map((e) => {
         const enrollmentGrades = grades[e.id] || [];
         const isExpanded = expanded === e.id;
-
         const count = enrollmentGrades.length;
         const average = count
-          ? Math.round(
-              enrollmentGrades.reduce((sum, g) => {
-                const pct = g.max_score ? (g.score / g.max_score) * 100 : 0;
-                return sum + pct;
-              }, 0) / count
-            )
+          ? Math.round(enrollmentGrades.reduce((sum, g) => {
+              return sum + (g.max_score ? (g.score / g.max_score) * 100 : 0);
+            }, 0) / count)
           : null;
 
         return (
           <div key={e.id} className="card">
-            <div
-              className="card-header cursor-pointer"
-              onClick={() => handleExpand(e.id)}
-            >
+            <div className="card-header cursor-pointer" onClick={() => handleExpand(e.id)}>
               <div className="flex items-center gap-3">
                 <span className="heading-4">{e.class_name}</span>
-                <span className={`badge ${e.status === 'active' ? 'badge-success' : 'badge-muted'}`}>
+                <span className={`badge ${e.status === "active" ? "badge-success" : "badge-muted"}`}>
                   {e.status}
                 </span>
               </div>
-
               <div className="flex items-center gap-4">
                 {isExpanded && average !== null && (
-                  <span className={getPctBadge(average)}>
-                    {average}% avg
-                  </span>
+                  <span className={getPctBadge(average)}>{t("avg_label", { avg: average })}</span>
                 )}
-                <span className="text-blue text-sm">
-                  {isExpanded ? "▲" : "▼"}
-                </span>
+                <span className="text-blue text-sm">{isExpanded ? "▲" : "▼"}</span>
               </div>
             </div>
 
             {isExpanded && (
               <div className="p-4">
                 {enrollmentGrades.length === 0 ? (
-                  <p className="text-body-muted text-sm">No grades recorded yet.</p>
+                  <p className="text-body-muted text-sm">{t("no_grades_yet")}</p>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="table min-w-[400px]">
                       <thead className="table-thead">
                         <tr>
-                          <th>Session #</th>
-                          <th>Subject</th>
-                          <th>Score</th>
-                          <th>%</th>
-                          <th>Date</th>
+                          <th>{t("session_num")}</th>
+                          <th>{t("subject")}</th>
+                          <th>{t("score")}</th>
+                          <th>{t("percentage")}</th>
+                          <th>{t("assigned_date")}</th>
                         </tr>
                       </thead>
                       <tbody>
                         {enrollmentGrades.map((g) => {
-                          const pct = g.max_score
-                            ? Math.round((g.score / g.max_score) * 100)
-                            : 0;
+                          const pct = g.max_score ? Math.round((g.score / g.max_score) * 100) : 0;
                           return (
                             <tr key={g.id} className="table-row">
                               <td className="table-cell">
-                                {g.session_num ? `Session ${g.session_num}` : "—"}
+                                {g.session_num ? t("session_label", { num: g.session_num }) : "—"}
                               </td>
                               <td className="table-cell">{g.subject_name}</td>
-                              <td className="table-cell">{g.score}/{g.max_score}</td>
+                              <td className="table-cell">{t("score_display", { score: g.score, max: g.max_score })}</td>
                               <td className="table-cell">
                                 <span className={getPctBadge(pct)}>{pct}%</span>
                               </td>

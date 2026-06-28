@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import api from "../../api";
 import { toast } from "../../lib/toastBus";
 
 export default function GenerateSessionsModal({ classId, classStartDate, classEndDate, onClose, onSuccess }) {
+  const { t } = useTranslation("attendance");
   const [startDate, setStartDate] = useState(classStartDate || "");
   const [endDate, setEndDate] = useState(classEndDate || "");
   const [loading, setLoading] = useState(false);
@@ -10,11 +12,11 @@ export default function GenerateSessionsModal({ classId, classStartDate, classEn
 
   const handleGenerate = async () => {
     if (!startDate || !endDate) {
-      setError("Both dates are required.");
+      setError(t("both_dates_required"));
       return;
     }
     if (endDate < startDate) {
-      setError("End date must be after start date.");
+      setError(t("end_before_start"));
       return;
     }
     setLoading(true);
@@ -26,33 +28,32 @@ export default function GenerateSessionsModal({ classId, classStartDate, classEn
       });
       const { sessions_created, skipped_existing, skipped_limit } = res.data;
       if (sessions_created === 0) {
-          toast.warning(
-              "No sessions created",
-              "The selected date range contains no days matching the class schedule."
-          );
+        toast.warning(t("no_sessions_created"), t("no_sessions_created_desc"));
       } else {
-          const parts = [];
-          if (skipped_existing > 0) parts.push(`${skipped_existing} already existed`);
-          if (skipped_limit > 0) parts.push(`${skipped_limit} exceeded session limit`);
-          toast.success(
-              "Sessions generated",
-              `${sessions_created} session${sessions_created !== 1 ? "s" : ""} created${parts.length > 0 ? `. Skipped: ${parts.join(", ")}` : ""}.`
-          );
-      } 
-      onSuccess(res.data);
-      onClose();
-    } catch (err) {
-    const data = err.response?.data;
-    const detail = data?.detail || "Failed to generate sessions.";
-    const fields = data?.fields;
-
-    if (fields?.class_id) {
-        // no schedule or class not found — global toast, close modal
-        toast.danger("Cannot generate sessions", fields.class_id[0]);
-        onClose();
-      } else {
-          setError(detail);
+        const parts = [];
+        if (skipped_existing > 0) parts.push(t("skipped_existed", { count: skipped_existing }));
+        if (skipped_limit > 0) parts.push(t("skipped_limit", { count: skipped_limit }));
+        toast.success(
+          t("sessions_generated"),
+          `${sessions_created === 1
+            ? t("sessions_generated_desc", { count: sessions_created })
+            : t("sessions_generated_desc_plural", { count: sessions_created })
+          }${parts.length > 0 ? `. ${t("notes")}: ${parts.join(", ")}` : ""}.`
+        );
       }
+      onSuccess(res.data);
+    } catch (err) {
+      const data = err.response?.data;
+      const fields = data?.fields;
+      if (fields?.class_id) {
+            setError(fields.class_id[0]);
+        } else if (fields?.start_date) {
+            setError(fields.start_date[0]);
+        } else if (fields?.end_date) {
+            setError(fields.end_date[0]);
+        } else {
+            setError(data?.detail || "Failed to generate sessions.");
+        }
     } finally {
       setLoading(false);
     }
@@ -62,7 +63,7 @@ export default function GenerateSessionsModal({ classId, classStartDate, classEn
     <div className="modal-backdrop">
       <div className="modal-md">
         <div className="modal-header">
-          <h3 className="modal-title">Generate Sessions</h3>
+          <h3 className="modal-title">{t("generate_sessions_title")}</h3>
           <button className="btn-icon modal-close" onClick={onClose}>✕</button>
         </div>
         <div className="modal-body">
@@ -72,42 +73,21 @@ export default function GenerateSessionsModal({ classId, classStartDate, classEn
             </div>
           )}
           <div className="form-field">
-            <label className="form-label">
-              Start Date <span className="form-required">*</span>
-            </label>
-            <input
-              type="date"
-              className="form-input"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
+            <label className="form-label">{t("start_date")} <span className="form-required">*</span></label>
+            <input type="date" className="form-input" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
           </div>
           <div className="form-field">
-            <label className="form-label">
-              End Date <span className="form-required">*</span>
-            </label>
-            <input
-              type="date"
-              className="form-input"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
+            <label className="form-label">{t("end_date")} <span className="form-required">*</span></label>
+            <input type="date" className="form-input" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
           </div>
           <div className="alert alert-info">
-            <span className="alert-desc">
-              Sessions will be generated based on the class schedule.
-              Existing sessions will be skipped automatically.
-            </span>
+            <span className="alert-desc">{t("generate_sessions_info")}</span>
           </div>
         </div>
         <div className="modal-footer">
-          <button className="btn-muted" onClick={onClose} disabled={loading}>
-            Cancel
-          </button>
+          <button className="btn-muted" onClick={onClose} disabled={loading}>{t("cancel")}</button>
           <button className="btn-primary" onClick={handleGenerate} disabled={loading}>
-            {loading ? (
-              <><span className="btn-spinner" />Generating...</>
-            ) : "Generate Sessions"}
+            {loading ? <><span className="btn-spinner" />{t("generating")}</> : t("generate_sessions")}
           </button>
         </div>
       </div>

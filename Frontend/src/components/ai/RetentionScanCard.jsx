@@ -38,7 +38,6 @@ export default function RetentionScanCard({ onScanComplete }) {
         const detail = err.response?.data?.detail || t("retention_scan.toast_limit_desc");
         toast.warning(t("retention_scan.toast_rate_limited"), detail);
         setRateLimited(true);
-        // persist until midnight
         const midnight = new Date();
         midnight.setHours(24, 0, 0, 0);
         localStorage.setItem("scan_rate_limited_until", midnight.toISOString());
