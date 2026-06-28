@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 function getStatusClass(status) {
   switch (status) {
     case "active":    return "badge-success";
@@ -9,6 +11,7 @@ function getStatusClass(status) {
 }
 
 export default function StudentEnrollmentTable({ enrollments }) {
+  const { t } = useTranslation("enrollment");
   if (enrollments.length === 0) {
     return (
       <div className="empty-state">
@@ -20,8 +23,8 @@ export default function StudentEnrollmentTable({ enrollments }) {
             <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
           </svg>
         </div>
-        <p className="empty-state-title">No enrollments found</p>
-        <p className="empty-state-desc">This student is not enrolled in any classes yet.</p>
+        <p className="empty-state-title">{t("student_table.empty_title")}</p>
+        <p className="empty-state-desc">{t("student_table.empty_desc")}</p>
       </div>
     );
   }
@@ -31,11 +34,11 @@ export default function StudentEnrollmentTable({ enrollments }) {
       <table className="table">
         <thead className="table-thead">
           <tr>
-            <th>Class Name</th>
-            <th>Class Price</th>
-            <th>Total Paid</th>
-            <th>Balance Due</th>
-            <th>Status</th>
+            <th>{t("student_table.header_class_name")}</th>
+            <th>{t("student_table.header_class_price")}</th>
+            <th>{t("student_table.header_total_paid")}</th>
+            <th>{t("student_table.header_balance_due")}</th>
+            <th>{t("student_table.header_status")}</th>
           </tr>
         </thead>
         <tbody>
@@ -87,7 +90,7 @@ export default function StudentEnrollmentTable({ enrollments }) {
                 </td>
                 <td className="table-cell">
                   <span className={getStatusClass(enrollment.status)}>
-                    {enrollment.status}
+                    {t(`form.status_${enrollment.status}`)}
                   </span>
                 </td>
 

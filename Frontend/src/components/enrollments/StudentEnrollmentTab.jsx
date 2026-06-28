@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useEnrollment } from "../../context/EnrollmentContext";
 import StudentEnrollmentTable from "./StudentEnrollmentTable";
+import { useTranslation } from "react-i18next";
 
 export default function StudentEnrollmentTab({ studentId }) {
+  const { t } = useTranslation("enrollment");
   const { enrollments, loading, error, listEnrollments } = useEnrollment();
   const [statusFilter, setStatusFilter] = useState("");
 
@@ -24,15 +26,15 @@ export default function StudentEnrollmentTab({ studentId }) {
           onChange={(e) => setStatusFilter(e.target.value)}
           className="filter-select"
         >
-          <option value="">All statuses</option>
-          <option value="active">Active</option>
-          <option value="paused">Paused</option>
-          <option value="dropped">Dropped</option>
-          <option value="completed">Completed</option>
+          <option value="">{t("student_tab.filter_all")}</option>
+          <option value="active">{t("student_tab.filter_active")}</option>
+          <option value="paused">{t("student_tab.filter_paused")}</option>
+          <option value="dropped">{t("student_tab.filter_dropped")}</option>
+          <option value="completed">{t("student_tab.filter_completed")}</option>
         </select>
         <div className="filter-bar-right">
           <p className="text-caption">
-            {filtered.length} class{filtered.length !== 1 ? "es" : ""}
+            {t(`student_tab.results${filtered.length !== 1 ? "_plural" : ""}`, { count: filtered.length })}
           </p>
         </div>
       </div>

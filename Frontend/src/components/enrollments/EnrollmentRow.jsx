@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 function getStatusClass(status) {
   switch (status) {
     case "active":    return "badge-success";
@@ -9,6 +11,7 @@ function getStatusClass(status) {
 }
 
 export default function EnrollmentRow({ enrollment, classPrice, onEdit, onDrop }) {
+  const { t } = useTranslation("enrollment");
   const dueDate = enrollment.payments?.[0]?.due_date || "—";
   return (
     <tr className="table-row">
@@ -22,7 +25,7 @@ export default function EnrollmentRow({ enrollment, classPrice, onEdit, onDrop }
       {/* Status */}
       <td className="table-cell">
         <span className={getStatusClass(enrollment.status)}>
-          {enrollment.status}
+          {t(`form.status_${enrollment.status}`)}
         </span>
       </td>
 
@@ -46,7 +49,7 @@ export default function EnrollmentRow({ enrollment, classPrice, onEdit, onDrop }
         <button
           className="btn-icon"
           onClick={() => onEdit(enrollment)}
-          title="Edit enrollment"
+          title={t("row.edit_title")}
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -56,7 +59,7 @@ export default function EnrollmentRow({ enrollment, classPrice, onEdit, onDrop }
         <button
           className="btn-icon text-danger hover:bg-danger-bg"
           onClick={() => onDrop(enrollment)}
-          title="Drop enrollment"
+          title={t("row.drop_title")}
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="3 6 5 6 21 6"/>
