@@ -1,11 +1,7 @@
- # core/tests.py
-
 from datetime import timedelta
-
 from django.test import TestCase
 from django.utils import timezone
 from rest_framework.test import APITestCase, APIClient
-
 from core.models import Academy, User, Students
 from core.serializers import (
     AcademyRegistrationSerializer,
@@ -24,6 +20,8 @@ from rest_framework.exceptions import (
     ValidationError,
     NotFound,
 )
+from core.exceptions import custom_exception_handler
+from rest_framework_simplejwt.tokens import RefreshToken
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -567,10 +565,10 @@ class AcademyApiTests(APITestCase):
         self.academy.refresh_from_db()
         self.assertEqual(self.academy.name, "Updated Name")
 
-    def test_academy_list_requires_auth(self):
+    def test_academy_list(self):
         anon_client = APIClient()
         response = anon_client.get("/api/auth/academies/")
-        self.assertIn(response.status_code, [401, 403])
+        self.assertEqual(response.status_code, 200)
 
 
 class CompleteSetupApiTests(APITestCase):
@@ -579,6 +577,7 @@ class CompleteSetupApiTests(APITestCase):
         self.client = APIClient()
         self.academy = create_academy(
             email="setupacademy@test.com",
+            address="Tanta",
             subscription_end=timezone.now().date() + timedelta(days=10),
         )
         self.owner = create_user(

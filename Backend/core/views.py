@@ -115,6 +115,7 @@ class LoginView(TokenObtainPairView):
     },
 )
 class RefreshTokenView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         refresh_token = request.COOKIES.get("refresh_token")
         
@@ -145,7 +146,7 @@ class RefreshTokenView(APIView):
     )},
 )
 class LogoutView(APIView):
-
+    permission_classes = [AllowAny]
     def post(self, request):
         response = Response({"message": "Logged out"})
         response.delete_cookie("access_token")
@@ -269,6 +270,7 @@ class UserViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
 
 @extend_schema(tags=["Staff"])
 class RolesListView(APIView):
+    permission_classes = [AllowAny]
     def get(self, request):
         return Response([{
             "value": value,

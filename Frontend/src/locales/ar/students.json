@@ -10,7 +10,7 @@
     "all_students": "جميع الطلاب",
 
     "student_name": "اسم الطالب",
-    "parent_phone": "هاتف ولي الأمر",
+    "parent_email_header": "بريد ولي الأمر",
     "grade_level": "المرحلة الدراسية",
     "enrollments": "الاشتراكات",
     "enrolled_since": "تاريخ التسجيل",
