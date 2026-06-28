@@ -16,6 +16,8 @@ import alertsEn from "./locales/en/alerts.json";
 import alertsAr from "./locales/ar/alerts.json";
 import layoutEn from "./locales/en/layout.json"
 import layoutAr from "./locales/ar/layout.json"
+import subjectsEn from "./locales/en/subjects.json";
+import subjectsAr from "./locales/ar/subjects.json";
 
 
 i18n
@@ -31,6 +33,7 @@ i18n
             grades: gradesEn,
             alerts: alertsEn,
             layout: layoutEn,
+            subjects: subjectsEn,
         },
         ar: { 
             common: commonAr,
@@ -39,13 +42,14 @@ i18n
             attendance: attendanceAr,
             grades: gradesAr,
             alerts: alertsAr,
-            layout: layoutAr
+            layout: layoutAr,
+            subjects: subjectsAr,
         },
 
     },
     fallbackLng: "ar", // Arabic-first: if detection fails, default to Arabic, not English
     defaultNS: "common",
-    ns: ["common", "auth", "students", "attendance", "grades", "alerts", "layout"],
+    ns: ["common", "auth", "students", "attendance", "grades", "alerts", "layout", "subjects"],
     interpolation: { escapeValue: false },
     detection: {
     order: ["localStorage", "navigator"],
