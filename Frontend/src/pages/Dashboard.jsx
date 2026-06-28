@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import KpiCardsSection from "../components/dashboard/KpiCardsSection"
 import AtRiskCard from "../components/dashboard/AtRiskCard"
 import ActivityCard from "../components/dashboard/ActivityCard"
@@ -7,11 +8,13 @@ import RetentionScanCard from "../components/ai/RetentionScanCard"
 import PaymentReminderCard from "../components/dashboard/PaymentReminderCard"
 
 const Dashboard = () => {
+    const { t } = useTranslation("dashboard");
+
     return (
         <>
             <div className="mb-6">
-                <h1 className="heading-1">Welcome!</h1>
-                <p className="subheading">Here's what's happenning at your academy today.</p>
+                <h1 className="heading-1">{t("welcome")}</h1>
+                <p className="subheading">{t("welcome_sub")}</p>
             </div>
 
             <KpiCardsSection />
@@ -31,8 +34,8 @@ const Dashboard = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                         d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                 </svg>
-                <h2 className="heading-3">AI Retention Intelligence</h2>
-                <span className="badge-info text-xs">Powered by AI</span>
+                <h2 className="heading-3">{t("ai_section_title")}</h2>
+                <span className="badge-info text-xs">{t("ai_section_badge")}</span>
             </div>
 
             <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
