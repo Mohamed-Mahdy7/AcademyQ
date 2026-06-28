@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { NotificationsContext } from "../../context/NotificationsContext";
+import { useTranslation } from "react-i18next";
 
 const STATUS_COLORS = {
     sent: "badge-success",
@@ -7,11 +8,12 @@ const STATUS_COLORS = {
     pending: "badge-warning",
 };
 
-const CHANNEL_LABELS = {
-    email: "Email",
-};
+// const CHANNEL_LABELS = {
+//     email: "Email",
+// };
 
 function NotificationHistoryPage() {
+    const { t, i18n } = useTranslation("notification");
     const { notifications, stats, getNotifications, getStats } =
         useContext(NotificationsContext);
 
@@ -31,10 +33,11 @@ function NotificationHistoryPage() {
         load();
     }, [channelFilter, statusFilter]);
 
-    function formatDate(dateStr) {
+    function formatDate(dateStr, locale) {
         if (!dateStr) return "—";
         const d = new Date(dateStr);
-        return d.toLocaleDateString("en-EG", {
+        const lang = locale === "ar" ? "ar-EG" : "en-EG";
+        return d.toLocaleDateString(lang, {
             day: "numeric",
             month: "short",
             year: "numeric",
@@ -48,34 +51,34 @@ function NotificationHistoryPage() {
 
             {/* Header */}
             <div className="mb-6">
-                <h1 className="heading-1">Notification History</h1>
+                <h1 className="heading-1">{t("page.title")}</h1>
                 <p className="subheading">
-                    Track all parent messages sent by the AI Retention System
+                    {t("page.subtitle")}
                 </p>
             </div>
 
             {/* Stats */}
             <div className="stat-grid mb-6">
                 <div className="kpi-card">
-                    <p className="kpi-label">Sent Today</p>
+                    <p className="kpi-label">{t("kpi.sent_today")}</p>
                     <p className="kpi-value">
                         {loading ? "—" : (stats?.sent_today ?? 0)}
                     </p>
                 </div>
                 <div className="kpi-card">
-                    <p className="kpi-label">This Week</p>
+                    <p className="kpi-label">{t("kpi.this_week")}</p>
                     <p className="kpi-value">
                         {loading ? "—" : (stats?.sent_this_week ?? 0)} 
                     </p>
                 </div>
                 <div className="kpi-card">
-                    <p className="kpi-label">Failed</p>
+                    <p className="kpi-label">{t("kpi.failed")}</p>
                     <p className="kpi-value text-danger">
                         {loading ? "—" : (stats?.failed_this_week ?? 0)} 
                     </p>
                 </div>
                 <div className="kpi-card">
-                    <p className="kpi-label">Delivery Rate</p>
+                    <p className="kpi-label">{t("kpi.delivery_rate")}</p>
                     <p className="kpi-value text-success">
                         {loading ? "—" : `${stats?.delivery_rate_pct ?? 0}%`} 
                     </p>
@@ -87,25 +90,25 @@ function NotificationHistoryPage() {
 
                 {/* Filter bar inside card header */}
                 <div className="card-header">
-                    <h2 className="card-header-title">All Messages</h2>
+                    <h2 className="card-header-title">{t("table.title")}</h2>
                     <div className="flex items-center gap-2">
                         <select
                             className="filter-select"
                             value={channelFilter}
                             onChange={(e) => setChannelFilter(e.target.value)}
                         >
-                            <option value="">All channels</option>
-                            <option value="email">Email</option>
+                            <option value="">{t("table.filter_channels")}</option>
+                            <option value="email">{t("table.filter_email")}</option>
                         </select>
                         <select
                             className="filter-select"
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
                         >
-                            <option value="">All statuses</option>
-                            <option value="sent">Sent</option>
-                            <option value="failed">Failed</option>
-                            <option value="pending">Pending</option>
+                            <option value="">{t("table.filter_statuses")}</option>
+                            <option value="sent">{t("table.filter_sent")}</option>
+                            <option value="failed">{t("table.filter_failed")}</option>
+                            <option value="pending">{t("table.filter_pending")}</option>
                         </select>
                     </div>
                 </div>
@@ -124,20 +127,20 @@ function NotificationHistoryPage() {
                                     d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
                             </svg>
                         </div>
-                        <p className="empty-state-title">No notifications yet</p>
+                        <p className="empty-state-title">{t("table.empty_title")}</p>
                         <p className="empty-state-desc">
-                            Messages sent from the Alert Inbox will appear here.
+                            {t("table.empty_desc")}
                         </p>
                     </div>
                 ) : (
                     <table className="table">
                         <thead className="table-thead">
                             <tr>
-                                <th>Recipient</th>
-                                <th>Channel</th>
-                                <th>Message</th>
-                                <th>Status</th>
-                                <th>Sent At</th>
+                                <th>{t("table.header_recipient")}</th>
+                                <th>{t("table.header_channel")}</th>
+                                <th>{t("table.header_message")}</th>
+                                <th>{t("table.header_status")}</th>
+                                <th>{t("table.header_sent_at")}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -149,7 +152,7 @@ function NotificationHistoryPage() {
                                     </td>
                                     <td className="table-cell-muted">
                                         <span className="badge-info">
-                                            {CHANNEL_LABELS[n.channel] || n.channel}
+                                            {t(`channel.${n.channel}`) || n.channel}
                                         </span>
                                     </td>
                                     <td className="table-cell" style={{ maxWidth: "320px" }}>
@@ -159,11 +162,11 @@ function NotificationHistoryPage() {
                                     </td>
                                     <td className="table-cell">
                                         <span className={STATUS_COLORS[n.status] || "badge-muted"}>
-                                            {n.status.charAt(0).toUpperCase() + n.status.slice(1)}
+                                            {t(`status.${n.status}`) || n.status}
                                         </span>
                                     </td>
                                     <td className="table-cell-muted text-xs">
-                                        {formatDate(n.sent_at)}
+                                        {formatDate(n.sent_at, i18n.language)}
                                     </td>
                                 </tr>
                             ))}
