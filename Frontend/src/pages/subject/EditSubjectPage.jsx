@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import SubjectForm from "../../components/subjects/SubjectForm";
 import { getSubject, updateSubject } from "../../services/subjectService";
 import { toast } from "../../lib/toastBus";
 
 function EditSubjectPage() {
+    const { t } = useTranslation(["subjects", "common"]);
     const { id } = useParams();
     const navigate = useNavigate();
     const [subject, setSubject] = useState(null);
@@ -17,20 +19,20 @@ function EditSubjectPage() {
                 setSubject(response.data);
             } catch {
                 toast.danger(
-                    "Unable to load subject",
-                    "The requested subject could not be loaded."
+                    t("unable_to_load_subject"),
+                    t("subject_load_failed_desc")
                 );
             } finally {
                 setLoading(false);
             }
         };
         fetchSubject();
-    }, [id]);
+    }, [id, t]);
 
     const handleSubmit = async (data) => {
         try {
             await updateSubject(id, data);
-            toast.success("Subject updated", "The subject has been updated successfully.");
+            toast.success(t("subject_updated"), t("subject_updated_desc"));
             navigate("/subjects");
         } catch (error) {
             const responseData = error.response?.data;
@@ -38,14 +40,14 @@ function EditSubjectPage() {
                 responseData?.detail ||
                 responseData?.non_field_errors?.[0] ||
                 Object.values(responseData || {}).flat()[0] ||
-                "Failed to update the subject. Please try again.";
-            toast.danger("Update failed", message);
+                t("failed_to_update_subject");
+            toast.danger(t("update_failed"), message);
             throw error;
         }
     };
 
     if (loading)
-        return <p className="p-6 text-sm text-blue">Loading...</p>;
+        return <p className="p-6 text-sm text-blue">{t("loading")}</p>;
 
     if (!subject)
         return (
@@ -54,12 +56,10 @@ function EditSubjectPage() {
                     <button className="btn-icon" onClick={() => navigate("/subjects")}>
                         ←
                     </button>
-                    <h1 className="heading-1">Edit Subject</h1>
+                    <h1 className="heading-1">{t("edit_subject")}</h1>
                 </div>
                 <div className="card-body">
-                    <p className="text-sm text-danger">
-                        Subject not found. It may have been deleted.
-                    </p>
+                    <p className="text-sm text-danger">{t("subject_not_found")}</p>
                 </div>
             </div>
         );
@@ -71,8 +71,8 @@ function EditSubjectPage() {
                     ←
                 </button>
                 <div>
-                    <h1 className="heading-1">Edit Subject</h1>
-                    <p className="subheading">Update subject details for your academy</p>
+                    <h1 className="heading-1">{t("edit_subject")}</h1>
+                    <p className="subheading">{t("edit_subject_page_desc")}</p>
                 </div>
             </div>
             <div className="card-body">

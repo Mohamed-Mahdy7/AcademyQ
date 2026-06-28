@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { getSubjects } from "../../services/subjectService";
 import { getTeachers } from "../../services/teachers";
 import { toast } from "../../lib/toastBus";
 
 function ClassForm({ onSubmit, initialData = {}, isEditing = false }) {
+    const { t } = useTranslation(["classes", "common"]);
     const [formData, setFormData] = useState({
         name: initialData.name || "",
         subject: initialData.subject || "",
@@ -33,13 +35,13 @@ function ClassForm({ onSubmit, initialData = {}, isEditing = false }) {
                 setSubjects(subjectsRes.data);
                 setTeachers(teachersRes.data);
             } catch {
-                toast.danger("Failed to load form", "Could not load subjects or teachers.");
+                toast.danger(t("failed_to_load_form"), t("failed_to_load_form_desc"));
             } finally {
                 setLoadingOptions(false);
             }
         };
         fetchOptions();
-    }, []);
+    }, [t]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -68,33 +70,33 @@ function ClassForm({ onSubmit, initialData = {}, isEditing = false }) {
         today.setHours(0, 0, 0, 0);
 
         if (!formData.name.trim())
-            errs.name = "Class name is required.";
+            errs.name = t("class_name_required");
 
         if (!formData.subject)
-            errs.subject = "Please select a subject.";
+            errs.subject = t("subject_required");
 
         if (!formData.start_date) {
-            errs.start_date = "Start date is required.";
+            errs.start_date = t("start_date_required");
         } else if (!isEditing && new Date(formData.start_date) < today) {
-            errs.start_date = "Start date cannot be in the past.";
+            errs.start_date = t("start_date_past");
         }
 
         if (!formData.end_date) {
-            errs.end_date = "End date is required.";
+            errs.end_date = t("end_date_required");
         } else if (formData.start_date && new Date(formData.end_date) <= new Date(formData.start_date)) {
-            errs.end_date = "End date must be after start date.";
+            errs.end_date = t("end_date_after_start");
         }
 
         if (formData.session_count !== "" && Number(formData.session_count) < 1)
-            errs.session_count = "Session count must be at least 1.";
+            errs.session_count = t("session_count_min");
 
         if (formData.session_price !== "" && Number(formData.session_price) < 0)
-            errs.session_price = "Session price cannot be negative.";
+            errs.session_price = t("session_price_negative");
 
         if (formData.session_duration) {
             const durationRegex = /^\d{2}:\d{2}:\d{2}$/;
             if (!durationRegex.test(formData.session_duration))
-                errs.session_duration = "Duration must be in HH:MM:SS format.";
+                errs.session_duration = t("session_duration_format");
         }
 
         return errs;
@@ -121,7 +123,6 @@ function ClassForm({ onSubmit, initialData = {}, isEditing = false }) {
             await onSubmit(payload);
         } catch (error) {
             const data = error.response?.data;
-
             const fieldKeys = [
                 "name", "subject", "start_date", "end_date",
                 "session_count", "session_price", "session_duration", "teachers",
@@ -134,7 +135,6 @@ function ClassForm({ onSubmit, initialData = {}, isEditing = false }) {
                         : data[key];
                 }
             });
-
             if (Object.keys(fieldErrors).length > 0) {
                 setErrors(fieldErrors);
             }
@@ -144,20 +144,20 @@ function ClassForm({ onSubmit, initialData = {}, isEditing = false }) {
     };
 
     if (loadingOptions)
-        return <p className="text-sm text-blue">Loading form...</p>;
+        return <p className="text-sm text-blue">{t("loading_form")}</p>;
 
     return (
         <form onSubmit={handleSubmit} className="space-y-5">
 
             <div className="form-field">
                 <label className="form-label">
-                    Class Name <span className="form-required">*</span>
+                    {t("class_name_label")} <span className="form-required">*</span>
                 </label>
                 <input
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="e.g. Math G7 Mon/Wed"
+                    placeholder={t("class_name_placeholder")}
                     className={errors.name ? "form-input-error" : "form-input"}
                 />
                 {errors.name && <span className="form-error">{errors.name}</span>}
@@ -165,7 +165,7 @@ function ClassForm({ onSubmit, initialData = {}, isEditing = false }) {
 
             <div className="form-field">
                 <label className="form-label">
-                    Subject <span className="form-required">*</span>
+                    {t("subject_label")} <span className="form-required">*</span>
                 </label>
                 <select
                     name="subject"
@@ -173,7 +173,7 @@ function ClassForm({ onSubmit, initialData = {}, isEditing = false }) {
                     onChange={handleChange}
                     className={errors.subject ? "form-input-error" : "form-select"}
                 >
-                    <option value="">-- Select Subject --</option>
+                    <option value="">{t("select_subject")}</option>
                     {subjects.map((s) => (
                         <option key={s.id} value={s.id}>{s.name}</option>
                     ))}
@@ -184,7 +184,7 @@ function ClassForm({ onSubmit, initialData = {}, isEditing = false }) {
             <div className="grid grid-cols-2 gap-4">
                 <div className="form-field">
                     <label className="form-label">
-                        Start Date <span className="form-required">*</span>
+                        {t("start_date")} <span className="form-required">*</span>
                     </label>
                     <input
                         type="date"
@@ -197,7 +197,7 @@ function ClassForm({ onSubmit, initialData = {}, isEditing = false }) {
                 </div>
                 <div className="form-field">
                     <label className="form-label">
-                        End Date <span className="form-required">*</span>
+                        {t("end_date")} <span className="form-required">*</span>
                     </label>
                     <input
                         type="date"
@@ -212,7 +212,7 @@ function ClassForm({ onSubmit, initialData = {}, isEditing = false }) {
 
             <div className="grid grid-cols-3 gap-4">
                 <div className="form-field">
-                    <label className="form-label">Session Count</label>
+                    <label className="form-label">{t("session_count")}</label>
                     <input
                         type="number"
                         name="session_count"
@@ -224,7 +224,7 @@ function ClassForm({ onSubmit, initialData = {}, isEditing = false }) {
                     {errors.session_count && <span className="form-error">{errors.session_count}</span>}
                 </div>
                 <div className="form-field">
-                    <label className="form-label">Session Price (EGP)</label>
+                    <label className="form-label">{t("session_price")}</label>
                     <input
                         type="number"
                         name="session_price"
@@ -236,7 +236,7 @@ function ClassForm({ onSubmit, initialData = {}, isEditing = false }) {
                     {errors.session_price && <span className="form-error">{errors.session_price}</span>}
                 </div>
                 <div className="form-field">
-                    <label className="form-label">Session Duration</label>
+                    <label className="form-label">{t("session_duration")}</label>
                     <input
                         type="text"
                         name="session_duration"
@@ -245,7 +245,7 @@ function ClassForm({ onSubmit, initialData = {}, isEditing = false }) {
                         placeholder="e.g. 01:30:00"
                         className={errors.session_duration ? "form-input-error" : "form-input"}
                     />
-                    <span className="form-hint">Format: HH:MM:SS</span>
+                    <span className="form-hint">{t("session_duration_hint")}</span>
                     {errors.session_duration && <span className="form-error">{errors.session_duration}</span>}
                 </div>
             </div>
@@ -259,24 +259,26 @@ function ClassForm({ onSubmit, initialData = {}, isEditing = false }) {
                     onChange={handleChange}
                     className="form-checkbox"
                 />
-                <label htmlFor="is_active" className="form-label mb-0">Active</label>
+                <label htmlFor="is_active" className="form-label mb-0">
+                    {t("common:active")}
+                </label>
             </div>
 
             <div className="form-field">
-                <label className="form-label">Teachers (optional)</label>
+                <label className="form-label">{t("teachers_optional")}</label>
                 <div className="space-y-2 mt-1">
                     {teachers.length === 0 ? (
-                        <p className="text-sm text-blue">No teachers available.</p>
+                        <p className="text-sm text-blue">{t("no_teachers_available")}</p>
                     ) : (
-                        teachers.map((t) => (
-                            <label key={t.id} className="flex items-center gap-2 cursor-pointer">
+                        teachers.map((teacher) => (
+                            <label key={teacher.id} className="flex items-center gap-2 cursor-pointer">
                                 <input
                                     type="checkbox"
-                                    checked={formData.teachers.includes(t.id)}
-                                    onChange={() => handleTeacherToggle(t.id)}
+                                    checked={formData.teachers.includes(teacher.id)}
+                                    onChange={() => handleTeacherToggle(teacher.id)}
                                     className="form-checkbox"
                                 />
-                                <span className="text-sm text-navy">{t.name}</span>
+                                <span className="text-sm text-navy">{teacher.name}</span>
                             </label>
                         ))
                     )}
@@ -286,7 +288,7 @@ function ClassForm({ onSubmit, initialData = {}, isEditing = false }) {
 
             <div className="flex justify-end">
                 <button type="submit" className="btn-primary" disabled={submitting}>
-                    {submitting ? "Saving..." : "Save Class"}
+                    {submitting ? t("common:saving") : t("save_class")}
                 </button>
             </div>
 
