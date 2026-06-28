@@ -28,15 +28,15 @@ msgstr "الإنجليزية"
 
 #: ai/agent/models.py:13 ai/reports/models.py:11
 msgid "Low"
-msgstr ""
+msgstr "منخفض"
 
 #: ai/agent/models.py:14 ai/reports/models.py:10
 msgid "Medium"
-msgstr ""
+msgstr "متوسط"
 
 #: ai/agent/models.py:15 ai/reports/models.py:9
 msgid "High"
-msgstr ""
+msgstr "مرتفع"
 
 #: ai/agent/models.py:49 ai/notifications/models.py:9 core/models.py:97
 #: financial_operations/models.py:47
@@ -45,15 +45,19 @@ msgstr "قيد الانتظار"
 
 #: ai/agent/models.py:50
 msgid "Running"
-msgstr ""
+msgstr "جارٍ التشغيل"
 
 #: ai/agent/models.py:51
 msgid "Complete"
-msgstr ""
+msgstr "مكتمل"
 
 #: ai/agent/models.py:52 ai/notifications/models.py:11
 msgid "Failed"
-msgstr ""
+msgstr "فشل"
+
+#: ai/agent/views.py:193
+msgid "Manual scan limit reached. Try again tomorrow."
+msgstr "تم الوصول إلى الحد اليومي للفحص اليدوي. حاول غداً."
 
 #: ai/notifications/models.py:7
 msgid "Email"
@@ -230,31 +234,63 @@ msgstr "محذوف"
 
 #: structure/models.py:116
 msgid "Monday"
-msgstr ""
+msgstr "الاثنين"
 
 #: structure/models.py:117
 msgid "Tuesday"
-msgstr ""
+msgstr "الثلاثاء"
 
 #: structure/models.py:118
 msgid "Wednesday"
-msgstr ""
+msgstr "الأربعاء"
 
 #: structure/models.py:119
 msgid "Thursday"
-msgstr ""
+msgstr "الخميس"
 
 #: structure/models.py:120
 msgid "Friday"
-msgstr ""
+msgstr "الجمعة"
 
 #: structure/models.py:121
 msgid "Saturday"
-msgstr ""
+msgstr "السبت"
 
 #: structure/models.py:122
 msgid "Sunday"
-msgstr ""
+msgstr "الأحد"
+
+#: records/views.py:137
+msgid "Cannot reschedule a session that already has attendance records."
+msgstr "لا يمكن إعادة جدولة حصة تحتوي على سجلات حضور."
+
+#: records/views.py:145
+msgid "At least session_date or session_time is required."
+msgstr "يجب توفير تاريخ الحصة أو وقتها على الأقل."
+
+#: records/views.py:162
+msgid "Date cannot be before the class start date."
+msgstr "لا يمكن أن يكون التاريخ قبل تاريخ بداية المجموعة."
+
+#: records/views.py:164
+msgid "Date cannot be after the class end date."
+msgstr "لا يمكن أن يكون التاريخ بعد تاريخ نهاية المجموعة."
+
+#: grades/serializers.py:24
+msgid "max_score must be greater than 0."
+msgstr "يجب أن تكون الدرجة القصوى أكبر من صفر."
+
+#: grades/serializers.py:35
+msgid "Score cannot be greater than max_score."
+msgstr "لا يمكن أن تكون الدرجة أكبر من الدرجة القصوى."
+
+#: grades/serializers.py:40
+msgid "Assigned date cannot be before the session date."
+msgstr "لا يمكن أن يكون تاريخ التسجيل قبل تاريخ الحصة."
+
+#: grades/serializers.py:44
+msgid "This session has not been conducted yet."
+msgstr "لم تُعقد هذه الحصة بعد."
 
 #: structure/enrollment/serializers.py
 msgid "Student is already enrolled in this class"

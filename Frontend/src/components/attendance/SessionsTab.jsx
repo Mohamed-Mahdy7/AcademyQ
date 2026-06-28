@@ -74,7 +74,7 @@ export default function SessionsTab({ sessions, classId, classStartDate, classEn
                   <tr
                     key={session.id}
                     className="table-row"
-                    onClick={() => navigate(`/classes/${classId}/attendance?date=${session.session_date}`)}
+                    onClick={() => navigate(`/classes/${classId}/attendance?session_id=${session.id}`)}
                   >
                     <td className="table-cell font-medium">
                       {t("session_label", { num: session.session_num })}

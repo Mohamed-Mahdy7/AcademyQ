@@ -4,7 +4,7 @@ import api from "../../api";
 import { getGrades } from "../../services/gradesService";
 
 export default function GradeHistoryTab({ studentId }) {
-  const { t } = useTranslation("grades");
+  const { t } = useTranslation(["grades", "common"]);
   const [enrollments, setEnrollments] = useState([]);
   const [grades, setGrades] = useState({});
   const [expanded, setExpanded] = useState(null);
