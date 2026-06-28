@@ -14,8 +14,12 @@ import gradesEn from "./locales/en/grades.json";
 import gradesAr from "./locales/ar/grades.json";
 import alertsEn from "./locales/en/alerts.json";
 import alertsAr from "./locales/ar/alerts.json";
-import layoutEn from "./locales/en/layout.json";
-import layoutAr from "./locales/ar/layout.json";
+import layoutEn from "./locales/en/layout.json"
+import layoutAr from "./locales/ar/layout.json"
+import subjectsEn from "./locales/en/subjects.json";
+import subjectsAr from "./locales/ar/subjects.json";
+import classesEn from "./locales/en/classes.json";
+import classesAr from "./locales/ar/classes.json";
 import dashboardEn from "./locales/en/dashboard.json" 
 import dashboardAr from "./locales/ar/dashboard.json"
 
@@ -33,6 +37,8 @@ i18n
             grades: gradesEn,
             alerts: alertsEn,
             layout: layoutEn,
+            subjects: subjectsEn,
+            classes: classesEn,
             dashboard: dashboardEn,
         },
         ar: { 
@@ -43,13 +49,15 @@ i18n
             attendance: attendanceAr,
             grades: gradesAr,
             alerts: alertsAr,
-            layout: layoutAr
+            layout: layoutAr,
+            subjects: subjectsAr,
+            classes: classesAr,
         },
 
     },
     fallbackLng: "ar", // Arabic-first: if detection fails, default to Arabic, not English
     defaultNS: "common",
-    ns: ["common", "auth", "students", "attendance", "grades", "alerts", "layout", "dashboard"],
+    ns: ["common", "auth", "students", "attendance", "grades", "alerts", "layout", "dashboard", "subjects", "classes"],
     interpolation: { escapeValue: false },
     detection: {
     order: ["localStorage", "navigator"],

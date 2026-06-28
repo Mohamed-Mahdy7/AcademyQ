@@ -1,15 +1,17 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import SubjectForm from "../../components/subjects/SubjectForm";
 import { createSubject } from "../../services/subjectService";
 import { toast } from "../../lib/toastBus";
 
 function AddSubjectPage() {
+    const { t } = useTranslation(["subjects", "common"]);
     const navigate = useNavigate();
 
     const handleSubmit = async (data) => {
         try {
             await createSubject(data);
-            toast.success("Subject created", "The subject has been created successfully.");
+            toast.success(t("subject_created"), t("subject_created_desc"));
             navigate("/subjects");
         } catch (error) {
             const responseData = error.response?.data;
@@ -17,9 +19,9 @@ function AddSubjectPage() {
                 responseData?.detail ||
                 responseData?.non_field_errors?.[0] ||
                 Object.values(responseData || {}).flat()[0] ||
-                "Failed to create the subject. Please try again.";
-            toast.danger("Create failed", message);
-            throw error; // re-throw so SubjectForm can set field-level errors
+                t("failed_to_create_subject");
+            toast.danger(t("create_failed"), message);
+            throw error;
         }
     };
 
@@ -30,8 +32,8 @@ function AddSubjectPage() {
                     ←
                 </button>
                 <div>
-                    <h1 className="heading-1">Add Subject</h1>
-                    <p className="subheading">Create a new subject for your academy</p>
+                    <h1 className="heading-1">{t("add_subject")}</h1>
+                    <p className="subheading">{t("add_subject_page_desc")}</p>
                 </div>
             </div>
             <div className="card-body">

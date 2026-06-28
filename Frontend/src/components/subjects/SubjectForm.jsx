@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { toast } from "../../lib/toastBus";
+import { useTranslation } from "react-i18next";
 
 function SubjectForm({ onSubmit, initialData = {} }) {
+    const { t } = useTranslation(["subjects", "common"]);
     const [formData, setFormData] = useState({
         name: initialData.name || "",
         description: initialData.description || "",
@@ -19,11 +20,11 @@ function SubjectForm({ onSubmit, initialData = {} }) {
         const errs = {};
         const name = formData.name.trim();
         if (!name) {
-            errs.name = "Subject name is required.";
+            errs.name = t("subject_name_required");
         } else if (name.length < 2) {
-            errs.name = "Subject name must be at least 2 characters.";
+            errs.name = t("subject_name_min");
         } else if (name.length > 64) {
-            errs.name = "Subject name cannot exceed 64 characters.";
+            errs.name = t("subject_name_max");
         }
         return errs;
     };
@@ -60,7 +61,6 @@ function SubjectForm({ onSubmit, initialData = {} }) {
 
             if (Object.keys(fieldErrors).length > 0) {
                 setErrors(fieldErrors);
-            } else {
             }
         } finally {
             setSubmitting(false);
@@ -71,13 +71,13 @@ function SubjectForm({ onSubmit, initialData = {} }) {
         <form onSubmit={handleSubmit} className="space-y-5">
             <div className="form-field">
                 <label className="form-label">
-                    Name <span className="form-required">*</span>
+                    {t("subject_name_label")} <span className="form-required">*</span>
                 </label>
                 <input
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="e.g. Mathematics"
+                    placeholder={t("subject_name_placeholder")}
                     className={errors.name ? "form-input-error" : "form-input"}
                 />
                 {errors.name && (
@@ -86,13 +86,13 @@ function SubjectForm({ onSubmit, initialData = {} }) {
             </div>
 
             <div className="form-field">
-                <label className="form-label">Description</label>
+                <label className="form-label">{t("description")}</label>
                 <textarea
                     name="description"
                     value={formData.description}
                     onChange={handleChange}
                     rows={3}
-                    placeholder="Brief description of the subject..."
+                    placeholder={t("subject_desc_placeholder")}
                     className={errors.description ? "form-input-error" : "form-textarea"}
                 />
                 {errors.description && (
@@ -106,7 +106,7 @@ function SubjectForm({ onSubmit, initialData = {} }) {
                     className="btn-primary"
                     disabled={submitting}
                 >
-                    {submitting ? "Saving..." : "Save Subject"}
+                    {submitting ? t("saving") : t("save_subject")}
                 </button>
             </div>
         </form>
