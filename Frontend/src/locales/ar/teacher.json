@@ -1,0 +1,67 @@
+{
+    "page": {
+        "title": "المعلمون",
+        "subtitle": "إدارة ملفات وتعيينات فصول المعلمين",
+        "add_button": "إضافة معلم"
+    },
+    "kpi": {
+        "total_teachers": "إجمالي المعلمين",
+        "active_classes": "الفصول النشطة",
+        "sessions": "الجلسات"
+    },
+    "search": {
+        "placeholder": "ابحث بالاسم أو البريد الإلكتروني...",
+        "results": "{{count}} نتيجة",
+        "results_plural": "{{count}} نتائج"
+    },
+    "list": {
+        "empty_title": "لا توجد معلمون حتى الآن",
+        "empty_desc": "أضف معلمك الأول للبدء.",
+        "table_name": "الاسم",
+        "table_email": "البريد الإلكتروني",
+        "table_phone": "الهاتف",
+        "table_actions": "الإجراءات"
+    },
+    "pagination": {
+        "page_info": "الصفحة {{page}} من {{total}}"
+    },
+    "form": {
+        "add_title": "إضافة معلم",
+        "edit_title": "تحرير معلم",
+        "user_account_label": "حساب المستخدم",
+        "loading_users": "جاري تحميل المستخدمين...",
+        "select_user": "حدد مستخدم معلم",
+        "no_users": "لا توجد مستخدمون متاحون بدور = معلم. أنشئ مستخدمًا أولاً.",
+        "cancel": "إلغاء",
+        "saving": "جاري الحفظ...",
+        "add_submit": "إضافة معلم",
+        "save_submit": "حفظ التغييرات"
+    },
+    "edit_form": {
+        "title": "تحرير المعلم",
+        "full_name_label": "الاسم الكامل",
+        "full_name_placeholder": "الاسم الكامل للمعلم",
+        "email_label": "البريد الإلكتروني",
+        "email_placeholder": "البريد الإلكتروني",
+        "phone_label": "الهاتف",
+        "phone_placeholder": "الهاتف",
+        "save_button": "حفظ التغييرات"
+    },
+    "card": {
+        "edit_title": "تحرير معلم",
+        "delete_title": "إلغاء تفعيل المعلم"
+    },
+    "delete_modal": {
+        "title": "إلغاء تفعيل المعلم؟",
+        "message": "سيتم إلغاء تفعيل حساب <strong>{{name}}</strong>. لن يتمكنوا من تسجيل الدخول. لن يتم حذف أي بيانات.",
+        "cancel": "إلغاء",
+        "confirm": "إلغاء التفعيل",
+        "confirming": "جاري إلغاء التفعيل..."
+    },
+    "toast": {
+        "no_changes_title": "لم يتم إجراء أي تغييرات",
+        "no_changes_desc": "عدّل حقلاً قبل الحفظ.",
+        "updated_title": "تم تحديث المعلم",
+        "updated_desc": "تم حفظ ملف {{name}} الشخصي."
+    }
+}

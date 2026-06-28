@@ -1,6 +1,6 @@
 import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import { useTranslation , Trans } from "react-i18next";
 import { PaymentContext } from "../../context/PaymentContext";
 
 const PaymentInfoCard = () => {
@@ -42,11 +42,16 @@ const PaymentInfoCard = () => {
                 ) : summary ? (
                     <>
                         <p className="text-body">
-                            {t("outstanding.message", {
+                        <Trans
+                            i18nKey="outstanding.message"
+                            ns="dashboard"
+                            values={{
                                 count: summary.overdue_count,
                                 plural: summary.overdue_count !== 1 ? "s" : "",
                                 total: parseFloat(summary.overdue_total).toLocaleString(),
-                            })}
+                            }}
+                            components={{ strong: <strong /> }}
+                        />
                         </p>
                         <button
                             className="btn-primary mt-4"

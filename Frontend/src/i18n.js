@@ -22,6 +22,8 @@ import classesEn from "./locales/en/classes.json";
 import classesAr from "./locales/ar/classes.json";
 import dashboardEn from "./locales/en/dashboard.json" 
 import dashboardAr from "./locales/ar/dashboard.json"
+import teacherEn from "./locales/en/teacher.json"
+import teacherAr from "./locales/ar/teacher.json"
 
 
 i18n
@@ -40,6 +42,7 @@ i18n
             subjects: subjectsEn,
             classes: classesEn,
             dashboard: dashboardEn,
+            teacher: teacherEn,
         },
         ar: { 
             common: commonAr,
@@ -52,12 +55,13 @@ i18n
             layout: layoutAr,
             subjects: subjectsAr,
             classes: classesAr,
+            teacher: teacherAr,
         },
 
     },
     fallbackLng: "ar", // Arabic-first: if detection fails, default to Arabic, not English
     defaultNS: "common",
-    ns: ["common", "auth", "students", "attendance", "grades", "alerts", "layout", "dashboard", "subjects", "classes"],
+    ns: ["common", "auth", "students", "attendance", "grades", "alerts", "layout", "dashboard", "subjects", "classes", "teacher"],
     interpolation: { escapeValue: false },
     detection: {
     order: ["localStorage", "navigator"],

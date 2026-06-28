@@ -1,8 +1,12 @@
+import { useTranslation } from "react-i18next";
+
 function getInitials(name = "") {
   return name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
 }
 
 export default function TeacherCard({ teacher, onEdit, onDelete }) {
+  const { t } = useTranslation("teacher");
+
   return (
     <tr className="table-row">
       <td className="table-cell">
@@ -23,7 +27,7 @@ export default function TeacherCard({ teacher, onEdit, onDelete }) {
         <button
           className="btn-icon"
           onClick={() => onEdit(teacher)}
-          title="Edit teacher"
+          title={t("card.edit_title")}
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -33,7 +37,7 @@ export default function TeacherCard({ teacher, onEdit, onDelete }) {
         <button
           className="btn-icon text-danger hover:bg-danger-bg"
           onClick={() => onDelete(teacher)}
-          title="Deactivate teacher"
+          title={t("card.delete_title")}
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="3 6 5 6 21 6"/>
