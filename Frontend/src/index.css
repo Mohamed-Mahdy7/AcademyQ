@@ -69,7 +69,7 @@ LAYER: COMPONENTS
 
 /* Scrollable content body below topbar */
 .page-body {
-@apply flex-1 p-6 overflow-y-auto;
+@apply flex-1 p-4 md:p-6 overflow-y-auto;
 }
 
 /* Section within a page — adds vertical spacing */
@@ -674,11 +674,13 @@ LAYER: COMPONENTS
     9. TABLE
     ========================================================== */
 
-
-/* In index.css, inside @layer components */
-@media (max-width: 768px) {
+@media (max-width: 768px) and (max-height: 500px) {
   .table-wrap {
-    @apply overflow-x-auto;
+    @apply overflow-x-auto overflow-y-auto;
+    max-height: 400px;
+  }
+  .table {
+    @apply min-w-[640px];
   }
   .table-cell,
   .table-cell-muted,
@@ -690,17 +692,24 @@ LAYER: COMPONENTS
     
 /* Table wrapper */
 .table-wrap {
-@apply bg-card border border-border rounded-xl overflow-hidden;
+@apply bg-card border border-border rounded-xl; 
+        overflow-x: auto;
+        overflow-y: auto;
+        max-height: 600px;
 }
 
 /* Table element */
 .table {
 @apply w-full border-collapse;
+        min-width: 800px;
 }
 
 /* Table header row */
 .table-thead tr {
 @apply bg-muted border-b border-border;
+        position: sticky;
+        top: 0;
+        z-index: 10;
 }
 
 .table-thead th {
@@ -785,6 +794,22 @@ LAYER: COMPONENTS
 .modal-xl {
 @apply bg-card rounded-2xl shadow-modal w-full
         max-h-[90vh] overflow-y-auto;
+}
+
+
+@media (max-width: 480px) {
+        .modal,
+        .modal-sm,
+        .modal-md,
+        .modal-lg,
+        .modal-xl {
+        @apply rounded-xl max-h-[95vh];
+        }
+        .modal-header,
+        .modal-body,
+        .modal-footer {
+        @apply px-4;
+        }
 }
 
 .modal-sm  { @apply max-w-sm;  }
@@ -1227,7 +1252,7 @@ content: '';
 }
 
 .detail-header-row {
-@apply flex items-start gap-4;
+@apply flex items-start gap-4 flex-wrap;
 }
 
 .detail-header-meta {
