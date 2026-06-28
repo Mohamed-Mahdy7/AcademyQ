@@ -1,8 +1,10 @@
 import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { PaymentContext } from "../../context/PaymentContext";
 
 const PaymentInfoCard = () => {
+    const { t } = useTranslation("dashboard");
     const { summary, fetchSummary, summaryLoading } = useContext(PaymentContext);
     const navigate = useNavigate();
 
@@ -26,7 +28,7 @@ const PaymentInfoCard = () => {
                         </svg>
                     </div>
                     <h3 className="heading-3 text-warning">
-                        Outstanding Payments
+                        {t("outstanding.title")}
                     </h3>
                 </div>
             </div>
@@ -40,25 +42,21 @@ const PaymentInfoCard = () => {
                 ) : summary ? (
                     <>
                         <p className="text-body">
-                            You have{" "}
-                            <span className="font-semibold">
-                                {summary.overdue_count} overdue payment{summary.overdue_count !== 1 ? "s" : ""}
-                            </span>{" "}
-                            totaling{" "}
-                            <span className="font-semibold text-warning">
-                                {parseFloat(summary.overdue_total).toLocaleString()} EGP
-                            </span>
-                            . Review and follow up to improve cash flow.
+                            {t("outstanding.message", {
+                                count: summary.overdue_count,
+                                plural: summary.overdue_count !== 1 ? "s" : "",
+                                total: parseFloat(summary.overdue_total).toLocaleString(),
+                            })}
                         </p>
                         <button
                             className="btn-primary mt-4"
                             onClick={() => navigate("/payments")}
                         >
-                            View Payments
+                            {t("outstanding.view_payments")}
                         </button>
                     </>
                 ) : (
-                    <p className="text-body text-blue">Failed to load payment data.</p>
+                    <p className="text-body text-blue">{t("outstanding.failed")}</p>
                 )}
             </div>
         </div>

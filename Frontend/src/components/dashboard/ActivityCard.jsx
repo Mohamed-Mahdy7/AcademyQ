@@ -1,4 +1,5 @@
 import { useEffect, useState, useContext } from "react";
+import { useTranslation } from "react-i18next";
 import { PaymentContext } from "../../context/PaymentContext";
 import { EnrollmentContext } from "../../context/EnrollmentContext";
 import { NotificationsContext } from "../../context/NotificationsContext";
@@ -28,10 +29,11 @@ const NotificationSvg = (
     </svg>
 );
 
-function formatDate(dateStr) {
+function formatDate(dateStr, i18n) {
     if (!dateStr) return "—";
     const d = new Date(dateStr);
-    return d.toLocaleString("en-US", {
+    const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
+    return d.toLocaleString(locale, {
         month: "numeric",
         day: "numeric",
         year: "numeric",
@@ -42,6 +44,7 @@ function formatDate(dateStr) {
 }
 
 export default function ActivityCard() {
+    const { t, i18n } = useTranslation("dashboard");
     const { payments, listPayments } = useContext(PaymentContext);
     const { enrollments, listEnrollments } = useContext(EnrollmentContext);
     const { notifications, getNotifications } = useContext(NotificationsContext);
@@ -67,7 +70,10 @@ export default function ActivityCard() {
                 id: `payment-${p.id}`,
                 timestamp: p.paid_on || p.created_at,
                 svg: PaymentSvg,
-                heading: `Payment of ${parseFloat(p.amount || 0).toFixed(0)} EGP recorded for ${p.student_name || "a student"}`,
+                heading: t("activity.payment_recorded", {
+                    amount: parseFloat(p.amount || 0).toFixed(0),
+                    name: p.student_name || "a student"
+                }),
             });
         });
 
@@ -77,7 +83,10 @@ export default function ActivityCard() {
                 id: `enrollment-${e.id}`,
                 timestamp: e.created_at || e.start_date,
                 svg: EnrollmentSvg,
-                heading: `${e.student_name || "A student"} enrolled in ${e.class_name || "a class"}`,
+                heading: t("activity.student_enrolled", {
+                    name: e.student_name || "A student",
+                    class: e.class_name || "a class"
+                }),
             });
         });
 
@@ -88,8 +97,8 @@ export default function ActivityCard() {
                 timestamp: n.created_at,
                 svg: NotificationSvg,
                 heading: n.notification_type === "payment_reminder"
-                    ? `Payment reminder sent to ${n.student_name || "a parent"}`
-                    : `Retention alert sent to ${n.student_name || "a parent"}`,
+                    ? t("activity.reminder_sent", { name: n.student_name || "a parent" })
+                    : t("activity.alert_sent", { name: n.student_name || "a parent" }),
             });
         });
 
@@ -100,13 +109,13 @@ export default function ActivityCard() {
             .slice(0, 5);
 
         setActivities(sorted);
-    }, [payments, enrollments, notifications]);
+    }, [payments, enrollments, notifications, t]);
 
     return (
         <div>
             <CardHeading
-                heading="Recent Activity"
-                subheading="Latest updates across your academy"
+                heading={t("activity.title")}
+                subheading={t("activity.subtitle")}
             />
             <section className="card-body rounded-t-none h-4/5">
                 {loading ? (
@@ -122,14 +131,14 @@ export default function ActivityCard() {
                         ))}
                     </div>
                 ) : activities.length === 0 ? (
-                    <p className="text-caption">No recent activity yet.</p>
+                    <p className="text-caption">{t("activity.empty")}</p>
                 ) : (
                     activities.map((a) => (
                         <ActivityCardInfo
                             key={a.id}
                             svg={a.svg}
                             heading={a.heading}
-                            subheading={formatDate(a.timestamp)}
+                            subheading={formatDate(a.timestamp, i18n)}
                         />
                     ))
                 )}

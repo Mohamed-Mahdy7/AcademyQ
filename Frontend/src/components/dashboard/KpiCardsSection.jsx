@@ -4,8 +4,10 @@ import { getClasses } from "../../services/classService";
 import { PaymentContext } from "../../context/PaymentContext";
 import api from "../../api";
 import KpiCard from "../KpiCard";
+import { useTranslation } from "react-i18next";
 
 export default function KpiCardsSection() {
+    const { t } = useTranslation("dashboard");
     const [activeStudents, setActiveStudents] = useState(null);
     const [totalEnrollments, setTotalEnrollments] = useState(null);
     const [activeClasses, setActiveClasses] = useState(null);
@@ -54,7 +56,7 @@ export default function KpiCardsSection() {
         <div className="stat-grid mb-6">
 
             <KpiCard
-                title="ACTIVE STUDENTS"
+                title={t("kpi.active_students")}
                 svg={
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -64,11 +66,11 @@ export default function KpiCardsSection() {
                     </svg>
                 }
                 value={loadingStudents ? "..." : (activeStudents ?? "—")}
-                caption={loadingStudents ? "" : `${totalEnrollments ?? 0} total students`}
+                caption={loadingStudents ? "" : t("kpi.total_students", { count: totalEnrollments ?? 0 })}
             />
 
             <KpiCard
-                title="ACTIVE CLASSES"
+                title={t("kpi.active_classes")}
                 svg={
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
@@ -76,11 +78,11 @@ export default function KpiCardsSection() {
                     </svg>
                 }
                 value={loadingClasses ? "..." : (activeClasses ?? "—")}
-                caption="Across all subjects"
+                caption={t("kpi.across_subjects")}
             />
 
             <KpiCard
-                title="MONTHLY REVENUE"
+                title={t("kpi.monthly_revenue")}
                 svg={
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <line x1="12" y1="1" x2="12" y2="23"/>
@@ -96,14 +98,14 @@ export default function KpiCardsSection() {
                 }
                 caption={
                     summary
-                        ? `${summary.collection_rate_pct}% collection rate`
-                        : "Loading..."
+                        ? t("kpi.collection_rate", { rate: summary.collection_rate_pct })
+                        : t("common:loading")
                 }
             />
 
             {/* Card 4 — Attendance Rate (now live) */}
             <KpiCard
-                title="ATTENDANCE RATE"
+                title={t("kpi.attendance_rate")}
                 svg={
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
@@ -120,8 +122,8 @@ export default function KpiCardsSection() {
                     loadingAttendance
                         ? ""
                         : attendanceRate !== null
-                        ? "Last 28 days average"
-                        : "No data yet"
+                        ? t("kpi.last_28_days")
+                        : t("kpi.no_data")
                 }
             />
 

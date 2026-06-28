@@ -1,0 +1,69 @@
+{
+    "welcome": "!أهلاً بك",
+    "welcome_sub": ".إليك ما يحدث في أكاديميتك اليوم",
+    "ai_section_title": "ذكاء الاحتفاظ بالطلاب",
+    "ai_section_badge": "مدعوم بالذكاء الاصطناعي",
+    "kpi": {
+        "active_students": "الطلاب النشطون",
+        "active_classes": "الفصول النشطة",
+        "monthly_revenue": "الإيرادات الشهرية",
+        "attendance_rate": "معدل الحضور",
+        "total_students": "{{count}} طالب إجمالي",
+        "across_subjects": "عبر جميع المواد",
+        "collection_rate": "{{rate}}% معدل التحصيل",
+        "last_28_days": "متوسط آخر 28 يومًا",
+        "no_data": "لا توجد بيانات بعد"
+    },
+    "at_risk": {
+        "title": "الطلاب المعرضون للخطر",
+        "subtitle": "الطلاب الذين يحتاجون إلى اهتمام فوري",
+        "empty": "🎉 لا يوجد طلاب في خطر الآن"
+    },
+    "activity": {
+        "title": "النشاط الأخير",
+        "subtitle": "آخر التحديثات في أكاديميتك",
+        "empty": "لا يوجد نشاط حديث بعد.",
+        "payment_recorded": "تم تسجيل دفعة بقيمة {{amount}} جنيه لـ {{name}}",
+        "student_enrolled": "تم تسجيل {{name}} في {{class}}",
+        "reminder_sent": "تم إرسال تذكير بالدفع إلى {{name}}",
+        "alert_sent": "تم إرسال تنبيه الاحتفاظ إلى {{name}}"
+    },
+    "outstanding": {
+        "title": "المدفوعات المتأخرة",
+        "message": "لديك <strong>{{count}} دفعة{{plural}} متأخرة</strong> بإجمالي <strong>{{total}} جنيه</strong>. راجع وتابع لتحسين التدفق النقدي.",
+        "view_payments": "عرض المدفوعات",
+        "failed": "فشل تحميل بيانات الدفع."
+    },
+    "retention_risk": {
+        "label": "خطر الانقطاع",
+        "open_alerts": "تنبيهات مفتوحة",
+        "high_risk": "خطر مرتفع ({{count}})",
+        "medium_risk": "خطر متوسط ({{count}})",
+        "all_clear": "كل شيء على ما يرام",
+        "view_inbox": "← عرض صندوق التنبيهات"
+    },
+    "retention_scan": {
+        "label": "فحص الاحتفاظ",
+        "title": "الفحص الأسبوعي للذكاء الاصطناعي",
+        "last_run": "آخر تشغيل: {{date}}",
+        "next": "التالي: {{date}}",
+        "never": "لم يتم التشغيل",
+        "run_now": "تشغيل الفحص الآن ▷",
+        "running": "...جاري الفحص",
+        "limit_reached": "تم الوصول للحد — حاول غدًا",
+        "toast_rate_limited": "تم تحديد السرعة",
+        "toast_limit_desc": "تم الوصول إلى الحد اليومي للفحص. حاول مرة أخرى غدًا.",
+        "toast_complete": "تم الفحص",
+        "toast_complete_desc": "تم فحص {{count}} طالب.",
+        "toast_failed": "فشل الفحص",
+        "toast_failed_desc": "يرجى المحاولة مرة أخرى."
+    },
+    "payment_reminders": {
+        "label": "تذكيرات الدفع",
+        "sent_this_week": "تم الإرسال هذا الأسبوع",
+        "day_0": "اليوم 0 (تاريخ الاستحقاق)",
+        "day_3": "اليوم 3 (متابعة)",
+        "day_7": "اليوم 7 (عاجل)",
+        "view_history": "← عرض السجل"
+    }
+}

@@ -1,0 +1,69 @@
+{
+    "welcome": "Welcome!",
+    "welcome_sub": "Here's what's happening at your academy today.",
+    "ai_section_title": "AI Retention Intelligence",
+    "ai_section_badge": "Powered by AI",
+    "kpi": {
+        "active_students": "ACTIVE STUDENTS",
+        "active_classes": "ACTIVE CLASSES",
+        "monthly_revenue": "MONTHLY REVENUE",
+        "attendance_rate": "ATTENDANCE RATE",
+        "total_students": "{{count}} total students",
+        "across_subjects": "Across all subjects",
+        "collection_rate": "{{rate}}% collection rate",
+        "last_28_days": "Last 28 days average",
+        "no_data": "No data yet"
+    },
+    "at_risk": {
+        "title": "At-Risk Students",
+        "subtitle": "Students requiring immediate attention",
+        "empty": "No at-risk students right now 🎉"
+    },
+    "activity": {
+        "title": "Recent Activity",
+        "subtitle": "Latest updates across your academy",
+        "empty": "No recent activity yet.",
+        "payment_recorded": "Payment of {{amount}} EGP recorded for {{name}}",
+        "student_enrolled": "{{name}} enrolled in {{class}}",
+        "reminder_sent": "Payment reminder sent to {{name}}",
+        "alert_sent": "Retention alert sent to {{name}}"
+    },
+    "outstanding": {
+        "title": "Outstanding Payments",
+        "message": "You have <strong>{{count}} overdue payment{{plural}}</strong> totaling <strong>{{total}} EGP</strong>. Review and follow up to improve cash flow.",
+        "view_payments": "View Payments",
+        "failed": "Failed to load payment data."
+    },
+    "retention_risk": {
+        "label": "RETENTION RISK",
+        "open_alerts": "open alerts",
+        "high_risk": "High Risk ({{count}})",
+        "medium_risk": "Medium Risk ({{count}})",
+        "all_clear": "All Clear",
+        "view_inbox": "View Alert Inbox →"
+    },
+    "retention_scan": {
+        "label": "RETENTION SCAN",
+        "title": "Weekly Agent Scan",
+        "last_run": "Last run: {{date}}",
+        "next": "Next: {{date}}",
+        "never": "Never",
+        "run_now": "▷ Run Scan Now",
+        "running": "Scanning...",
+        "limit_reached": "Limit reached — try tomorrow",
+        "toast_rate_limited": "Rate limited",
+        "toast_limit_desc": "Daily scan limit reached. Try again tomorrow.",
+        "toast_complete": "Scan complete",
+        "toast_complete_desc": "{{count}} students scanned.",
+        "toast_failed": "Scan failed",
+        "toast_failed_desc": "Please try again."
+    },
+    "payment_reminders": {
+        "label": "PAYMENT REMINDERS",
+        "sent_this_week": "sent this week",
+        "day_0": "Day 0 (due date)",
+        "day_3": "Day 3 follow-up",
+        "day_7": "Day 7 urgent",
+        "view_history": "View History →"
+    }
+}

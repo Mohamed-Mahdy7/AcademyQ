@@ -1,10 +1,12 @@
 import { useContext, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { AlertContext } from "../../context/AlertContext";
 import { PaymentContext } from "../../context/PaymentContext";
 import CardHeading from "../CardHeader";
 import DangerCard from "../DangerCard";
 
 export default function AtRiskCard() {
+    const { t } = useTranslation("dashboard");
     const { alerts, fetchAlerts, loading } = useContext(AlertContext);
     const { payments, listPayments } = useContext(PaymentContext);
 
@@ -32,22 +34,11 @@ export default function AtRiskCard() {
         .sort((a, b) => b.risk_score - a.risk_score)
         .slice(0, 2);
 
-    // function handleContact(alert) {
-    //     const email = alert.parent_email;
-    //     if (email) {
-    //         window.location.href = `mailto:${email}?subject=${encodeURIComponent(
-    //             `Regarding ${alert.student_name}`
-    //         )}`;
-    //     } else {
-    //         alert("No parent email on file for this student.");
-    //     }
-    // }
-
     return (
         <div>
             <CardHeading
-                heading="At-Risk Students"
-                subheading="Students requiring immediate attention"
+                heading={t("at_risk.title")}
+                subheading={t("at_risk.subtitle")}
             />
             <section className="card-body rounded-t-none h-4/5">
                 {loading ? (
@@ -57,7 +48,7 @@ export default function AtRiskCard() {
                         ))}
                     </div>
                 ) : topAlerts.length === 0 ? (
-                    <p className="text-caption">No at-risk students right now 🎉</p>
+                    <p className="text-caption">{t("at_risk.empty")}</p>
                 ) : (
                     topAlerts.map((alert) => {
                         const overdue = overdueByStudent[alert.student_name];
@@ -67,9 +58,7 @@ export default function AtRiskCard() {
                                 name={alert.student_name || "Unknown student"}
                                 warning={alert.primary_reason}
                                 danger={overdue ? `Overdue: ${overdue.toFixed(2)} EGP` : null}
-                                //button="Contact"
                                 info={alert.class_name}
-                                //onContact={() => handleContact(alert)}
                             />
                         );
                     })
