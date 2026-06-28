@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Grade
-
+from django.utils import timezone
 
 class GradeSerializer(serializers.ModelSerializer):
     session_num = serializers.SerializerMethodField()
@@ -38,6 +38,10 @@ class GradeSerializer(serializers.ModelSerializer):
         if session and assigned_at and assigned_at < session.session_date:
             raise serializers.ValidationError(
                 {"assigned_at": "Assigned date cannot be before the session date."}
+            )
+        if session and session.session_date > timezone.now().date():
+            raise serializers.ValidationError(
+                {"session": "This session has not been conducted yet."}
             )
         
         return attrs

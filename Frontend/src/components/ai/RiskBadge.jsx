@@ -1,21 +1,16 @@
+import { useTranslation } from "react-i18next";
+
 export default function RiskBadge({ riskLevel }) {
+  const { t } = useTranslation("grades");
+
   const config = {
-    low: {
-      label: "Low Risk",
-      className: "badge-success",
-    },
-    medium: {
-      label: "Medium Risk",
-      className: "badge-warning",
-    },
-    high: {
-      label: "High Risk",
-      className: "badge-danger",
-    },
+    low: { label: t("low_risk"), className: "badge-success" },
+    medium: { label: t("medium_risk"), className: "badge-warning" },
+    high: { label: t("high_risk"), className: "badge-danger" },
   };
 
   const { label, className } = config[riskLevel] ?? {
-    label: "Unknown",
+    label: t("unknown_risk"),
     className: "badge-muted",
   };
 
