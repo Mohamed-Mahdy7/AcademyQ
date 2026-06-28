@@ -27,5 +27,30 @@
     "status": "Status",
     "update": "Update",
     "view_profile": "View Profile",
-    "logout": "Logout"
+    "logout": "Logout",
+    "password": "Password",
+    "confirm_password": "Confirm Password",
+    "full_name": "Full Name",
+    "address": "Address",
+
+    "register": "Register",
+    "login": "Login",
+    "sign_in": "Sign in",
+
+    "submit": "Submit",
+
+    "passwords_do_not_match": "Passwords do not match",
+
+    "registration_failed": "Registration failed",
+    "check_details_try_again": "Please check the details and try again.",
+
+    "required_select_role": "Select a role",
+    "required_select_academy": "Select an academy",
+    "required_select_educational_level": "Select an educational level",
+
+    "parent_email": "Parent Email",
+    "educational_level": "Educational Level",
+
+    "admin": "Admin",
+    "teacher": "Teacher"
 }
