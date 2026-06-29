@@ -175,12 +175,43 @@ DJOSER = {
     },
 }
 
-CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS")
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS")
-CORS_ALLOW_CREDENTIALS = os.getenv("CORS_ALLOW_CREDENTIALS")
-SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE")
-CSRF_COOKIE_SECURE = os.getenv("CSRF_COOKIE_SECURE")
-CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS")
+import json
+
+CORS_ALLOWED_ORIGINS = json.loads(
+    os.getenv(
+        "CORS_ALLOWED_ORIGINS",
+        '["http://localhost:5173"]'
+    )
+)
+
+ALLOWED_HOSTS = json.loads(
+    os.getenv(
+        "ALLOWED_HOSTS",
+        '["localhost", "127.0.0.1"]'
+    )
+)
+
+CSRF_TRUSTED_ORIGINS = json.loads(
+    os.getenv(
+        "CSRF_TRUSTED_ORIGINS",
+        '["http://localhost:5173"]'
+    )
+)
+
+CORS_ALLOW_CREDENTIALS = (
+    os.getenv("CORS_ALLOW_CREDENTIALS", "False").lower()
+    == "true"
+)
+
+SESSION_COOKIE_SECURE = (
+    os.getenv("SESSION_COOKIE_SECURE", "False").lower()
+    == "true"
+)
+
+CSRF_COOKIE_SECURE = (
+    os.getenv("CSRF_COOKIE_SECURE", "False").lower()
+    == "true"
+)
 
 AUTH_USER_MODEL='core.User'
 
