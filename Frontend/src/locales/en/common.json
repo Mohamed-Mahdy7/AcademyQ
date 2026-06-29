@@ -78,5 +78,18 @@
     "join_academy": "Join academy",
     "could_not_load_educational_levels": "Couldn't load educational levels",
     "could_not_load_academies": "Couldn't load academies data",
-    "try_refreshing": "Try refreshing the page."
+    "try_refreshing": "Try refreshing the page.",
+    "date": "Date",
+    "time": "Time",
+    "notes": "Notes",
+    "generating": "Generating...",
+    "session": "Session",
+    "reschedule": "Reschedule",
+    "rescheduling": "Rescheduling...",
+    "rescheduled_success": "Session rescheduled successfully.",
+    "reschedule_failed": "Failed to reschedule.",
+    "present": "Present",
+    "absent": "Absent",
+    "never": "Never",
+    "na": "N/A"
 }

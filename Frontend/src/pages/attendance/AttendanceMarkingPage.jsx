@@ -27,6 +27,7 @@ export default function AttendanceMarkingPage() {
   const [rescheduleDate, setRescheduleDate] = useState("");
   const [rescheduleTime, setRescheduleTime] = useState("");
   const [rescheduling, setRescheduling] = useState(false);
+  const sessionIdFromUrl = searchParams.get("session_id");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,32 +45,39 @@ export default function AttendanceMarkingPage() {
   }, [classId]);
 
   useEffect(() => {
-    if (!classId || !selectedDate) return;
+    if (!classId) return;
     api.get(`/api/sessions/?class_id=${classId}`)
       .then(res => {
         const data = res.data.results ?? res.data;
-        const existing = data.find(s => s.session_date === selectedDate);
+
+        let existing;
+        if (sessionIdFromUrl) {
+            existing = data.find(s => s.id === sessionIdFromUrl);
+        } else if (selectedDate) {
+            existing = data.find(s => s.session_date === selectedDate);
+        }
+
         if (existing) {
-          setSessionId(existing.id);
-          setIsEditMode(true);
-          setNotes(existing.notes || "");
-          setCurrentSessionNum(existing.session_num);
-          setSessionTime(existing.session_time);
-          return api.get(`/api/sessions/${existing.id}/attendance/`);
+            setSessionId(existing.id);
+            setIsEditMode(true);
+            setNotes(existing.notes || "");
+            setCurrentSessionNum(existing.session_num);
+            setSessionTime(existing.session_time);
+            // setSelectedDate(existing.session_date);
+            if (sessionIdFromUrl) {
+                setSelectedDate(existing.session_date);
+            }
+            return api.get(`/api/sessions/${existing.id}/attendance/`);
         } else {
-          setSessionId(null);
-          setIsEditMode(false);
-          setNotes("");
-
-          const dateObj = new Date(selectedDate + "T00:00:00");
-          const jsDay = dateObj.getDay();
-          const pyDay = jsDay === 0 ? 6 : jsDay - 1;
-          console.log("selectedDate:", selectedDate, "jsDay:", jsDay, "pyDay:", pyDay, "schedules:", schedules);
-          const matchingSlot = schedules.find(s => s.day_of_week === pyDay);
-          console.log("matchingSlot:", matchingSlot);
-          setSessionTime(matchingSlot ? matchingSlot.start_time : '00:00:00');
-
-          return null;
+            setSessionId(null);
+            setIsEditMode(false);
+            setNotes("");
+            const dateObj = new Date(selectedDate + "T00:00:00");
+            const jsDay = dateObj.getDay();
+            const pyDay = jsDay === 0 ? 6 : jsDay - 1;
+            const matchingSlot = schedules.find(s => s.day_of_week === pyDay);
+            setSessionTime(matchingSlot ? matchingSlot.start_time : '00:00:00');
+            return null;
         }
       })
       .then(res => {
@@ -77,10 +85,14 @@ export default function AttendanceMarkingPage() {
         const data = res.data.results ?? res.data;
         const prefilled = {};
         data.forEach(r => { prefilled[r.enrollment] = r.present; });
-        setAttendance(prev => ({ ...prev, ...prefilled }));
+        setAttendance(prev => {
+            const initial = {};
+            Object.keys(prev).forEach(k => { initial[k] = prefilled[k] ?? false; });
+            return { ...initial, ...prefilled };
+        });
       })
       .catch(() => showToast("danger", "Failed to check session."));
-  }, [classId, selectedDate, schedules]);
+}, [classId, selectedDate, schedules, sessionIdFromUrl]);
 
   useEffect(() => {
       api.get(`/api/classes/${classId}/`)
@@ -171,23 +183,14 @@ export default function AttendanceMarkingPage() {
   };
 
   const handleReschedule = async () => {
-    if (!rescheduleDate && !rescheduleTime) {
-        showToast("warning", "Please enter a new date or time.");
-        return;
-    }
     setRescheduling(true);
     try {
         await api.patch(`/api/sessions/${sessionId}/`, {
-            ...(rescheduleDate && { session_date: rescheduleDate }),
-            ...(rescheduleTime && { session_time: rescheduleTime }),
+            session_date: selectedDate,
+            session_time: sessionTime,
         });
         showToast("success", "Session rescheduled successfully.");
-        setShowReschedule(false);
-        if (rescheduleDate) {
-            navigate(`/classes/${classId}/attendance?date=${rescheduleDate}`);
-        } else {
-            window.location.reload();
-        }
+        navigate(`/classes/${classId}/attendance?date=${selectedDate}`);
     } catch (err) {
         const data = err.response?.data;
         const msg = data?.fields?.session?.[0] || data?.fields?.session_date?.[0] || data?.detail || "Failed to reschedule.";
@@ -212,14 +215,14 @@ export default function AttendanceMarkingPage() {
               </div>
           </div>
             {isEditMode && (
-              <button className="btn-secondary mt-1" onClick={() => {
-                  setRescheduleDate(selectedDate);
-                  setRescheduleTime(sessionTime);
-                  setShowReschedule(true);
-              }}>
-                  Reschedule
-              </button>
-          )}
+                <button
+                    className="btn-secondary mt-1"
+                    onClick={handleReschedule}
+                    disabled={rescheduling}
+                >
+                    {rescheduling ? <><span className="btn-spinner" />Rescheduling...</> : "Reschedule"}
+                </button>
+            )}
       </div>
 
       <SessionControls

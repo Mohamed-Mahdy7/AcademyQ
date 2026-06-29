@@ -1,0 +1,70 @@
+{
+    "form": {
+        "add_title": "Enroll student",
+        "edit_title": "Edit enrollment",
+        "class_price_label": "Class price",
+        "class_price_desc": "Class price: <strong>{{price}} EGP</strong> — a pending payment will be created automatically.",
+        "student_label": "Student",
+        "loading_students": "Loading students...",
+        "select_student": "Select a student",
+        "start_date_label": "Start date",
+        "start_date_hint": "Must be within 1 week before class start ({{classStart}}) and no later than class start date.",
+        "status_label": "Status",
+        "status_active": "Active",
+        "status_paused": "Paused",
+        "status_dropped": "Dropped",
+        "status_completed": "Completed",
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "add_submit": "Enroll student",
+        "save_submit": "Save changes"
+    },
+    "tab": {
+        "filter_all": "All statuses",
+        "filter_active": "Active",
+        "filter_paused": "Paused",
+        "filter_dropped": "Dropped",
+        "filter_completed": "Completed",
+        "results": "{{count}} student",
+        "results_plural": "{{count}} students",
+        "enroll_button": "Enroll student"
+    },
+    "table": {
+        "empty_title": "No students enrolled",
+        "empty_desc": "Enroll a student in this class to get started.",
+        "header_student": "Student",
+        "header_status": "Status",
+        "header_class_price": "Class price",
+        "header_due_date": "Due date",
+        "header_start_date": "Start date",
+        "header_actions": "Actions"
+    },
+    "row": {
+        "edit_title": "Edit enrollment",
+        "drop_title": "Drop enrollment"
+    },
+    "drop_modal": {
+        "title": "Drop enrollment?",
+        "message": "<strong>{{name}}</strong>'s enrollment will be set to <strong>dropped</strong>. No data will be deleted.",
+        "cancel": "Cancel",
+        "confirm": "Drop"
+    },
+    "student_tab": {
+        "filter_all": "All statuses",
+        "filter_active": "Active",
+        "filter_paused": "Paused",
+        "filter_dropped": "Dropped",
+        "filter_completed": "Completed",
+        "results": "{{count}} class",
+        "results_plural": "{{count}} classes"
+    },
+    "student_table": {
+        "empty_title": "No enrollments found",
+        "empty_desc": "This student is not enrolled in any classes yet.",
+        "header_class_name": "Class Name",
+        "header_class_price": "Class Price",
+        "header_total_paid": "Total Paid",
+        "header_balance_due": "Balance Due",
+        "header_status": "Status"
+    }
+}

@@ -1,6 +1,8 @@
 import EnrollmentRow from "./EnrollmentRow";
+import { useTranslation } from "react-i18next";
 
 export default function EnrollmentTable({ enrollments, classPrice, onEdit, onDrop }) {
+  const { t } = useTranslation("enrollment");
   if (enrollments.length === 0) {
     return (
       <div className="empty-state">
@@ -12,8 +14,8 @@ export default function EnrollmentTable({ enrollments, classPrice, onEdit, onDro
             <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
           </svg>
         </div>
-        <p className="empty-state-title">No students enrolled</p>
-        <p className="empty-state-desc">Enroll a student in this class to get started.</p>
+          <p className="empty-state-title">{t("table.empty_title")}</p>
+          <p className="empty-state-desc">{t("table.empty_desc")}</p>
       </div>
     );
   }
@@ -23,12 +25,12 @@ export default function EnrollmentTable({ enrollments, classPrice, onEdit, onDro
       <table className="table">
         <thead className="table-thead">
           <tr>
-            <th>Student</th>
-            <th>Status</th>
-            <th>Class price</th>
-            <th>Due date</th>
-            <th>Start date</th>
-            <th className="text-end">Actions</th>
+            <th>{t("table.header_student")}</th>
+            <th>{t("table.header_status")}</th>
+            <th>{t("table.header_class_price")}</th>
+            <th>{t("table.header_due_date")}</th>
+            <th>{t("table.header_start_date")}</th>
+            <th className="text-end">{t("table.header_actions")}</th>
           </tr>
         </thead>
         <tbody>

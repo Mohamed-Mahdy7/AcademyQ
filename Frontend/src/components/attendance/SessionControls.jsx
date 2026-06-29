@@ -1,14 +1,19 @@
 import { useTranslation } from "react-i18next";
 
 export default function SessionControls({ selectedDate, notes, sessionTime, classStartDate, classEndDate, onDateChange, onNotesChange, onTimeChange }) {
-  const { t } = useTranslation("attendance");
+const { t } = useTranslation(["attendance", "common"]);
 
   return (
     <div className="card-body mb-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="form-field">
           <label className="form-label">{t("session_date")}</label>
-          <input type="date" className="form-input" value={selectedDate} onChange={(e) => onDateChange(e.target.value)} />
+          <input type="date"
+                className="form-input"
+                value={selectedDate}    
+                min={classStartDate || undefined}
+                max={classEndDate || undefined}
+                onChange={(e) => onDateChange(e.target.value)} />
         </div>
         <div className="form-field">
           <label className="form-label">{t("session_time")}</label>
@@ -21,8 +26,6 @@ export default function SessionControls({ selectedDate, notes, sessionTime, clas
             className="form-input"
             placeholder={t("session_notes_placeholder")}
             value={notes}
-            min={classStartDate || undefined}
-            max={classEndDate || undefined}
             onChange={(e) => onNotesChange(e.target.value)}
           />
         </div>

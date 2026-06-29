@@ -6,14 +6,16 @@ import { useTranslation } from "react-i18next";
 import RiskBadge from "./ai/RiskBadge";
 import LanguageSwitcher from "./languageSwitcher";
 
-const reasonLabels = {
-    low_attendance: "Low Attendance",
-    low_grades: "Low Grades",
-    overdue_fee: "Overdue Fee",
-    combined: "Combined Risk",
-};
 
 function Topbar({onMenuClick}) {
+    const { t: alertsT } = useTranslation("alerts");
+
+    const reasonLabels = {
+        low_attendance: alertsT("reasons.low_attendance"),
+        low_grades: alertsT("reasons.low_grades"),
+        overdue_fee: alertsT("reasons.overdue_fee"),
+        combined: alertsT("reasons.combined"),
+    };
     const { user } = useContext(AuthContext);
     const { t } = useTranslation("layout")
     const location = useLocation();
@@ -125,12 +127,12 @@ function Topbar({onMenuClick}) {
                             {/* Header */}
                             <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card">
                                 <div>
-                                    <h2 className="heading-3">Retention Alerts</h2>
+                                    <h2 className="heading-3">{alertsT("retention_risk")}</h2>
                                     <p className="text-caption">{today}</p>
                                 </div>
                                 {dropdownAlerts.length > 0
-                                    ? <span className="badge-danger-dark">{dropdownAlerts.length} open</span>
-                                    : <span className="badge-success">All Clear</span>
+                                    ? <span className="badge-danger-dark">{dropdownAlerts.length} {alertsT("inbox.filter_low").toLowerCase()}</span>
+                                    : <span className="badge-success">{alertsT("all_clear")}</span>
                                 }
                             </div>
 
@@ -150,7 +152,7 @@ function Topbar({onMenuClick}) {
                                     </div>
                                 ) : dropdownAlerts.length === 0 ? (
                                     <div className="p-6 text-center">
-                                        <p className="text-sm text-blue">No pending alerts 🎉</p>
+                                        <p className="text-sm text-blue">{alertsT("inbox.all_clear_desc")}</p>
                                     </div>
                                 ) : (
                                     dropdownAlerts.map((alert) => (
@@ -203,7 +205,7 @@ function Topbar({onMenuClick}) {
                                     navigate("/alerts");
                                 }}
                             >
-                                <span>View all alerts</span>
+                                <span>{alertsT("inbox.page_title")}</span>
                                 <svg className="w-4 h-4 rtl:-scale-x-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                                 </svg>

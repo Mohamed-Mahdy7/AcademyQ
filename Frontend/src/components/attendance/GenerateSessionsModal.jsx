@@ -4,7 +4,7 @@ import api from "../../api";
 import { toast } from "../../lib/toastBus";
 
 export default function GenerateSessionsModal({ classId, classStartDate, classEndDate, onClose, onSuccess }) {
-  const { t } = useTranslation("attendance");
+  const { t } = useTranslation(["attendance", "common"]);
   const [startDate, setStartDate] = useState(classStartDate || "");
   const [endDate, setEndDate] = useState(classEndDate || "");
   const [loading, setLoading] = useState(false);

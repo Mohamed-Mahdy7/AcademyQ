@@ -3,16 +3,10 @@ import { useNavigate } from "react-router-dom"
 import { useAlerts } from "../../context/AlertContext"
 import { NotificationsContext } from "../../context/NotificationsContext"
 import { toast } from "../../lib/toastBus"
+import { useTranslation } from "react-i18next"
 
 const initials = (name = "") =>
     name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase()
-
-const REASON_META = {
-    low_attendance: { label: "Low Attendance", icon: "📉" },
-    overdue_fee: { label: "Overdue Fee", icon: "💳" },
-    low_grades: { label: "Low Grades", icon: "📝" },
-    combined: { label: "Combined Risk", icon: "⚠️" },
-}
 
 const RISK_BADGE = {
     high: "badge-pct-bad",
@@ -21,6 +15,7 @@ const RISK_BADGE = {
 }
 
 const AlertRow = ({ alert }) => {
+    const { t, i18n } = useTranslation("alerts");  
     const navigate = useNavigate()
     const {
         expandedId,
@@ -30,6 +25,13 @@ const AlertRow = ({ alert }) => {
         dismissAlert,
         updateLocalMessage,
     } = useAlerts()
+
+    const REASON_META = {
+        low_attendance: { label: t("reasons.low_attendance"), icon: "📉" },
+        overdue_fee: { label: t("reasons.overdue_fee"), icon: "💳" },
+        low_grades: { label: t("reasons.low_grades"), icon: "📝" },
+        combined: { label: t("reasons.combined"), icon: "⚠️" },
+    }
 
     const isExpanded = expandedId === alert.id
     const isGenerating = generatingId === alert.id
@@ -53,7 +55,7 @@ const AlertRow = ({ alert }) => {
                 setSentSuccess(true)
                 setTimeout(() => dismissAlert(alert.id), 1200)
             } else {
-                toast.danger("Failed to send", "The message could not be delivered. Please try again.")
+                toast.danger(t("row.send_failed"), t("row.send_failed_desc"))
             }
         } finally {
             setIsSending(false)
@@ -66,7 +68,7 @@ const AlertRow = ({ alert }) => {
     }
 
     const formattedDate = alert.created_at
-        ? new Date(alert.created_at).toLocaleDateString("en-EG", {
+        ? new Date(alert.created_at).toLocaleDateString(i18n.language === "ar" ? "ar-EG" : "en-EG", {
             day: "numeric",
             month: "short",
             hour: "2-digit",
@@ -91,7 +93,7 @@ const AlertRow = ({ alert }) => {
                     <div className="flex items-center gap-2 flex-wrap">
                         <span className="heading-4 truncate">{alert.student_name}</span>
                         <span className={`badge ${RISK_BADGE[alert.risk_level]}`}>
-                            {alert.risk_level.charAt(0).toUpperCase() + alert.risk_level.slice(1)} Risk
+                            {t(`inbox.filter_${alert.risk_level}`)} {t("row.risk_label")}
                         </span>
                         <span className="badge-tag">
                             {reason.icon} {reason.label}
@@ -101,7 +103,7 @@ const AlertRow = ({ alert }) => {
                 </div>
 
                 <div className="hidden sm:flex flex-col items-center flex-shrink-0">
-                    <span className="text-[11px] font-semibold text-blue uppercase tracking-widest">Score</span>
+                    <span className="text-[11px] font-semibold text-blue uppercase tracking-widest">{t("row.score_label")}</span>
                     <span className={`text-lg font-bold ${alert.risk_level === "high"
                             ? "text-danger"
                             : alert.risk_level === "medium"
@@ -113,11 +115,11 @@ const AlertRow = ({ alert }) => {
                 </div>
 
                 <div className="hidden lg:block flex-shrink-0 w-52">
-                    <p className="text-caption mb-0.5">Message preview</p>
+                    <p className="text-caption mb-0.5">{t("row.message_preview_label")}</p>
                     <p className="text-body text-sm text-navy/60 truncate">
                         {messagePreview
                             ? `${messagePreview}${alert.message.length > 60 ? "…" : ""}`
-                            : <span className="text-blue italic">No message yet</span>
+                            : <span className="text-blue italic">{t("row.no_message_yet")}</span>
                         }
                     </p>
                 </div>
@@ -139,12 +141,12 @@ const AlertRow = ({ alert }) => {
 
                     <div className="flex flex-wrap gap-4">
                         <div className="card-info px-3 py-2 rounded-lg flex items-center gap-2">
-                            <span className="text-caption">Risk Score</span>
+                            <span className="text-caption">{t("row.risk_score_label")}</span>
                             <span className="font-bold text-navy">{alert.risk_score}/100</span>
                         </div>
                         {alert.recommended_action && (
                             <div className="card-warning px-3 py-2 rounded-lg flex-1 min-w-0">
-                                <p className="text-caption mb-0.5">Recommended Action</p>
+                                <p className="text-caption mb-0.5">{t("row.recommended_action")}</p>
                                 <p className="text-body text-sm">{alert.recommended_action}</p>
                             </div>
                         )}
@@ -152,14 +154,14 @@ const AlertRow = ({ alert }) => {
 
                     {alert.primary_reason && (
                         <div>
-                            <p className="text-label mb-1">Primary Reason</p>
+                            <p className="text-label mb-1">{t("row.primary_reason")}</p>
                             <p className="text-body">{alert.primary_reason}</p>
                         </div>
                     )}
 
                     <div>
                         <div className="flex items-center justify-between mb-1.5">
-                            <p className="text-label">AI-Generated Parent Message</p>
+                            <p className="text-label">{t("row.ai_message_label")}</p>
                             <button
                                 className={`btn-ghost border border-blue-500 text-blue-500 text-xs px-2 py-1 flex items-center gap-1 ${
                                     isGenerating ? "opacity-60 pointer-events-none" : ""
@@ -169,10 +171,10 @@ const AlertRow = ({ alert }) => {
                                 {isGenerating ? (
                                     <>
                                         <span className="btn-spinner !w-3 !h-3 !border-navy/30 !border-t-navy" />
-                                        Generating…
+                                        {t("row.generating")}
                                     </>
                                 ) : (
-                                    <>✨ {alert.message ? "Regenerate" : "Generate Message"}</>
+                                    <>✨ {alert.message ? t("row.regenerate_message") : t("row.generate_message")}</>
                                 )}
                             </button>
                         </div>
@@ -189,7 +191,7 @@ const AlertRow = ({ alert }) => {
                         ) : (
                             <div className="bg-muted rounded-lg px-4 py-6 text-center">
                                 <p className="text-body-muted text-sm italic">
-                                    No message generated yet. Click "Generate Message" to create one using AI.
+                                    {t("row.no_message_generated")}
                                 </p>
                             </div>
                         )}
@@ -197,28 +199,27 @@ const AlertRow = ({ alert }) => {
 
                     {alert.notes !== undefined && (
                         <div>
-                            <p className="text-label mb-1.5">Internal Notes</p>
+                            <p className="text-label mb-1.5">{t("row.internal_notes")}</p>
                             <p className="text-body text-sm text-navy/60 italic">
-                                {alert.notes || "No notes added."}
+                                {alert.notes || t("row.no_notes")}
                             </p>
                         </div>
                     )}
-
                     <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-border">
                         <button
                             className={`btn-primary flex items-center gap-2 ${(!localMessage || isSending || sentSuccess) ? "opacity-60 pointer-events-none" : ""}`}
                             onClick={handleSend}
                         >
                             {isSending ? (
-                                <><span className="btn-spinner" /> Sending…</>
+                                <><span className="btn-spinner" /> {t("row.sending")}</>
                             ) : sentSuccess ? (
-                                <>✅ Sent!</>
+                                <>✅ {t("row.sent")}</>
                             ) : (
                                 <>
                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                     </svg>
-                                    Send Via Email
+                                    {t("row.send_via_email")}
                                 </>
                             )}
                         </button>
@@ -230,14 +231,14 @@ const AlertRow = ({ alert }) => {
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
-                            View Student Profile
+                            {t("row.view_student_profile")}
                         </button>
 
                         <button
                             className="btn-ghost ml-auto text-danger hover:bg-danger-bg"
                             onClick={() => dismissAlert(alert.id)}
                         >
-                            Dismiss
+                            {t("row.dismiss")}
                         </button>
                     </div>
                 </div>

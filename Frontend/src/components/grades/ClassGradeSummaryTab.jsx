@@ -5,7 +5,7 @@ import { getClassSummary, getGrades } from "../../services/gradesService";
 
 export default function ClassGradeSummaryTab({ classId, enrollments = [] }) {
   const navigate = useNavigate();
-  const { t } = useTranslation("grades");
+  const { t } = useTranslation(["grades", "common"]);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);

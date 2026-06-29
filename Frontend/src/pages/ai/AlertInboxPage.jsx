@@ -1,10 +1,12 @@
 import { useAlerts } from "../../context/AlertContext"
 import { useNavigate } from "react-router-dom"
 import AlertRow from "../../components/ai/AlertRow"
+import { useTranslation } from "react-i18next"
 
 const RISK_FILTERS = ["all", "high", "medium", "low"]
 
 const AlertInboxPage = () => {
+    const { t } = useTranslation("alerts");
     const navigate = useNavigate();
     const {
         alerts,
@@ -26,9 +28,9 @@ const AlertInboxPage = () => {
         <>
             <div className="flex items-start justify-between mb-6">
                 <div>
-                    <h1 className="heading-1">Alert Inbox</h1>
+                    <h1 className="heading-1">{t("inbox.page_title")}</h1>
                     <p className="subheading">
-                        AI-generated retention alerts — review and send to parents
+                        {t("inbox.page_subtitle")}
                     </p>
                 </div>
                 <button
@@ -38,26 +40,26 @@ const AlertInboxPage = () => {
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                     </svg>
-                    Notification History
+                    {t("inbox.notification_history")}
                 </button>
             </div>
 
             <div className="flex flex-wrap gap-3 mb-6">
                 <div className="card px-4 py-3 flex items-center gap-2">
                     <span className="badge badge-danger">{highCount}</span>
-                    <span className="text-body text-sm">High Risk</span>
+                    <span className="text-body text-sm">{t("inbox.high_risk_label")}</span>
                 </div>
                 <div className="card px-4 py-3 flex items-center gap-2">
                     <span className="badge badge-warning">{mediumCount}</span>
-                    <span className="text-body text-sm">Medium Risk</span>
+                    <span className="text-body text-sm">{t("inbox.medium_risk_label")}</span>
                 </div>
                 <div className="card px-4 py-3 flex items-center gap-2">
                     <span className="badge badge-success">{lowCount}</span>
-                    <span className="text-body text-sm">Low Risk</span>
+                    <span className="text-body text-sm">{t("inbox.low_risk_label")}</span>
                 </div>
                 <div className="card px-4 py-3 flex items-center gap-2">
                     <span className="font-semibold text-sm text-navy">{alerts.length}</span>
-                    <span className="text-body text-sm">Open Alerts</span>
+                    <span className="text-body text-sm">{t("inbox.open_alerts_label")}</span>
                 </div>
             </div>
 
@@ -72,7 +74,7 @@ const AlertInboxPage = () => {
                                 : "bg-white text-gray-500 border-border hover:border-blue"
                         }`}
                     >
-                        {f.charAt(0).toUpperCase() + f.slice(1)}
+                        {t(`inbox.filter_${f}`)}
                     </button>
                 ))}
             </div>
@@ -83,11 +85,11 @@ const AlertInboxPage = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <div>
-                        <p className="alert-title">Failed to load alerts</p>
+                        <p className="alert-title">{t("inbox.failed_to_load")}</p>
                         <p className="alert-desc">{error}</p>
                     </div>
                     <button className="btn-danger-outline ml-auto text-xs px-3 py-1" onClick={() => fetchAlerts()}>
-                        Retry
+                        {t("inbox.retry")}
                     </button>
                 </div>
             )}
@@ -117,11 +119,11 @@ const AlertInboxPage = () => {
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
-                        <h3 className="empty-state-title">All clear!</h3>
+                        <h3 className="empty-state-title">{t("inbox.all_clear_title")}</h3>
                         <p className="empty-state-desc">
                             {filter.risk_level !== "all"
-                                ? `No ${filter.risk_level}-risk alerts pending.`
-                                : "No pending alerts. All students are on track 🎉"}
+                                ? t("inbox.no_risk_alerts", { risk: t(`inbox.filter_${filter.risk_level}`) })
+                                : t("inbox.all_clear_desc")}
                         </p>
                     </div>
                 ) : (

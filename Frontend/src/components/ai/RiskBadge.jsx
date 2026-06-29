@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 export default function RiskBadge({ riskLevel }) {
-  const { t } = useTranslation("grades");
+  const { t } = useTranslation(["grades", "common"]);
 
   const config = {
     low: { label: t("low_risk"), className: "badge-success" },

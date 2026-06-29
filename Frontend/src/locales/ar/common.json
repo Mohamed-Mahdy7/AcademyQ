@@ -54,8 +54,6 @@
     "admin": "مسؤول",
     "teacher": "معلم",
 
-    "delete": "حذف",
-    "deleting": "جارٍ الحذف...",
     "delete_confirm": "لا يمكن التراجع عن هذا الإجراء.",
     "are_you_sure_delete": "هل أنت متأكد من حذف",
     "refresh_page": "يرجى تحديث الصفحة.",
@@ -79,5 +77,20 @@
     "join_academy": "الإنضمام للأكاديمية",
     "could_not_load_educational_levels": "تعذر تحميل المراحل التعليمية",
     "could_not_load_academies": "تعذر تحميل بيانات الأكاديميات",
-    "try_refreshing": "يرجى تحديث الصفحة والمحاولة مرة أخرى."
+    "try_refreshing": "يرجى تحديث الصفحة والمحاولة مرة أخرى.",
+    "date": "التاريخ",
+    "time": "الوقت",
+    "notes": "ملاحظات",
+    "delete": "حذف",
+    "deleting": "جارٍ الحذف...",
+    "generating": "جارٍ التوليد...",
+    "session": "حصة",
+    "reschedule": "إعادة جدولة",
+    "rescheduling": "جارٍ إعادة الجدولة...",
+    "rescheduled_success": "تمت إعادة جدولة الحصة بنجاح.",
+    "reschedule_failed": "فشلت إعادة الجدولة.",
+    "present": "حاضر",
+    "absent": "غائب",
+    "never": "لم يتم",
+    "na": "غير محدد"
 }

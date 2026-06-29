@@ -1,0 +1,36 @@
+{
+    "page": {
+        "title": "سجل الإخطارات",
+        "subtitle": "تتبع جميع الرسائل المرسلة للآباء من نظام الاحتفاظ بالذكاء الاصطناعي"
+    },
+    "kpi": {
+        "sent_today": "المرسلة اليوم",
+        "this_week": "هذا الأسبوع",
+        "failed": "فشلت",
+        "delivery_rate": "معدل التسليم"
+    },
+    "table": {
+        "title": "جميع الرسائل",
+        "filter_channels": "جميع القنوات",
+        "filter_email": "البريد الإلكتروني",
+        "filter_statuses": "جميع الحالات",
+        "filter_sent": "مرسلة",
+        "filter_failed": "فشلت",
+        "filter_pending": "قيد الانتظار",
+        "empty_title": "لا توجد إخطارات بعد",
+        "empty_desc": "ستظهر الرسائل المرسلة من صندوق التنبيهات هنا.",
+        "header_recipient": "المستقبل",
+        "header_channel": "القناة",
+        "header_message": "الرسالة",
+        "header_status": "الحالة",
+        "header_sent_at": "وقت الإرسال"
+    },
+    "status": {
+        "sent": "مرسلة",
+        "failed": "فشلت",
+        "pending": "قيد الانتظار"
+    },
+    "channel": {
+        "email": "البريد الإلكتروني"
+    }
+}

@@ -1,0 +1,70 @@
+{
+    "form": {
+        "add_title": "تسجيل الطالب",
+        "edit_title": "تحرير التسجيل",
+        "class_price_label": "سعر الفصل",
+        "class_price_desc": "سعر الفصل: <strong>{{price}} جنيه</strong> — سيتم إنشاء دفعة معلقة تلقائيًا.",
+        "student_label": "الطالب",
+        "loading_students": "جاري تحميل الطلاب...",
+        "select_student": "اختر طالبًا",
+        "start_date_label": "تاريخ البداية",
+        "start_date_hint": "يجب أن يكون خلال أسبوع واحد قبل بداية الفصل ({{classStart}}) وليس بعد تاريخ البداية.",
+        "status_label": "الحالة",
+        "status_active": "نشط",
+        "status_paused": "مؤجل",
+        "status_dropped": "تم الانسحاب",
+        "status_completed": "مكتمل",
+        "cancel": "إلغاء",
+        "saving": "جاري الحفظ...",
+        "add_submit": "تسجيل الطالب",
+        "save_submit": "حفظ التغييرات"
+    },
+    "tab": {
+        "filter_all": "جميع الحالات",
+        "filter_active": "نشط",
+        "filter_paused": "مؤجل",
+        "filter_dropped": "تم الانسحاب",
+        "filter_completed": "مكتمل",
+        "results": "{{count}} طالب",
+        "results_plural": "{{count}} طلاب",
+        "enroll_button": "تسجيل الطالب"
+    },
+    "table": {
+        "empty_title": "لا يوجد طلاب مسجلون",
+        "empty_desc": "سجل طالبًا في هذا الفصل للبدء.",
+        "header_student": "الطالب",
+        "header_status": "الحالة",
+        "header_class_price": "سعر الفصل",
+        "header_due_date": "تاريخ الاستحقاق",
+        "header_start_date": "تاريخ البداية",
+        "header_actions": "الإجراءات"
+    },
+    "row": {
+        "edit_title": "تحرير التسجيل",
+        "drop_title": "إلغاء التسجيل"
+    },
+    "drop_modal": {
+        "title": "إلغاء التسجيل؟",
+        "message": "سيتم تعيين حالة تسجيل <strong>{{name}}</strong> إلى <strong>انسحاب</strong>. لن يتم حذف أي بيانات.",
+        "cancel": "إلغاء",
+        "confirm": "إلغاء"
+    },
+    "student_tab": {
+        "filter_all": "جميع الحالات",
+        "filter_active": "نشط",
+        "filter_paused": "مؤجل",
+        "filter_dropped": "تم الانسحاب",
+        "filter_completed": "مكتمل",
+        "results": "{{count}} فصل",
+        "results_plural": "{{count}} فصول"
+    },
+    "student_table": {
+        "empty_title": "لم يتم العثور على تسجيلات",
+        "empty_desc": "هذا الطالب غير مسجل في أي فصول حتى الآن.",
+        "header_class_name": "اسم الفصل",
+        "header_class_price": "سعر الفصل",
+        "header_total_paid": "إجمالي المدفوع",
+        "header_balance_due": "الرصيد المستحق",
+        "header_status": "الحالة"
+    }
+}
