@@ -1,0 +1,27 @@
+{
+    "staff_users": "المستخدمون والموظفون",
+    "manage_staff_desc": "إدارة حسابات الموظفين والصلاحيات",
+    "add_user": "إضافة مستخدم",
+    "total_staff": "إجمالي الموظفين",
+    "admins": "المسؤولون",
+    "teachers": "المعلمون",
+    "all_staff_users": "جميع مستخدمي الموظفين",
+    "name": "الاسم",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف",
+    "role": "الدور",
+    "status": "الحالة",
+    "created": "تاريخ الإنشاء",
+    "actions": "الإجراءات",
+    "edit": "تعديل",
+    "user_registration": "تسجيل مستخدم",
+    "select_a_role": "اختر دوراً",
+    "register": "تسجيل",
+    "user_registered": "تم تسجيل المستخدم",
+    "user_registered_desc_admin": "تمت إضافة {{name}} كمسؤول.",
+    "user_registered_desc_teacher": "تمت إضافة {{name}} كمعلم.",
+
+    "user_profile": "الملف الشخصي",
+    "user_updated": "تم تحديث المستخدم",
+    "user_updated_desc": "تم حفظ ملف {{name}} الشخصي."
+}
