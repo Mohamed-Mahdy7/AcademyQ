@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 function getStatusClass(status) {
   switch (status) {
     case "completed": return "badge-success";
@@ -8,6 +10,8 @@ function getStatusClass(status) {
 }
 
 export default function StudentPaymentTable({ payments }) {
+  const { t } = useTranslation("payment");
+
   if (payments.length === 0) {
     return (
       <div className="empty-state">
@@ -17,8 +21,8 @@ export default function StudentPaymentTable({ payments }) {
             <line x1="2" y1="10" x2="22" y2="10"/>
           </svg>
         </div>
-        <p className="empty-state-title">No payments found</p>
-        <p className="empty-state-desc">This student has no payment records yet.</p>
+        <p className="empty-state-title">{t("table.no_payments_found")}</p>
+        <p className="empty-state-desc">{t("table.no_payments_found_desc")}</p>
       </div>
     );
   }
@@ -28,11 +32,11 @@ export default function StudentPaymentTable({ payments }) {
       <table className="table">
         <thead className="table-thead">
           <tr>
-            <th>Class</th>
-            <th>Amount</th>
-            <th>Date</th>
-            <th>Notes</th>
-            <th>Status</th>
+            <th>{t("table.headers.class")}</th>
+            <th>{t("table.headers.amount")}</th>
+            <th>{t("table.headers.date")}</th>
+            <th>{t("table.headers.notes")}</th>
+            <th>{t("table.headers.status")}</th>
           </tr>
         </thead>
         <tbody>
@@ -61,7 +65,7 @@ export default function StudentPaymentTable({ payments }) {
 
               <td className="table-cell">
                 <span className={getStatusClass(payment.status)}>
-                  {payment.status}
+                  {t(`status.${payment.status}`) || payment.status}
                 </span>
               </td>
 

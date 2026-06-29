@@ -5,6 +5,7 @@ import PaymentTable from "../components/payments/PaymentTable";
 import RecordPaymentForm from "../components/payments/RecordPaymentForm";
 import AddPaymentForm from "../components/payments/AddPaymentForm";
 import { toast } from "../lib/toastBus";
+import { useTranslation } from "react-i18next";
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -28,6 +29,7 @@ export default function PaymentsPage() {
   const [submitting, setSubmitting]       = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const { t } = useTranslation("payment");
 
   useEffect(() => {
     fetchSummary(selectedMonth);
@@ -80,13 +82,15 @@ export default function PaymentsPage() {
     }
   }
 
-  // Build month options — last 12 months
   const monthOptions = [];
   const now = new Date();
-  for (let i = 0; i < 12; i++) {
+
+  for (let i = -1; i < 11; i++) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+
     const val = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     const label = `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+
     monthOptions.push({ val, label });
   }
 
@@ -96,9 +100,9 @@ export default function PaymentsPage() {
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="heading-1">Payments & Finance</h1>
+          <h1 className="heading-1">{t("page_title")}</h1>
           <p className="subheading">
-            Track revenue, manage payments, and monitor outstanding fees
+            {t("page_subtitle")}
           </p>
         </div>
 
@@ -116,14 +120,14 @@ export default function PaymentsPage() {
               <line x1="12" y1="5" x2="12" y2="19" />
               <line x1="5" y1="12" x2="19" y2="12" />
             </svg>
-            Record payment
+            {t("record_payment")}
           </button>
         </div>
       </div>
 
       {/* Month selector */}
       <div className="flex items-center gap-3 mb-6">
-        <label className="text-sm font-medium text-navy">View month:</label>
+        <label className="text-sm font-medium text-navy">{t("view_month")}</label>
         <select
           value={selectedMonth}
           onChange={(e) => setSelectedMonth(e.target.value)}
@@ -150,11 +154,14 @@ export default function PaymentsPage() {
               </svg>
             </div>
             <div>
-              <p className="text-sm font-semibold text-warning">
-                {summary.overdue_count} overdue payment{summary.overdue_count !== 1 ? "s" : ""} require attention
+            <p className="text-sm font-semibold text-warning">
+                {t("overdue_section.title", { 
+                  count: summary.overdue_count,
+                  plural: summary.overdue_count !== 1 ? "s" : ""
+                })}
               </p>
               <p className="text-xs text-warning/80 mt-0.5">
-                Total outstanding: {parseFloat(summary.overdue_total).toLocaleString()} EGP
+                {t("overdue_section.subtitle", { amount: parseFloat(summary.overdue_total).toLocaleString() })}
               </p>
             </div>
           </div>
@@ -163,11 +170,11 @@ export default function PaymentsPage() {
             <table className="table">
               <thead className="table-thead">
                 <tr>
-                  <th>Student</th>
-                  <th>Class</th>
-                  <th>Amount Due</th>
-                  <th>Days Overdue</th>
-                  <th>Parent Email</th>
+                  <th>{t("table.headers.student")}</th>
+                  <th>{t("table.headers.class")}</th>
+                  <th>{t("table.headers.amount_due")}</th>
+                  <th>{t("table.headers.days_overdue")}</th>
+                  <th>{t("table.headers.parent_email")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -217,8 +224,8 @@ export default function PaymentsPage() {
 
       {/* Recent payments */}
       <div className="mb-2">
-        <h2 className="heading-3 mb-1">Recent payments</h2>
-        <p className="text-caption">Latest payment records for {selectedMonth}</p>
+        <h2 className="heading-3 mb-1">{t("recent_payments")}</h2>
+        <p className="text-caption">{t("latest_for_month", { month: selectedMonth })}</p>
       </div>
 
       {error && (
@@ -267,7 +274,7 @@ export default function PaymentsPage() {
         <div className="modal-backdrop">
           <div className="modal modal-sm">
             <div className="modal-header">
-              <h2 className="modal-title">Delete payment?</h2>
+              <h2 className="modal-title">{t("delete_modal.title")}</h2>
               <button className="btn-icon" onClick={() => setDeleteConfirm(null)}>
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -277,16 +284,14 @@ export default function PaymentsPage() {
             <div className="modal-body">
               <div className="alert alert-danger">
                 <p className="alert-desc">
-                  This will permanently delete the payment of{" "}
-                  <strong>{parseFloat(deleteConfirm.amount).toFixed(2)} EGP</strong>.
-                  This action cannot be undone.
+                  {t("delete_modal.confirm", { amount: `${parseFloat(deleteConfirm.amount).toFixed(2)} EGP` })}
                 </p>
               </div>
             </div>
             <div className="modal-footer">
-              <button className="btn-muted" onClick={() => setDeleteConfirm(null)}>Cancel</button>
+              <button className="btn-muted" onClick={() => setDeleteConfirm(null)}>{t("delete_modal.cancel")}</button>
               <button className="btn-danger" onClick={() => confirmDelete(deleteConfirm)}>
-                Delete
+                {t("delete_modal.delete")}
               </button>
             </div>
           </div>

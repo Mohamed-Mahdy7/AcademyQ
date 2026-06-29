@@ -1,0 +1,79 @@
+{
+    "page_title": "Payments & Finance",
+    "page_subtitle": "Track revenue, manage payments, and monitor outstanding fees",
+    "record_payment": "Record payment",
+    "add_new_payment": "Add new payment",
+    "view_month": "View month:",
+    "summary_cards": {
+        "expected_revenue": "Expected revenue",
+        "this_month": "EGP · this month",
+        "collected": "Collected",
+        "collection_rate": "Collection rate",
+        "outstanding": "Outstanding",
+        "overdue_payments": "overdue payments"
+    },
+    "recent_payments": "Recent payments",
+    "latest_for_month": "Latest payment records for {{month}}",
+    "overdue_section": {
+        "title": "{{count}} overdue payment{{plural}} require attention",
+        "subtitle": "Total outstanding: {{amount}} EGP"
+    },
+    "table": {
+        "headers": {
+            "student": "Student",
+            "class": "Class",
+            "amount": "Amount",
+            "status": "Status",
+            "payment_date": "Payment date",
+            "notes": "Notes",
+            "actions": "Actions",
+            "date": "Date",
+            "days_overdue": "Days Overdue",
+            "parent_email": "Parent Email",
+            "amount_due": "Amount Due"
+        },
+        "empty_title": "No payments yet",
+        "empty_desc": "Record a payment to get started.",
+        "no_payments_found": "No payments found",
+        "no_payments_found_desc": "This student has no payment records yet.",
+        "delete_tooltip": "Delete payment"
+    },
+    "form": {
+        "title": "Record payment",
+        "pending_label": "Pending payment",
+        "date_label": "Payment date",
+        "notes_label": "Notes",
+        "notes_placeholder": "e.g. Cash payment, Bank transfer...",
+        "action_label": "Action",
+        "complete": "✓ Complete",
+        "cancel": "✕ Cancel",
+        "selected": "Selected:",
+        "payment_details": "Payment details",
+        "amount": "Amount:",
+        "loading": "Loading pending payments...",
+        "select_default": "Select a pending payment",
+        "no_pending": "No pending payments found.",
+        "due_date_hint": "Recording payment for due date: {{date}}",
+        "submit_complete": "Complete payment",
+        "submit_cancel": "Cancel payment",
+        "submit_saving": "Saving...",
+        "cancel_btn": "Cancel"
+    },
+    "filter": {
+        "all_statuses": "All statuses",
+        "completed": "Completed",
+        "pending": "Pending",
+        "cancelled": "Cancelled"
+    },
+    "status": {
+        "completed": "Completed",
+        "pending": "Pending",
+        "cancelled": "Cancelled"
+    },
+    "delete_modal": {
+        "title": "Delete payment?",
+        "confirm": "This will permanently delete the payment of {{amount}} EGP. This action cannot be undone.",
+        "cancel": "Cancel",
+        "delete": "Delete"
+    }
+}

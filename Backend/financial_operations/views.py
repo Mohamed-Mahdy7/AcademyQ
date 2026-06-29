@@ -163,8 +163,8 @@ class PaymentViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
         if month:
             year, mon = month.split('-')
             queryset = queryset.filter(
-                due_date__year=year,
-                due_date__month=mon
+                enrollment_id__start_date__year=year,
+                enrollment_id__start_date__month=mon,
             )
         if status:
             queryset = queryset.filter(status=status)

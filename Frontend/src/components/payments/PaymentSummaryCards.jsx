@@ -1,4 +1,8 @@
+import { useTranslation } from "react-i18next";
+
 export default function PaymentSummaryCards({ summary, loading }) {
+  const { t } = useTranslation("payment");
+  
   if (loading) {
     return (
       <div className="stat-grid mb-6">
@@ -17,7 +21,7 @@ export default function PaymentSummaryCards({ summary, loading }) {
       {/* Expected revenue */}
       <div className="kpi-card">
         <div className="flex items-center justify-between mb-2">
-          <p className="kpi-label">Expected revenue</p>
+          <p className="kpi-label">{t("summary_cards.expected_revenue")}</p>
           <div className="stat-icon-wrap">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <line x1="12" y1="1" x2="12" y2="23"/>
@@ -26,13 +30,13 @@ export default function PaymentSummaryCards({ summary, loading }) {
           </div>
         </div>
         <p className="kpi-value">{parseFloat(summary.revenue_expected).toLocaleString()}</p>
-        <p className="kpi-sub">EGP · this month</p>
+        <p className="kpi-sub">{t("summary_cards.this_month")}</p>
       </div>
 
       {/* Collected */}
       <div className="kpi-card">
         <div className="flex items-center justify-between mb-2">
-          <p className="kpi-label">Collected</p>
+          <p className="kpi-label">{t("summary_cards.collected")}</p>
           <div className="stat-icon-wrap">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polyline points="20 6 9 17 4 12"/>
@@ -42,13 +46,13 @@ export default function PaymentSummaryCards({ summary, loading }) {
         <p className="kpi-value text-success">
           {parseFloat(summary.revenue_collected).toLocaleString()}
         </p>
-        <p className="kpi-sub">EGP · {summary.collection_rate_pct}% collection rate</p>
+        <p className="kpi-sub">EGP · {summary.collection_rate_pct}% {t("summary_cards.collection_rate").toLowerCase()}</p>
       </div>
 
       {/* Outstanding */}
       <div className="kpi-card">
         <div className="flex items-center justify-between mb-2">
-          <p className="kpi-label">Outstanding</p>
+          <p className="kpi-label">{t("summary_cards.outstanding")}</p>
           <div className="stat-icon-wrap-warn">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="10"/>
@@ -60,13 +64,13 @@ export default function PaymentSummaryCards({ summary, loading }) {
         <p className="kpi-value text-warning">
           {parseFloat(summary.overdue_total).toLocaleString()}
         </p>
-        <p className="kpi-sub">EGP · {summary.overdue_count} overdue payments</p>
+        <p className="kpi-sub">EGP · {summary.overdue_count} {t("summary_cards.overdue_payments")}</p>
       </div>
 
       {/* Collection rate */}
       <div className="kpi-card">
         <div className="flex items-center justify-between mb-2">
-          <p className="kpi-label">Collection rate</p>
+          <p className="kpi-label">{t("summary_cards.collection_rate")}</p>
           <div className="stat-icon-wrap">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>

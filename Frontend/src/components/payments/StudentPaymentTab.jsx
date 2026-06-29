@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { usePayment } from "../../context/PaymentContext";
 import StudentPaymentTable from "./StudentPaymentTable";
+import { useTranslation } from "react-i18next";
 
 export default function StudentPaymentTab({ studentId }) {
+  const { t } = useTranslation("payment");
   const { payments, loading, error, listPayments } = usePayment();
   const [statusFilter, setStatusFilter] = useState("");
 
@@ -24,10 +26,10 @@ export default function StudentPaymentTab({ studentId }) {
           onChange={(e) => setStatusFilter(e.target.value)}
           className="filter-select"
         >
-          <option value="">All statuses</option>
-          <option value="completed">Completed</option>
-          <option value="pending">Pending</option>
-          <option value="cancelled">Cancelled</option>
+          <option value="">{t("filter.all_statuses")}</option>
+          <option value="completed">{t("filter.completed")}</option>
+          <option value="pending">{t("filter.pending")}</option>
+          <option value="cancelled">{t("filter.cancelled")}</option>
         </select>
         <div className="filter-bar-right">
           <p className="text-caption">
