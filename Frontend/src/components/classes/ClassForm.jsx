@@ -93,12 +93,6 @@ function ClassForm({ onSubmit, initialData = {}, isEditing = false }) {
         if (formData.session_price !== "" && Number(formData.session_price) < 0)
             errs.session_price = t("session_price_negative");
 
-        if (formData.session_duration) {
-            const durationRegex = /^\d{2}:\d{2}:\d{2}$/;
-            if (!durationRegex.test(formData.session_duration))
-                errs.session_duration = t("session_duration_format");
-        }
-
         return errs;
     };
 
@@ -237,15 +231,23 @@ function ClassForm({ onSubmit, initialData = {}, isEditing = false }) {
                 </div>
                 <div className="form-field">
                     <label className="form-label">{t("session_duration")}</label>
-                    <input
-                        type="text"
+                    <select
                         name="session_duration"
                         value={formData.session_duration}
                         onChange={handleChange}
-                        placeholder="e.g. 01:30:00"
-                        className={errors.session_duration ? "form-input-error" : "form-input"}
-                    />
-                    <span className="form-hint">{t("session_duration_hint")}</span>
+                        className={errors.session_duration ? "form-input-error" : "form-select"}
+                    >
+                        <option value="">-- {t("common:select_option")} --</option>
+                        <option value="00:30:00">30 min</option>
+                        <option value="00:45:00">45 min</option>
+                        <option value="01:00:00">1 hr</option>
+                        <option value="01:15:00">1 hr 15 min</option>
+                        <option value="01:30:00">1 hr 30 min</option>
+                        <option value="01:45:00">1 hr 45 min</option>
+                        <option value="02:00:00">2 hr</option>
+                        <option value="02:30:00">2 hr 30 min</option>
+                        <option value="03:00:00">3 hr</option>
+                    </select>
                     {errors.session_duration && <span className="form-error">{errors.session_duration}</span>}
                 </div>
             </div>
