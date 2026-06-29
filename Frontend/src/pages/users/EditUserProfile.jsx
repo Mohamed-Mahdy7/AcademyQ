@@ -2,14 +2,12 @@ import { useContext, useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { UsersContext } from "../../context/UsersContext"
 import { toast } from "../../lib/toastBus"
+import { useTranslation } from "react-i18next"
 
 
 const EditUserProfile = ({ userId, onClose }) => {
-    const {
-        user,
-        updateUser,
-        getUser
-    } = useContext(UsersContext);
+    const { t } = useTranslation(["staff", "common"]);
+    const { user, updateUser, getUser } = useContext(UsersContext);
     const [full_name, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
@@ -17,11 +15,11 @@ const EditUserProfile = ({ userId, onClose }) => {
     const [fieldErrors, setFieldErrors] = useState({});
     const [saving, setSaving] = useState(false);
     const navigate = useNavigate();
+
     const roles = [
-        { value: "A", label: "Admin" },
-        { value: "T", label: "Teacher" },
-    ]
-    
+        { value: "A", label: t("common:admin") },
+        { value: "T", label: t("common:teacher") },
+    ];
 
     useEffect(() => {
         getUser(userId);
@@ -29,7 +27,6 @@ const EditUserProfile = ({ userId, onClose }) => {
 
     useEffect(() => {
         if (!user) return;
-
         setFullName(user.full_name || "");
         setEmail(user.email || "");
         setPhone(user.phone || "");
@@ -44,14 +41,14 @@ const EditUserProfile = ({ userId, onClose }) => {
         e.preventDefault();
         setFieldErrors({});
 
-        const data =
+        const unchanged =
             full_name === (user.full_name || "") &&
             email === (user.email || "") &&
             phone === (user.phone || "") &&
             role === (user.role || "");
 
-        if (data) {
-            toast.warning("No changes made", "Edit a field before saving.");
+        if (unchanged) {
+            toast.warning(t("common:no_changes_made"), t("common:no_changes_made"));
             return;
         }
 
@@ -60,9 +57,9 @@ const EditUserProfile = ({ userId, onClose }) => {
         setSaving(false);
 
         if (result.success) {
-            toast.success("User updated", `${full_name}'s profile was saved.`);
+            toast.success(t("user_updated"), t("user_updated_desc", { name: full_name }));
             onClose();
-            navigate(`/users/`);
+            navigate("/users/");
         } else if (result.error?.response?.data?.code === "validation_error") {
             setFieldErrors(result.error.response.data.fields || {});
         }
@@ -73,73 +70,67 @@ const EditUserProfile = ({ userId, onClose }) => {
     }
 
     return (
-        <form 
-            onSubmit={handleSubmit}
-            className="form-card"
-        >
+        <form onSubmit={handleSubmit} className="form-card">
             <h1 className="text-3xl font-bold text-navy mb-8">
-                User Profile
+                {t("user_profile")}
             </h1>
-            <div className="divider"></div>
+            <div className="divider" />
             <div className="flex flex-col gap-3">
                 <div>
-                    <label htmlFor="fullName" className="form-label">Full Name</label>
-                    <input 
-                        type="text" 
-                        name="fullName" 
+                    <label htmlFor="fullName" className="form-label">{t("common:full_name")}</label>
+                    <input
+                        type="text"
+                        name="fullName"
                         id="fullName"
-                        placeholder="Owner Full Name"
+                        placeholder={t("common:full_name_placeholder")}
                         value={full_name}
                         onChange={(e) => setFullName(e.target.value)}
-                        className="form-input"
+                        className={fieldClass("full_name")}
                         required
                     />
                     {fieldErrors.full_name && <p className="form-error">{fieldErrors.full_name[0]}</p>}
                 </div>
                 <div>
-                    <label htmlFor="email" className="form-label">Email</label>
-                    <input 
-                        type="email" 
-                        name="email" 
+                    <label htmlFor="email" className="form-label">{t("common:email")}</label>
+                    <input
+                        type="email"
+                        name="email"
                         id="email"
-                        placeholder="Email"
+                        placeholder={t("common:email_placeholder")}
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="form-input"
+                        className={fieldClass("email")}
                         required
                     />
                     {fieldErrors.email && <p className="form-error">{fieldErrors.email[0]}</p>}
                 </div>
                 <div>
-                    <label htmlFor="phone" className="form-label">Phone</label>
-                    <input 
-                        type="text" 
-                        name="phone" 
+                    <label htmlFor="phone" className="form-label">{t("common:phone")}</label>
+                    <input
+                        type="text"
+                        name="phone"
                         id="phone"
-                        placeholder="Phone"
+                        placeholder={t("common:phone_placeholder")}
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="form-input"
+                        className={fieldClass("phone")}
                         required
                     />
                     {fieldErrors.phone && <p className="form-error">{fieldErrors.phone[0]}</p>}
                 </div>
                 <div>
-                    <label htmlFor="role">Role</label>
-                    <select 
-                        name="role" 
+                    <label htmlFor="role" className="form-label">{t("role")}</label>
+                    <select
+                        name="role"
                         id="role"
                         value={role}
                         onChange={(e) => setRole(e.target.value)}
                         required
                         className="form-select"
                     >
-                        <option value="">Select a role</option>
+                        <option value="">{t("select_a_role")}</option>
                         {roles.map((roleOption) => (
-                            <option
-                                key={roleOption.value}
-                                value={roleOption.value}
-                            >
+                            <option key={roleOption.value} value={roleOption.value}>
                                 {roleOption.label}
                             </option>
                         ))}
@@ -148,10 +139,10 @@ const EditUserProfile = ({ userId, onClose }) => {
                 </div>
             </div>
             <button type="submit" className="btn-primary mt-4 w-full" disabled={saving}>
-                {saving ? <span className="btn-spinner" /> : "Save Changes"}
+                {saving ? <span className="btn-spinner" /> : t("common:save_changes")}
             </button>
         </form>
-    )
-}
+    );
+};
 
-export default EditUserProfile
+export default EditUserProfile;
