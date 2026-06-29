@@ -177,6 +177,11 @@ DJOSER = {
 
 import json
 
+SECRET_KEY = os.getenv("SECRET_KEY")
+
+if not SECRET_KEY:
+    raise Exception("SECRET_KEY environment variable is missing.")
+
 CORS_ALLOWED_ORIGINS = json.loads(
     os.getenv(
         "CORS_ALLOWED_ORIGINS",
