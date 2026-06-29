@@ -95,6 +95,10 @@ WSGI_APPLICATION = 'academy_q.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 import dj_database_url
+database_url = os.getenv("DATABASE_URL")
+
+print(type(database_url))
+print(repr(database_url))
 
 DATABASES = {
     'default': dj_database_url.parse(
