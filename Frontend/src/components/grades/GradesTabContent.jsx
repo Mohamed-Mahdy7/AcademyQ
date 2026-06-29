@@ -21,7 +21,7 @@ export default function GradesTabContent({ classId, enrollments, sessions, subje
       </div>
 
       {view === "summary" ? (
-        <ClassGradeSummaryTab classId={classId} enrollments={enrollments} />
+        <ClassGradeSummaryTab classId={classId} enrollments={enrollments} sessions={sessions} />
       ) : (
         <GradeForm
           enrollments={enrollments}

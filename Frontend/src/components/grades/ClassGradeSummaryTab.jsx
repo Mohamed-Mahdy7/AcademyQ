@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { getClassSummary, getGrades } from "../../services/gradesService";
 
-export default function ClassGradeSummaryTab({ classId, enrollments = [] }) {
+export default function ClassGradeSummaryTab({ classId, enrollments = [], sessions = [] }) {
   const navigate = useNavigate();
   const { t } = useTranslation(["grades", "common"]);
   const [data, setData] = useState(null);
@@ -150,7 +150,10 @@ export default function ClassGradeSummaryTab({ classId, enrollments = [] }) {
                   return (
                     <tr key={g.id} className="table-row">
                       <td className="table-cell font-medium">
-                        {g.session_num ? t("session_label", { num: g.session_num }) : "—"}
+                        {g.session_num ? t("session_label", { 
+                            num: g.session_num, 
+                            date: sessions.find(s => s.id === g.session)?.session_date ?? "" 
+                        }) : "—"}
                       </td>
                       <td className="table-cell">{t("score_display", { score: g.score, max: g.max_score })}</td>
                       <td className="table-cell">
