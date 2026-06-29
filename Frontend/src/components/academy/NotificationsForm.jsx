@@ -1,8 +1,11 @@
 import { AcademyContext } from "../../context/AcademyContext";
 import { useContext, useState, useEffect } from "react";
 import FormHeading from "./FormHeading";
+import { useTranslation } from "react-i18next";
+import { toast } from "../../lib/toastBus";
 
 export default function Notifications() {
+    const { t } = useTranslation(["settings", "common"]);
     const { academy, updateAcademy } = useContext(AcademyContext);
     const [weeklyReportEnabled, setWeeklyReportEnabled] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -15,49 +18,43 @@ export default function Notifications() {
 
     async function handleToggle(e) {
         const newValue = e.target.checked;
-        setWeeklyReportEnabled(newValue); // optimistic update
+        setWeeklyReportEnabled(newValue);
         setSaving(true);
 
-        const result = await updateAcademy({ 
+        const result = await updateAcademy({
             name: academy.name,
             email: academy.email,
             phone: academy.phone,
-            weekly_report_enabled: newValue 
+            weekly_report_enabled: newValue,
         });
 
         if (!result.success) {
-            console.log(result.error?.response?.data)
-            setWeeklyReportEnabled(!newValue); // revert on failure
-            alert("Failed to update notification settings");
-        } else{
-            if (weeklyReportEnabled === false) {
-                alert("Academy weekly report enabled!")
-            } else{
-                alert("Academy weekly report disapled!")
-            }
+            setWeeklyReportEnabled(!newValue);
+            toast.danger(t("weekly_report_update_failed"));
+        } else {
+            toast.success(
+                newValue ? t("weekly_report_enabled") : t("weekly_report_disabled")
+            );
         }
+
         setSaving(false);
     }
 
     if (!academy) {
-        return <p>Loading...</p>;
+        return <div className="skeleton skeleton-card" />;
     }
 
     return (
         <>
             <FormHeading
-                heading="Notifications"
-                subheading="Configure how you receive alerts"
+                heading={t("notifications")}
+                subheading={t("notifications_desc")}
             />
             <div className="card-body rounded-t-none space-y-6">
                 <label className="flex justify-between items-center cursor-pointer">
                     <div>
-                        <h3 className="heading-3">Weekly Management Report</h3>
-                        <p className="subheading">
-                            A Sunday morning email summarizing reports generated,
-                            risk alerts, notifications sent, and AI usage cost
-                            for the week.
-                        </p>
+                        <h3 className="heading-3">{t("weekly_report")}</h3>
+                        <p className="subheading">{t("weekly_report_desc")}</p>
                     </div>
                     <input
                         type="checkbox"
