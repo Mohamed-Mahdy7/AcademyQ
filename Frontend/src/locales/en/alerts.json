@@ -17,5 +17,52 @@
     "rate_limited": "Rate limited",
     "scan_failed": "Scan failed",
     "scan_failed_desc": "Please try again.",
-    "never": "Never"
+    "never": "Never",
+    "inbox": {
+        "page_title": "Alert Inbox",
+        "page_subtitle": "AI-generated retention alerts — review and send to parents",
+        "notification_history": "Notification History",
+        "high_risk_label": "High Risk",
+        "medium_risk_label": "Medium Risk",
+        "low_risk_label": "Low Risk",
+        "open_alerts_label": "Open Alerts",
+        "filter_all": "All",
+        "filter_high": "High",
+        "filter_medium": "Medium",
+        "filter_low": "Low",
+        "failed_to_load": "Failed to load alerts",
+        "retry": "Retry",
+        "all_clear_title": "All clear!",
+        "all_clear_desc": "No pending alerts. All students are on track 🎉",
+        "no_risk_alerts": "No {{risk}}-risk alerts pending."
+    },
+    "row": {
+        "risk_label": "Risk",
+        "score_label": "Score",
+        "message_preview_label": "Message preview",
+        "no_message_yet": "No message yet",
+        "risk_score_label": "Risk Score",
+        "recommended_action": "Recommended Action",
+        "primary_reason": "Primary Reason",
+        "ai_message_label": "AI-Generated Parent Message",
+        "generate_message": "Generate Message",
+        "regenerate_message": "Regenerate",
+        "generating": "Generating…",
+        "no_message_generated": "No message generated yet. Click \"Generate Message\" to create one using AI.",
+        "internal_notes": "Internal Notes",
+        "no_notes": "No notes added.",
+        "send_via_email": "Send Via Email",
+        "sending": "Sending…",
+        "sent": "Sent!",
+        "view_student_profile": "View Student Profile",
+        "dismiss": "Dismiss",
+        "send_failed": "Failed to send",
+        "send_failed_desc": "The message could not be delivered. Please try again."
+    },
+    "reasons": {
+        "low_attendance": "Low Attendance",
+        "overdue_fee": "Overdue Fee",
+        "low_grades": "Low Grades",
+        "combined": "Combined Risk"
+    }
 }
