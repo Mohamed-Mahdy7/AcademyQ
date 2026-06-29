@@ -319,3 +319,35 @@ msgstr "تم حذف التسجيل بنجاح"
 #: structure/enrollment/views.py:70
 msgid "Cannot delete enrollment: pending payments exist"
 msgstr "لا يمكن حذف التسجيل: توجد دفعات معلقة"
+
+#: ai/agent/models.py:13
+msgid "High Risk"
+msgstr "خطر مرتفع"
+
+#: ai/agent/models.py:14
+msgid "Medium Risk"
+msgstr "خطر متوسط"
+
+#: ai/agent/models.py:15
+msgid "Low Risk"
+msgstr "خطر منخفض"
+
+#: ai/agent/models.py:16
+msgid "Open Alerts"
+msgstr "تنبيهات مفتوحة"
+
+#: ai/agent/models.py:17
+msgid "Low Attendance"
+msgstr "حضور منخفض"
+
+#: ai/agent/models.py:18
+msgid "Overdue Fee"
+msgstr "رسم متأخر"
+
+#: ai/agent/models.py:19
+msgid "Low Grades"
+msgstr "درجات منخفضة"
+
+#: ai/agent/models.py:20
+msgid "Combined Risk"
+msgstr "مخاطر مدمجة"
