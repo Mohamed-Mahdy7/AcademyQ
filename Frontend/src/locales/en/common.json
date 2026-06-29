@@ -60,6 +60,25 @@
     "are_you_sure_delete": "Are you sure you want to delete",
     "refresh_page": "Please refresh the page.",
     "something_wrong": "Something went wrong. Please try again.",
+    "academy": "Academy",
+
+    "full_name_placeholder": "Full Name",
+    "email_placeholder": "Email",
+    "phone_placeholder": "Phone",
+    "parent_email_placeholder": "Parent Email",
+    "password_placeholder": "Password",
+    "confirm_password_placeholder": "Confirm Password",
+
+    "select_academy": "Select an academy",
+    "select_educational_level": "Select an educational level",
+
+    "already_registered": "Already registered?",
+
+    "please_select_academy": "Please select an academy.",
+    "join_academy": "Join academy",
+    "could_not_load_educational_levels": "Couldn't load educational levels",
+    "could_not_load_academies": "Couldn't load academies data",
+    "try_refreshing": "Try refreshing the page.",
     "date": "Date",
     "time": "Time",
     "notes": "Notes",

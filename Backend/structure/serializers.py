@@ -60,8 +60,13 @@ class ClassListSerializer(serializers.ModelSerializer):
             "class_price",
         ]
 
-    def get_teacher_name(self, obj) -> str:
-        assignment = obj.teacher_assignments.select_related("teacher__user_id").first()
+    def get_teacher_name(self, obj):
+        assignment = (
+            obj.teacher_assignments
+            .select_related("teacher__user_id")
+            .filter(teacher__user_id__is_active=True)
+            .first()
+        )
         if assignment:
             return assignment.teacher.user_id.full_name
         return None
@@ -78,6 +83,9 @@ class TeacherClassDetailSerializer(serializers.ModelSerializer):
         decimal_places=2,
         read_only=True,
     )
+    is_active = serializers.BooleanField(
+        source="teacher.user_id.is_active", read_only=True
+    )
 
     class Meta:
         model = TeacherClass
@@ -86,6 +94,7 @@ class TeacherClassDetailSerializer(serializers.ModelSerializer):
             "teacher_name",
             "assigned_at",
             "rate_per_session",
+            "is_active",
         ]
 
 
@@ -114,9 +123,7 @@ class ClassDetailSerializer(serializers.ModelSerializer):
     students_count = serializers.IntegerField(read_only=True)
     sessions_count = serializers.IntegerField(read_only=True)
     avg_attendance = serializers.FloatField(read_only=True)
-    teachers = TeacherClassDetailSerializer(
-        source="teacher_assignments", many=True, read_only=True
-    )
+    teachers = serializers.SerializerMethodField()
     schedules = ClassScheduleSerializer(many=True, read_only=True)
     class_price = serializers.DecimalField(
         max_digits=10,
@@ -146,6 +153,12 @@ class ClassDetailSerializer(serializers.ModelSerializer):
             "schedules",
             "class_price",
         ]
+
+    def get_teachers(self, obj):
+        active_assignments = obj.teacher_assignments.select_related(
+            "teacher__user_id"
+        ).filter(teacher__user_id__is_active=True)
+        return TeacherClassDetailSerializer(active_assignments, many=True).data
 
 
 class ClassCreateSerializer(serializers.ModelSerializer):
