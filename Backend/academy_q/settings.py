@@ -97,8 +97,6 @@ WSGI_APPLICATION = 'academy_q.wsgi.application'
 import dj_database_url
 database_url = os.getenv("DATABASE_URL")
 
-print(type(database_url))
-print(repr(database_url))
 
 DATABASES = {
     'default': dj_database_url.parse(
