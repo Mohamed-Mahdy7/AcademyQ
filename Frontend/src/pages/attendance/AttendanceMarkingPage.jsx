@@ -103,7 +103,6 @@ export default function AttendanceMarkingPage() {
   useEffect(() => {
     getClassSchedule(classId)
       .then(res => {
-        console.log("schedules loaded:", res.data);
         setSchedules(res.data);
       })
       .catch((err) => console.log("schedule fetch failed:", err));

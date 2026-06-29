@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { toast } from "../../lib/toastBus";
+import api from "../../api";
 import GenerateSessionsModal from "./GenerateSessionsModal";
 
 export default function SessionsTab({ sessions, classId, classStartDate, classEndDate, onSessionsGenerated }) {
@@ -8,16 +10,16 @@ export default function SessionsTab({ sessions, classId, classStartDate, classEn
   const { t, i18n } = useTranslation("attendance");
   const [showModal, setShowModal] = useState(false);
   const [deleting, setDeleting] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null); // ← add this
   const isRTL = i18n.language === "ar";
 
   const handleSuccess = () => {
     if (onSessionsGenerated) onSessionsGenerated();
   };
 
-  const handleDelete = async (e, sessionId) => {
-    e.stopPropagation();
-    if (!window.confirm(t("delete_session_confirm"))) return;
+  const handleDelete = async (sessionId) => {
     setDeleting(sessionId);
+    setConfirmDeleteId(null);
     try {
       await api.delete(`/api/sessions/${sessionId}/`);
       if (onSessionsGenerated) onSessionsGenerated();
@@ -41,7 +43,6 @@ export default function SessionsTab({ sessions, classId, classStartDate, classEn
           </button>
         </div>
       </div>
-
       <div className="overflow-x-auto rounded-xl border border-border">
         <table className="table min-w-[600px]">
           <thead className="table-thead">
@@ -100,31 +101,42 @@ export default function SessionsTab({ sessions, classId, classStartDate, classEn
                     </td>
                     <td className="table-cell-muted">{session.notes || "—"}</td>
                     <td className="table-actions">
-                      <button
-                        className="btn-danger-outline"
-                        onClick={(e) => handleDelete(e, session.id)}
-                        disabled={deleting === session.id}
-                      >
-                        {deleting === session.id ? t("deleting") : t("delete")}
-                      </button>
+                      {confirmDeleteId === session.id ? (
+                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                          <span className="text-sm text-danger">{t("delete_session_confirm")}</span>
+                          <button className="btn-danger" onClick={() => handleDelete(session.id)}>
+                            {t("yes")}
+                          </button>
+                          <button className="btn-muted" onClick={() => setConfirmDeleteId(null)}>
+                            {t("cancel")}
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          className="btn-danger-outline"
+                          onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(session.id); }}
+                          disabled={deleting === session.id}
+                        >
+                          {deleting === session.id ? t("deleting") : t("delete")}
+                        </button>
+                      )}
                     </td>
                   </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {showModal && (
-        <GenerateSessionsModal
-          classId={classId}
-          classStartDate={classStartDate}
-          classEndDate={classEndDate}
-          onClose={() => setShowModal(false)}
-          onSuccess={handleSuccess}
-        />
-      )}
+              );
+            })
+          )}
+        </tbody>
+      </table>
     </div>
-  );
+    {showModal && (
+      <GenerateSessionsModal
+        classId={classId}
+        classStartDate={classStartDate}
+        classEndDate={classEndDate}
+        onClose={() => setShowModal(false)}
+        onSuccess={handleSuccess}
+      />
+    )}
+  </div>
+);
 }

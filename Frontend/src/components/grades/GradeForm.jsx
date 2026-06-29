@@ -5,7 +5,7 @@ import { toast } from "../../lib/toastBus";
 import api from "../../api";
 
 export default function GradeForm({ enrollments = [], sessions = [], subjectName = "", classId, onSuccess }) {
-  const { t } = useTranslation(["grades", "common"]);
+  const { t } = useTranslation("grades");
   const { addGrade, findExistingGrade, editGrade } = useGrades();
 
   const [form, setForm] = useState({
@@ -113,7 +113,6 @@ export default function GradeForm({ enrollments = [], sessions = [], subjectName
       else toast.danger(t("failed_save_grade"), data?.detail || error.message);
     }
   };
-
   return (
     <div className="card-body space-y-4 max-w-md">
       <h3 className="heading-3">{t("add_grade")}</h3>

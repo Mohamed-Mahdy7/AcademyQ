@@ -1,4 +1,5 @@
 import { createContext, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
     getNotificationsRequest,
     getNotificationRequest,
@@ -11,6 +12,7 @@ import { toast } from "../lib/toastBus";
 export const NotificationsContext = createContext();
 
 export const NotificationsProvider = ({ children }) => {
+    const { t } = useTranslation("alerts");
     const [notifications, setNotifications] = useState([]);
     const [notification, setNotification]   = useState(null);
     const [stats, setStats]                 = useState(null);
@@ -23,7 +25,7 @@ export const NotificationsProvider = ({ children }) => {
             return response.data;
         } catch (error) {
             setNotifications([]);
-            toast.danger("Failed to load notifications", "Could not fetch notification history.");
+            toast.danger(t("toast.fetch_notif_failed"), t("toast.fetch_notif_failed_desc"));
             return null;
         }
     }
@@ -35,7 +37,7 @@ export const NotificationsProvider = ({ children }) => {
             return response.data;
         } catch (error) {
             setNotification(null);
-            toast.danger("Failed to load notification", "Could not fetch notification details.");
+            toast.danger(t("toast.fetch_notif_detail_failed"), t("toast.fetch_notif_detail_failed_desc"));
             return null;
         }
     }
@@ -46,13 +48,13 @@ export const NotificationsProvider = ({ children }) => {
             const response = await sendAlertNotificationRequest(alert_id, message);
             await getNotifications();
             if (response.data.success) {
-                toast.success("Message sent", "The parent has been notified via email.");
+                toast.success(t("toast.send_success"), t("toast.send_success_desc"));
             } else {
-                toast.warning("Message not delivered", "The email could not be delivered. Check the parent email address.");
+                toast.warning(t("toast.send_warning"), t("toast.send_warning_desc"));
             }
             return { success: response.data.success, data: response.data };
         } catch (error) {
-            toast.danger("Failed to send", "Could not send the alert notification.");
+            toast.danger(t("toast.send_failed"), t("toast.send_failed_desc"));
             return { success: false, error };
         } finally {
             setSending(false);
@@ -64,12 +66,12 @@ export const NotificationsProvider = ({ children }) => {
             const response = await sendRemindersRequest();
             const { sent, failed, skipped } = response.data.results ?? {};
             toast.success(
-                "Reminders processed",
-                `Sent: ${sent ?? 0} · Failed: ${failed ?? 0} · Skipped: ${skipped ?? 0}`
+                t("toast.reminders_processed"),
+                t("toast.reminders_processed_desc", { sent: sent ?? 0, failed: failed ?? 0, skipped: skipped ?? 0 })
             );
             return { success: true, data: response.data };
         } catch (error) {
-            toast.danger("Failed to send reminders", "Could not process payment reminders.");
+            toast.danger(t("toast.reminders_failed"), t("toast.reminders_failed_desc"));
             return { success: false, error };
         }
     }
@@ -81,7 +83,7 @@ export const NotificationsProvider = ({ children }) => {
             return response.data;
         } catch (error) {
             setStats(null);
-            toast.danger("Failed to load stats", "Could not fetch notification statistics.");
+            toast.danger(t("toast.fetch_stats_failed"), t("toast.fetch_stats_failed_desc"));
             return null;
         }
     }
@@ -103,4 +105,4 @@ export const NotificationsProvider = ({ children }) => {
             {children}
         </NotificationsContext.Provider>
     );
-};
+};

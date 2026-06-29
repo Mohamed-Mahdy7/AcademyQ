@@ -423,3 +423,75 @@ msgstr "يجب أن يكون مبلغ الدفعة أكبر من صفر"
 #: financial_operations/views.py:135
 msgid "Payment date cannot be in the future"
 msgstr "لا يمكن أن يكون تاريخ الدفعة في المستقبل"
+
+#: ai/reports/views.py
+msgid "Only owners or admins can delete reports."
+msgstr "فقط الملاك أو المدراء يمكنهم حذف التقارير."
+
+#: ai/reports/views.py
+msgid "Only owners or admins can generate reports."
+msgstr "فقط الملاك أو المدراء يمكنهم إنشاء التقارير."
+
+#: ai/reports/views.py
+msgid "Enrollment not found."
+msgstr "لم يتم العثور على التسجيل."
+
+#: ai/reports/views.py
+msgid "Class not found."
+msgstr "الصف غير موجود."
+
+#: ai/reports/views.py
+msgid "No active students enrolled in this class."
+msgstr "لا توجد طلاب نشطون مسجلون في هذا الصف."
+
+#: ai/agent/helpers/risk_scorer.py
+msgid "Attendance dropped to {pct}% over the last 28 days."
+msgstr "انخفضت نسبة الحضور إلى {pct}% خلال الـ 28 يوماً الماضية."
+
+#: ai/agent/helpers/risk_scorer.py
+msgid "Payment overdue by {days} days."
+msgstr "تأخر السداد بمقدار {days} يوم."
+
+#: ai/agent/helpers/risk_scorer.py
+msgid "Average score on recent assessments is {avg}%."
+msgstr "متوسط الدرجة في التقييمات الأخيرة هو {avg}%."
+
+#: ai/agent/helpers/risk_scorer.py
+msgid "No significant risk factors detected."
+msgstr "لم يتم كشف أي عوامل خطر رئيسية."
+
+#: ai/agent/helpers/risk_scorer.py
+msgid "Contact parent/guardian regarding attendance"
+msgstr "الاتصال بولي الأمر/الوصي بشأن الحضور"
+
+#: ai/agent/helpers/risk_scorer.py
+msgid "Send payment reminder"
+msgstr "إرسال تذكير بالدفع"
+
+#: ai/agent/helpers/risk_scorer.py
+msgid "Schedule academic check-in with teacher"
+msgstr "تحديد موعد للمتابعة الأكاديمية مع المعلم"
+
+#: ai/agent/helpers/risk_scorer.py
+msgid "No action needed. Continue routine monitoring."
+msgstr "لا يوجد إجراء مطلوب. استمر في المراقبة الروتينية."
+
+#: ai/agent/helpers/risk_scorer.py
+msgid "Urgent: {actions}."
+msgstr "عاجل: {actions}."
+
+#: ai/agent/views.py
+msgid "Failed to retrieve student context."
+msgstr "فشل في استرداد بيانات الطالب."
+
+#: ai/agent/views.py
+msgid "LLM call failed."
+msgstr "فشل استدعاء نموذج اللغة الكبير (LLM)."
+
+#: ai/agent/views.py
+msgid "Scan failed. Please try again."
+msgstr "فشل الفحص. يرجى المحاولة مرة أخرى."
+
+#: records/views.py
+msgid "No sessions were created. The selected date range contains no days matching this class's schedule."
+msgstr "لم يتم إنشاء أي حصص. النطاق الزمني المحدد لا يحتوي على أيام تتوافق مع جدول هذه المجموعة."
