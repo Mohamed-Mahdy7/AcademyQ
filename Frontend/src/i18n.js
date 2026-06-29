@@ -34,6 +34,8 @@ import reportsEn from "./locales/en/reports.json";
 import reportsAr from "./locales/ar/reports.json";
 import staffEn from "./locales/en/staff.json";
 import staffAr from "./locales/ar/staff.json";
+import settingsEn from "./locales/en/settings.json";
+import settingsAr from "./locales/ar/settings.json";
 
 
 i18n
@@ -58,6 +60,7 @@ i18n
             payment: paymentEn,
             reports: reportsEn,
             staff: staffEn,
+            settings: settingsEn,
         },
         ar: { 
             common: commonAr,
@@ -76,12 +79,13 @@ i18n
             payment: paymentAr,
             reports: reportsAr,
             staff: staffAr,
+            settings: settingsAr,
         },
 
     },
     fallbackLng: "ar", // Arabic-first: if detection fails, default to Arabic, not English
     defaultNS: "common",
-    ns: ["common", "auth", "students", "attendance", "grades", "alerts", "layout", "dashboard", "subjects", "classes", "teacher", "enrollment", "notification", "payment", "reports", "staff"],
+    ns: ["common", "auth", "students", "attendance", "grades", "alerts", "layout", "dashboard", "subjects", "classes", "teacher", "enrollment", "notification", "payment", "reports", "staff", "settings"],
     interpolation: { escapeValue: false },
     detection: {
     order: ["localStorage", "navigator"],
