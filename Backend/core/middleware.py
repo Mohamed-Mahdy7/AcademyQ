@@ -10,7 +10,7 @@ class AutoRefreshJWTMiddleware(MiddlewareMixin):
                 key="access_token",
                 value=request._new_access_token,
                 httponly=True,
-                secure=False,  
-                samesite="Lax"
+                secure=True,  
+                samesite="None"
             )
         return response
