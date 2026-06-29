@@ -6,7 +6,6 @@ function GenerateReportForm({ enrollmentId, onGenerated }) {
     const defaultMonth = `${today.getFullYear()}-${String(
         today.getMonth() + 1
     ).padStart(2, "0")}`;
-
     const [month, setMonth] = useState(defaultMonth);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -40,10 +39,10 @@ function GenerateReportForm({ enrollmentId, onGenerated }) {
                     required
                 />
             </div>
-            {error && <p className="form-error">{error}</p>}
+            {error && <p className="form-error mb-2">{error}</p>}
             <button
                 type="submit"
-                className="btn-primary"
+                className="btn-primary px-6 whitespace-nowrap"
                 disabled={loading}
             >
                 {loading ? (
