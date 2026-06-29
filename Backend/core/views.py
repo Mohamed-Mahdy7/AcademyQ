@@ -52,15 +52,15 @@ class RegisterView(generics.CreateAPIView):
             key='access_token',
             value=access,
             httponly=True,
-            secure=False,
-            samesite='lax'
+            secure=True,
+            samesite='None'
         )
         response.set_cookie(
             key='refresh_token',
             value=refresh,
             httponly=True,
-            secure=False,
-            samesite='lax'
+            secure=True,
+            samesite='None'
         )
         return response
 
@@ -87,16 +87,16 @@ class LoginView(TokenObtainPairView):
                 key='access_token',
                 value=access,
                 httponly=True,
-                secure=False,
-                samesite='lax'
+                secure=True,
+                samesite='None'
             )
         if refresh:
             response.set_cookie(
                 key='refresh_token',
                 value=refresh,
                 httponly=True,
-                secure=False,
-                samesite='lax'
+                secure=True,
+                samesite='None'
             )
         return response
 
@@ -132,8 +132,8 @@ class RefreshTokenView(APIView):
             key="access_token",
             value=new_access,
             httponly=True,
-            secure=False,  
-            samesite="lax"
+            secure=True,  
+            samesite="secure"
             )
         return response
 
