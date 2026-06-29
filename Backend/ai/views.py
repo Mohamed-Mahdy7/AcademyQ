@@ -41,6 +41,9 @@ def celery_health(request):
             "message": str(e),
         }, status=503)
 
+def health(request):
+    return JsonResponse({"status": "ok"})
+
 @extend_schema(
     tags=["AI Infra"],
     responses=inline_serializer(
