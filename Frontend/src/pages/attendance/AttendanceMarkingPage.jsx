@@ -63,7 +63,6 @@ export default function AttendanceMarkingPage() {
             setNotes(existing.notes || "");
             setCurrentSessionNum(existing.session_num);
             setSessionTime(existing.session_time);
-            // setSelectedDate(existing.session_date);
             if (sessionIdFromUrl) {
                 setSelectedDate(existing.session_date);
             }
