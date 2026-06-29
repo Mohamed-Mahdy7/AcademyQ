@@ -57,6 +57,9 @@ LAYER: COMPONENTS
   font-family: 'Tajawal', sans-serif;
 }
 
+[dir="rtl"] .form-label {
+        font-size: 15px;
+}
 
 /* Page wrapper — wraps sidebar + main */
 .page-shell {

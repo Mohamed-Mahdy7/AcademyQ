@@ -1,15 +1,15 @@
 {
     "save_changes": "حفظ التغييرات",
     "cancel": "إلغاء",
-    "loading": "...جاري التحميل",
+    "loading": "جارٍ التحميل...",
     "toast": {
-        "session_expired": "انتهت الجلسة",
+        "session_expired": "انتهت صلاحية الجلسة",
         "please_login_again": "يرجى تسجيل الدخول مرة أخرى",
         "connection_problem": "مشكلة في الاتصال",
-        "connection_desc": ".تعذر الوصول إلى الخادم. تحقق من اتصالك",
-        "permission_denied": "غير مسموح بالوصول",
+        "connection_desc": "تعذر الوصول إلى الخادم. تحقق من اتصالك بالإنترنت.",
+        "permission_denied": "تم رفض الإذن",
         "not_found": "غير موجود",
-        "slow_down": "ببطء أكثر",
+        "slow_down": "يرجى المحاولة ببطء",
         "something_wrong": "حدث خطأ ما"
     },
     "add": "إضافة",
@@ -20,19 +20,44 @@
     "grades": "الدرجات",
     "no_changes_made": "لم يتم إجراء أي تغييرات",
     "payments": "المدفوعات",
-    "phone": "الهاتف",
+    "phone": "رقم الهاتف",
     "reports": "التقارير",
     "saving": "جارٍ الحفظ...",
     "select_option": "اختر خيارًا",
     "status": "الحالة",
     "update": "تحديث",
     "view_profile": "عرض الملف الشخصي",
-    "logout": "تسجيل خروج",
+    "logout": "تسجيل الخروج",
+    "password": "كلمة المرور",
+    "confirm_password": "تأكيد كلمة المرور",
+    "full_name": "الاسم الكامل",
+    "address": "العنوان",
+
+    "register": "تسجيل",
+    "login": "تسجيل الدخول",
+    "sign_in": "تسجيل الدخول",
+
+    "submit": "إرسال",
+
+    "passwords_do_not_match": "كلمتا المرور غير متطابقتين",
+
+    "registration_failed": "فشل التسجيل",
+    "check_details_try_again": "يرجى التحقق من البيانات والمحاولة مرة أخرى.",
+
+    "required_select_role": "يرجى اختيار دور",
+    "required_select_academy": "يرجى اختيار أكاديمية",
+    "required_select_educational_level": "يرجى اختيار المرحلة التعليمية",
+
+    "parent_email": "البريد الإلكتروني لولي الأمر",
+    "educational_level": "المرحلة التعليمية",
+
+    "admin": "مسؤول",
+    "teacher": "معلم",
 
     "delete": "حذف",
     "deleting": "جارٍ الحذف...",
     "delete_confirm": "لا يمكن التراجع عن هذا الإجراء.",
-    "are_you_sure_delete": "هل أنت متأكد أنك تريد حذف",
+    "are_you_sure_delete": "هل أنت متأكد من حذف",
     "refresh_page": "يرجى تحديث الصفحة.",
     "something_wrong": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
 }
