@@ -5,48 +5,43 @@
     "add_student": "إضافة طالب",
 
     "total_students": "إجمالي الطلاب",
-    "with_overdue_payments": "الطلاب المتأخرون في السداد",
+    "with_overdue_payments": "ذوو المدفوعات المتأخرة",
 
     "all_students": "جميع الطلاب",
 
     "student_name": "اسم الطالب",
     "parent_email_header": "بريد ولي الأمر",
     "grade_level": "المرحلة الدراسية",
-    "enrollments": "الاشتراكات",
+    "enrollments": "التسجيلات",
     "enrolled_since": "تاريخ التسجيل",
 
     "enrolled_since_date": "مسجل منذ",
     "not_enrolled_yet": "لم يتم التسجيل بعد",
     "not_yet_enrolled": "غير مسجل بعد",
 
-    "student_profile": "الملف الشخصي للطالب",
-    "update_profile": "تحديث الملف الشخصى",
+    "student_profile": "ملف الطالب",
+    "update_profile": "تحديث الملف الشخصي",
 
     "full_name": "الاسم الكامل",
-    "parent_email": "بريد ولي الأمر",
+    "parent_email": "البريد الإلكتروني لولي الأمر",
     "educational_level": "المرحلة التعليمية",
-
-    "full_name_placeholder": "الاسم الكامل",
-    "email_placeholder": "البريد الإلكتروني",
-    "phone_placeholder": "رقم الهاتف",
-    "parent_email_placeholder": "بريد ولي الأمر",
 
     "select_educational_level": "اختر المرحلة التعليمية",
 
     "could_not_load_educational_levels": "تعذر تحميل المراحل التعليمية",
-    "refresh_page_message": "حاول تحديث الصفحة.",
+    "refresh_page_message": "يرجى تحديث الصفحة والمحاولة مرة أخرى.",
 
     "edit_before_saving": "قم بتعديل أحد الحقول قبل الحفظ.",
 
     "student_profile_updated": "تم تحديث ملف الطالب",
-    "student_profile_saved": "تم حفظ ملف",
+    "student_profile_saved": "تم حفظ ملفه الشخصي.",
 
-    "could_not_load_student": "تعذر تحميل الطالب",
+    "could_not_load_student": "تعذر تحميل بيانات الطالب",
     "could_not_load_student_message": "تعذر تحميل بيانات هذا الطالب.",
 
     "grade_label": "الصف",
 
-    "enrollments_tab": "الاشتراكات",
+    "enrollments_tab": "التسجيلات",
     "grades_tab": "الدرجات",
     "payments_tab": "المدفوعات",
     "attendance_tab": "الحضور",
@@ -57,5 +52,10 @@
     "outstanding": "المستحقات",
 
     "egp_amount": "{{amount}} جنيه",
-    "percentage_value": "% {{value}}"
+    "percentage_value": "% {{value}}",
+
+    "student_registered": "تم تسجيل الطالب",
+    "student_added": "تمت إضافة {{name}}.",
+    "join_academy": "الانضمام إلى الأكاديمية",
+    "creating_account": "جارٍ إنشاء حسابك…"
 }

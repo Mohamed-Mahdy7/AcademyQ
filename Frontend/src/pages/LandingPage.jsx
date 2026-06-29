@@ -5,6 +5,7 @@ import {
   DollarSign, Bell, ArrowRight, Check, Building2, UserCheck,
   Menu, X, Star, Sparkles, ChevronDown, Zap,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import StudentRegisterForm from "./auth/StudentRegisterForm";
 import OwnerRegisterForm from "./auth/OwnerRegisterForm";
 
@@ -82,6 +83,7 @@ const mockAlerts = [
 /*                                  Component                                 */
 /* -------------------------------------------------------------------------- */
 export default function LandingPage() {
+  const { t } = useTranslation(["common"])
   const [mobileOpen, setMobileOpen] = useState(false);
   const [navScrolled, setNavScrolled] = useState(false);
   const [activeReg, setActiveReg] = useState("owner");
@@ -469,7 +471,7 @@ export default function LandingPage() {
               <div className="modal-body bg-gray-200 py-2">
                 {openModal === "owner"
                   ? <OwnerRegisterForm onSuccess={() => { setOpenModal(null); navigate("/dashboard"); }} />
-                  : <StudentRegisterForm onSuccess={() => { setOpenModal(null); navigate("/login"); }} />}
+                  : <StudentRegisterForm submit={t("common:join_academy")} onSuccess={() => { setOpenModal(null); navigate("/login"); }} />}
               </div>
             </div>
           </div>

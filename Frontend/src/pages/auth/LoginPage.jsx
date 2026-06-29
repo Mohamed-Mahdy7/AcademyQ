@@ -44,7 +44,7 @@ function Login() {
                     </div>
                 )}
 
-                <div className="flex justify-between items-center space-y-2">
+                <div className="form-feild space-y-2">
                     <label htmlFor="email" className="form-label m-0">{t("email")}</label>
                     <input
                         type="email" 
@@ -52,11 +52,11 @@ function Login() {
                         id="email" 
                         placeholder={t("email_placeholder")}
                         value={email} onChange={(e) => setEmail(e.target.value)}
-                        className="form-input w-10/12" 
+                        className="form-input placeholder:text-gray-400 bg-gray-100"
                         required
                     />
                 </div>
-                <div className="flex justify-between items-center space-y-2">
+                <div className="form-feild space-y-2">
                     <label htmlFor="password" className="form-label m-0">{t("password")}</label>
                     <input
                         type="password" 
@@ -64,7 +64,7 @@ function Login() {
                         id="password" 
                         placeholder={t("password_placeholder")}
                         value={password} onChange={(e) => setPassword(e.target.value)}
-                        className="form-input w-10/12" 
+                        className="form-input placeholder:text-gray-400 bg-gray-100"
                         required
                     />
                 </div>
