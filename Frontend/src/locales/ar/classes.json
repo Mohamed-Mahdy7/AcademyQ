@@ -58,5 +58,16 @@
     "loading_form": "جارٍ تحميل النموذج...",
     "failed_to_load_form": "فشل تحميل النموذج",
     "failed_to_load_form_desc": "تعذر تحميل المواد أو المعلمين.",
-    "subject_label": "المادة"
+    "subject_label": "المادة",
+
+    "class_detail": "تفاصيل الفصل",
+    "class_not_found_desc": "الفصل غير موجود. ربما تم حذفه.",
+    "enrolled_students": "الطلاب المسجلون",
+    "session_progress": "تقدم الحصص",
+    "avg_attendance": "متوسط الحضور",
+    "inactive": "غير نشط",
+    "students": "الطلاب",
+    "sessions": "الحصص",
+    "teachers": "المعلمون",
+    "ai_reports": "تقارير الذكاء الاصطناعي"
 }

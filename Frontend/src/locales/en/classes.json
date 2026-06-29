@@ -58,5 +58,16 @@
     "loading_form": "Loading form...",
     "failed_to_load_form": "Failed to load form",
     "failed_to_load_form_desc": "Could not load subjects or teachers.",
-    "subject_label": "Subject"
+    "subject_label": "Subject",
+
+    "class_detail": "Class Detail",
+    "class_not_found_desc": "Class not found. It may have been deleted.",
+    "enrolled_students": "Enrolled Students",
+    "session_progress": "Session Progress",
+    "avg_attendance": "Avg. Attendance",
+    "inactive": "Inactive",
+    "students": "Students",
+    "sessions": "Sessions",
+    "teachers": "Teachers",
+    "ai_reports": "AI Reports"
 }
