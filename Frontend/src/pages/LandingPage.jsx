@@ -83,7 +83,7 @@ const mockAlerts = [
 /*                                  Component                                 */
 /* -------------------------------------------------------------------------- */
 export default function LandingPage() {
-  const { t } = useTranslation(["common"])
+  const { t } = useTranslation(["landing", "common"])
   const [mobileOpen, setMobileOpen] = useState(false);
   const [navScrolled, setNavScrolled] = useState(false);
   const [activeReg, setActiveReg] = useState("owner");
@@ -126,10 +126,10 @@ export default function LandingPage() {
 
           <nav className="hidden md:flex items-center gap-8">
             {[
-              { label: "Features", action: () => scrollTo("features") },
-              { label: "How it Works", action: () => scrollTo("how-it-works") },
-              { label: "For Academies", action: () => scrollToReg("owner") },
-              { label: "For Students", action: () => scrollToReg("student") },
+              { label: t("nav.features"), action: () => scrollTo("features") },
+              { label: t("nav.how_it_works"), action: () => scrollTo("how-it-works") },
+              { label: t("nav.for_academies"), action: () => scrollToReg("owner") },
+              { label: t("nav.for_students"), action: () => scrollToReg("student") },
             ].map(({ label, action }) => (
               <button key={label} onClick={action} className="text-sm text-white/70 hover:text-white transition-colors">
                 {label}
@@ -139,10 +139,10 @@ export default function LandingPage() {
 
           <div className="hidden md:flex items-center gap-3">
             <Link to="/login" className="text-sm text-white/70 hover:text-white transition-colors px-4 py-2 rounded-lg border border-white/10 hover:border-white/30">
-              Sign in
+              {t("nav.sign_in")}
             </Link>
             <button onClick={() => scrollToReg("owner")} className="text-sm font-semibold bg-sky text-navy px-4 py-2 rounded-lg hover:bg-white transition-colors">
-              Get started free
+              {t("nav.get_started_free")}
             </button>
           </div>
 
@@ -153,12 +153,12 @@ export default function LandingPage() {
 
         {mobileOpen && (
           <div className="md:hidden bg-navy/97 backdrop-blur-md border-t border-white/10 px-6 py-5 space-y-4">
-            <button onClick={() => scrollToReg("owner")} className="block w-full text-start text-sm text-white/80 hover:text-white py-2">For Academies</button>
-            <button onClick={() => scrollToReg("student")} className="block w-full text-start text-sm text-white/80 hover:text-white py-2">For Students</button>
+            <button onClick={() => scrollToReg("owner")} className="block w-full text-start text-sm text-white/80 hover:text-white py-2">{t("nav.for_academies")}</button>
+            <button onClick={() => scrollToReg("student")} className="block w-full text-start text-sm text-white/80 hover:text-white py-2">{t("for_students")}</button>
             <hr className="border-white/10" />
-            <Link to="/login" className="block text-sm text-white/80 hover:text-white py-2">Sign in</Link>
+            <Link to="/login" className="block text-sm text-white/80 hover:text-white py-2">{t("nav.sign_in")}</Link>
             <button onClick={() => scrollToReg("owner")} className="block w-full text-sm font-semibold bg-sky text-navy px-4 py-2.5 rounded-lg text-center">
-              Get started free
+              {t("nav.get_started_free")}
             </button>
           </div>
         )}
@@ -180,32 +180,32 @@ export default function LandingPage() {
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 bg-sky/10 border border-sky/25 text-sky text-xs font-semibold px-3.5 py-1.5 rounded-full mb-8">
               <Sparkles className="w-3.5 h-3.5" />
-              AI-Powered Academy Management · Now with Retention Intelligence
+              {t("hero.badge")}
             </div>
 
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-[1.08] tracking-tight mb-6"
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-              Run your academy.{" "}
+              {t("hero.headline_1")}{" "}
               <span style={{ background: "linear-gradient(135deg, #BDE8F5 0%, #4988C4 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                Keep every student.
+                {t("hero.headline_2")}
               </span>
             </h1>
 
             <p className="text-lg md:text-xl text-white/60 leading-relaxed mb-10 max-w-2xl">
-              AcademiQ gives Egyptian academies a complete management system — attendance, grades, payments, and an AI agent that spots at-risk students before they drop out.
+              {t("hero.subheadline")}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
               <button onClick={() => scrollToReg("owner")}
                 className="group flex items-center justify-center gap-3 bg-sky text-navy font-bold px-8 py-4 rounded-xl hover:bg-white transition-all text-base shadow-lg shadow-sky/20">
                 <Building2 className="w-5 h-5" />
-                Register your academy
+                {t("hero.cta_owner")}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
               <button onClick={() => scrollToReg("student")}
                 className="group flex items-center justify-center gap-3 border border-white/20 text-white font-semibold px-8 py-4 rounded-xl hover:bg-white/10 hover:border-white/40 transition-all text-base">
                 <UserCheck className="w-5 h-5 text-sky" />
-                Join as a student
+                {t("hero.cta_student")}
               </button>
             </div>
 
@@ -221,14 +221,14 @@ export default function LandingPage() {
                 <div className="flex">
                   {[...Array(5)].map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-sky text-sky" />)}
                 </div>
-                <span>Trusted by 180+ academies across Egypt</span>
+                <span>{t("hero.social_proof")}</span>
               </div>
             </div>
           </div>
         </div>
 
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30">
-          <span className="text-xs">Scroll to explore</span>
+          <span className="text-xs">{t("hero.scroll_hint")}</span>
           <ChevronDown className="w-4 h-4 animate-bounce" />
         </div>
       </section>
@@ -253,12 +253,12 @@ export default function LandingPage() {
       <section id="features" className="bg-surface py-24 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <p className="text-sm font-semibold text-blue uppercase tracking-widest mb-3">Platform capabilities</p>
+            <p className="text-sm font-semibold text-blue uppercase tracking-widest mb-3">{t("section_label")}</p>
             <h2 className="text-4xl md:text-5xl font-extrabold text-navy mb-4 leading-tight">
-              Everything your academy needs,<br className="hidden md:block" /> nothing it doesn't.
+              {t("headline_1")}<br className="hidden md:block" /> {("headline_2")}
             </h2>
             <p className="text-lg text-blue max-w-2xl mx-auto">
-              From the first enrolment to the end-of-term report, AcademiQ covers the full student lifecycle.
+              {t("subheadline")}
             </p>
           </div>
 

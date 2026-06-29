@@ -5,4 +5,5 @@ class CoreConfig(AppConfig):
     name = 'core'
 
     def ready(self):
-        import core.schema 
+        # import core.schema 
+        print("CORE READY")

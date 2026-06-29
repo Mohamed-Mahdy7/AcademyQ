@@ -28,6 +28,8 @@ import enrollmentEn from "./locales/en/enrollment.json"
 import enrollmentAr from "./locales/ar/enrollment.json"
 import notificationEn from "./locales/en/notification.json"
 import notificationAr from "./locales/ar/notification.json"
+import landingEn from "./locales/en/landing.json";
+import landingAr from "./locales/ar/landing.json";
 import paymentEn from "./locales/en/payment.json"
 import paymentAr from "./locales/ar/payment.json"
 import reportsEn from "./locales/en/reports.json";
@@ -57,6 +59,7 @@ i18n
             teacher: teacherEn,
             enrollment: enrollmentEn,
             notification: notificationEn,
+            landing: landingEn,
             payment: paymentEn,
             reports: reportsEn,
             staff: staffEn,
@@ -76,6 +79,7 @@ i18n
             teacher: teacherAr,
             enrollment: enrollmentAr,
             notification: notificationAr,
+            landing: landingAr,
             payment: paymentAr,
             reports: reportsAr,
             staff: staffAr,
