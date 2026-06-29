@@ -75,5 +75,21 @@
         "confirm": "سيؤدي هذا إلى حذف الدفعة بمبلغ {{amount}} جنيه بشكل دائم. لا يمكن التراجع عن هذا الإجراء.",
         "cancel": "إلغاء",
         "delete": "حذف"
+    },
+    "messages": {
+        "load_failed": "فشل تحميل الدفعات",
+        "load_failed_desc": "لم يتمكن من جلب سجلات الدفع.",
+        "summary_failed": "فشل تحميل الملخص",
+        "summary_failed_desc": "لم يتمكن من جلب ملخص الدفعات.",
+        "payment_created": "تم إنشاء الدفعة",
+        "payment_created_desc": "تمت إضافة دفعة معلقة جديدة.",
+        "create_failed": "فشل إنشاء الدفعة",
+        "payment_deleted": "تم حذف الدفعة",
+        "payment_deleted_desc": "تم إزالة الدفعة.",
+        "delete_failed": "فشل حذف الدفعة",
+        "delete_failed_desc": "فشل إزالة الدفعة.",
+        "payment_updated": "تم تحديث الدفعة",
+        "payment_updated_desc": "تم تحديث حالة الدفعة بنجاح.",
+        "update_failed": "فشل تحديث الدفعة"
     }
 }

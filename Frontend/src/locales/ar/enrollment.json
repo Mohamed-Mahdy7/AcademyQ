@@ -66,5 +66,14 @@
         "header_total_paid": "إجمالي المدفوع",
         "header_balance_due": "الرصيد المستحق",
         "header_status": "الحالة"
+    },
+    "messages": {
+    "enroll_success": "تم تسجيل الطالب",
+    "enroll_success_desc": "تم تسجيل الطالب بنجاح.",
+    "enroll_failed": "فشل تسجيل الطالب",
+    "update_success": "تم تحديث التسجيل",
+    "update_success_desc": "تم تحديث حالة التسجيل.",
+    "drop_success": "تم سحب التسجيل",
+    "drop_success_desc": "تم تعيين تسجيل الطالب إلى حالة الانسحاب."
     }
 }
