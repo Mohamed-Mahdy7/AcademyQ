@@ -1,0 +1,28 @@
+{
+    "settings": "الإعدادات",
+    "settings_desc": "إدارة ملف الأكاديمية والتفضيلات",
+
+    "academy_profile": "ملف الأكاديمية",
+    "academy_profile_desc": "تحديث المعلومات الأساسية لأكاديميتك",
+    "academy_name": "اسم الأكاديمية",
+    "academy_email": "البريد الإلكتروني للأكاديمية",
+    "academy_phone": "هاتف الأكاديمية",
+    "academy_profile_updated": "تم تحديث ملف الأكاديمية",
+    "academy_profile_updated_desc": "تم حفظ معلومات أكاديميتك بنجاح.",
+
+    "subscription": "الاشتراك",
+    "subscription_desc": "إدارة اشتراكك في AcademiQ",
+    "current_plan": "الخطة الحالية",
+    "professional_plan": "الخطة الاحترافية",
+    "upgrade": "ترقية",
+    "subscription_ends": "ينتهي الاشتراك",
+    "renew": "تجديد",
+
+    "notifications": "الإشعارات",
+    "notifications_desc": "ضبط طريقة استلام التنبيهات",
+    "weekly_report": "تقرير الإدارة الأسبوعي",
+    "weekly_report_desc": "بريد إلكتروني صباح الأحد يلخص التقارير المنشأة وتنبيهات المخاطر والإشعارات المرسلة وتكلفة استخدام الذكاء الاصطناعي للأسبوع.",
+    "weekly_report_enabled": "تم تفعيل التقرير الأسبوعي!",
+    "weekly_report_disabled": "تم تعطيل التقرير الأسبوعي!",
+    "weekly_report_update_failed": "فشل تحديث إعدادات الإشعارات."
+}

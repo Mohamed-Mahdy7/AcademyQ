@@ -17,6 +17,8 @@
     "teacher": "Teacher",
     "progress": "Progress",
     "view_details": "View Details",
+    "session_count_required": "Session count is required and must be at least 1.",
+    "session_price_required": "Session price is required.",
 
     "add_class_page_desc": "Add a new class to your academy",
     "class_created": "Class created",

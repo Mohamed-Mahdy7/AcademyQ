@@ -87,10 +87,12 @@ function ClassForm({ onSubmit, initialData = {}, isEditing = false }) {
             errs.end_date = t("end_date_after_start");
         }
 
-        if (formData.session_count !== "" && Number(formData.session_count) < 1)
-            errs.session_count = t("session_count_min");
+        if (!formData.session_count || Number(formData.session_count) < 1)
+            errs.session_count = t("session_count_required");
 
-        if (formData.session_price !== "" && Number(formData.session_price) < 0)
+        if (formData.session_price === "" || formData.session_price === null || formData.session_price === undefined)
+            errs.session_price = t("session_price_required");
+        else if (Number(formData.session_price) < 0)
             errs.session_price = t("session_price_negative");
 
         return errs;
@@ -109,8 +111,6 @@ function ClassForm({ onSubmit, initialData = {}, isEditing = false }) {
         setErrors({});
 
         const payload = { ...formData };
-        if (payload.session_count === "") delete payload.session_count;
-        if (payload.session_price === "") delete payload.session_price;
         if (payload.session_duration === "") delete payload.session_duration;
 
         try {
@@ -206,7 +206,9 @@ function ClassForm({ onSubmit, initialData = {}, isEditing = false }) {
 
             <div className="grid grid-cols-3 gap-4">
                 <div className="form-field">
-                    <label className="form-label">{t("session_count")}</label>
+                    <label className="form-label">
+                        {t("session_count")} <span className="form-required">*</span>
+                    </label>
                     <input
                         type="number"
                         name="session_count"
@@ -218,7 +220,9 @@ function ClassForm({ onSubmit, initialData = {}, isEditing = false }) {
                     {errors.session_count && <span className="form-error">{errors.session_count}</span>}
                 </div>
                 <div className="form-field">
-                    <label className="form-label">{t("session_price")}</label>
+                    <label className="form-label">
+                        {t("session_price")} <span className="form-required">*</span>
+                    </label>
                     <input
                         type="number"
                         name="session_price"

@@ -1,0 +1,28 @@
+{
+    "settings": "Settings",
+    "settings_desc": "Manage academy profile and preferences",
+
+    "academy_profile": "Academy Profile",
+    "academy_profile_desc": "Update your academy's basic information",
+    "academy_name": "Academy Name",
+    "academy_email": "Academy Email",
+    "academy_phone": "Academy Phone",
+    "academy_profile_updated": "Academy profile updated",
+    "academy_profile_updated_desc": "Your academy's information has been saved.",
+
+    "subscription": "Subscription",
+    "subscription_desc": "Manage your AcademiQ subscription",
+    "current_plan": "Current Plan",
+    "professional_plan": "Professional Plan",
+    "upgrade": "Upgrade",
+    "subscription_ends": "Subscription ends",
+    "renew": "Renew",
+
+    "notifications": "Notifications",
+    "notifications_desc": "Configure how you receive alerts",
+    "weekly_report": "Weekly Management Report",
+    "weekly_report_desc": "A Sunday morning email summarizing reports generated, risk alerts, notifications sent, and AI usage cost for the week.",
+    "weekly_report_enabled": "Weekly report enabled!",
+    "weekly_report_disabled": "Weekly report disabled!",
+    "weekly_report_update_failed": "Failed to update notification settings."
+}

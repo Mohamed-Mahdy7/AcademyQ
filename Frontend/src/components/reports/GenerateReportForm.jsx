@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { generateReport } from "../../services/reportService";
 
 function GenerateReportForm({ enrollmentId, onGenerated }) {
+    const { t } = useTranslation(["reports", "common"]);
     const today = new Date();
     const defaultMonth = `${today.getFullYear()}-${String(
         today.getMonth() + 1
@@ -19,8 +21,7 @@ function GenerateReportForm({ enrollmentId, onGenerated }) {
             onGenerated?.(res.data);
         } catch (err) {
             setError(
-                err.response?.data?.detail ||
-                "Failed to generate report. Please try again."
+                err.response?.data?.detail || t("failed_to_generate_report")
             );
         } finally {
             setLoading(false);
@@ -30,7 +31,7 @@ function GenerateReportForm({ enrollmentId, onGenerated }) {
     return (
         <form onSubmit={handleSubmit} className="flex items-end gap-3">
             <div className="form-field">
-                <label className="form-label">Month</label>
+                <label className="form-label">{t("month")}</label>
                 <input
                     type="month"
                     className="form-input"
@@ -40,20 +41,23 @@ function GenerateReportForm({ enrollmentId, onGenerated }) {
                 />
             </div>
             {error && <p className="form-error mb-2">{error}</p>}
-            <button
-                type="submit"
-                className="btn-primary px-6 whitespace-nowrap"
-                disabled={loading}
-            >
-                {loading ? (
-                    <span className="flex items-center gap-2">
-                        <span className="btn-spinner" />
-                        Generating...
-                    </span>
-                ) : (
-                    "Generate Report"
-                )}
-            </button>
+            <div className="form-field">
+                <label className="form-label opacity-0 select-none">‎</label>
+                <button
+                    type="submit"
+                    className="btn-primary px-6 whitespace-nowrap"
+                    disabled={loading}
+                >
+                    {loading ? (
+                        <span className="flex items-center gap-2">
+                            <span className="btn-spinner" />
+                            {t("generating")}
+                        </span>
+                    ) : (
+                        t("generate_report")
+                    )}
+                </button>
+            </div>
         </form>
     );
 }
