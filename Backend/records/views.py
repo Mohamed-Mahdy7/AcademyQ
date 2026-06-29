@@ -418,34 +418,23 @@ class GenerateSessionsView(APIView):
             max_sessions = cls.session_count  # cap
 
             current_date = start_date
-            print("Range:", start_date, "->", end_date)
-            print("Schedules:", [(s.day_of_week, s.start_time) for s in schedules])
             while current_date <= end_date:
                 matching_slots = [
                     s for s in schedules
                     if s.day_of_week == current_date.weekday()
                 ]
 
-                print(current_date, current_date.weekday())
                 for slot in matching_slots:
                     if max_sessions and next_session_num > max_sessions:
                         skipped_limit += 1
                         continue  # stop creating, count as skipped
+                   
 
-                    print(
-                        "MATCH",
-                        current_date,
-                        "next=", next_session_num,
-                        "max=", max_sessions,
-                    )
-
-                    
-
-                    exists = ClassSession.objects.filter(
-                        session_date=current_date,
-                        session_time=slot.start_time
+                    exists = ClassSessionEnrollment.objects.filter(
+                        class_obj=cls,
+                        session__session_date=current_date,
+                        session__session_time=slot.start_time,
                     ).exists()
-                    print("exists =", exists)
                     
                     if exists:
                         skipped_existing += 1
@@ -465,10 +454,12 @@ class GenerateSessionsView(APIView):
 
                 current_date += timedelta(days=1)
 
-        if sessions_created == 0 and skipped_existing == 0 and skipped_limit == 0:
-            raise ValidationError({
-                "start_date": [_("No sessions were created. The selected date range contains no days matching this class's schedule.")]
-            })
+        if sessions_created == 0:
+            if skipped_limit > 0:
+                raise ValidationError({"class_id": [_("Session limit reached. No new sessions were created.")]})
+            if skipped_existing > 0:
+                raise ValidationError({"start_date": [_("All sessions in this date range already exist.")]})
+            raise ValidationError({"start_date": [_("No sessions were created. The selected date range contains no days matching this class's schedule.")]})
 
         return Response({
             'sessions_created': sessions_created,
