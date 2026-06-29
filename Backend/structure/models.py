@@ -63,13 +63,11 @@ class Class(models.Model):
     end_date = models.DateField()
     is_active = models.BooleanField(default=True)
     session_count = models.IntegerField(
-        default=1,
         help_text="Total planned sessions for this class delivery",
     )
     session_price = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        default=0,
         help_text="Price per single session.",
     )
     session_duration = models.DurationField(

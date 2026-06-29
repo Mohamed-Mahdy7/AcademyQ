@@ -1,0 +1,22 @@
+{
+    "report_history": "Report History",
+    "no_enrollments": "No enrollments found for this student.",
+    "class": "Class",
+    "month": "Month",
+    "risk_level": "Risk Level",
+    "risk_score": "Risk Score",
+    "generated_at": "Generated At",
+    "no_reports_yet": "No reports yet",
+    "no_reports_desc": "Generate a report to get started.",
+    "delete_report": "Delete Report",
+    "delete_report_confirm": "Are you sure you want to delete this report? This cannot be undone.",
+    "report_deleted": "Report deleted.",
+    "failed_to_delete_report": "Failed to delete report.",
+    "report_regenerated": "Report for {{month}} already existed and was regenerated with new data.",
+    "report_generated": "New report generated for {{month}}.",
+    "loading_reports": "Loading reports...",
+    "generate_report": "Generate Report",
+    "generating": "Generating...",
+    "failed_to_generate_report": "Failed to generate report. Please try again.",
+    "view": "View"
+}
