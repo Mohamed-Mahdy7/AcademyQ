@@ -17,6 +17,8 @@
     "teacher": "المعلم",
     "progress": "التقدم",
     "view_details": "عرض التفاصيل",
+    "session_count_required": "عدد الحصص مطلوب ويجب أن يكون 1 على الأقل.",
+    "session_price_required": "سعر الحصة مطلوب.",
 
     "add_class_page_desc": "أضف فصلاً جديداً لأكاديميتك",
     "class_created": "تم إنشاء الفصل",
