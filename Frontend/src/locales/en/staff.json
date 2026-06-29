@@ -1,0 +1,27 @@
+{
+    "staff_users": "Staff Users",
+    "manage_staff_desc": "Manage staff accounts and permissions",
+    "add_user": "Add User",
+    "total_staff": "Total Staff",
+    "admins": "Admins",
+    "teachers": "Teachers",
+    "all_staff_users": "All Staff Users",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "role": "Role",
+    "status": "Status",
+    "created": "Created",
+    "actions": "Actions",
+    "edit": "Edit",
+    "user_registration": "User Registration",
+    "select_a_role": "Select a role",
+    "register": "Register",
+    "user_registered": "User registered",
+    "user_registered_desc_admin": "{{name}} added as an Admin.",
+    "user_registered_desc_teacher": "{{name}} added as a Teacher.",
+
+    "user_profile": "User Profile",
+    "user_updated": "User updated",
+    "user_updated_desc": "{{name}}'s profile was saved."
+}
