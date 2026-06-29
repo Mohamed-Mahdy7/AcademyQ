@@ -1,4 +1,5 @@
 import logging
+from django.utils.translation import gettext_lazy as _
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -42,7 +43,7 @@ class GradeViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     def summary(self, request):
         enrollment_id = request.query_params.get("enrollment_id")
         if not enrollment_id:
-            raise ValidationError({"enrollment_id": ["enrollment_id query param required."]})
+            raise ValidationError({"enrollment_id": [_("enrollment_id query param required.")]})
 
         grades = self.get_queryset().filter(
             enrollment_id=enrollment_id
@@ -88,7 +89,7 @@ class GradeViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     def class_summary(self, request):
         class_id = request.query_params.get("class_id")
         if not class_id:
-            raise ValidationError({"class_id": ["class_id query param required."]})
+            raise ValidationError({"class_id": [_("class_id query param required.")]})
 
         enrollments = Grade.objects.filter(
             enrollment__class_id__id=class_id,

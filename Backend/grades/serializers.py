@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Grade
 from django.utils import timezone
-
+from django.utils.translation import gettext_lazy as _
 class GradeSerializer(serializers.ModelSerializer):
     session_num = serializers.SerializerMethodField()
 
@@ -21,7 +21,7 @@ class GradeSerializer(serializers.ModelSerializer):
 
     def validate_max_score(self, value):
         if value <= 0:
-            raise serializers.ValidationError("max_score must be greater than 0.")
+            raise serializers.ValidationError(_("max_score must be greater than 0."))
         return value
 
     def validate(self, attrs):
@@ -32,16 +32,16 @@ class GradeSerializer(serializers.ModelSerializer):
 
         if score is not None and max_score is not None and score > max_score:
             raise serializers.ValidationError(
-                {"score": "Score cannot be greater than max_score."}
+                {"score": _("Score cannot be greater than max_score.")}
             )
 
         if session and assigned_at and assigned_at < session.session_date:
             raise serializers.ValidationError(
-                {"assigned_at": "Assigned date cannot be before the session date."}
+                {"assigned_at": _("Assigned date cannot be before the session date.")}
             )
         if session and session.session_date > timezone.now().date():
             raise serializers.ValidationError(
-                {"session": "This session has not been conducted yet."}
+                {"session": _("This session has not been conducted yet.")}
             )
         
         return attrs

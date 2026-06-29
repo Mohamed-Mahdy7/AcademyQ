@@ -494,4 +494,8 @@ msgstr "فشل الفحص. يرجى المحاولة مرة أخرى."
 
 #: records/views.py
 msgid "No sessions were created. The selected date range contains no days matching this class's schedule."
-msgstr "لم يتم إنشاء أي حصص. النطاق الزمني المحدد لا يحتوي على أيام تتوافق مع جدول هذه المجموعة."
+msgstr "لم يتم إنشاء أي حصص. النطاق الزمني المحدد لا يحتوي على أيام تتوافق مع جدول هذه المجموعة."
+
+#: records/views.py:401
+msgid "No schedules found for this class."
+msgstr "لم يتم العثور على جداول زمنية لهذه الحصة."
