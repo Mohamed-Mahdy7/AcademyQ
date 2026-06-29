@@ -30,6 +30,7 @@ RISK_MEDIUM_MAX = 69
 MAX_SCORE = 100
 
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import get_language
 
 def _check_attendance(context: dict) -> tuple[bool, int]:
     attendance_pct = context.get("attendance_pct_28d")
@@ -97,7 +98,7 @@ def _recommended_action(risk_level: str, triggers: dict) -> str:
     if not actions:
         return _("No action needed. Continue routine monitoring.")
 
-    joined = "; ".join(actions)
+    joined = "; ".join(str(a) for a in actions)
     if risk_level == "high":
         return _("Urgent: {actions}.").format(actions=joined)
 
@@ -112,7 +113,9 @@ def risk_scorer(context: dict) -> dict:
         "overdue": _check_overdue_fees(context),
         "low_scores": _check_low_scores(context),
     }
-
+    lang = context.get("lang") or get_language() or "en"
+    if lang.startswith("ar"):
+        lang = "ar"
     raw_score = sum(points for _, points in triggers.values())
     risk_score = min(raw_score, MAX_SCORE)
     risk_level = _risk_level(risk_score)
