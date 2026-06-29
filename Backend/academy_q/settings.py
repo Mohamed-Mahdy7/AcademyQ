@@ -27,10 +27,7 @@ LOCALE_PATHS = [BASE_DIR / "locale",]
 USE_I18N = True
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-STATIC_URL = "static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 # Application definition
 
@@ -63,6 +60,7 @@ MIDDLEWARE = [
     'core.middleware.AutoRefreshJWTMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     "django.middleware.locale.LocaleMiddleware", 
     'django.middleware.common.CommonMiddleware',
@@ -71,6 +69,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+STATICFILES_STORAGE = (
+    "whitenoise.storage.CompressedManifestStaticFilesStorage"
+)
 
 ROOT_URLCONF = 'academy_q.urls'
 
@@ -136,7 +138,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ['core.authentication.CookieJWTAuthentication',],
@@ -228,9 +231,9 @@ AUTHENTICATION_BACKENDS = [
 EMAIL_BACKEND = os.getenv("EMAIL_BACKEND")
 EMAIL_HOST = os.getenv("EMAIL_HOST")
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS")
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "False").lower() == "true"
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
-EMAIL_PORT = os.getenv("EMAIL_PORT")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
