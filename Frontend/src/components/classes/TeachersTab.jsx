@@ -75,7 +75,7 @@ function TeachersTab({ teachers, classId, onUpdate }) {
                     <tr>
                         <th>{t("teacher_name")}</th>
                         <th>{t("assigned_date")}</th>
-                        <th>{t("common:actions")}</th>
+                        <th className="text-end">{t("common:actions")}</th>
                     </tr>
                 </thead>
                 <tbody>

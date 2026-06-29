@@ -95,18 +95,21 @@ function StudentReportsTab({ studentId }) {
                 <h3 className="heading-3">Report History ({reports.length})</h3>
 
                 {enrollments.length > 0 ? (
-                    <div className="flex items-center gap-3">
-                        <select
-                            className="form-select"
-                            value={selectedEnrollmentId}
-                            onChange={(e) => setSelectedEnrollmentId(e.target.value)}
-                        >
-                            {enrollments.map((e) => (
-                                <option key={e.id} value={e.id}>
-                                    {e.class_name}
-                                </option>
-                            ))}
-                        </select>
+                    <div className="flex items-end gap-3 flex-wrap">
+                        <div className="form-field">
+                            <label className="form-label">Class</label>
+                            <select
+                                className="form-select"
+                                value={selectedEnrollmentId}
+                                onChange={(e) => setSelectedEnrollmentId(e.target.value)}
+                            >
+                                {enrollments.map((e) => (
+                                    <option key={e.id} value={e.id}>
+                                        {e.class_name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                         <GenerateReportForm
                             enrollmentId={selectedEnrollmentId}
                             onGenerated={handleGenerated}
