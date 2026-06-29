@@ -1,0 +1,79 @@
+{
+    "page_title": "المدفوعات والمالية",
+    "page_subtitle": "تتبع الإيرادات وإدارة الدفعات ومراقبة الرسوم المستحقة",
+    "record_payment": "تسجيل دفعة",
+    "add_new_payment": "إضافة دفعة جديدة",
+    "view_month": "عرض الشهر:",
+    "summary_cards": {
+        "expected_revenue": "الإيراد المتوقع",
+        "this_month": "جنيه · هذا الشهر",
+        "collected": "المحصل",
+        "collection_rate": "معدل التحصيل",
+        "outstanding": "المستحقة",
+        "overdue_payments": "دفعات متأخرة"
+    },
+    "recent_payments": "الدفعات الأخيرة",
+    "latest_for_month": "آخر سجلات الدفع لـ {{month}}",
+    "overdue_section": {
+        "title": "{{count}} دفعة{{plural}} متأخرة تتطلب الانتباه",
+        "subtitle": "إجمالي المستحقة: {{amount}} جنيه"
+    },
+    "table": {
+        "headers": {
+            "student": "الطالب",
+            "class": "الفصل",
+            "amount": "المبلغ",
+            "status": "الحالة",
+            "payment_date": "تاريخ الدفع",
+            "notes": "ملاحظات",
+            "actions": "الإجراءات",
+            "date": "التاريخ",
+            "days_overdue": "أيام التأخير",
+            "parent_email": "بريد الوالد",
+            "amount_due": "المبلغ المستحق"
+        },
+        "empty_title": "لا توجد دفعات",
+        "empty_desc": "قم بتسجيل دفعة للبدء.",
+        "no_payments_found": "لم يتم العثور على دفعات",
+        "no_payments_found_desc": "هذا الطالب لا يحتوي على أي سجلات دفع حتى الآن.",
+        "delete_tooltip": "حذف الدفعة"
+    },
+    "form": {
+        "title": "تسجيل دفعة",
+        "pending_label": "دفعة معلقة",
+        "date_label": "تاريخ الدفع",
+        "notes_label": "ملاحظات",
+        "notes_placeholder": "مثل: دفع نقدي، تحويل بنكي...",
+        "action_label": "الإجراء",
+        "complete": "✓ إكمال",
+        "cancel": "✕ إلغاء",
+        "selected": "المختار:",
+        "payment_details": "تفاصيل الدفعة",
+        "amount": "المبلغ:",
+        "loading": "جاري تحميل الدفعات المعلقة...",
+        "select_default": "اختر دفعة معلقة",
+        "no_pending": "لم يتم العثور على دفعات معلقة.",
+        "due_date_hint": "تسجيل الدفعة لتاريخ الاستحقاق: {{date}}",
+        "submit_complete": "إكمال الدفعة",
+        "submit_cancel": "إلغاء الدفعة",
+        "submit_saving": "جاري الحفظ...",
+        "cancel_btn": "إلغاء"
+    },
+    "filter": {
+        "all_statuses": "جميع الحالات",
+        "completed": "مكتملة",
+        "pending": "معلقة",
+        "cancelled": "ملغاة"
+    },
+    "status": {
+        "completed": "مكتملة",
+        "pending": "معلقة",
+        "cancelled": "ملغاة"
+    },
+    "delete_modal": {
+        "title": "حذف الدفعة؟",
+        "confirm": "سيؤدي هذا إلى حذف الدفعة بمبلغ {{amount}} جنيه بشكل دائم. لا يمكن التراجع عن هذا الإجراء.",
+        "cancel": "إلغاء",
+        "delete": "حذف"
+    }
+}

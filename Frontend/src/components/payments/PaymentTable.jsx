@@ -1,6 +1,8 @@
 import PaymentRow from "./PaymentRow";
+import { useTranslation } from "react-i18next";
 
 export default function PaymentTable({ payments, onDelete }) {
+  const { t } = useTranslation("payment");
   if (payments.length === 0) {
     return (
       <div className="empty-state">
@@ -10,8 +12,8 @@ export default function PaymentTable({ payments, onDelete }) {
             <line x1="2" y1="10" x2="22" y2="10"/>
           </svg>
         </div>
-        <p className="empty-state-title">No payments yet</p>
-        <p className="empty-state-desc">Record a payment to get started.</p>
+        <p className="empty-state-title">{t("table.empty_title")}</p>
+        <p className="empty-state-desc">{t("table.empty_desc")}</p>
       </div>
     );
   }
@@ -21,13 +23,13 @@ export default function PaymentTable({ payments, onDelete }) {
       <table className="table">
         <thead className="table-thead">
           <tr>
-            <th>Student</th>
-            <th>Class</th>
-            <th>Amount</th>
-            <th>Status</th>
-            <th>Payment date</th>
-            <th>Notes</th>
-            <th className="text-end">Actions</th>
+            <th>{t("table.headers.student")}</th>
+            <th>{t("table.headers.class")}</th>
+            <th>{t("table.headers.amount")}</th>
+            <th>{t("table.headers.status")}</th>
+            <th>{t("table.headers.payment_date")}</th>
+            <th>{t("table.headers.notes")}</th>
+            <th className="text-end">{t("table.headers.actions")}</th>
           </tr>
         </thead>
         <tbody>

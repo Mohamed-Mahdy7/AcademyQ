@@ -26,6 +26,10 @@ class PaymentSerializer(serializers.ModelSerializer):
     parent_email = serializers.CharField(
         source='enrollment_id.student_id.parent_email', read_only=True
     )
+    enrollment_start_date = serializers.DateField(
+        source="enrollment_id.start_date",
+        read_only=True,
+    )
 
     class Meta:
         model = Payment
@@ -40,6 +44,7 @@ class PaymentSerializer(serializers.ModelSerializer):
             'paid_on',
             'notes',
             'status',
+            'enrollment_start_date',
         ]
 
 class EnrollmentSerializer(serializers.ModelSerializer):

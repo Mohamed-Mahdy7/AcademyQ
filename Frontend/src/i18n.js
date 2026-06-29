@@ -28,6 +28,8 @@ import enrollmentEn from "./locales/en/enrollment.json"
 import enrollmentAr from "./locales/ar/enrollment.json"
 import notificationEn from "./locales/en/notification.json"
 import notificationAr from "./locales/ar/notification.json"
+import paymentEn from "./locales/en/payment.json"
+import paymentAr from "./locales/ar/payment.json"
 
 
 i18n
@@ -49,6 +51,7 @@ i18n
             teacher: teacherEn,
             enrollment: enrollmentEn,
             notification: notificationEn,
+            payment: paymentEn,
         },
         ar: { 
             common: commonAr,
@@ -64,12 +67,13 @@ i18n
             teacher: teacherAr,
             enrollment: enrollmentAr,
             notification: notificationAr,
+            payment: paymentAr,
         },
 
     },
     fallbackLng: "ar", // Arabic-first: if detection fails, default to Arabic, not English
     defaultNS: "common",
-    ns: ["common", "auth", "students", "attendance", "grades", "alerts", "layout", "dashboard", "subjects", "classes", "teacher", "enrollment", "notification"],
+    ns: ["common", "auth", "students", "attendance", "grades", "alerts", "layout", "dashboard", "subjects", "classes", "teacher", "enrollment", "notification", "payment"],
     interpolation: { escapeValue: false },
     detection: {
     order: ["localStorage", "navigator"],
