@@ -56,7 +56,7 @@ function Register() {
             <form onSubmit={handleSubmit} className="form-card">
                 <h1 className="text-3xl font-bold text-navy mb-8">{t("auth:academy_registration")}</h1>
                 <div>
-                    <div className="form-field my-1">
+                    <div className="form-field my-2">
                         <label htmlFor="academyName" className="form-label m-0">{t("academy_name")}</label>
                         <input 
                             type="text" 
@@ -70,7 +70,7 @@ function Register() {
                     </div>
                     {fieldErrors.academy_name && <p className="form-error">{fieldErrors.academy_name[0]}</p>}
 
-                    <div className="form-field my-1">
+                    <div className="form-field my-2">
                         <label htmlFor="academyEmail" className="form-label m-0">{t("academy_email")}</label>
                         <input 
                             type="email" 
@@ -84,7 +84,7 @@ function Register() {
                     </div>
                     {fieldErrors.academy_email && <p className="form-error">{fieldErrors.academy_email[0]}</p>}
 
-                    <div className="form-field my-1">
+                    <div className="form-field my-2">
                         <label htmlFor="academyPhone" className="form-label m-0">{t("academy_phone")}</label>
                         <input 
                             type="text" 
@@ -98,7 +98,7 @@ function Register() {
                     </div>
                     {fieldErrors.academy_phone && <p className="form-error">{fieldErrors.academy_phone[0]}</p>}
 
-                    <div className="form-field my-1">
+                    <div className="form-field my-2">
                         <label htmlFor="address" className="form-label m-0">{t("common:address")}</label>
                         <input 
                             type="text" 
@@ -112,7 +112,7 @@ function Register() {
                     </div>
                     {fieldErrors.address && <p className="form-error">{fieldErrors.address[0]}</p>}
 
-                    <div className="form-field my-1">
+                    <div className="form-field my-2">
                         <label htmlFor="fullName" className="form-label m-0">{t("owner_name")}</label>
                         <input 
                             type="text" 
@@ -126,7 +126,7 @@ function Register() {
                     </div>
                     {fieldErrors.full_name && <p className="form-error">{fieldErrors.full_name[0]}</p>}
 
-                    <div className="form-field my-1">
+                    <div className="form-field my-2">
                         <label htmlFor="email" className="form-label m-0">{t("owner_email")}</label>
                         <input 
                             type="email" 
@@ -140,7 +140,7 @@ function Register() {
                     </div>
                     {fieldErrors.email && <p className="form-error">{fieldErrors.email[0]}</p>}
 
-                    <div className="form-field my-1">
+                    <div className="form-field my-2">
                         <label htmlFor="phone" className="form-label m-0">{t("owner_phone")}</label>
                         <input 
                             type="text" 
@@ -154,7 +154,7 @@ function Register() {
                     </div>
                     {fieldErrors.phone && <p className="form-error">{fieldErrors.phone[0]}</p>}
 
-                    <div className="form-field my-1">
+                    <div className="form-field my-2">
                         <label htmlFor="password" className="form-label m-0">{t("common:password")}</label>
                         <input 
                             type="password" 
@@ -168,7 +168,7 @@ function Register() {
                     </div>
                     {fieldErrors.password && <p className="form-error">{fieldErrors.password[0]}</p>}
 
-                    <div className="form-field my-1">
+                    <div className="form-field my-2">
                         <label htmlFor="confirmPassword" className="form-label m-0">{t("common:confirm_password")}</label>
                         <input 
                             type="password" 

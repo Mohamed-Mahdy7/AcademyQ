@@ -9,7 +9,7 @@
         "connection_desc": "تعذر الوصول إلى الخادم. تحقق من اتصالك بالإنترنت.",
         "permission_denied": "تم رفض الإذن",
         "not_found": "غير موجود",
-        "slow_down": "يرجى المحاولة ببطء",
+        "slow_down": "يرجى التمهل",
         "something_wrong": "حدث خطأ ما"
     },
     "add": "إضافة",
@@ -59,5 +59,25 @@
     "delete_confirm": "لا يمكن التراجع عن هذا الإجراء.",
     "are_you_sure_delete": "هل أنت متأكد من حذف",
     "refresh_page": "يرجى تحديث الصفحة.",
-    "something_wrong": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+    "something_wrong": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+
+    "academy": "الأكاديمية",
+
+    "full_name_placeholder": "الاسم الكامل",
+    "email_placeholder": "البريد الإلكتروني",
+    "phone_placeholder": "رقم الهاتف",
+    "parent_email_placeholder": "البريد الإلكتروني لولي الأمر",
+    "password_placeholder": "كلمة المرور",
+    "confirm_password_placeholder": "تأكيد كلمة المرور",
+
+    "select_academy": "اختر أكاديمية",
+    "select_educational_level": "اختر المرحلة التعليمية",
+
+    "already_registered": "مسجل بالفعل؟",
+
+    "please_select_academy": "يرجى اختيار أكاديمية.",
+    "join_academy": "الإنضمام للأكاديمية",
+    "could_not_load_educational_levels": "تعذر تحميل المراحل التعليمية",
+    "could_not_load_academies": "تعذر تحميل بيانات الأكاديميات",
+    "try_refreshing": "يرجى تحديث الصفحة والمحاولة مرة أخرى."
 }

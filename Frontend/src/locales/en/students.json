@@ -27,11 +27,6 @@
     "parent_email": "Parent email",
     "educational_level": "Educational Level",
 
-    "full_name_placeholder": "Full Name",
-    "email_placeholder": "Email",
-    "phone_placeholder": "Phone",
-    "parent_email_placeholder": "Parent email",
-
     "select_educational_level": "Select an educational level",
 
     "could_not_load_educational_levels": "Couldn't load educational levels",
@@ -58,5 +53,10 @@
     "outstanding": "OUTSTANDING",
 
     "egp_amount": "{{amount}} EGP",
-    "percentage_value": "{{value}} %"
+    "percentage_value": "{{value}} %",
+
+    "student_registered": "Student registered",
+    "student_added": "has been added.",
+    
+    "creating_account": "Creating your account…"
 }

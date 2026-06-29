@@ -89,7 +89,7 @@ const EditStudentProfile = ({ onClose }) => {
             onSubmit={handleSubmit}
             className="form-card"
         >
-            <h1 className="text-3xl font-bold text-navy mb-8">
+            <h1 className="text-3xl my-5 font-bold text-navy">
                 {t("students:student_profile")}
             </h1>
             <div className="divider"></div>
@@ -103,7 +103,7 @@ const EditStudentProfile = ({ onClose }) => {
                         placeholder={t("students:full_name_placeholder")}
                         value={full_name}
                         onChange={(e) => setFullName(e.target.value)}
-                        className={fieldErrors.full_name ? "form-input-error" : "form-input"}
+                        className={fieldErrors.full_name ? "form-input-error" : "form-input bg-gray-100"}
                         required
                     />
                     {fieldErrors.full_name && <p className="form-error">{fieldErrors.full_name[0]}</p>}
@@ -117,7 +117,7 @@ const EditStudentProfile = ({ onClose }) => {
                         placeholder={t("students:email_placeholder")}
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className={fieldErrors.email ? "form-input-error" : "form-input"}
+                        className={fieldErrors.email ? "form-input-error" : "form-input bg-gray-100"}
                         required
                     />
                     {fieldErrors.email && <p className="form-error">{fieldErrors.email[0]}</p>}
@@ -131,7 +131,7 @@ const EditStudentProfile = ({ onClose }) => {
                         placeholder={t("students:phone_placeholder")}
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className={fieldErrors.phone ? "form-input-error" : "form-input"}
+                        className={fieldErrors.phone ? "form-input-error" : "form-input bg-gray-100"}
                         required
                     />
                     {fieldErrors.phone && <p className="form-error">{fieldErrors.phone[0]}</p>}
@@ -145,7 +145,7 @@ const EditStudentProfile = ({ onClose }) => {
                         placeholder={t("students:parent_email_placeholder")}
                         value={parent_email}
                         onChange={(e) => setParentEmail(e.target.value)}
-                        className={fieldErrors.parent_email ? "form-input-error" : "form-input"}
+                        className={fieldErrors.parent_email ? "form-input-error" : "form-input bg-gray-100"}
                         required
                     />
                     {fieldErrors.parent_email && <p className="form-error">{fieldErrors.parent_email[0]}</p>}
@@ -158,7 +158,7 @@ const EditStudentProfile = ({ onClose }) => {
                         value={educational_level}
                         onChange={(e) => setEducationalLevel(Number(e.target.value))}
                         required
-                        className={fieldErrors.educational_level ? "form-input-error" : "form-select"}
+                        className={fieldErrors.educational_level ? "form-input-error" : "form-select bg-gray-100"}
                     >
                         <option value="">Select an educational level</option>
                         {educational_levels.map((level) => (

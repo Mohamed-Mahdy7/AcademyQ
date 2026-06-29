@@ -8,7 +8,7 @@ import KpiCard from "../../components/KpiCard"
 import StudentRegisterForm from "../auth/StudentRegisterForm"
 import CardHeading from "../../components/CardHeader"
 
-const StudentManagement = () => {
+const StudentManagement = ({submit}) => {
     const { students } = useContext(StudentContext);
     const { academy } = useContext(AcademyContext);
     const { t, i18n } = useTranslation(["students", "common"])
@@ -69,6 +69,8 @@ const StudentManagement = () => {
                         </button>
                         <StudentRegisterForm
                             academyId={academy?.id}
+                            submit = {t("add_student")}
+                            heading = {t("add_student")}
                             onSuccess={() => setShowRegister(false)}
                         />
                     </div>

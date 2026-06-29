@@ -52,7 +52,7 @@ function Login() {
                         id="email" 
                         placeholder={t("email_placeholder")}
                         value={email} onChange={(e) => setEmail(e.target.value)}
-                        className="form-input placeholder:text-gray-500" 
+                        className="form-input placeholder:text-gray-400 bg-gray-100"
                         required
                     />
                 </div>
@@ -64,7 +64,7 @@ function Login() {
                         id="password" 
                         placeholder={t("password_placeholder")}
                         value={password} onChange={(e) => setPassword(e.target.value)}
-                        className="form-input placeholder:text-gray-500" 
+                        className="form-input placeholder:text-gray-400 bg-gray-100"
                         required
                     />
                 </div>
