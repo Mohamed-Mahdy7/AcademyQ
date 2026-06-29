@@ -121,7 +121,7 @@ function SubjectsPage() {
                             <th>{t("description")}</th>
                             <th>{t("active_classes")}</th>
                             <th>{t("common:status")}</th>
-                            <th>{t("common:actions")}</th>
+                            <th className="text-end">{t("common:actions")}</th>
                         </tr>
                     </thead>
                     <tbody>
