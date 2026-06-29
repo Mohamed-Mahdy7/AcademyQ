@@ -13,8 +13,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 GEMINI_EMBEDDING_MODEL = "gemini-embedding-001"
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-e0vk%pu@t)i6j_cfbelbi9p&*9q=g7b-9861ms*j&3=w5wkca6'
 
 # LANGUAGES CONFIG
 
@@ -96,21 +94,12 @@ WSGI_APPLICATION = 'academy_q.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DB_NAME = os.getenv("DB_NAME")
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv('DB_PASSWORD')
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT=os.getenv("DB_PORT")
+import dj_database_url
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': DB_NAME,
-        'USER': DB_USER,
-        'HOST': DB_HOST,
-        'PORT': DB_PORT,
-        'PASSWORD': DB_PASSWORD,
-    }
+    'default': dj_database_url.parse(
+        os.getenv("DATABASE_URL")
+    )
 }
 
 
@@ -182,13 +171,12 @@ DJOSER = {
     },
 }
 
-CORS_ALLOWED_ORIGINS = ["http://localhost:5173", 'http://127.0.0.1:5173']
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
-CSRF_TRUSTED_ORIGINS = ["http://localhost:5173", 'http://127.0.0.1:5173']
-CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_CREDENTIALS = True
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
+CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS")
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS")
+CORS_ALLOW_CREDENTIALS = os.getenv("CORS_ALLOW_CREDENTIALS")
+SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE")
+CSRF_COOKIE_SECURE = os.getenv("CSRF_COOKIE_SECURE")
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS")
 
 AUTH_USER_MODEL='core.User'
 
