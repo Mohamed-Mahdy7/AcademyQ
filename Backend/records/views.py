@@ -1,4 +1,6 @@
+from genericpath import exists
 import logging
+from django.utils.translation import gettext_lazy as _
 from rest_framework import viewsets, status, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -365,16 +367,16 @@ class GenerateSessionsView(APIView):
         end_date_str = request.data.get('end_date')
 
         if not start_date_str or not end_date_str:
-            raise ValidationError({"start_date": ["This field is required."], "end_date": ["This field is required."]})
+            raise ValidationError({"start_date": [_("This field is required.")], "end_date": [_("This field is required.")]})
 
         try:
             start_date = date.fromisoformat(start_date_str)
             end_date = date.fromisoformat(end_date_str)
         except ValueError:
-            raise ValidationError({"end_date": ["Invalid date format. Use YYYY-MM-DD."]})
+            raise ValidationError({"end_date": [_("Invalid date format. Use YYYY-MM-DD.")]})
 
         if end_date < start_date:
-            raise ValidationError({"end_date": ["end_date must be after start_date."]})
+            raise ValidationError({"end_date": [_("end_date must be after start_date.")]})
             
 
         try:
@@ -384,11 +386,11 @@ class GenerateSessionsView(APIView):
             )
             if start_date > cls.end_date:
                 raise ValidationError({
-                    "start_date": ["Start date is after the class end date."]
+                    "start_date": [_("Start date is after the class end date.")]
                 })
             if start_date < cls.start_date:
                 raise ValidationError({
-                    "start_date": ["Start date cannot be before the class start date."]
+                    "start_date": [_("Start date cannot be before the class start date.")]
                 })
 
             if end_date > cls.end_date:
@@ -398,7 +400,7 @@ class GenerateSessionsView(APIView):
 
         schedules = ClassSchedule.objects.filter(class_obj=cls)
         if not schedules.exists():
-            raise ValidationError({"class_id": ["No schedules found for this class."]})
+            raise ValidationError({"class_id": [_("No schedules found for this class.")]})
 
         sessions_created = 0
         skipped_existing = 0
@@ -416,22 +418,35 @@ class GenerateSessionsView(APIView):
             max_sessions = cls.session_count  # cap
 
             current_date = start_date
+            print("Range:", start_date, "->", end_date)
+            print("Schedules:", [(s.day_of_week, s.start_time) for s in schedules])
             while current_date <= end_date:
                 matching_slots = [
                     s for s in schedules
                     if s.day_of_week == current_date.weekday()
                 ]
 
+                print(current_date, current_date.weekday())
                 for slot in matching_slots:
                     if max_sessions and next_session_num > max_sessions:
                         skipped_limit += 1
                         continue  # stop creating, count as skipped
 
+                    print(
+                        "MATCH",
+                        current_date,
+                        "next=", next_session_num,
+                        "max=", max_sessions,
+                    )
+
+                    
+
                     exists = ClassSession.objects.filter(
                         session_date=current_date,
                         session_time=slot.start_time
                     ).exists()
-
+                    print("exists =", exists)
+                    
                     if exists:
                         skipped_existing += 1
                     else:
@@ -452,7 +467,7 @@ class GenerateSessionsView(APIView):
 
         if sessions_created == 0 and skipped_existing == 0 and skipped_limit == 0:
             raise ValidationError({
-                "start_date": ["No sessions were created. The selected date range contains no days matching this class's schedule."]
+                "start_date": [_("No sessions were created. The selected date range contains no days matching this class's schedule.")]
             })
 
         return Response({

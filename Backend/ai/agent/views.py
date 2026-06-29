@@ -115,6 +115,7 @@ class AlertViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
         from ai.utils.gemini_client import generate_text
         from ai.utils.rag_engine import get_student_context
         from ai.agent.helpers.context_builder import build_risk_context
+        from django.utils.translation import get_language
 
         alert = self.get_object()
         enrollment = alert.enrollment
@@ -122,35 +123,46 @@ class AlertViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
         try:
             context = get_student_context(enrollment.student_id.pk)
         except Exception as e:
-            raise UpstreamError("Failed to retrieve student context.")
+            return Response(
+                {"detail": f"Failed to retrieve student context: {str(e)}"},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
 
         context["risk_score"] = alert.risk_score
 
         try:
             prompt = build_risk_alert_prompt(context)
 
-            # append payment reminder if overdue_days is active
             risk_context = build_risk_context(enrollment.id)
             overdue_days = risk_context.get("overdue_days")
 
             if overdue_days is not None:
                 payment_context = {
                     "student_name": context.get("student_name", "Unknown"),
-                    "parent_name": "Parent",  # parent_name not in User model — using generic
+                    "parent_name": "Parent",
                     "outstanding_balance": enrollment.class_id.session_price or 0,
                     "due_date": overdue_days,
                 }
                 payment_prompt = build_payment_reminder_prompt(payment_context)
                 prompt = prompt + "\n\n" + payment_prompt
 
+            # language instruction
+            active_lang = get_language() or "en"
+            if active_lang.startswith("ar"):
+                prompt += "\n\nIMPORTANT: Write the entire generated message in Arabic."
+            else:
+                prompt += "\n\nIMPORTANT: Write the entire generated message in English."
+
             message = generate_text(
                 prompt,
                 feature="risk_alert",
                 academy=enrollment.class_id.academy,
             )
-
         except Exception as e:
-            raise UpstreamError("LLM call failed.")
+            return Response(
+                {"detail": f"LLM call failed: {str(e)}"},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
 
         alert.message = message
         alert.save()

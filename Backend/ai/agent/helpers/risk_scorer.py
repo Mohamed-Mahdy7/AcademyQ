@@ -25,52 +25,36 @@ OVERDUE_PENALTY = 35
 LOW_SCORE_THRESHOLD = 50
 LOW_SCORE_PENALTY = 25
 
-# ---- Risk level bands -------------------------------------------------------------
-
-RISK_LOW_MAX = 39      # 0-39   -> low
-RISK_MEDIUM_MAX = 69   # 40-69  -> medium
-# 70-100 -> high
-
+RISK_LOW_MAX = 39
+RISK_MEDIUM_MAX = 69
 MAX_SCORE = 100
 
+from django.utils.translation import gettext_lazy as _
 
 def _check_attendance(context: dict) -> tuple[bool, int]:
-    """Returns (triggered, points)."""
     attendance_pct = context.get("attendance_pct_28d")
-
     if attendance_pct is None:
-        # Missing data = safe default = rule not triggered
         return False, 0
-
     if attendance_pct < ATTENDANCE_THRESHOLD_PCT:
         return True, ATTENDANCE_PENALTY
-
     return False, 0
 
 
 def _check_overdue_fees(context: dict) -> tuple[bool, int]:
-    """Returns (triggered, points)."""
     overdue_days = context.get("overdue_days")
-
     if overdue_days is None:
         return False, 0
-
     if overdue_days > OVERDUE_THRESHOLD_DAYS:
         return True, OVERDUE_PENALTY
-
     return False, 0
 
 
 def _check_low_scores(context: dict) -> tuple[bool, int]:
-    """Returns (triggered, points)."""
     avg_score = context.get("avg_score_last_2")
-
     if avg_score is None:
         return False, 0
-
     if avg_score < LOW_SCORE_THRESHOLD:
         return True, LOW_SCORE_PENALTY
-
     return False, 0
 
 
@@ -83,63 +67,44 @@ def _risk_level(score: int) -> str:
 
 
 def _primary_reason(triggers: dict, context: dict) -> str:
-    """
-    Pick the single most significant triggered reason.
-    Priority order: attendance > overdue fees > low scores.
-    If nothing triggered, return a neutral message.
-    """
     if triggers["attendance"][0]:
         pct = context.get("attendance_pct_28d")
-        return f"Attendance dropped to {pct}% over the last 28 days."
+        return _("Attendance dropped to {pct}% over the last 28 days.").format(pct=pct)
 
     if triggers["overdue"][0]:
         days = context.get("overdue_days")
-        return f"Payment overdue by {days} days."
+        return _("Payment overdue by {days} days.").format(days=days)
 
     if triggers["low_scores"][0]:
         avg = context.get("avg_score_last_2")
-        return f"Average score on recent assessments is {avg}%."
+        return _("Average score on recent assessments is {avg}%.").format(avg=avg)
 
-    return "No significant risk factors detected."
+    return _("No significant risk factors detected.")
 
 
 def _recommended_action(risk_level: str, triggers: dict) -> str:
-    """
-    Map triggered rules to a recommended action string.
-    risk_level only affects the urgency prefix.
-    """
     actions = []
 
     if triggers["attendance"][0]:
-        actions.append("Contact parent/guardian regarding attendance")
+        actions.append(_("Contact parent/guardian regarding attendance"))
 
     if triggers["overdue"][0]:
-        actions.append("Send payment reminder")
+        actions.append(_("Send payment reminder"))
 
     if triggers["low_scores"][0]:
-        actions.append("Schedule academic check-in with teacher")
+        actions.append(_("Schedule academic check-in with teacher"))
 
     if not actions:
-        return "No action needed. Continue routine monitoring."
+        return _("No action needed. Continue routine monitoring.")
 
+    joined = "; ".join(actions)
     if risk_level == "high":
-        return "Urgent: " + "; ".join(actions) + "."
+        return _("Urgent: {actions}.").format(actions=joined)
 
-    return "; ".join(actions) + "."
+    return joined + "."
 
 
 def risk_scorer(context: dict) -> dict:
-    """
-    Compute dropout risk from a student context dict.
-
-    Returns:
-        {
-            "risk_level": "low" | "medium" | "high",
-            "risk_score": int (0-100),
-            "primary_reason": str,
-            "recommended_action": str,
-        }
-    """
     context = context or {}
 
     triggers = {
@@ -150,7 +115,6 @@ def risk_scorer(context: dict) -> dict:
 
     raw_score = sum(points for _, points in triggers.values())
     risk_score = min(raw_score, MAX_SCORE)
-
     risk_level = _risk_level(risk_score)
 
     return {

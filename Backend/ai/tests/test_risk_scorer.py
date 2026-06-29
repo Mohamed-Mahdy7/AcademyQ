@@ -9,7 +9,9 @@ from ..agent.helpers.risk_scorer import (
     OVERDUE_PENALTY,
     LOW_SCORE_PENALTY,
 )
-
+from django.test import TestCase
+from django.utils import translation
+from ai.agent.helpers.risk_scorer import risk_scorer
 
 class TestRiskScorerAllSafe(unittest.TestCase):
     def test_all_signals_healthy(self):
@@ -189,6 +191,33 @@ class TestRiskScorerBoundaries(unittest.TestCase):
             "high"
         )
 
+class TestRiskScorerArabicTranslations(TestCase):
+    def test_primary_reason_arabic_attendance(self):
+        context = {"attendance_pct_28d": 60, "overdue_days": None, "avg_score_last_2": None}
+        with translation.override("ar"):
+            result = risk_scorer(context)
+        self.assertIn("28", result["primary_reason"])
+        self.assertIn("60", result["primary_reason"])
+        # confirm Arabic characters present
+        self.assertTrue(any('\u0600' <= c <= '\u06ff' for c in result["primary_reason"]))
+
+    def test_primary_reason_english_attendance(self):
+        context = {"attendance_pct_28d": 60, "overdue_days": None, "avg_score_last_2": None}
+        with translation.override("en"):
+            result = risk_scorer(context)
+        self.assertIn("Attendance dropped", result["primary_reason"])
+
+    def test_no_risk_arabic(self):
+        context = {"attendance_pct_28d": 95, "overdue_days": 0, "avg_score_last_2": 80}
+        with translation.override("ar"):
+            result = risk_scorer(context)
+        self.assertTrue(any('\u0600' <= c <= '\u06ff' for c in result["primary_reason"]))
+
+    def test_urgent_action_arabic(self):
+        context = {"attendance_pct_28d": 50, "overdue_days": 20, "avg_score_last_2": 30}
+        with translation.override("ar"):
+            result = risk_scorer(context)
+        self.assertIn("عاجل", result["recommended_action"])
 
 if __name__ == "__main__":
     unittest.main()
