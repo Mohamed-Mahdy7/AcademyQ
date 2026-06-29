@@ -1,10 +1,12 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { getAlertsRequest, patchAlertRequest, generateMessageRequest,} from "../services/alertService";
 import { toast } from "../lib/toastBus";
 
 export const AlertContext = createContext();
 
 export function AlertProvider({ children }) {
+    const { t } = useTranslation("alerts");
     const [alerts, setAlerts]         = useState([]);
     const [loading, setLoading]       = useState(true);
     const [error, setError]           = useState(null);
@@ -20,8 +22,8 @@ export function AlertProvider({ children }) {
             const response = await getAlertsRequest(params);
             setAlerts(response.data);
         } catch (err) {
-            setError("Failed to load alerts.");
-            toast.danger("Failed to load alerts", "Could not fetch retention alerts.");
+            setError(t("toast.fetch_failed"));
+            toast.danger(t("toast.fetch_failed"), t("toast.fetch_failed_desc"));
         } finally {
             setLoading(false);
         }
@@ -32,9 +34,9 @@ export function AlertProvider({ children }) {
             await patchAlertRequest(id, { is_dismissed: true });
             setAlerts((prev) => prev.filter((a) => a.id !== id));
             if (expandedId === id) setExpandedId(null);
-            toast.success("Alert dismissed", "The alert has been marked as reviewed.");
+            toast.success(t("toast.dismiss_success"), t("toast.dismiss_success_desc"));
         } catch (err) {
-            toast.danger("Could not dismiss", "Failed to dismiss the alert.");
+            toast.danger(t("toast.dismiss_failed"), t("toast.dismiss_failed_desc"));
         }
     }
 
@@ -44,10 +46,10 @@ export function AlertProvider({ children }) {
             setAlerts((prev) =>
                 prev.map((a) => (a.id === id ? { ...a, notes: response.data.notes } : a))
             );
-            toast.success("Notes saved", "Internal notes updated successfully.");
+            toast.success(t("toast.notes_saved"), t("toast.notes_saved_desc"));
             return true;
         } catch (err) {
-            toast.danger("Could not save notes", "Failed to update internal notes.");
+            toast.danger(t("toast.notes_failed"), t("toast.notes_failed_desc"));
             return false;
         }
     }
@@ -60,10 +62,10 @@ export function AlertProvider({ children }) {
             setAlerts((prev) =>
                 prev.map((a) => (a.id === id ? { ...a, message } : a))
             );
-            toast.success("Message generated", "AI message is ready to review and send.");
+            toast.success(t("toast.generate_success"), t("toast.generate_success_desc"));
             return message;
         } catch (err) {
-            toast.danger("Generation failed", "Could not generate message. Check your AI quota.");
+            toast.danger(t("toast.generate_failed"), t("toast.generate_failed_desc"));
             return null;
         } finally {
             setGeneratingId(null);
