@@ -1,0 +1,142 @@
+{
+  "nav": {
+    "features": "Features",
+    "how_it_works": "How it Works",
+    "for_academies": "For Academies",
+    "for_students": "For Students",
+    "sign_in": "Sign in",
+    "get_started_free": "Get started free"
+  },
+
+  "hero": {
+    "badge": "AI-Powered Academy Management · Now with Retention Intelligence",
+    "headline_1": "Run your academy.",
+    "headline_2": "Keep every student.",
+    "subheadline": "AcademiQ gives Egyptian academies a complete management system — attendance, grades, payments, and an AI agent that spots at-risk students before they drop out.",
+    "cta_owner": "Register your academy",
+    "cta_student": "Join as a student",
+    "social_proof": "Trusted by 180+ academies across Egypt",
+    "scroll_hint": "Scroll to explore"
+  },
+
+  "stats": {
+    "students_enrolled": "Students Enrolled",
+    "active_academies": "Active Academies",
+    "retention_rate": "Retention Rate",
+    "sessions_tracked": "Sessions Tracked"
+  },
+
+  "features": {
+    "section_label": "Platform capabilities",
+    "headline_1": "Everything your academy needs.",
+    "headline_2": "nothing it doesn't.",
+    "subheadline": "From the first enrolment to the end-of-term report, AcademiQ covers the full student lifecycle.",
+    "badge_new": "New",
+    "ai_retention": {
+      "title": "AI Retention Intelligence",
+      "description": "Weekly automated scans score every student's dropout risk using attendance, grades, and payment history. High-risk alerts surface automatically — with a WhatsApp message draft ready to send."
+    },
+    "attendance": {
+      "title": "Attendance Tracking",
+      "description": "Mark attendance session by session with one tap. Track per-student trends, class averages, and 28-day rollups in real time."
+    },
+    "grades": {
+      "title": "Grade & Performance Analytics",
+      "description": "Log scores per session, visualise grade trends over time, and spot students falling behind before the semester ends."
+    },
+    "payments": {
+      "title": "Payment & Finance",
+      "description": "Collect monthly fees, track overdue balances, and send automated payment reminders at day 0, 3, and 7 — with AI-written messages in Arabic."
+    },
+    "students": {
+      "title": "Student Management",
+      "description": "Full student profiles with enrollment history, attendance records, grade summaries, and a generated AI report card — all in one place."
+    },
+    "notifications": {
+      "title": "Smart Notifications",
+      "description": "Automated email alerts keep parents informed. Every notification is logged with delivery status so nothing falls through the cracks."
+    }
+  },
+
+  "how_it_works": {
+    "section_label": "Simple to get started",
+    "headline": "Up and running in minutes",
+    "subheadline": "Whether you're an academy owner or a student, getting started takes under 5 minutes.",
+    "owner": {
+      "label": "For academy owners",
+      "title": "Set up your academy",
+      "cta": "Register my academy →",
+      "steps": {
+        "01": { "title": "Register your academy", "desc": "Set up your academy profile in under two minutes." },
+        "02": { "title": "Create classes & enroll students", "desc": "Add subjects, assign teachers, and onboard students with their parent contact." },
+        "03": { "title": "Track every session", "desc": "Mark attendance, record grades, and collect payments — all from one dashboard." },
+        "04": { "title": "Let AI guard retention", "desc": "The weekly AI scan surfaces at-risk students and drafts parent messages for you." }
+      }
+    },
+    "student": {
+      "label": "For students",
+      "title": "Join your academy",
+      "cta": "Join as a student →",
+      "steps": {
+        "01": { "title": "Find your academy", "desc": "Select the academy you're enrolled in from the list." },
+        "02": { "title": "Create your student account", "desc": "Provide your name and parent contact details to get started." },
+        "03": { "title": "Track your progress", "desc": "View your attendance, grades, and upcoming session schedule." },
+        "04": { "title": "Stay connected", "desc": "Receive updates directly through the parent contact channel." }
+      }
+    }
+  },
+
+  "ai_highlight": {
+    "badge": "Retention Intelligence — AI Sprint",
+    "headline": "Know who's about to drop out — before they do.",
+    "body": "Our AI agent runs every Monday, scoring every student on three risk signals — attendance below 70%, overdue fees over 14 days, and grade decline. High-risk students surface in your Alert Inbox with a WhatsApp message already drafted in Arabic.",
+    "benefits": {
+      "1": "Automated weekly retention scan",
+      "2": "AI-drafted parent messages in Egyptian Arabic",
+      "3": "AI-generated report cards per student",
+      "4": "Real-time payment reminder pipeline"
+    },
+    "cta": "Start with AI enabled",
+    "mock_scan_complete": "Weekly scan complete — 3 alerts generated",
+    "risk_high": "High",
+    "risk_medium": "Medium"
+  },
+
+  "registration": {
+    "section_label": "Get started today — it's free",
+    "headline": "Join AcademiQ",
+    "subheadline": "Choose your path below and be running in under 5 minutes.",
+    "owner_card": {
+      "title": "Academy Owner",
+      "desc": "Register your academy and get started in minutes"
+    },
+    "student_card": {
+      "title": "Student",
+      "desc": "Join an academy already registered on AcademiQ"
+    },
+    "modal_owner": {
+      "title": "Register your academy",
+      "subtitle": "Free — no credit card required"
+    },
+    "modal_student": {
+      "title": "Join your academy",
+      "subtitle": "Your academy must already be registered on AcademiQ"
+    }
+  },
+
+  "footer": {
+    "tagline": "AI-powered academy management for Egyptian education centres.",
+    "platform": "Platform",
+    "product": "Product",
+    "links": {
+      "for_academies": "For Academies",
+      "for_students": "For Students",
+      "sign_in": "Sign in",
+      "features": "Features",
+      "how_it_works": "How it works",
+      "get_started": "Get started"
+    },
+    "copyright": "AcademiQ. Built for Egyptian academies.",
+    "team": "Team Edvora — Mahdy · Yahya · Aly · Kandeel"
+  }
+}
