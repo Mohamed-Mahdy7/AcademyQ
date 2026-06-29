@@ -351,3 +351,75 @@ msgstr "درجات منخفضة"
 #: ai/agent/models.py:20
 msgid "Combined Risk"
 msgstr "مخاطر مدمجة"
+
+#: financial_operations/views.py:45
+msgid "Payments & Finance"
+msgstr "المدفوعات والمالية"
+
+#: financial_operations/views.py:46
+msgid "Track revenue, manage payments, and monitor outstanding fees"
+msgstr "تتبع الإيرادات وإدارة الدفعات ومراقبة الرسوم المستحقة"
+
+#: financial_operations/views.py:89
+msgid "Record payment"
+msgstr "تسجيل دفعة"
+
+#: financial_operations/views.py:90
+msgid "Expected revenue"
+msgstr "الإيراد المتوقع"
+
+#: financial_operations/views.py:96
+msgid "Collected"
+msgstr "المحصل"
+
+#: financial_operations/views.py:102
+msgid "Outstanding"
+msgstr "المستحقة"
+
+#: financial_operations/views.py:108
+msgid "Collection rate"
+msgstr "معدل التحصيل"
+
+#: financial_operations/serializers.py:30
+msgid "Pending payment"
+msgstr "دفعة معلقة"
+
+#: financial_operations/serializers.py:35
+msgid "Payment date"
+msgstr "تاريخ الدفع"
+
+#: financial_operations/serializers.py:40
+msgid "Payment details"
+msgstr "تفاصيل الدفعة"
+
+#: financial_operations/serializers.py:45
+msgid "Amount"
+msgstr "المبلغ"
+
+#: financial_operations/serializers.py:50
+msgid "Notes"
+msgstr "ملاحظات"
+
+#: financial_operations/views.py:110
+msgid "Payment recorded successfully"
+msgstr "تم تسجيل الدفعة بنجاح"
+
+#: financial_operations/views.py:115
+msgid "Payment updated successfully"
+msgstr "تم تحديث الدفعة بنجاح"
+
+#: financial_operations/views.py:120
+msgid "Payment deleted successfully"
+msgstr "تم حذف الدفعة بنجاح"
+
+#: financial_operations/views.py:125
+msgid "Cannot record payment for non-existent enrollment"
+msgstr "لا يمكن تسجيل دفعة لتسجيل غير موجود"
+
+#: financial_operations/views.py:130
+msgid "Payment amount must be greater than 0"
+msgstr "يجب أن يكون مبلغ الدفعة أكبر من صفر"
+
+#: financial_operations/views.py:135
+msgid "Payment date cannot be in the future"
+msgstr "لا يمكن أن يكون تاريخ الدفعة في المستقبل"

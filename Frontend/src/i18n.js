@@ -30,6 +30,8 @@ import notificationEn from "./locales/en/notification.json"
 import notificationAr from "./locales/ar/notification.json"
 import landingEn from "./locales/en/landing.json";
 import landingAr from "./locales/ar/landing.json";
+import paymentEn from "./locales/en/payment.json"
+import paymentAr from "./locales/ar/payment.json"
 
 
 i18n
@@ -52,6 +54,7 @@ i18n
             enrollment: enrollmentEn,
             notification: notificationEn,
             landing: landingEn,
+            payment: paymentEn,
         },
         ar: { 
             common: commonAr,
@@ -68,6 +71,7 @@ i18n
             enrollment: enrollmentAr,
             notification: notificationAr,
             landing: landingAr,
+            payment: paymentAr,
         },
 
     },
@@ -76,7 +80,7 @@ i18n
     ns: [
         "common", "auth", "students", "attendance", "grades",
         "alerts", "layout", "dashboard", "subjects", "classes", 
-        "teacher", "enrollment", "notification", "landing",
+        "teacher", "enrollment", "notification", "landing", "payment",
     ],
     interpolation: { escapeValue: false },
     detection: {

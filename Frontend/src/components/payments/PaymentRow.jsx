@@ -1,4 +1,7 @@
+import { useTranslation } from "react-i18next";
+
 export default function PaymentRow({ payment, onDelete }) {
+  const { t } = useTranslation("payment");
   return (
     <tr className="table-row">
       <td className="table-cell">
@@ -23,7 +26,7 @@ export default function PaymentRow({ payment, onDelete }) {
           payment.status === "cancelled" ? "badge-danger"  :
           "badge-muted"
         }>
-          {payment.status}
+          {t(`status.${payment.status}`) || payment.status}
         </span>
       </td>
       <td className="table-cell-muted">{payment.paid_on}</td>
@@ -34,7 +37,7 @@ export default function PaymentRow({ payment, onDelete }) {
         <button
           className="btn-icon text-danger hover:bg-danger-bg"
           onClick={() => onDelete(payment)}
-          title="Delete payment"
+          title={t("table.delete_tooltip")}
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="3 6 5 6 21 6"/>
