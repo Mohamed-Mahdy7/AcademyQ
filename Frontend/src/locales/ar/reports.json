@@ -1,0 +1,22 @@
+{
+    "report_history": "سجل التقارير",
+    "no_enrollments": "لا توجد تسجيلات لهذا الطالب.",
+    "class": "الفصل",
+    "month": "الشهر",
+    "risk_level": "مستوى الخطر",
+    "risk_score": "درجة الخطر",
+    "generated_at": "تاريخ الإنشاء",
+    "no_reports_yet": "لا توجد تقارير بعد",
+    "no_reports_desc": "أنشئ تقريراً للبدء.",
+    "delete_report": "حذف التقرير",
+    "delete_report_confirm": "هل أنت متأكد أنك تريد حذف هذا التقرير؟ لا يمكن التراجع عن هذا الإجراء.",
+    "report_deleted": "تم حذف التقرير.",
+    "failed_to_delete_report": "فشل حذف التقرير.",
+    "report_regenerated": "التقرير الخاص بـ {{month}} كان موجوداً وتم إعادة إنشائه بالبيانات الجديدة.",
+    "report_generated": "تم إنشاء تقرير جديد لـ {{month}}.",
+    "loading_reports": "جارٍ تحميل التقارير...",
+    "generate_report": "إنشاء تقرير",
+    "generating": "جارٍ الإنشاء...",
+    "failed_to_generate_report": "فشل إنشاء التقرير. يرجى المحاولة مرة أخرى.",
+    "view": "عرض"
+}
