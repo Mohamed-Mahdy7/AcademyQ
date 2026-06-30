@@ -55,7 +55,7 @@
     "percentage_value": "% {{value}}",
 
     "student_registered": "تم تسجيل الطالب",
-    "student_added": "تمت إضافة {{name}}.",
+    "student_added": "تمت إضافة.",
     "join_academy": "الانضمام إلى الأكاديمية",
     "creating_account": "جارٍ إنشاء حسابك…"
 }
