@@ -8,76 +8,8 @@ import {
 import { useTranslation } from "react-i18next";
 import StudentRegisterForm from "./auth/StudentRegisterForm";
 import OwnerRegisterForm from "./auth/OwnerRegisterForm";
+import LanguageSwitcher from "../components/languageSwitcher";
 
-/* -------------------------------------------------------------------------- */
-/*                                 Static data                                */
-/* -------------------------------------------------------------------------- */
-const stats = [
-  { value: "2,400+", label: "Students Enrolled" },
-  { value: "180+", label: "Active Academies" },
-  { value: "94%", label: "Retention Rate" },
-  { value: "38k+", label: "Sessions Tracked" },
-];
-
-const features = [
-  {
-    icon: Brain,
-    title: "AI Retention Intelligence",
-    description:
-      "Weekly automated scans score every student's dropout risk using attendance, grades, and payment history. High-risk alerts surface automatically — with a WhatsApp message draft ready to send.",
-    badge: "New", iconBg: "bg-sky/10", highlight: true,
-  },
-  {
-    icon: CalendarCheck,
-    title: "Attendance Tracking",
-    description: "Mark attendance session by session with one tap. Track per-student trends, class averages, and 28-day rollups in real time.",
-    badge: null, iconBg: "bg-blue/10", highlight: false,
-  },
-  {
-    icon: BarChart3,
-    title: "Grade & Performance Analytics",
-    description: "Log scores per session, visualise grade trends over time, and spot students falling behind before the semester ends.",
-    badge: null, iconBg: "bg-blue/10", highlight: false,
-  },
-  {
-    icon: DollarSign,
-    title: "Payment & Finance",
-    description: "Collect monthly fees, track overdue balances, and send automated payment reminders at day 0, 3, and 7 — with AI-written messages in Arabic.",
-    badge: null, iconBg: "bg-blue/10", highlight: false,
-  },
-  {
-    icon: Users,
-    title: "Student Management",
-    description: "Full student profiles with enrollment history, attendance records, grade summaries, and a generated AI report card — all in one place.",
-    badge: null, iconBg: "bg-blue/10", highlight: false,
-  },
-  {
-    icon: Bell,
-    title: "Smart Notifications",
-    description: "Automated Emails alerts keep parents informed. Every notification is logged with delivery status so nothing falls through the cracks.",
-    badge: null, iconBg: "bg-blue/10", highlight: false,
-  },
-];
-
-const ownerSteps = [
-  { step: "01", title: "Register your academy", desc: "Set up your academy profile in under two minutes." },
-  { step: "02", title: "Create classes & enroll students", desc: "Add subjects, assign teachers, and onboard students with their parent contact." },
-  { step: "03", title: "Track every session", desc: "Mark attendance, record grades, and collect payments — all from one dashboard." },
-  { step: "04", title: "Let AI guard retention", desc: "The weekly AI scan surfaces at-risk students and drafts parent messages for you." },
-];
-
-const studentSteps = [
-  { step: "01", title: "Find your academy", desc: "Select the academy you're enrolled in from the list." },
-  { step: "02", title: "Create your student account", desc: "Provide your name and parent contact details to get started." },
-  { step: "03", title: "Track your progress", desc: "View your attendance, grades, and upcoming session schedule." },
-  { step: "04", title: "Stay connected", desc: "Receive updates directly through the parent contact channel." },
-];
-
-const mockAlerts = [
-  { name: "Ahmed Mohamed", risk: "high", score: 75, type: "Combined Risk", initials: "AM" },
-  { name: "Sara Khaled", risk: "high", score: 65, type: "Low Attendance", initials: "SK" },
-  { name: "Omar Hassan", risk: "medium", score: 48, type: "Grade Decline", initials: "OH" },
-];
 
 /* -------------------------------------------------------------------------- */
 /*                                  Component                                 */
@@ -90,6 +22,45 @@ export default function LandingPage() {
   const [openModal, setOpenModal] = useState(null);
   const navigate = useNavigate();
   const regRef = useRef(null);
+
+const stats = [
+  { value: "2,400+", label: t("stats.students_enrolled"),},
+  { value: "180+", label: t("stats.active_academies"),},
+  { value: "94%", label: t("stats.retention_rate"),},
+  { value: "38k+", label: t("stats.sessions_tracked"),},
+];
+
+const features = [
+  {icon: Brain,title: t("features.ai_retention.title"),description: t("features.ai_retention.description"),badge: t("features.badge_new"),iconBg: "bg-sky/10",highlight: true,},
+  { icon: CalendarCheck, title: t("features.attendance.title"), description: t("features.attendance.description"), badge: null, iconBg: "bg-blue/10", highlight: false,},
+  { icon: BarChart3, title: t("features.grades.title"), description: t("features.grades.description"), badge: null, iconBg: "bg-blue/10", highlight: false,},
+  { icon: DollarSign, title: t("features.payments.title"), description: t("features.payments.description"), badge: null, iconBg: "bg-blue/10", highlight: false,},
+  { icon: Users, title: t("features.students.title"), description: t("features.students.description"), badge: null, iconBg: "bg-blue/10", highlight: false,},
+  { icon: Bell, title: t("features.notifications.title"), description: t("features.notifications.description"), badge: null, iconBg: "bg-blue/10", highlight: false,},
+];
+
+const ownerSteps = [
+  { step: "01", title: t("static.owner_steps.step1.title"), desc: t("static.owner_steps.step1.description"),},
+  { step: "02", title: t("static.owner_steps.step2.title"), desc: t("static.owner_steps.step2.description"),},
+  { step: "03", title: t("static.owner_steps.step3.title"), desc: t("static.owner_steps.step3.description"),},
+  { step: "04", title: t("static.owner_steps.step4.title"), desc: t("static.owner_steps.step4.description"),},
+];
+
+const studentSteps = [
+  { step: "01", title: t("static.student_steps.step1.title"), desc: t("static.student_steps.step1.description"),},
+  { step: "02", title: t("static.student_steps.step2.title"), desc: t("static.student_steps.step2.description"),},
+  { step: "03", title: t("static.student_steps.step3.title"), desc: t("static.student_steps.step3.description"),},
+  { step: "04", title: t("static.student_steps.step4.title"), desc: t("static.student_steps.step4.description"),},
+];
+
+const mockAlerts = [
+  {name: "Ahmed Mohamed",risk: t("alerts.risk_high"),score: 75,type: t("alerts.combined_risk"),initials: "AM",},
+  { name: "Sara Khaled", risk: t("alerts.risk_high"), score: 65, type: t("alerts.low_attendance"), initials: "SK",},
+  { name: "Omar Hassan", risk: t("alerts.risk_medium"), score: 48, type: t("alerts.grade_decline"), initials: "OH",},
+];
+
+const aiBenefits = [ t("static.ai_benefits.weekly_scan"), t("static.ai_benefits.parent_messages"), t("static.ai_benefits.report_cards"), t("static.ai_benefits.payment_pipeline"),
+];
 
   useEffect(() => {
     const onScroll = () => setNavScrolled(window.scrollY > 30);
@@ -122,6 +93,7 @@ export default function LandingPage() {
             <span className="text-lg font-bold text-white tracking-tight">
               Academi<span className="text-sky">Q</span>
             </span>
+              <LanguageSwitcher />
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">
@@ -253,12 +225,12 @@ export default function LandingPage() {
       <section id="features" className="bg-surface py-24 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <p className="text-sm font-semibold text-blue uppercase tracking-widest mb-3">{t("section_label")}</p>
+            <p className="text-sm font-semibold text-blue uppercase tracking-widest mb-3">{t("features.section_label")}</p>
             <h2 className="text-4xl md:text-5xl font-extrabold text-navy mb-4 leading-tight">
-              {t("headline_1")}<br className="hidden md:block" /> {("headline_2")}
+              {t("features.headline_1")}<br className="hidden md:block" /> 
             </h2>
             <p className="text-lg text-blue max-w-2xl mx-auto">
-              {t("subheadline")}
+              {t("features.subheadline")}
             </p>
           </div>
 
@@ -287,10 +259,14 @@ export default function LandingPage() {
       <section id="how-it-works" className="bg-navy py-24 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <p className="text-sm font-semibold text-sky uppercase tracking-widest mb-3">Simple to get started</p>
-            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 leading-tight">Up and running in minutes</h2>
+            <p className="text-sm font-semibold text-sky uppercase tracking-widest mb-3">
+              {t("how_it_works.section_label")}
+            </p>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 leading-tight">
+              {t("how_it_works.headline")}
+            </h2>
             <p className="text-lg text-white/50 max-w-xl mx-auto">
-              Whether you're an academy owner or a student, getting started takes under 5 minutes.
+              {t("how_it_works.subheadline")}
             </p>
           </div>
 
@@ -301,14 +277,20 @@ export default function LandingPage() {
                   <Building2 className="w-5 h-5 text-sky" />
                 </div>
                 <div>
-                  <p className="text-xs text-sky font-semibold uppercase tracking-wide">For academy owners</p>
-                  <h3 className="text-base font-bold text-white">Set up your academy</h3>
+                  <p className="text-xs text-sky font-semibold uppercase tracking-wide">
+                    {t("how_it_works.owner.label")}
+                  </p>
+                  <h3 className="text-base font-bold text-white">
+                    {t("how_it_works.owner.title")}
+                  </h3>
                 </div>
               </div>
               <div className="space-y-6">
                 {ownerSteps.map(({ step, title, desc }) => (
                   <div key={step} className="flex gap-4">
-                    <div className="w-8 h-8 rounded-lg bg-sky/10 border border-sky/20 text-sky text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{step}</div>
+                    <div className="w-8 h-8 rounded-lg bg-sky/10 border border-sky/20 text-sky text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                      {step}
+                    </div>
                     <div>
                       <p className="text-sm font-semibold text-white mb-0.5">{title}</p>
                       <p className="text-xs text-white/50">{desc}</p>
@@ -316,9 +298,11 @@ export default function LandingPage() {
                   </div>
                 ))}
               </div>
-              <button onClick={() => scrollToReg("owner")}
-                className="mt-8 w-full bg-sky text-navy font-bold py-3 rounded-xl hover:bg-white transition-colors text-sm">
-                Register my academy →
+              <button
+                onClick={() => scrollToReg("owner")}
+                className="mt-8 w-full bg-sky text-navy font-bold py-3 rounded-xl hover:bg-white transition-colors text-sm"
+              >
+                {t("how_it_works.owner.cta")}
               </button>
             </div>
 
@@ -328,14 +312,20 @@ export default function LandingPage() {
                   <UserCheck className="w-5 h-5 text-blue" />
                 </div>
                 <div>
-                  <p className="text-xs text-blue font-semibold uppercase tracking-wide">For students</p>
-                  <h3 className="text-base font-bold text-white">Join your academy</h3>
+                  <p className="text-xs text-blue font-semibold uppercase tracking-wide">
+                    {t("how_it_works.student.label")}
+                  </p>
+                  <h3 className="text-base font-bold text-white">
+                    {t("how_it_works.student.title")}
+                  </h3>
                 </div>
               </div>
               <div className="space-y-6">
                 {studentSteps.map(({ step, title, desc }) => (
                   <div key={step} className="flex gap-4">
-                    <div className="w-8 h-8 rounded-lg bg-blue/10 border border-blue/20 text-blue text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{step}</div>
+                    <div className="w-8 h-8 rounded-lg bg-blue/10 border border-blue/20 text-blue text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                      {step}
+                    </div>
                     <div>
                       <p className="text-sm font-semibold text-white mb-0.5">{title}</p>
                       <p className="text-xs text-white/50">{desc}</p>
@@ -343,17 +333,18 @@ export default function LandingPage() {
                   </div>
                 ))}
               </div>
-              <button onClick={() => scrollToReg("student")}
-                className="mt-8 w-full border border-blue/40 text-blue font-bold py-3 rounded-xl hover:bg-blue/10 transition-colors text-sm">
-                Join as a student →
+              <button
+                onClick={() => scrollToReg("student")}
+                className="mt-8 w-full border border-blue/40 text-blue font-bold py-3 rounded-xl hover:bg-blue/10 transition-colors text-sm"
+              >
+                {t("how_it_works.student.cta")}
               </button>
             </div>
           </div>
         </div>
       </section>
-      {/* -------------------------------------------------------------------------- */
-/*                                AI HIGHLIGHT                                */
-/* -------------------------------------------------------------------------- */}
+
+      {/* ── AI HIGHLIGHT ───────────────────────────────────────────────────── */}
       <section className="bg-surface py-24 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="bg-navy rounded-3xl overflow-hidden">
@@ -361,16 +352,16 @@ export default function LandingPage() {
               <div className="p-10 lg:p-14 flex flex-col justify-center">
                 <div className="inline-flex items-center gap-2 bg-sky/15 border border-sky/25 text-sky text-xs font-semibold px-3 py-1.5 rounded-full mb-6 w-fit">
                   <Brain className="w-3.5 h-3.5" />
-                  Retention Intelligence — AI Sprint
+                  {t("ai_highlight.badge")}
                 </div>
                 <h2 className="text-3xl md:text-4xl font-extrabold text-white leading-tight mb-5">
-                  Know who's about to drop out — before they do.
+                  {t("ai_highlight.headline")}
                 </h2>
                 <p className="text-white/60 leading-relaxed mb-8">
-                  Our AI agent runs every Monday, scoring every student on three risk signals — attendance below 70%, overdue fees over 14 days, and grade decline. High-risk students surface in your Alert Inbox with a WhatsApp message already drafted in Arabic.
+                  {t("ai_highlight.body")}
                 </p>
                 <ul className="space-y-3 mb-8">
-                  {["Automated weekly retention scan", "AI-drafted parent messages in Egyptian Arabic", "AI-generated report cards per student", "Real-time payment reminder pipeline"].map((item) => (
+                  {aiBenefits.map((item) => (
                     <li key={item} className="flex items-center gap-3 text-sm text-white/70">
                       <div className="w-5 h-5 rounded-full bg-sky/15 border border-sky/30 flex items-center justify-center shrink-0">
                         <Check className="w-3 h-3 text-sky" />
@@ -379,17 +370,22 @@ export default function LandingPage() {
                     </li>
                   ))}
                 </ul>
-                <button onClick={() => scrollToReg("owner")}
-                  className="flex items-center gap-2 bg-sky text-navy font-bold px-6 py-3 rounded-xl hover:bg-white transition-colors w-fit text-sm">
+                <button
+                  onClick={() => scrollToReg("owner")}
+                  className="flex items-center gap-2 bg-sky text-navy font-bold px-6 py-3 rounded-xl hover:bg-white transition-colors w-fit text-sm"
+                >
                   <Zap className="w-4 h-4" />
-                  Start with AI enabled
+                  {t("ai_highlight.cta")}
                 </button>
               </div>
 
               <div className="relative bg-navy-mid/40 border-l border-white/10 p-8 lg:p-10 flex flex-col justify-center gap-4">
                 {mockAlerts.map((alert, i) => (
-                  <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center gap-4"
-                    style={{ transform: `translateX(${i * 4}px)`, opacity: 1 - i * 0.15 }}>
+                  <div
+                    key={i}
+                    className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center gap-4"
+                    style={{ transform: `translateX(${i * 4}px)`, opacity: 1 - i * 0.15 }}
+                  >
                     <div className="w-10 h-10 rounded-full bg-navy-mid text-white flex items-center justify-center text-xs font-bold shrink-0">
                       {alert.initials}
                     </div>
@@ -398,40 +394,55 @@ export default function LandingPage() {
                       <p className="text-xs text-white/50">{alert.type}</p>
                     </div>
                     <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${alert.risk === "high" ? "bg-danger-bg text-danger" : "bg-warning-bg text-warning"}`}>
-                      {alert.risk === "high" ? "High" : "Medium"} · {alert.score}
+                      {alert.risk === "high" ? t("ai_highlight.risk_high") : t("ai_highlight.risk_medium")} · {alert.score}
                     </span>
                   </div>
                 ))}
                 <div className="mt-2 flex items-center gap-2 bg-success-bg border border-success/20 rounded-full px-4 py-2 w-fit mx-auto">
                   <div className="w-2 h-2 bg-success rounded-full animate-pulse" />
-                  <span className="text-xs text-success font-semibold">Weekly scan complete — 3 alerts generated</span>
+                  <span className="text-xs text-success font-semibold">
+                    {t("ai_highlight.mock_scan_complete")}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </section>
-      {/* -------------------------------------------------------------------------- */
-/*                                REGISTRATION                                */
-/* -------------------------------------------------------------------------- */}
+
+      {/* ── REGISTRATION ───────────────────────────────────────────────────── */}
       <section ref={regRef} id="register" className="bg-navy py-24 px-6 scroll-mt-16">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
-            <p className="text-sm font-semibold text-sky uppercase tracking-widest mb-3">Get started today — it's free</p>
-            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 leading-tight">Join AcademiQ</h2>
-            <p className="text-lg text-white/50">Choose your path below and be running in under 5 minutes.</p>
+            <p className="text-sm font-semibold text-sky uppercase tracking-widest mb-3">
+              {t("registration.section_label")}
+            </p>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 leading-tight">
+              {t("registration.headline")}
+            </h2>
+            <p className="text-lg text-white/50">
+              {t("registration.subheadline")}
+            </p>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
             <button onClick={() => setOpenModal("owner")} className="reg-option-card">
               <Building2 className="w-6 h-6 text-sky mb-3" />
-              <h3 className="text-base font-bold text-white mb-1">Academy Owner</h3>
-              <p className="text-xs text-white/50">Register your academy and get started in minutes</p>
+              <h3 className="text-base font-bold text-white mb-1">
+                {t("registration.owner_card.title")}
+              </h3>
+              <p className="text-xs text-white/50">
+                {t("registration.owner_card.desc")}
+              </p>
             </button>
             <button onClick={() => setOpenModal("student")} className="reg-option-card">
               <UserCheck className="w-6 h-6 text-blue mb-3" />
-              <h3 className="text-base font-bold text-white mb-1">Student</h3>
-              <p className="text-xs text-white/50">Join an academy already registered on AcademiQ</p>
+              <h3 className="text-base font-bold text-white mb-1">
+                {t("registration.student_card.title")}
+              </h3>
+              <p className="text-xs text-white/50">
+                {t("registration.student_card.desc")}
+              </p>
             </button>
           </div>
         </div>
@@ -442,26 +453,32 @@ export default function LandingPage() {
               <div className="modal-header h-15 pt-5 pb-0">
                 <h2 className="modal-title">
                   {openModal === "owner"
-                    ?
-                    <div className="flex items-center gap-3 mb-7">
-                      <div className="w-10 h-10 bg-blue/15 border border-blue/90 rounded-xl flex items-center justify-center">
-                        <Building2 className="w-5 h-5 text-blue-600" />
+                    ? <div className="flex items-center gap-3 mb-7">
+                        <div className="w-10 h-10 bg-blue/15 border border-blue/90 rounded-xl flex items-center justify-center">
+                          <Building2 className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <h3 className="text-base font-bold text-black">
+                            {t("registration.modal_owner.title")}
+                          </h3>
+                          <p className="text-xs text-black/40">
+                            {t("registration.modal_owner.subtitle")}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-base font-bold text-black">Register your academy</h3>
-                        <p className="text-xs text-black/40">Free — no credit card required</p>
+                    : <div className="flex items-center gap-3 mb-7">
+                        <div className="w-10 h-10 bg-blue/15 border border-blue/90 rounded-xl flex items-center justify-center">
+                          <UserCheck className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <h3 className="text-base font-bold text-black">
+                            {t("registration.modal_student.title")}
+                          </h3>
+                          <p className="text-xs text-black/40">
+                            {t("registration.modal_student.subtitle")}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                    :
-                    <div className="flex items-center gap-3 mb-7">
-                      <div className="w-10 h-10 bg-blue/15 border border-blue/90 rounded-xl flex items-center justify-center">
-                        <UserCheck className="w-5 h-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <h3 className="text-base font-bold text-black">Join your academy</h3>
-                        <p className="text-xs text-black/40">Your academy must already be registered on AcademiQ</p>
-                      </div>
-                    </div>
                   }
                 </h2>
                 <button className="modal-close" onClick={() => setOpenModal(null)} aria-label="Close">
@@ -471,15 +488,14 @@ export default function LandingPage() {
               <div className="modal-body bg-gray-200 py-2">
                 {openModal === "owner"
                   ? <OwnerRegisterForm onSuccess={() => { setOpenModal(null); navigate("/dashboard"); }} />
-                  : <StudentRegisterForm submit={t("common:join_academy")} onSuccess={() => { setOpenModal(null); navigate("/login"); }} />}
+                  : <StudentRegisterForm onSuccess={() => { setOpenModal(null); navigate("/login"); }} />}
               </div>
             </div>
           </div>
         )}
       </section>
-      {/* -------------------------------------------------------------------------- */
-/*                                   FOOTER                                   */
-/* -------------------------------------------------------------------------- */}
+
+      {/* ── FOOTER ─────────────────────────────────────────────────────────── */}
       <footer className="bg-navy border-t border-white/10 py-12 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
@@ -488,33 +504,54 @@ export default function LandingPage() {
                 <div className="w-8 h-8 bg-sky/15 border border-sky/25 rounded-lg flex items-center justify-center">
                   <GraduationCap className="w-4 h-4 text-sky" />
                 </div>
-                <span className="text-base font-bold text-white">Academi<span className="text-sky">Q</span></span>
+                <span className="text-base font-bold text-white">
+                  Academi<span className="text-sky">Q</span>
+                </span>
               </div>
-              <p className="text-sm text-white/40 max-w-xs">AI-powered academy management for Egyptian education centres.</p>
+              <p className="text-sm text-white/40 max-w-xs">
+                {t("footer.tagline")}
+              </p>
             </div>
 
             <div className="flex flex-wrap gap-8 text-sm text-white/40">
               <div className="space-y-2">
-                <p className="font-semibold text-white/60 text-xs uppercase tracking-wide">Platform</p>
-                <button onClick={() => scrollToReg("owner")} className="block hover:text-white transition-colors">For Academies</button>
-                <button onClick={() => scrollToReg("student")} className="block hover:text-white transition-colors">For Students</button>
-                <Link to="/login" className="block hover:text-white transition-colors">Sign in</Link>
+                <p className="font-semibold text-white/60 text-xs uppercase tracking-wide">
+                  {t("footer.platform")}
+                </p>
+                <button onClick={() => scrollToReg("owner")} className="block hover:text-white transition-colors">
+                  {t("footer.links.for_academies")}
+                </button>
+                <button onClick={() => scrollToReg("student")} className="block hover:text-white transition-colors">
+                  {t("footer.links.for_students")}
+                </button>
+                <Link to="/login" className="block hover:text-white transition-colors">
+                  {t("footer.links.sign_in")}
+                </Link>
               </div>
               <div className="space-y-2">
-                <p className="font-semibold text-white/60 text-xs uppercase tracking-wide">Product</p>
-                <button onClick={() => scrollTo("features")} className="block hover:text-white transition-colors">Features</button>
-                <button onClick={() => scrollTo("how-it-works")} className="block hover:text-white transition-colors">How it works</button>
-                <button onClick={() => scrollTo("register")} className="block hover:text-white transition-colors">Get started</button>
+                <p className="font-semibold text-white/60 text-xs uppercase tracking-wide">
+                  {t("footer.product")}
+                </p>
+                <button onClick={() => scrollTo("features")} className="block hover:text-white transition-colors">
+                  {t("footer.links.features")}
+                </button>
+                <button onClick={() => scrollTo("how-it-works")} className="block hover:text-white transition-colors">
+                  {t("footer.links.how_it_works")}
+                </button>
+                <button onClick={() => scrollTo("register")} className="block hover:text-white transition-colors">
+                  {t("footer.links.get_started")}
+                </button>
               </div>
             </div>
           </div>
 
           <div className="mt-10 pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-white/25">
-            <p>© {new Date().getFullYear()} AcademiQ. Built for Egyptian academies.</p>
-            <p>Team Edvora — Mahdy · Yahya · Aly · Kandeel</p>
+            <p>© {new Date().getFullYear()} {t("footer.copyright")}</p>
+            <p>{t("footer.team")}</p>
           </div>
         </div>
       </footer>
+
 
     </div>
   );
