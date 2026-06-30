@@ -1,4 +1,88 @@
 {
+  "static": {
+    "stats": {
+      "students_enrolled": "Students Enrolled",
+      "active_academies": "Active Academies",
+      "retention_rate": "Retention Rate",
+      "sessions_tracked": "Sessions Tracked"
+    },
+    "features": {
+      "ai_retention": {
+        "title": "AI Retention Intelligence",
+        "description": "Weekly automated scans score every student's dropout risk using attendance, grades, and payment history. High-risk alerts surface automatically — with a WhatsApp message draft ready to send.",
+        "badge": "New"
+      },
+      "attendance": {
+        "title": "Attendance Tracking",
+        "description": "Mark attendance session by session with one tap. Track per-student trends, class averages, and 28-day rollups in real time."
+      },
+      "grades": {
+        "title": "Grade & Performance Analytics",
+        "description": "Log scores per session, visualise grade trends over time, and spot students falling behind before the semester ends."
+      },
+      "payments": {
+        "title": "Payment & Finance",
+        "description": "Collect monthly fees, track overdue balances, and send automated payment reminders at day 0, 3, and 7 — with AI-written messages in Arabic."
+      },
+      "students": {
+        "title": "Student Management",
+        "description": "Full student profiles with enrollment history, attendance records, grade summaries, and a generated AI report card — all in one place."
+      },
+      "notifications": {
+        "title": "Smart Notifications",
+        "description": "Automated Emails alerts keep parents informed. Every notification is logged with delivery status so nothing falls through the cracks."
+      }
+    },
+    "owner_steps": {
+      "step1": {
+        "title": "Register your academy",
+        "description": "Set up your academy profile in under two minutes."
+      },
+      "step2": {
+        "title": "Create classes & enroll students",
+        "description": "Add subjects, assign teachers, and onboard students with their parent contact."
+      },
+      "step3": {
+        "title": "Track every session",
+        "description": "Mark attendance, record grades, and collect payments — all from one dashboard."
+      },
+      "step4": {
+        "title": "Let AI guard retention",
+        "description": "The weekly AI scan surfaces at-risk students and drafts parent messages for you."
+      }
+    },
+    "student_steps": {
+      "step1": {
+        "title": "Find your academy",
+        "description": "Select the academy you're enrolled in from the list."
+      },
+      "step2": {
+        "title": "Create your student account",
+        "description": "Provide your name and parent contact details to get started."
+      },
+      "step3": {
+        "title": "Track your progress",
+        "description": "View your attendance, grades, and upcoming session schedule."
+      },
+      "step4": {
+        "title": "Stay connected",
+        "description": "Receive updates directly through the parent contact channel."
+      }
+    },
+    "alerts": {
+      "combined_risk": "Combined Risk",
+      "low_attendance": "Low Attendance",
+      "grade_decline": "Grade Decline",
+      "risk_high": "high",
+      "risk_medium": "medium"
+    },
+    "ai_benefits": {
+    "weekly_scan": "Automated weekly retention scan",
+    "parent_messages": "AI-drafted parent messages in Egyptian Arabic",
+    "report_cards": "AI-generated report cards per student",
+    "payment_pipeline": "Real-time payment reminder pipeline"
+  }
+  },
   "nav": {
     "features": "Features",
     "how_it_works": "How it Works",
@@ -29,7 +113,6 @@
   "features": {
     "section_label": "Platform capabilities",
     "headline_1": "Everything your academy needs.",
-    "headline_2": "nothing it doesn't.",
     "subheadline": "From the first enrolment to the end-of-term report, AcademiQ covers the full student lifecycle.",
     "badge_new": "New",
     "ai_retention": {
