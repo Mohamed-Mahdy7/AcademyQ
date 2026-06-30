@@ -55,5 +55,15 @@
     "deleting": "Deleting...",
     "delete": "Delete",
     "failed_delete_session": "Failed to delete session.",
-    "session_label": "Session {{num}}"
+    "session_label": "Session {{num}}",
+    "reschedule_success": "Session rescheduled successfully.",
+    "failed_reschedule": "Failed to reschedule session.",
+    "yes": "Yes",
+    "reschedule_session": "Reschedule Session",
+    "reschedule_warning": "Rescheduling is only allowed if no attendance has been recorded for this session.",
+    "new_date": "New Date",
+    "new_time": "New Time",
+    "confirm_reschedule": "Confirm Reschedule",
+    "rescheduling": "Rescheduling...",
+    "reschedule": "Reschedule"
 }
