@@ -197,17 +197,23 @@ class PaymentViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
             output_field=DecimalField(max_digits=10, decimal_places=2)
         )
 
-        base_payments = Payment.objects.filter(
+        from django.db.models import Q
+        
+        revenue_expected_qs = Payment.objects.filter(
             enrollment_id__class_id__academy_id=academy_id,
-            due_date__year=year,
-            due_date__month=mon,
-        ).exclude(status='deleted')
+        ).exclude(status='deleted').filter(
+            Q(status='completed', paid_on__year=year, paid_on__month=mon) |
+            Q(~Q(status='completed'), due_date__year=year, due_date__month=mon)
+        )
 
-        revenue_expected = base_payments.annotate(
+        revenue_expected = revenue_expected_qs.annotate(
             class_price=class_price_expr
         ).aggregate(total=Sum('class_price'))['total'] or 0
 
-        revenue_collected = base_payments.filter(
+        revenue_collected = Payment.objects.filter(
+            enrollment_id__class_id__academy_id=academy_id,
+            paid_on__year=year,
+            paid_on__month=mon,
             status='completed'
         ).annotate(
             class_price=class_price_expr
@@ -219,10 +225,6 @@ class PaymentViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
             )
         else:
             collection_rate = 0.0
-
-        paid_enrollments = base_payments.filter(
-            status='completed'
-        ).values_list('enrollment_id', flat=True)
 
         overdue_enrollments = Enrollment.objects.filter(
             class_id__academy_id=academy_id,

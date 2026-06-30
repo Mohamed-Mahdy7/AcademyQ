@@ -13,7 +13,8 @@ export default function EnrollmentTab({ classId }) {
     listEnrollments, addEnrollment, editEnrollment, removeEnrollment,
   } = useEnrollment();
 
-  const { t } = useTranslation("enrollment");
+  const { t, i18n } = useTranslation("enrollment");
+  const isRTL = i18n.dir() === "rtl";
   const [showForm, setShowForm]         = useState(false);
   const [editingEnrollment, setEditing] = useState(null);
   const [formErrors, setFormErrors]     = useState({});
@@ -123,7 +124,7 @@ export default function EnrollmentTab({ classId }) {
           <option value="dropped">{t("tab.filter_dropped")}</option>
           <option value="completed">{t("tab.filter_completed")}</option>
         </select>
-        <div className="filter-bar-right">
+        <div className="filter-bar-right"style={{ marginLeft: isRTL ? 0 : "auto",marginRight: isRTL ? "auto" : 0,}}>
           <p className="text-caption">
             {t(`tab.results${filtered.length !== 1 ? "_plural" : ""}`, { count: filtered.length })}
           </p>
