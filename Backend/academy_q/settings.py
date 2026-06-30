@@ -214,7 +214,6 @@ SESSION_COOKIE_SECURE = (
     os.getenv("SESSION_COOKIE_SECURE", "False").lower()
     == "true"
 )
-
 CSRF_COOKIE_SECURE = (
     os.getenv("CSRF_COOKIE_SECURE", "False").lower()
     == "true"
