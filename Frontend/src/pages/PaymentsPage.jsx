@@ -7,10 +7,6 @@ import AddPaymentForm from "../components/payments/AddPaymentForm";
 import { toast } from "../lib/toastBus";
 import { useTranslation } from "react-i18next";
 
-const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
 
 function getCurrentMonth() {
   const now = new Date();
@@ -29,7 +25,14 @@ export default function PaymentsPage() {
   const [submitting, setSubmitting]       = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  const { t } = useTranslation("payment");
+  const { t , i18n } = useTranslation("payment");
+
+  const getMonthName = (monthIndex) => {
+    const months = i18n.language === "ar"
+      ? ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"]
+      : ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    return months[monthIndex];
+  };
 
   useEffect(() => {
     fetchSummary(selectedMonth);
@@ -52,7 +55,7 @@ export default function PaymentsPage() {
     } else {
       setFormErrors(result.errors || {});
       if (result.errors?.detail) {
-        toast.danger("Could not update payment", result.errors.detail);
+        toast.danger(t("messages.could_not_update"), result.errors.detail);
       }
     }
   }
@@ -77,7 +80,7 @@ export default function PaymentsPage() {
     } else {
       setFormErrors(result.errors || {});
       if (result.errors?.detail) {
-        toast.danger("Could not create payment", result.errors.detail);
+        toast.danger(t("messages.could_not_create"), result.errors.detail);
       }
     }
   }
@@ -89,9 +92,7 @@ export default function PaymentsPage() {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
 
     const val = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    const label = `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
-
-    monthOptions.push({ val, label });
+    monthOptions.push({ val, label: `${getMonthName(d.getMonth())} ${d.getFullYear()}` });
   }
 
   return (

@@ -1,10 +1,12 @@
 import { createContext, useContext, useState } from "react";
 import {getPayments, getPaymentsSummary, createPayment, deletePayment, updatePayment, editPayment} from "../services/paymentService";
 import { toast } from "../lib/toastBus";
+import { useTranslation } from "react-i18next";
 
 export const PaymentContext = createContext();
 
 export function PaymentProvider({ children }) {
+  const { t } = useTranslation("payment");
   const [payments, setPayments]   = useState([]);
   const [summary, setSummary]     = useState(null);
   const [loading, setLoading]     = useState(false);
@@ -20,8 +22,8 @@ export function PaymentProvider({ children }) {
       setPayments(data);
       return data;
     } catch (err) {
-      setError("Failed to load payments.");
-      toast.danger("Failed to load payments", "Could not fetch payment records.");
+      setError(t("messages.load_failed"));
+      toast.danger(t("messages.load_failed"), t("messages.load_failed_desc"));
       return [];
     } finally {
       setLoading(false);
@@ -35,7 +37,7 @@ export function PaymentProvider({ children }) {
       setSummary(res.data);
       return res.data;
     } catch (err) {
-      toast.danger("Failed to load summary", "Could not fetch payment summary.");
+      toast.danger(t("messages.summary_failed"), t("messages.summary_failed_desc"));
       return null;
     } finally {
       setSummaryLoading(false);
@@ -45,13 +47,13 @@ export function PaymentProvider({ children }) {
   async function addPayment(data) {
     try {
       await createPayment(data);
-      toast.success("Payment created", "A new pending payment has been added.");
+      toast.success(t("messages.payment_created"), t("messages.payment_created_desc"));
       return { success: true };
     } catch (err) {
       const fields = err.response?.data?.fields;
       const detail = err.response?.data?.detail;
       const nonFieldError = fields?.non_field_errors?.[0];
-      if (nonFieldError) toast.danger("Could not create payment", nonFieldError);
+      if (nonFieldError) toast.danger(t("messages.create_failed"), nonFieldError);
       return { success: false, errors: fields ?? (detail ? { detail } : {}) };
     }
   }
@@ -60,10 +62,10 @@ export function PaymentProvider({ children }) {
     try {
       await deletePayment(id);
       setPayments((prev) => prev.filter((p) => p.id !== id));
-      toast.success("Payment deleted", "The payment has been removed.");
+      toast.success(t("messages.payment_deleted"), t("messages.payment_deleted_desc"));
       return { success: true };
     } catch (err) {
-      toast.danger("Could not delete payment", "Failed to remove the payment.");
+      toast.danger(t("messages.delete_failed"), t("messages.delete_failed_desc"));
       return { success: false };
     }
   }
@@ -71,13 +73,13 @@ export function PaymentProvider({ children }) {
   async function editPayment(id, data) {
     try {
       await updatePayment(id, data);
-      toast.success("Payment updated", "Payment status has been updated successfully.");
+      toast.success(t("messages.payment_updated"), t("messages.payment_updated_desc"));
       return { success: true };
     } catch (err) {
       const fields = err.response?.data?.fields;
       const detail = err.response?.data?.detail;
       const nonFieldError = fields?.non_field_errors?.[0];
-      if (nonFieldError) toast.danger("Could not update payment", nonFieldError);
+      if (nonFieldError) toast.danger(t("messages.update_failed"), nonFieldError);
       return { success: false, errors: fields ?? (detail ? { detail } : {}) };
     }
   }

@@ -75,5 +75,21 @@
         "confirm": "This will permanently delete the payment of {{amount}} EGP. This action cannot be undone.",
         "cancel": "Cancel",
         "delete": "Delete"
+    },
+    "messages": {
+        "load_failed": "Failed to load payments",
+        "load_failed_desc": "Could not fetch payment records.",
+        "summary_failed": "Failed to load summary",
+        "summary_failed_desc": "Could not fetch payment summary.",
+        "payment_created": "Payment created",
+        "payment_created_desc": "A new pending payment has been added.",
+        "create_failed": "Could not create payment",
+        "payment_deleted": "Payment deleted",
+        "payment_deleted_desc": "The payment has been removed.",
+        "delete_failed": "Could not delete payment",
+        "delete_failed_desc": "Failed to remove the payment.",
+        "payment_updated": "Payment updated",
+        "payment_updated_desc": "Payment status has been updated successfully.",
+        "update_failed": "Could not update payment"
     }
 }

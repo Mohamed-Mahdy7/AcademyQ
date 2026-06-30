@@ -63,5 +63,21 @@
         "no_changes_desc": "عدّل حقلاً قبل الحفظ.",
         "updated_title": "تم تحديث المعلم",
         "updated_desc": "تم حفظ ملف {{name}} الشخصي."
+    },
+    "messages": {
+        "load_failed": "فشل تحميل المعلمين",
+        "load_failed_desc": "لم يتمكن من جلب قائمة المعلمين.",
+        "fetch_failed": "فشل تحميل المعلم",
+        "fetch_failed_desc": "لم يتمكن من جلب تفاصيل المعلم.",
+        "add_success": "تم إضافة المعلم",
+        "add_success_desc": "تم إنشاء ملف المعلم بنجاح.",
+        "add_failed": "فشل إضافة المعلم",
+        "update_success": "تم تحديث المعلم",
+        "update_success_desc": "تم حفظ التغييرات بنجاح.",
+        "update_failed": "فشل تحديث المعلم",
+        "deactivate_success": "تم إلغاء تفعيل المعلم",
+        "deactivate_success_desc": "تم إلغاء تفعيل حساب المعلم.",
+        "deactivate_failed": "فشل إلغاء التفعيل",
+        "deactivate_failed_desc": "فشل إلغاء تفعيل حساب المعلم."
     }
 }

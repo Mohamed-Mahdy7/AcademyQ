@@ -63,5 +63,21 @@
         "no_changes_desc": "Edit a field before saving.",
         "updated_title": "Teacher updated",
         "updated_desc": "{{name}}'s profile was saved."
+    },
+    "messages": {
+        "load_failed": "Failed to load teachers",
+        "load_failed_desc": "Could not fetch teacher list.",
+        "fetch_failed": "Failed to load teacher",
+        "fetch_failed_desc": "Could not fetch teacher details.",
+        "add_success": "Teacher added",
+        "add_success_desc": "Teacher profile created successfully.",
+        "add_failed": "Could not add teacher",
+        "update_success": "Teacher updated",
+        "update_success_desc": "Changes saved successfully.",
+        "update_failed": "Could not update teacher",
+        "deactivate_success": "Teacher deactivated",
+        "deactivate_success_desc": "The teacher's account has been deactivated.",
+        "deactivate_failed": "Could not deactivate",
+        "deactivate_failed_desc": "Failed to deactivate the teacher account."
     }
 }

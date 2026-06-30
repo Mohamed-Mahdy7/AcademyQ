@@ -1,10 +1,12 @@
 import { createContext, useContext, useState } from "react";
 import {getEnrollments, createEnrollment, updateEnrollment, deleteEnrollment,} from "../services/enrollmentService";
 import { toast } from "../lib/toastBus";
+import { useTranslation } from "react-i18next";
 
 export const EnrollmentContext = createContext();
 
 export function EnrollmentProvider({ children }) {
+  const { t } = useTranslation("enrollment");
   const [enrollments, setEnrollments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -29,7 +31,7 @@ export function EnrollmentProvider({ children }) {
   async function addEnrollment(data) {
     try {
       const res = await createEnrollment(data);
-      toast.success("Student enrolled", "The student has been enrolled successfully.");
+      toast.success(t("messages.enroll_success"), t("messages.enroll_success_desc"));
       return { success: true, data: res.data };
     } catch (err) {
       const fields = err.response?.data?.fields;
@@ -37,9 +39,9 @@ export function EnrollmentProvider({ children }) {
       const nonFieldError = fields?.non_field_errors?.[0];
 
       if (nonFieldError) {
-        toast.danger("Could not enroll student", nonFieldError);
+        toast.danger(t("messages.enroll_failed"), nonFieldError);
       } else if (detail && detail !== "Please fix the highlighted fields.") {
-        toast.danger("Could not enroll student", detail);
+        toast.danger(t("messages.enroll_failed"), detail);
       }
 
       return { success: false, errors: fields ?? (detail ? { detail } : {}) };
@@ -49,7 +51,7 @@ export function EnrollmentProvider({ children }) {
   async function editEnrollment(id, data) {
     try {
       await updateEnrollment(id, data);
-      toast.success("Enrollment updated", "The enrollment status has been updated.");
+      toast.success(t("messages.update_success"), t("messages.update_success_desc"));
       return { success: true };
     } catch (err) {
       const fields = err.response?.data?.fields;
@@ -62,7 +64,7 @@ export function EnrollmentProvider({ children }) {
     try {
       await deleteEnrollment(id);
       setEnrollments((prev) => prev.filter((e) => e.id !== id));
-      toast.success("Enrollment dropped", "The student's enrollment has been set to dropped.");
+      toast.success(t("messages.drop_success"), t("messages.drop_success_desc"));
       return { success: true };
     } catch (err) {
       return { success: false };

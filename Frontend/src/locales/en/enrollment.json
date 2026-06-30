@@ -66,5 +66,14 @@
         "header_total_paid": "Total Paid",
         "header_balance_due": "Balance Due",
         "header_status": "Status"
+    },
+    "messages": {
+        "enroll_success": "Student enrolled",
+        "enroll_success_desc": "The student has been enrolled successfully.",
+        "enroll_failed": "Could not enroll student",
+        "update_success": "Enrollment updated",
+        "update_success_desc": "The enrollment status has been updated.",
+        "drop_success": "Enrollment dropped",
+        "drop_success_desc": "The student's enrollment has been set to dropped."
     }
 }
