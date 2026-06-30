@@ -25,6 +25,7 @@ MANUAL_SCAN_DAILY_LIMIT = 3
     partial_update=extend_schema(tags=["Alert"]),
     stats=extend_schema(tags=["Alert"]),
     generate_message=extend_schema(tags=["Alert"]),
+    retranslate_alerts=extend_schema(tags=["Alert"]),
 )
 class AlertViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = AlertSerializer
@@ -171,7 +172,36 @@ class AlertViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
             {"message": message},
             status=status.HTTP_200_OK,
         )
-    
+
+    @action(detail=False, methods=["post"], url_path="retranslate-alerts")
+    def retranslate_alerts(self, request):
+        from ai.agent.helpers.risk_scorer import risk_scorer
+        from ai.agent.helpers.context_builder import build_risk_context
+
+        alerts = Alert.objects.filter(
+            enrollment__class_id__academy_id=request.user.academy_id,
+            reviewed_at__isnull=True,
+        ).select_related("enrollment__class_id__academy")
+
+        updated = 0
+        errors = 0
+
+        for alert in alerts:
+            try:
+                context = build_risk_context(alert.enrollment.id)
+                result = risk_scorer(context)
+                alert.primary_reason = result["primary_reason"]
+                alert.recommended_action = result["recommended_action"]
+                alert.save(update_fields=["primary_reason", "recommended_action"])
+                updated += 1
+            except Exception:
+                errors += 1
+                continue
+
+        return Response({
+            "updated": updated,
+            "errors": errors,
+        }, status=status.HTTP_200_OK)   
 @extend_schema(
     tags=["AI Agent"],
     request=None,

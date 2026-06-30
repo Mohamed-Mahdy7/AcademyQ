@@ -55,5 +55,15 @@
     "deleting": "جارٍ الحذف...",
     "delete": "حذف",
     "failed_delete_session": "فشل حذف الحصة.",
-    "session_label": "حصة {{num}}"
+    "session_label": "حصة {{num}}",
+    "reschedule_success": "تمت إعادة جدولة الحصة بنجاح.",
+    "failed_reschedule": "فشل إعادة جدولة الحصة.",
+    "yes": "نعم",
+    "reschedule_session": "إعادة جدولة الحصة",
+    "reschedule_warning": "لا يُسمح بإعادة الجدولة إلا إذا لم يتم تسجيل أي حضور لهذه الحصة.",
+    "new_date": "التاريخ الجديد",
+    "new_time": "الوقت الجديد",
+    "confirm_reschedule": "تأكيد إعادة الجدولة",
+    "rescheduling": "جارٍ إعادة الجدولة...",
+    "reschedule": "إعادة الجدولة"
 }
