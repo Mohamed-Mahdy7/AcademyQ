@@ -1,9 +1,5 @@
 *env
 __pycache__
-# Dockerfile
-# docker-compose.yml
-Backend/*/migrations/*
-Backend/*/*/migrations/*
 API_Docs.md
 cookies*
 academiq_db_schema.md
