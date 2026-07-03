@@ -16,3 +16,4 @@ RUN pip install -r /app/requirements.txt
 
 # copy project code => docker
 COPY . .
+RUN python manage.py collectstatic --noinput
