@@ -101,13 +101,21 @@ WSGI_APPLICATION = 'academy_q.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-database_url = os.getenv("DATABASE_URL")
-
-
-DATABASES = {
-    'default': dj_database_url.parse(os.getenv("DATABASE_URL")),
-    'CONN_MAX_AGE': 60,
-}
+_db_url = os.getenv("DATABASE_URL", "")
+if _db_url:
+    DATABASES = {
+        'default': {
+            **dj_database_url.parse(_db_url),
+            'CONN_MAX_AGE': 60,
+        }
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
+    }
 
 
 # Password validation
