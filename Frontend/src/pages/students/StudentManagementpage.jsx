@@ -95,7 +95,11 @@ const StudentManagement = ({submit}) => {
                             submit = {t("add_student")}
                             heading = {t("add_student")}
                             onSuccess={async () => {
-                                await queryClient.invalidateQueries({ queryKey: ["students"] });
+                                await queryClient.refetchQueries({
+                                    queryKey: ["students"],
+                                    type: "active",
+                                    exact: true,
+                                });
                                 setShowRegister(false)
                             }}
                         />

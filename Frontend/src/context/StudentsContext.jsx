@@ -39,15 +39,23 @@ export const StudentProvider = ({ children }) => {
         mutationFn: createStudentRequest,
         onSuccess: () => {
             console.log("Mutation success");
-            queryClient.invalidateQueries({ queryKey: ["students"] });
+            queryClient.refetchQueries({
+                queryKey: ["students"], 
+                type: "active",
+                exact: true,
+            });
         },
     });
 
     const updateMutation = useMutation({
         mutationFn: ({ id, data }) => updateStudentRequest(id, data),
         onSuccess: (_, { id }) => {
-            queryClient.invalidateQueries({ queryKey: ["students"] });
-            queryClient.invalidateQueries({ queryKey: ["student", id] });
+            queryClient.refetchQueries({
+                queryKey: ["students"], 
+                type: "active",
+                exact: true,
+            });
+            queryClient.invalidateQueries({queryKey: ["student", id] });
         },
     });
 
