@@ -16,6 +16,7 @@ const StudentManagement = ({submit}) => {
     const [showRegister, setShowRegister] = useState(false);
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+    console.log("QueryClient Management ID:", queryClient);
 
     const activeStudents = students?.filter(student => student.status === 'A').length || 0;
     const studentsCount = students.length;

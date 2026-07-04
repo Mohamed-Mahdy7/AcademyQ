@@ -13,6 +13,7 @@ export const StudentContext = createContext();
 export const StudentProvider = ({ children }) => {
     console.log("StudentProvider rendered");
     const queryClient = useQueryClient();
+    console.log("QueryClient ID:", queryClient);
     const { data: students = [], isLoading: studentLoading } = useQuery({
         queryKey: ["students"],
         queryFn: async () =>{
