@@ -21,7 +21,7 @@ const StudentManagement = ({submit}) => {
     const studentsCount = students.length;
     const overdueStudents = students?.filter(student => student.overdue_days !== null).length || 0;
 
-
+    console.log("students:", students);
     return (
         <>
             <div className="flex justify-between">

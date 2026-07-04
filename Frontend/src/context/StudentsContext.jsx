@@ -11,6 +11,7 @@ import { Outlet } from "react-router-dom";
 export const StudentContext = createContext();
 
 export const StudentProvider = ({ children }) => {
+    console.log("StudentProvider rendered");
     const queryClient = useQueryClient();
     const { data: students = [], isLoading: studentLoading } = useQuery({
         queryKey: ["students"],
