@@ -21,19 +21,19 @@ const queryClient = new QueryClient({
 });
 
 createRoot(document.getElementById('root')).render(
-  <BrowserRouter>
   <QueryClientProvider client={queryClient}>
-    <DirectionManager>
-      <ToastProvider>
-        <AuthProvider>
-          <EnrollmentProvider>
-            <PaymentProvider>
-              <App />
-            </PaymentProvider>
-          </EnrollmentProvider>
-        </AuthProvider> 
-      </ToastProvider>
-    </DirectionManager>
+    <BrowserRouter>
+      <DirectionManager>
+        <ToastProvider>
+          <AuthProvider>
+            <EnrollmentProvider>
+              <PaymentProvider>
+                <App />
+              </PaymentProvider>
+            </EnrollmentProvider>
+          </AuthProvider> 
+        </ToastProvider>
+      </DirectionManager>
+    </BrowserRouter>
   </QueryClientProvider>
-  </BrowserRouter>
 )

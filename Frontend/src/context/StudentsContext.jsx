@@ -17,6 +17,7 @@ export const StudentProvider = ({ children }) => {
     const { data: students = [], isLoading: studentLoading } = useQuery({
         queryKey: ["students"],
         queryFn: () => getStudentsRequest().then(r => r.data ),
+        staleTime: 0,
     })
 
     // async function getStudents() {
@@ -51,7 +52,7 @@ export const StudentProvider = ({ children }) => {
     //     }
     // }
 
-    function getStudent(id) {
+    await function getStudent(id) {
         try {
             const data = await queryClient.fetchQuery({
                 queryKey: ["student", id],
@@ -101,7 +102,7 @@ export const StudentProvider = ({ children }) => {
 
     async function createStudent(data) {
         try {
-            const response = await createMutation.mutateAsync({ id, data });
+            const response = await createMutation.mutateAsync({ data });
             return { success: true, data: response.data };
         } catch (error) {
             return { success: false, error};
@@ -151,7 +152,7 @@ export const StudentProvider = ({ children }) => {
                 updateStudent,
             }}
         >
-            <Outlet />
+            { children }
         </StudentContext.Provider>
     );
 
