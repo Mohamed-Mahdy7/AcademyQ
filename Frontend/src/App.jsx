@@ -4,6 +4,7 @@ import MainRouter from "./routes/MainRouter";
 
 
 function App() {
+  console.log("App rendered");
   return <MainRouter/>;
 }
 
