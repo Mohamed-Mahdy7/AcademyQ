@@ -9,7 +9,7 @@ import StudentRegisterForm from "../auth/StudentRegisterForm"
 import CardHeading from "../../components/CardHeader"
 
 const StudentManagement = ({submit}) => {
-    const { students } = useContext(StudentContext);
+    const { students, getStudents } = useContext(StudentContext);
     const { academy } = useContext(AcademyContext);
     const { t, i18n } = useTranslation(["students", "common"])
     const [showRegister, setShowRegister] = useState(false);
@@ -92,7 +92,10 @@ const StudentManagement = ({submit}) => {
                             academyId={academy?.id}
                             submit = {t("add_student")}
                             heading = {t("add_student")}
-                            onSuccess={() => setShowRegister(false)}
+                            onSuccess={() => {
+                                getStudents();
+                                setShowRegister(false)
+                            }}
                         />
                     </div>
                 </div>

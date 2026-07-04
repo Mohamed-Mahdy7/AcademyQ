@@ -1,13 +1,14 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { UserCheck, ChevronDown } from "lucide-react";
-import { createStudentRequest } from "../../services/studentService";
+import { StudentContext } from "../../context/StudentsContext";
 import { useTranslation } from "react-i18next";
 import { toast } from "../../lib/toastBus";
 import api from "../../api";
 
 
 export default function StudentRegisterForm({ academyId = "", onSuccess, submit, heading }) {
+  const { createStudent } = useContext(StudentContext)
   const { t } = useTranslation(["students", "common"])
   const [full_name, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -62,7 +63,7 @@ export default function StudentRegisterForm({ academyId = "", onSuccess, submit,
 
     setSubmitting(true);
     try {
-      const response = await createStudentRequest({
+      const response = await createStudent({
         full_name, email, phone, parent_email,
         academy: academyId || academy,
         password, confirm_password,
