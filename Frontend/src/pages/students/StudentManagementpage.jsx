@@ -94,8 +94,8 @@ const StudentManagement = ({submit}) => {
                             academyId={academy?.id}
                             submit = {t("add_student")}
                             heading = {t("add_student")}
-                            onSuccess={() => {
-                                queryClient.invalidateQueries({ queryKey: ["students"] });
+                            onSuccess={async () => {
+                                await queryClient.invalidateQueries({ queryKey: ["students"] });
                                 setShowRegister(false)
                             }}
                         />
