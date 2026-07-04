@@ -52,7 +52,7 @@ export const StudentProvider = ({ children }) => {
     //     }
     // }
 
-    await function getStudent(id) {
+    async function getStudent(id) {
         try {
             const data = await queryClient.fetchQuery({
                 queryKey: ["student", id],
@@ -102,7 +102,7 @@ export const StudentProvider = ({ children }) => {
 
     async function createStudent(data) {
         try {
-            const response = await createMutation.mutateAsync({ data });
+            const response = await createMutation.mutateAsync( data );
             return { success: true, data: response.data };
         } catch (error) {
             return { success: false, error};
