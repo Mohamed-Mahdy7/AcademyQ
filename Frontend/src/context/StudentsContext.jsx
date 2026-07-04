@@ -12,12 +12,13 @@ export const StudentContext = createContext();
 
 export const StudentProvider = ({ children }) => {
     const queryClient = useQueryClient();
-    // const [students, setStudents] = useState([]);
-    // const [student, setStudent] = useState(null);
     const { data: students = [], isLoading: studentLoading } = useQuery({
         queryKey: ["students"],
-        queryFn: () => getStudentsRequest().then(r => r.data ),
-        staleTime: 0,
+        queryFn: async () =>{
+            console.log("Fetching students...");
+            const res = await getStudentsRequest();
+            return res.data;
+        } 
     })
 
     async function getStudent(id) {
@@ -36,6 +37,7 @@ export const StudentProvider = ({ children }) => {
     const createMutation = useMutation({
         mutationFn: createStudentRequest,
         onSuccess: () => {
+            console.log("Mutation success");
             queryClient.invalidateQueries({ queryKey: ["students"] });
         },
     });
