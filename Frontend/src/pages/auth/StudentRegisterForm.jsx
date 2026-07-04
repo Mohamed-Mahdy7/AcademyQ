@@ -63,22 +63,22 @@ export default function StudentRegisterForm({ academyId = "", onSuccess, submit,
 
     setSubmitting(true);
     try {
-      const response = await createStudent({
+      const result = await createStudent({
         full_name, email, phone, parent_email,
         academy: academyId || academy,
         password, confirm_password,
         educational_level: Number(educational_level),
       });
       setSubmitting(false);
-      toast.success(t("student_registered"), `${full_name} ${t("student_added")}`);
-      onSuccess?.();
+      if (result.success) {
+        toast.success(t("student_registered"), `${full_name} ${t("student_added")}`);
+        onSuccess?.();
+      } else if (result.error?.response?.data?.code === "validation_error") {
+        setFieldErrors(result.error.response.data.fields || {});
+      }
     } catch (error) {
       setSubmitting(false);
-      if (error.response?.data?.code === "validation_error") {
-          setFieldErrors(error.response.data.fields || {});
-      } else {
-          toast.error(t("registration_failed"), t("check_details_try_again"));
-      }
+      toast.danger(t("registration_failed"), t("check_details_try_again"));
     }
   }
 
