@@ -30,8 +30,6 @@ LOCALE_PATHS = [BASE_DIR / "locale",]
 USE_I18N = True
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -101,19 +99,27 @@ WSGI_APPLICATION = 'academy_q.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-_db_url = os.getenv("DATABASE_URL", "")
-if _db_url:
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+
+if DEBUG:
+    # Local development
     DATABASES = {
-        'default': {
-            **dj_database_url.parse(_db_url),
-            'CONN_MAX_AGE': 60,
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("DB_NAME"),
+            "USER": os.getenv("DB_USER"),
+            "PASSWORD": os.getenv("DB_PASSWORD"),
+            "HOST": os.getenv("DB_HOST", "localhost"),
+            "PORT": os.getenv("DB_PORT", "5432"),
+            "CONN_MAX_AGE": 60,
         }
     }
 else:
+    # Production
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': ':memory:',
+        "default": {
+            **dj_database_url.parse(os.environ["DATABASE_URL"]),
+            "CONN_MAX_AGE": 60,
         }
     }
 
