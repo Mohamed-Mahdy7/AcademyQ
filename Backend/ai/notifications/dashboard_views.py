@@ -2,6 +2,7 @@ from rest_framework import viewsets, serializers
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from core.exceptions import UpstreamError
+from core.permissions import IsOwner
 from drf_spectacular.utils import extend_schema, inline_serializer
 from financial_operations.models import Enrollment
 from records.helpers.attendance_signals import get_attendance_pct_28d
@@ -19,7 +20,7 @@ from records.helpers.attendance_signals import get_attendance_pct_28d
     ),
 )
 class AttendanceSummaryViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsOwner]
 
     def list(self, request):
         """

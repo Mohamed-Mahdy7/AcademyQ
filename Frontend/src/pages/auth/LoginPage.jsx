@@ -25,10 +25,7 @@ function Login() {
         if (result.success) {
             toast.success(t("welcome_back"));
             if (result.user?.role === "S") {
-                const allowPath = `/student/${user.id}`;
-                if (!location.pathname.startsWith(allowPath)) {
-                    return <Navigate to={allowPath} replace />
-                }
+                navigate(`/student/${result.user.id}`);
             } else {
                 navigate("/dashboard");
             }

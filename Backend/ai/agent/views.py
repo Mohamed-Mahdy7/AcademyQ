@@ -3,6 +3,7 @@ from drf_spectacular.utils import extend_schema, inline_serializer, extend_schem
 from rest_framework import serializers
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.utils import timezone
 from core.mixins import AcademyScopedMixin
@@ -29,7 +30,7 @@ MANUAL_SCAN_DAILY_LIMIT = 3
 )
 class AlertViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = AlertSerializer
-    permission_classes = [IsOwner, ActiveSubscriptionRequired]
+    permission_classes = [IsAuthenticated, ActiveSubscriptionRequired]
     http_method_names = ["get", "post", "patch", "head", "options"]
 
     def get_queryset(self):

@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
     createStudentRequest,
@@ -6,19 +6,24 @@ import {
     getStudentsRequest,
     getStudentRequest
 } from "../services/studentService";
+import { AuthContext } from "./AuthContext";
 import { Outlet } from "react-router-dom";
 
 export const StudentContext = createContext();
 
 export const StudentProvider = ({ children }) => {
     const queryClient = useQueryClient();
+    const { user } = useContext(AuthContext);
+    const isStudent = user?.role === "S";
+
     const { data: students = [], isLoading: studentLoading } = useQuery({
         queryKey: ["students"],
         queryFn: async () =>{
             const res = await getStudentsRequest();
             return res.data;
-        } 
-    })
+        },
+        enabled: !!user && !isStudent,
+    });
 
     async function getStudent(id) {
         try {

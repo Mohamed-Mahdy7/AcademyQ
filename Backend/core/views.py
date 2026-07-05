@@ -155,7 +155,7 @@ class LogoutView(APIView):
 
 @extend_schema(tags=["Academy"])
 class AcademyView(generics.RetrieveUpdateAPIView):
-    permission_classes = [IsAuthenticated, IsOwner]
+    permission_classes = [IsAuthenticated]
     serializer_class = AcademySerializer
     
     def get_object(self):

@@ -52,8 +52,8 @@ const MainRouter = () => {
                     </AlertProvider>
                 </AcademyProvider>
             }>
-                <Route path="/dashboard" element={<Dashboard />} />
                 <Route element={<ProtectedRoute></ProtectedRoute>}>
+                    <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/settings" element={<AcademyProfile />} />
                     <Route path="teacher" element={
                         <TeacherProvider>

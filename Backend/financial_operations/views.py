@@ -65,7 +65,7 @@ class TeachersViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
 )
 class EnrollmentViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = EnrollmentSerializer
-    permission_classes = [IsAuthenticated, IsOwner]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
@@ -142,7 +142,7 @@ class EnrollmentViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
 )
 class PaymentViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = PaymentSerializer
-    permission_classes = [IsAuthenticated, IsOwner]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
