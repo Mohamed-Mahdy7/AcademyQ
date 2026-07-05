@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from core.mixins import AcademyScopedMixin
-
+from core.permissions import IsOwner
 from .models import Notification
 from .serializers import NotificationSerializer
 from .email_utils import send_email
@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 )
 class NotificationViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = NotificationSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsOwner]
     http_method_names = ["get", "patch", "delete", "post"]
 
     def get_queryset(self):

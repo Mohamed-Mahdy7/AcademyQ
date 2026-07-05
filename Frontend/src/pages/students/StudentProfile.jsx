@@ -14,18 +14,22 @@ const tabs = ["Enrollments", "Grades", "Payments", "Attendance", "Reports"];
 
 
 const StudentProfile = () => {
-    const { student, getStudent } = useContext(StudentContext);
+    const { getStudent } = useContext(StudentContext);
     const { t, i18n } = useTranslation(["students", "common"])
+    const [student, setStudent] = useState(null);
     const [activeTab, setActiveTab] = useState("Enrollments");
     const [showProfile, setshowProfile] = useState(false);
     const [loadError, setLoadError] = useState(null)
     const { id } = useParams();
     const navigate = useNavigate();
+
     useEffect(() => {
         setLoadError(null);
         getStudent(id).then((result) => {
             if (result && result.success === false) {
                 setLoadError(result.error?.response?.data?.detail || t("could_not_load_student_message"))
+            } else {
+                setStudent(result.data);
             }
         });
     }, [id]);

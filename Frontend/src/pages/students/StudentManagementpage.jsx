@@ -16,13 +16,11 @@ const StudentManagement = ({submit}) => {
     const [showRegister, setShowRegister] = useState(false);
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-    console.log("QueryClient Management ID:", queryClient);
 
     const activeStudents = students?.filter(student => student.status === 'A').length || 0;
     const studentsCount = students.length;
     const overdueStudents = students?.filter(student => student.overdue_days !== null).length || 0;
 
-    console.log("students:", students);
     return (
         <>
             <div className="flex justify-between">

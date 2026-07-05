@@ -8,6 +8,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     const { t } = useTranslation("layout");
     const { user, logout } = useContext(AuthContext);
     const { academy } = useContext(AcademyContext);
+    const isStudent = user?.role === "S"
     const navigate = useNavigate();
 
     async function handleLogout() {
@@ -15,16 +16,18 @@ const Sidebar = ({ isOpen, onClose }) => {
         navigate("/login");
     }
 
-    const links = [
-        { to: "/dashboard", end: true, label: t("page_dashboard") },
-        { to: "/students", label: t("page_students") },
-        { to: "/classes", label: t("page_classes") },
-        { to: "/teacher", label: t("page_teachers") },
-        { to: "/subjects", label: t("page_subjects") },
-        { to: "/payments", label: t("page_payments") },
-        { to: "/users", label: t("page_staff") },
-        { to: "/settings", label: t("page_settings") },
-    ];
+    const links = isStudent
+        ? [{ to: `/student/${user.id}`, label: t("page_my_profile")}]
+        : [
+            { to: "/dashboard", end: true, label: t("page_dashboard") },
+            { to: "/students", label: t("page_students") },
+            { to: "/classes", label: t("page_classes") },
+            { to: "/teacher", label: t("page_teachers") },
+            { to: "/subjects", label: t("page_subjects") },
+            { to: "/payments", label: t("page_payments") },
+            { to: "/users", label: t("page_staff") },
+            { to: "/settings", label: t("page_settings") },
+        ];
 
     return (
         <>

@@ -11,13 +11,10 @@ import { Outlet } from "react-router-dom";
 export const StudentContext = createContext();
 
 export const StudentProvider = ({ children }) => {
-    console.log("StudentProvider rendered");
     const queryClient = useQueryClient();
-    console.log("QueryClient ID:", queryClient);
     const { data: students = [], isLoading: studentLoading } = useQuery({
         queryKey: ["students"],
         queryFn: async () =>{
-            console.log("Fetching students...");
             const res = await getStudentsRequest();
             return res.data;
         } 
@@ -39,7 +36,6 @@ export const StudentProvider = ({ children }) => {
     const createMutation = useMutation({
         mutationFn: createStudentRequest,
         onSuccess: () => {
-            console.log("Mutation success");
             queryClient.refetchQueries({
                 queryKey: ["students"], 
                 type: "active",

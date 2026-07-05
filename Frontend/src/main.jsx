@@ -20,7 +20,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-console.log("main.jsx");
 createRoot(document.getElementById('root')).render(
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>

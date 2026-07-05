@@ -27,6 +27,8 @@ from .serializers import (
     ClassScheduleSerializer,
     ClassSessionEnrollmentSerializer,
 )
+from rest_framework.permissions import IsAuthenticated
+from core.permissions import IsOwner
 
 @extend_schema_view(
     list=extend_schema(tags=["Subject"]),
@@ -38,6 +40,7 @@ from .serializers import (
     
 )
 class SubjectViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated, IsOwner]
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
             return Subject.objects.none()
@@ -68,6 +71,7 @@ class SubjectViewSet(viewsets.ModelViewSet):
     remove_teacher=extend_schema(tags=["Teacher"]),
 )
 class ClassViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated, IsOwner]
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
             return Class.objects.none()
@@ -180,6 +184,7 @@ class ClassViewSet(viewsets.ModelViewSet):
     destroy=extend_schema(tags=["Class Schedule"]),
 )
 class ClassScheduleViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated, IsOwner]
     serializer_class = ClassScheduleSerializer
 
     def get_queryset(self):
@@ -204,6 +209,7 @@ class ClassScheduleViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     retrieve=extend_schema(tags=["Structure"]),
 )
 class ClassSessionEnrollmentViewSet(AcademyScopedMixin, viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated, IsOwner]
     serializer_class = ClassSessionEnrollmentSerializer
 
     def get_queryset(self):
