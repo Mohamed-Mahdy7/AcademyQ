@@ -16,3 +16,4 @@ RUN pip install -r /app/requirements.txt
 
 # copy project code => docker
 COPY . .
+RUN SECRET_KEY=dummy-build-key DATABASE_URL=sqlite:///tmp/build.db python manage.py collectstatic --noinput

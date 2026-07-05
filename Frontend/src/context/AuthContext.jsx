@@ -6,10 +6,12 @@ import {
     meRequest,
     logoutRequest
 } from "../services/authService";
+import { useTranslation } from "react-i18next";
 
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
+    const { t } = useTranslation("auth")
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -17,8 +19,10 @@ export function AuthProvider({ children }) {
         try{
             const response = await meRequest();
             setUser(response.data);
+            return response.data;
         } catch (error) {
             setUser(null);
+            return null;
         } finally {
             setLoading(false);
         }
@@ -46,8 +50,12 @@ export function AuthProvider({ children }) {
     async function login(email, password) {
         try {
             await loginRequest({email, password});
-            await checkAuth();
-            return { success: true };
+            const userData = await checkAuth();
+            if (!userData) return { success: false, error: { message: t("auth_failed") } };
+            // if (!userData.setup_complete) {
+            //     return { success: false, error: { message: t("academy_setup_incomplete") } };
+            // }
+            return { success: true, user: userData };
         } catch (error) {
             return { success: false, error };
         }

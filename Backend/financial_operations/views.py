@@ -1,5 +1,6 @@
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
+from core.permissions import IsOwner
 from core.mixins import AcademyScopedMixin
 from .models import Teachers, Enrollment, Payment
 from .serializers import TeachersSerializer, EnrollmentSerializer, PaymentSerializer
@@ -26,7 +27,7 @@ from core.models import Students
 )
 class TeachersViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = TeachersSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsOwner]
 
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):

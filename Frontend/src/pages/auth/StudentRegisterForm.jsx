@@ -1,13 +1,14 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { UserCheck, ChevronDown } from "lucide-react";
-import { createStudentRequest } from "../../services/studentService";
+import { StudentContext } from "../../context/StudentsContext";
 import { useTranslation } from "react-i18next";
 import { toast } from "../../lib/toastBus";
 import api from "../../api";
 
 
 export default function StudentRegisterForm({ academyId = "", onSuccess, submit, heading }) {
+  const { createStudent } = useContext(StudentContext)
   const { t } = useTranslation(["students", "common"])
   const [full_name, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -62,22 +63,22 @@ export default function StudentRegisterForm({ academyId = "", onSuccess, submit,
 
     setSubmitting(true);
     try {
-      const response = await createStudentRequest({
+      const result = await createStudent({
         full_name, email, phone, parent_email,
         academy: academyId || academy,
         password, confirm_password,
         educational_level: Number(educational_level),
       });
       setSubmitting(false);
-      toast.success(t("student_registered"), `${full_name} ${t("student_added")}`);
-      onSuccess?.();
+      if (result.success) {
+        toast.success(t("student_registered"), `${full_name} ${t("student_added")}`);
+        onSuccess?.();
+      } else if (result.error?.response?.data?.code === "validation_error") {
+        setFieldErrors(result.error.response.data.fields || {});
+      }
     } catch (error) {
       setSubmitting(false);
-      if (error.response?.data?.code === "validation_error") {
-          setFieldErrors(error.response.data.fields || {});
-      } else {
-          toast.error(t("registration_failed"), t("check_details_try_again"));
-      }
+      toast.danger(t("registration_failed"), t("check_details_try_again"));
     }
   }
 

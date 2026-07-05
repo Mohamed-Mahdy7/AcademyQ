@@ -4,6 +4,7 @@ import { UsersContext } from "../../context/UsersContext"
 import { StudentContext } from "../../context/StudentsContext"
 import { AcademyContext } from "../../context/AcademyContext"
 import { useTranslation } from "react-i18next"
+import { useQueryClient } from "@tanstack/react-query"
 import KpiCard from "../../components/KpiCard"
 import StudentRegisterForm from "../auth/StudentRegisterForm"
 import CardHeading from "../../components/CardHeader"
@@ -14,11 +15,11 @@ const StudentManagement = ({submit}) => {
     const { t, i18n } = useTranslation(["students", "common"])
     const [showRegister, setShowRegister] = useState(false);
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
     const activeStudents = students?.filter(student => student.status === 'A').length || 0;
     const studentsCount = students.length;
     const overdueStudents = students?.filter(student => student.overdue_days !== null).length || 0;
-
 
     return (
         <>
@@ -92,7 +93,9 @@ const StudentManagement = ({submit}) => {
                             academyId={academy?.id}
                             submit = {t("add_student")}
                             heading = {t("add_student")}
-                            onSuccess={() => setShowRegister(false)}
+                            onSuccess={() => {
+                                setShowRegister(false)
+                            }}
                         />
                     </div>
                 </div>

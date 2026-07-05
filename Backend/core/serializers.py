@@ -301,6 +301,7 @@ class StudentProfileUpdateSerializer(serializers.ModelSerializer):
     enrolled_at = serializers.DateField(source="students.enrolled_at", required=False, allow_null=True)
     status = serializers.CharField(source="students.status", read_only=True)
     status_display = serializers.CharField(source="students.get_status_display", read_only=True)
+    role_display = serializers.CharField(source="get_role_display", read_only=True)
     enrollments = EnrollmentSimpleSerializer(source= "students.enrollments",many=True, read_only=True)
     attendance_percentage = serializers.SerializerMethodField()
     total_paid = serializers.SerializerMethodField()
@@ -309,7 +310,7 @@ class StudentProfileUpdateSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             "id", "student_id", "full_name", "email", "phone", "parent_email", "educational_level", 
-            "enrolled_at", "status", "status_display", "enrollments", 
+            "enrolled_at", "status", "status_display", "enrollments", "role", "role_display",
             "attendance_percentage", "total_paid", "created_at", "updated_at"
         ]
 

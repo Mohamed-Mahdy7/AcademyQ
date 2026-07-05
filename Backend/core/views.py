@@ -16,7 +16,7 @@ from .models import Academy, Students
 from .serializers import (AcademySerializer, CustomeTokenObtainPairSerializer,
     AcademyRegistrationSerializer, StaffCreateSerializer, StudentCreateSerializer, 
     StudentListSerializer, StudentProfileUpdateSerializer, UserSerializer)
-from .permissions import ActiveSubscriptionRequired, IsOwner
+from .permissions import ActiveSubscriptionRequired, IsOwnerOrAdminOrSelf, IsOwner
 
 User = get_user_model()
 
@@ -155,6 +155,7 @@ class LogoutView(APIView):
 
 @extend_schema(tags=["Academy"])
 class AcademyView(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = AcademySerializer
     
     def get_object(self):
@@ -223,7 +224,7 @@ class ComopleteSetupView(APIView):
     
 )
 class UserViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
-    permission_classes = [IsOwner]
+    permission_classes = [IsAuthenticated, IsOwner]
     
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
@@ -306,6 +307,7 @@ class StudentRegistrationView(generics.CreateAPIView):
 
 @extend_schema(tags=["Students"])
 class StudentProfileView(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated, IsOwnerOrAdminOrSelf]
     serializer_class = StudentProfileUpdateSerializer
 
     def get_object(self):
@@ -314,8 +316,9 @@ class StudentProfileView(generics.RetrieveUpdateAPIView):
             pk=self.kwargs["pk"],
             role=User.Roles.STUDENT,
         )
-
-        if user.academy != self.request.user.academy:
+        if self.request.user.role not in (User.Roles.OWNER, User.Roles.ADMIN):
+            if user.pk != self.request.user.pk:
+                raise PermissionDenied()
+        elif user.academy != self.request.user.academy:
             raise PermissionDenied()
-
         return user

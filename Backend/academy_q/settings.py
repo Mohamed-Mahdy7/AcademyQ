@@ -3,6 +3,9 @@ from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
 from django.utils.translation import gettext_lazy as _
+from celery.schedules import crontab
+import dj_database_url
+import json
 import os
 
 load_dotenv()
@@ -27,8 +30,6 @@ LOCALE_PATHS = [BASE_DIR / "locale",]
 USE_I18N = True
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -98,15 +99,29 @@ WSGI_APPLICATION = 'academy_q.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-import dj_database_url
-database_url = os.getenv("DATABASE_URL")
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
-
-DATABASES = {
-    'default': dj_database_url.parse(
-        os.getenv("DATABASE_URL")
-    )
-}
+if DEBUG:
+    # Local development
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("DB_NAME"),
+            "USER": os.getenv("DB_USER"),
+            "PASSWORD": os.getenv("DB_PASSWORD"),
+            "HOST": os.getenv("DB_HOST", "localhost"),
+            "PORT": os.getenv("DB_PORT", "5432"),
+            "CONN_MAX_AGE": 60,
+        }
+    }
+else:
+    # Production
+    DATABASES = {
+        "default": {
+            **dj_database_url.parse(os.environ["DATABASE_URL"]),
+            "CONN_MAX_AGE": 60,
+        }
+    }
 
 
 # Password validation
@@ -178,7 +193,6 @@ DJOSER = {
     },
 }
 
-import json
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 
@@ -258,14 +272,7 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 
-CELERY_BEAT_SCHEDULE = {
-    "test-every-30-sec": {
-        "task": "ai.tasks.send_email",
-        "schedule": 30.0,
-    }
-}
 
-from celery.schedules import crontab
 
 CELERY_BEAT_SCHEDULE = {
     "weekly-student-scan": {

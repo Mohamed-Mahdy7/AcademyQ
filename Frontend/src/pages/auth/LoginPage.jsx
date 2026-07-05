@@ -20,15 +20,20 @@ function Login() {
         setSubmitting(true);
 
         const result = await login(email, password);
-
         setSubmitting(false);
 
         if (result.success) {
             toast.success(t("welcome_back"));
-            navigate("/dashboard");
+            if (result.user?.role === "S") {
+                navigate(`/student/${result.user.id}`);
+            } else {
+                navigate("/dashboard");
+            }
         } else {
             setError(
-                result.error?.response?.data?.detail || t("incorrect_credentials")
+                result.error?.message ||
+                result.error?.response?.data?.detail ||
+                t("incorrect_credentials")
             );
         }
     };

@@ -4,9 +4,10 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from core.mixins import AcademyScopedMixin
-from core.permissions import IsOwner, ActiveSubscriptionRequired
+from core.permissions import IsOwner, ActiveSubscriptionRequired, IsOwnerOrAdminOrSelf
 from .models import Grade
 from .serializers import GradeSerializer
 
@@ -24,7 +25,7 @@ logger = logging.getLogger(__name__)
 )
 class GradeViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = GradeSerializer
-    permission_classes = [IsOwner, ActiveSubscriptionRequired]
+    permission_classes = [IsAuthenticated, ActiveSubscriptionRequired]
     http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
 
     def get_queryset(self):

@@ -3,7 +3,6 @@ import { AcademyProvider } from "../context/AcademyContext.jsx";
 import { TeacherProvider } from "../context/TeachersContext.jsx";
 import { GradeProvider } from "../context/gradecontext.jsx";
 import { UsersProvider } from "../context/UsersContext.jsx";
-import { StudentProvider } from "../context/StudentsContext.jsx";
 import { AlertProvider } from "../context/AlertContext.jsx";
 import { NotificationsProvider } from "../context/NotificationsContext.jsx";
 import { PaymentContext } from "../context/PaymentContext.jsx";
@@ -53,8 +52,8 @@ const MainRouter = () => {
                     </AlertProvider>
                 </AcademyProvider>
             }>
-                <Route path="/dashboard" element={<Dashboard />} />
                 <Route element={<ProtectedRoute></ProtectedRoute>}>
+                    <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/settings" element={<AcademyProfile />} />
                     <Route path="teacher" element={
                         <TeacherProvider>
@@ -90,33 +89,31 @@ const MainRouter = () => {
                             <UserManagement />
                         </UsersProvider>
                     } />
-                    <Route element={<StudentProvider></StudentProvider>}>
-                        <Route element={<GradeProvider></GradeProvider>}>
-                            <Route path="/classes/:id" element={
-                                <ClassDetailPage />
-                            } />
-                            <Route path="/student/:id" element={
-                                <StudentProfile />
-                            } />
-                            <Route path="/grade" element={
-                                <GradeForm />
-                            } />
-                            <Route path="/grade/history/:id" element={
-                                <GradeHistoryTab />
-                            } />
-                            <Route path="/grade/summary/:id" element={
-                                <GradeSummaryTab />
-                            } />
-                        </Route>
-                        <Route path="/students" element={
-                            <UsersProvider>
-                                <StudentManagement />
-                            </UsersProvider>
+                    <Route element={<GradeProvider></GradeProvider>}>
+                        <Route path="/classes/:id" element={
+                            <ClassDetailPage />
                         } />
-                        <Route path="/student/update/:id" element={
-                            <EditStudentProfile />
+                        <Route path="/student/:id" element={
+                            <StudentProfile />
+                        } />
+                        <Route path="/grade" element={
+                            <GradeForm />
+                        } />
+                        <Route path="/grade/history/:id" element={
+                            <GradeHistoryTab />
+                        } />
+                        <Route path="/grade/summary/:id" element={
+                            <GradeSummaryTab />
                         } />
                     </Route>
+                    <Route path="/students" element={
+                        <UsersProvider>
+                            <StudentManagement />
+                        </UsersProvider>
+                    } />
+                    <Route path="/student/update/:id" element={
+                        <EditStudentProfile />
+                    } />
                     <Route path="/user/update/:id" element={
                         <UsersProvider>
                             <EditUserProfile />

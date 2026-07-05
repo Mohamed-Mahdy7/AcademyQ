@@ -5,6 +5,7 @@ from rest_framework import viewsets, status, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema, inline_serializer, extend_schema_view
 from rest_framework.exceptions import ValidationError, NotFound
 from django.db import transaction
@@ -70,7 +71,7 @@ def get_annotated_sessions(academy_id, class_id=None):
 class ClassSessionViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
     serializer_class = ClassSessionSerializer
     http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
-    permission_classes = [IsOwner, ActiveSubscriptionRequired]
+    permission_classes = [IsAuthenticated, ActiveSubscriptionRequired]
     pagination_class = None
 
     def get_queryset(self):
@@ -216,7 +217,7 @@ class ClassSessionViewSet(AcademyScopedMixin, viewsets.ModelViewSet):
 class StudentAttendanceViewSet(viewsets.ModelViewSet):
     serializer_class = AttendanceSerializer
     http_method_names = ['get', 'head', 'options']
-    permission_classes = [IsOwner, ActiveSubscriptionRequired]
+    permission_classes = [IsAuthenticated, ActiveSubscriptionRequired]
 
     def get_queryset(self):
         return Attendance.objects.filter(
